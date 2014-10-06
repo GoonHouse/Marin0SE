@@ -241,53 +241,60 @@ function menu_draw()
 		end
 		
 		if selection == 0 then
-			love.graphics.draw(menuselection, 73*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
+			love.graphics.draw(menuselection, 73*scale, (122+(selection-1)*16)*scale, 0, scale, scale)
 		elseif selection == 1 then
-			love.graphics.draw(menuselection, 73*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
+			love.graphics.draw(menuselection, 73*scale, (122+(selection-1)*16)*scale, 0, scale, scale)
 		elseif selection == 2 then
-			love.graphics.draw(menuselection, 81*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
+			love.graphics.draw(menuselection, 81*scale, (122+(selection-1)*16)*scale, 0, scale, scale)
 		elseif selection == 3 then
-			love.graphics.draw(menuselection, 73*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
+			love.graphics.draw(menuselection, 81*scale, (122+(selection-1)*16)*scale, 0, scale, scale)
 		elseif selection == 4 then
-			love.graphics.draw(menuselection, 98*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
+			love.graphics.draw(menuselection, 73*scale, (122+(selection-1)*16)*scale, 0, scale, scale)
+		elseif selection == 5 then
+			love.graphics.draw(menuselection, 98*scale, (122+(selection-1)*16)*scale, 0, scale, scale)
 		end
 		
 		if custombackground then
 			if continueavailable then
-				properprintbackground("continue game", 87*scale, 122*scale, true)
+				properprintbackground("continue game", 87*scale, 106*scale, true)
 			end
 			
-			properprintbackground("player game", 103*scale, 138*scale, true)
+			properprintbackground(players, 87*scale, 122*scale, true)
 			
-			properprintbackground("level editor", 95*scale, 154*scale, true)
+			properprintbackground("player game", 103*scale, 122*scale, true)
+			
+			properprintbackground("level editor", 95*scale, 138*scale, true)
+			
+			properprintbackground("online menu", 95*scale, 154*scale, true)
 			
 			properprintbackground("select mappack", 83*scale, 170*scale, true)
 			
 			properprintbackground("options", 111*scale, 186*scale, true)
-		
-			properprintbackground(players, 87*scale, 138*scale, true)
+			
 		else
 			if continueavailable then
-				properprint("continue game", 87*scale, 122*scale)
+				properprint("continue game", 87*scale, 106*scale)
 			end
 			
-			properprint("player game", 103*scale, 138*scale)
+			properprint(players, 87*scale, 122*scale)
 			
-			properprint("level editor", 95*scale, 154*scale)
+			properprint("player game", 103*scale, 122*scale)
+			
+			properprint("level editor", 95*scale, 138*scale)
+			
+			properprint("online menu", 95*scale, 154*scale)
 			
 			properprint("select mappack", 83*scale, 170*scale)
 			
 			properprint("options", 111*scale, 186*scale)
-		
-			properprint(players, 87*scale, 138*scale)
 		end
 		
 		if players > 1 then
-			love.graphics.draw(playerselectimg, 82*scale, 138*scale, 0, scale, scale)
+			love.graphics.draw(playerselectimg, 82*scale, 122*scale, 0, scale, scale)
 		end
 		
 		if players < 4 then
-			love.graphics.draw(playerselectimg, 102*scale, 138*scale, 0, -scale, scale)
+			love.graphics.draw(playerselectimg, 102*scale, 122*scale, 0, -scale, scale)
 		end
 		
 		if selectworldopen then
@@ -1496,7 +1503,7 @@ function menu_keypressed(key)
 				end
 			end
 		elseif (key == "down" or key == "s") then
-			if selection < 4 then
+			if selection < 5 then
 				selection = selection + 1
 			end
 		elseif (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
@@ -1509,9 +1516,12 @@ function menu_keypressed(key)
 				players = 1
 				game_load()
 			elseif selection == 3 then
+				gamestate = "onlinemenu"
+				onlinemenu_load()
+			elseif selection == 4 then
 				gamestate = "mappackmenu"
 				mappacks()
-			elseif selection == 4 then
+			elseif selection == 5 then
 				gamestate = "options"
 			end
 		elseif key == "escape" then

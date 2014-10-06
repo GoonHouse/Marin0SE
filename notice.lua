@@ -40,12 +40,14 @@ function notice.draw()
 		
 		local height = #split*10+3
 		
-		actualy = notice.gety(y, v.life, height, v.duration)
+		local actualy = notice.gety(y, v.life, height, v.duration)
 		
 		local targetrect = {width*16 - longest*8-5, actualy, longest*8+5, height}
 		local scissor = {(width*16 - longest*8-5)*scale, y*scale, (longest*8+5)*scale, (actualy-y+height)*scale}
-		
-		love.graphics.setScissor(unpack(scissor))
+		--This freezes the menu for some reason
+		--Spent a goddamn hour debugging this
+		--FML
+		--love.graphics.setScissor(unpack(scissor))
 		
 		love.graphics.setColor(0, 0, 0, 200)
 		love.graphics.rectangle("fill", targetrect[1]*scale, targetrect[2]*scale, targetrect[3]*scale, targetrect[4]*scale)
@@ -56,7 +58,7 @@ function notice.draw()
 		love.graphics.setColor(v.color)
 		properprint(v.text, (targetrect[1]+2)*scale, (actualy+3)*scale)
 		y = actualy+height
-		love.graphics.setScissor()
+		--love.graphics.setScissor()
 	end
 	
 	love.graphics.setColor(255, 255, 255)

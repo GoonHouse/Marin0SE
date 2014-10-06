@@ -365,11 +365,11 @@ function love.load(arg)
 	add("Variables")
 	
 	--require ALL the files!
-	--require "netplay"
-	--require "client"
-	--require "server"
-	--require "lobby"
-	--require "onlinemenu"
+	require "netplay"
+	require "client"
+	require "server"
+	require "lobby"
+	require "onlinemenu"
 	
 	require "shaders"
 	require "variables"
@@ -2152,5 +2152,25 @@ function mouse.getY()
 		end
 	else
 		return love.mouse.getY()
+	end
+end
+
+function net_quit()
+	gamestate = "menu"
+	guielements = {}
+	if onlinemp then
+		if not clientisnetworkhost then
+			local unconnectedstring = tostring(udp)
+			local splitstring = unconnectedstring:split(":")
+			if splitstring[1] == "udp{connected}" then
+				udp:send("clientquit;" .. networkclientnumber)
+			end
+		else
+			server_shutserver()
+			print("shutting server")
+		end
+		if clientisnetworkhost then
+			magicdns_remove()
+		end
 	end
 end
