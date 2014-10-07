@@ -12,7 +12,8 @@ TSerial = Tserial	-- for backwards-compatibility
 -- @return string recreating given table
 function Tserial.pack(t, drop, indent)
 	assert(type(t) == "table", "Can only Tserial.pack tables.")
-	local s, empty, indent = "{"..(indent and "\n" or ""), true, indent and math.max(type(indent)=="number" and indent or 0,0)
+	local s, empty, indent = "{"..(indent and "\n" or ""), true, indent and math.max(type(i
+			ndent)=="number" and indent or 0,0)
 	local function proc(k,v, omitKey)	-- encode a key/value pair
 		empty = nil	-- helps ensure empty tables return as "{}"
 		local tk, tv, skip = type(k), type(v)

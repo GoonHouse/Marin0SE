@@ -195,23 +195,29 @@ function love.load(arg)
 	require "hook"
 	require "utils"
 	-- time for debug hooking
-	if arg and arg[#arg] == "--debug" then
-		debugmode = 1
+	if arg and (arg[#arg-1] == "-debug" or arg[#arg]=="-debug") then
+		local debugmode
+		if arg[#arg]~="-debug" then
+			debugmode = arg[#arg]
+		else
+			debugmode = "server"
+		end
 		skipintro = true
 		--io.stdout:setvbuf("no")
 		--require("mobdebug").start()
-		hook.Add("GameLoaded", "DebugImmediate", function()
-			onlinemenu_load()
-		end)
-		hook.Add("GameOnlineMenuLoaded", "DebugImmediate", function()
-			if debugmode==1 then
-				creategame()
-			else
-				guielements.ipentry.value = "127.0.0.1"
-				joingame()
-				--network_load("localhost", port)
-			end
-		end)
+		if debugmode=="client" or debugmode=="server" then
+			hook.Add("GameLoaded", "DebugImmediate", function()
+				onlinemenu_load()
+			end)
+			hook.Add("GameOnlineMenuLoaded", "DebugImmediate", function()
+				if debugmode=="server" then
+					creategame()
+				elseif debugmode=="client" then
+					guielements.ipentry.value = "127.0.0.1"
+					joingame()
+				end
+			end)
+		end
 	end
 	marioversion = 1107
 	versionstring = "version 1.0se"

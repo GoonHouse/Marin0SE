@@ -84,6 +84,7 @@ function portal:createportal(i, cox, coy, side, tendency)
 			if i == 1 then
 				playsound("portal1open")
 			else
+				
 				playsound("portal2open")
 			end
 			
