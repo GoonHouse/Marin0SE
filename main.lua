@@ -192,6 +192,27 @@ function add(desc)
 end
 
 function love.load(arg)
+	require "hook"
+	require "utils"
+	-- time for debug hooking
+	if arg and arg[#arg] == "--debug" then
+		debugmode = 1
+		skipintro = true
+		--io.stdout:setvbuf("no")
+		--require("mobdebug").start()
+		hook.Add("GameLoaded", "DebugImmediate", function()
+			onlinemenu_load()
+		end)
+		hook.Add("GameOnlineMenuLoaded", "DebugImmediate", function()
+			if debugmode==1 then
+				creategame()
+			else
+				guielements.ipentry.value = "127.0.0.1"
+				joingame()
+				--network_load("localhost", port)
+			end
+		end)
+	end
 	marioversion = 1107
 	versionstring = "version 1.0se"
 	
@@ -365,6 +386,9 @@ function love.load(arg)
 	add("Variables")
 	
 	--require ALL the files!
+	require "tserial"
+	require "von"
+	require "netplay2"
 	require "netplay"
 	require "client"
 	require "server"

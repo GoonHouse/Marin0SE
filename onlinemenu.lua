@@ -56,6 +56,7 @@ function onlinemenu_load()
 	magictimer = 0
 	magicdelay = 0.15
 	magics = {}
+	hook.Call("GameOnlineMenuLoaded")
 end
 
 function onlinemenu_update(dt)
@@ -183,7 +184,7 @@ function drawplayercard(x, y, colortable, hattable, nick, ping)
 		else
 			love.graphics.setColor(255, 255, 255)
 		end
-		--drawplayer(nil, x, y, scale, 0, 0)--[[, hats, graphic, quad, pointingangle, shot, upsidedown, colors, lastportal, portal1color, portal2color, runframe, swimframe, climbframe, jumpframe, biggraphic, fireanimationtimer, char)]]
+		--drawplayer(nil, x, y, scale, 0, 0) --, hats, graphic, quad, pointingangle, shot, upsidedown, colors, lastportal, portal1color, portal2color, runframe, swimframe, climbframe, jumpframe, biggraphic, fireanimationtimer, char)
 		--drawplayercard(marioanimations[i], mariorun[3][runanimationframe], (x-6)*scale, (y-1)*scale, 0, scale*2)
 	end
 	love.graphics.setColor(255, 255, 255)
@@ -199,11 +200,11 @@ function drawplayercard(x, y, colortable, hattable, nick, ping)
 	for i = 1, #hattable do
 		if addcolortohat then
 			love.graphics.setColor(unpack(colortable[1]))
-		end
-		local offsets = hatoffsets["running"]
-		love.graphics.draw(hat[hattable[i]]--[[.graphic, (x-6)*scale, (y-1)*scale, 0, scale*2, scale*2, - hat[hattable[i]]--[[.x + offsets[runanimationframe][1], - hat[hattable[i]]--[[.y + offsets[runanimationframe][2] + yadd)
-		yadd = yadd + hat[hattable[i]]--[[.height
-	end]]
+		end]]
+		--local offsets = hatoffsets["running"]
+		--love.graphics.draw(hat[hattable[i]].graphic, (x-6)*scale, (y-1)*scale, 0, scale*2, scale*2, - hat[hattable[i]].x + offsets[runanimationframe][1], - hat[hattable[i]].y + offsets[runanimationframe][2] + yadd)
+		--yadd = yadd + hat[hattable[i]].height
+	--end
 
 	love.graphics.setColor(255, 255, 255)
 	properprint(nick, x*scale+35*scale, y*scale+10*scale)

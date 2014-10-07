@@ -172,7 +172,11 @@ end
 
 function middleclass.class(name, super, ...)
   super = super or Object
-  return super:subclass(name, ...)
+  local theclass = super:subclass(name, ...)
+  theclass.__tostring = function(self) return self end
+  theclass.__concat = function(self,other) return tostring(self)..tostring(other) end
+  --getmetatable(theclass).__tostring = function(t) return von.serialize(t) end
+  return theclass
 end
 
 middleclass.Object = Object

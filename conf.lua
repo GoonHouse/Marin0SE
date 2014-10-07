@@ -1,7 +1,7 @@
 function love.conf(t)
-	t.title = "Mari0 SE"
+	t.title = "Marin0SE"
 	t.author = "Maurice"
-	t.identity = "mari0_se"
+	t.identity = "Marin0SE"
 	t.modules.physics = false
 	t.release = false
 	t.window = false

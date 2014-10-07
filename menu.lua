@@ -76,6 +76,7 @@ function menu_load()
 	classicmodeactive = false
 	singularmariogamemode = false
 	playersaresharingportals = false
+	hook.Call("GameLoaded")
 end
 
 function menu_update(dt)

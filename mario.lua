@@ -1021,7 +1021,7 @@ function mario:update(dt)
 	end
 	
 	if self.controlsenabled then
-		--check for pipe pipe pipe²
+		--check for pipe pipe pipe
 		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and downkey(self.playernumber) and self.falling == false and self.jumping == false then
 			local t2 = map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][2]
 			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
@@ -1204,20 +1204,20 @@ function mario:updateangle()
 		local x, y
 		
 		local s = controls[self.playernumber]["aimx"]
-		if s[1] == "joy" then
+		--[[if s[1] == "joy" then
 			x = -love.joystick.getAxis(s[2], s[4])
 			if s[5] == "neg" then
 				x = -x
 			end
-		end
+		end]]
 		
 		s = controls[self.playernumber]["aimy"]
-		if s[1] == "joy" then
+		--[[if s[1] == "joy" then
 			y = -love.joystick.getAxis(s[2], s[4])
 			if s[5] == "neg" then
 				y = -y
 			end
-		end
+		end]]
 		
 		if not x or not y then
 			return
