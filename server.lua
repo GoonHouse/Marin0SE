@@ -284,6 +284,7 @@ function server_pingback(datatable, clientnumber)
 end
 
 function server_start()
+	print("server_start")
 	if lobby_currentmappackallowed and #server_peerlist > 1 then
 		for i, v in pairs(server_peerlist) do
 			server_udp:sendto("startgame;" .. #server_peerlist, v.ip, v.port)

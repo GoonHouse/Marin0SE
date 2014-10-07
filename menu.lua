@@ -57,7 +57,7 @@ function menu_load()
 	loadbackgroundsafe("1-1.txt")
 	
 	skipupdate = true
-	
+	onlinemp = false
 	if (arcade or mkstation) and firstload then
 		firstload = false
 		if arcade then
@@ -67,6 +67,15 @@ function menu_load()
 		end
 		game_load()
 	end
+	if server_udp then
+		server_udp:close()
+	end
+	if udp then
+		udp:close()
+	end
+	classicmodeactive = false
+	singularmariogamemode = false
+	playersaresharingportals = false
 end
 
 function menu_update(dt)
@@ -1517,7 +1526,30 @@ function menu_keypressed(key)
 				game_load()
 			elseif selection == 3 then
 				gamestate = "onlinemenu"
+				--@DEV: Throwing this in here to cover bases.
+				players = 1
+				playertype = "portal"
+				playertypei = 1
+				bullettime = false
+				portalknockback = false
+				bigmario = false
+				goombaattack = false
+				sonicrainboom = false
+				playercollisions = false
+				infinitetime = false
+				infinitelives = false
 				onlinemenu_load()
+				mariolives = {}
+				for x = 1, 4 do
+					mariolives[x] = 3
+				end
+				playersaresharingportals = false
+				onlinemenu_load()
+				mariolives = {}
+				for x = 1, 4 do
+					mariolives[x] = 3
+				end
+				playersaresharingportals = false
 			elseif selection == 4 then
 				gamestate = "mappackmenu"
 				mappacks()

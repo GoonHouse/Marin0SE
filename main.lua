@@ -902,6 +902,18 @@ function love.load(arg)
 	else
 		intro_load()
 	end
+	
+	--@DEV: Copied this over, too. Probably making a mess.
+	magicdns_session_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	magicdns_session = ""
+	for i = 1, 8 do
+		rand = math.random(string.len(magicdns_session_chars))
+		magicdns_session = magicdns_session .. string.sub(magicdns_session_chars, rand, rand)
+	end
+	--use love.filesystem.getIdentity() when it works
+	magicdns_identity = love.filesystem.getSaveDirectory():split("/")
+	magicdns_identity = string.upper(magicdns_identity[#magicdns_identity])
+	
 	add("Intro Load")
 	print("=======================\nDONE!")
 	print("TOTAL: " .. totaltime .. "ms")
@@ -975,6 +987,12 @@ function love.update(dt)
 			game_update(dt)	
 		elseif gamestate == "intro" then
 			intro_update(dt)	
+		end
+		if onlinemp then
+			if clientisnetworkhost then
+				server_update(dt)
+			end
+			network_update(dt)
 		end
 		
 		for i, v in pairs(guielements) do
@@ -1856,10 +1874,10 @@ function print_r (t, indent) --Not by me
 end
 
 function love.focus(f)
-	--[[if not f and gamestate == "game"and not editormode and not levelfinished and not everyonedead  then
+	if not f and gamestate == "game"and not editormode and not levelfinished and not everyonedead  then
 		pausemenuopen = true
 		love.audio.pause()
-	end--]]
+	end
 end
 
 function openSaveFolder(subfolder) --By Slime
@@ -1872,9 +1890,9 @@ function openSaveFolder(subfolder) --By Slime
 	if os.getenv("WINDIR") then -- lolwindows
 		--cmdstr = "Explorer /root,%s"
 		if path:match("LOVE") then --hardcoded to fix ISO characters in usernames and made sure release mode doesn't mess anything up -saso
-			cmdstr = "Explorer %%appdata%%\\LOVE\\mari0_se"
+			cmdstr = "Explorer %%appdata%%\\LOVE\\Marin0SE"
 		else
-			cmdstr = "Explorer %%appdata%%\\mari0_se"
+			cmdstr = "Explorer %%appdata%%\\Marin0SE"
 		end
 		path = path:gsub("/", "\\")
 		successval = 1
@@ -1949,7 +1967,7 @@ function properprintbackground(s, x, y, include, color, sc)
 				x = startx-((i)*8)*scale
 				y = y + 10*scale
 			elseif fontquadsback[char] then
-				love.graphics.drawq(fontimageback, fontquadsback[char], x+((i-1)*8)*scale, y-1*scale, 0, scale, scale)
+				love.graphics.draw(fontimageback, fontquadsback[char], x+((i-1)*8)*scale, y-1*scale, 0, scale, scale)
 			end
 		end
 	end

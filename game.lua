@@ -1,3 +1,19 @@
+networkupdatelimit = .03
+networkupdatetimer = 0
+enemyupdatetimer = 0
+angletimer = 0
+
+networkclientnumber = 0
+networksendqueue = {}
+
+chatlog = {}
+
+chatmessageinprogressstring = "> "
+chatmessagegradient = 0
+
+local chatmessageoriginaldeletetimer = 0
+local chatmessagedeletecharactertimer = 0
+
 function game_load(suspended)
 	checkpointx = {}
 	checkpointy = {}
