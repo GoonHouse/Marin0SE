@@ -5143,7 +5143,7 @@ function upkey(i)
 end
 
 function checkkey(s)
-	if s[1] == "joy" then
+	--[[if s[1] == "joy" then
 		if s[3] == "hat" then
 			if string.match(love.joystick.getHat(s[2], s[4]), s[5]) then
 				return true
@@ -5171,7 +5171,7 @@ function checkkey(s)
 				end
 			end
 		end
-	elseif s[1] then
+	else]]if s[1] then
 		if love.keyboard.isDown(s[1]) then
 			return true
 		else 
