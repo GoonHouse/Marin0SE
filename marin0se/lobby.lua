@@ -28,6 +28,7 @@ function lobby_load(hostnick)
 	guielements.livescheckbox = guielement:new("checkbox", 10, 10, toggleinflives, infinitelives)
 
 	lobby_mappackselectionnumber = 1
+	mappacklist = love.filesystem.getDirectoryItems("mappacks")
 
 	for x = 1, #mappacklist do
 		if mappacklist[x] == mappack then

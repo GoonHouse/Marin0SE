@@ -192,32 +192,44 @@ function add(desc)
 end
 
 function love.load(arg)
+	debugmode = "none"
+	args = args or {}
+	for k,v in pairs(arg) do
+		if v=="-zbs" then
+			-- debug features exclusive to zerobrane
+			io.stdout:setvbuf("no")
+			require("mobdebug").start()
+		elseif v=="-debug" then
+			skipintro = true
+			--DEBUG = false
+			--editordebug = DEBUG
+			--skiplevelscreen = DEBUG
+			--debugbinds = DEBUG
+			--debugclasses = false
+			debugmode = arg[k+1] or "none"
+		end
+	end
+	expectedconnections = 3
 	require "hook"
 	require "utils"
-	-- time for debug hooking
-	if arg and (arg[#arg-1] == "-debug" or arg[#arg]=="-debug") then
-		local debugmode
-		if arg[#arg]~="-debug" then
-			debugmode = arg[#arg]
-		else
-			debugmode = "server"
-		end
-		skipintro = true
-		--io.stdout:setvbuf("no")
-		--require("mobdebug").start()
-		if debugmode=="client" or debugmode=="server" then
-			hook.Add("GameLoaded", "DebugImmediate", function()
-				onlinemenu_load()
-			end)
-			hook.Add("GameOnlineMenuLoaded", "DebugImmediate", function()
-				if debugmode=="server" then
-					creategame()
-				elseif debugmode=="client" then
-					guielements.ipentry.value = "127.0.0.1"
-					joingame()
-				end
-			end)
-		end
+	if debugmode=="client" or debugmode=="server" then
+		hook.Add("GameLoaded", "DebugImmediate", function()
+			onlinemenu_load()
+		end)
+		hook.Add("GameOnlineMenuLoaded", "DebugImmediate", function()
+			if debugmode=="server" then
+				creategame()
+				hook.Add("ServerClientConnected", "DebugImmediate", function()
+					expectedconnections = expectedconnections - 1
+					if expectedconnections==0 then
+						server_start()
+					end
+				end)
+			elseif debugmode=="client" then
+				guielements.ipentry.value = "127.0.0.1"
+				joingame()
+			end
+		end)
 	end
 	marioversion = 1107
 	versionstring = "version 1.0se"
@@ -302,12 +314,6 @@ function love.load(arg)
 	userectdebug = false
 	speeddebug = false
 	
-	DEBUG = false
-	
-	editordebug = DEBUG
-	skipintro = DEBUG
-	skiplevelscreen = DEBUG
-	debugbinds = DEBUG
 	frameskip = false -- false/0     true is not valid, so stop accidentally writing that.
 	
 	replaysystem = false
@@ -392,11 +398,10 @@ function love.load(arg)
 	add("Variables")
 	
 	--require ALL the files!
-	require "tserial"
 	require "von"
 	require "netplay2"
 	require "netplay"
-	require "client"
+	--require "client"
 	require "server"
 	require "lobby"
 	require "onlinemenu"
@@ -1033,7 +1038,7 @@ function love.update(dt)
 		
 		notice.update(dt)
 		
-		love.window.setTitle("FPS:" .. love.timer.getFPS() .. " - Send feedback/issues to crash@stabyourself.net")
+		love.window.setTitle("NCN:"..networkclientnumber.."; FPS:" .. love.timer.getFPS())
 	end
 end
 
@@ -1903,12 +1908,12 @@ function print_r (t, indent) --Not by me
 	end
 end
 
-function love.focus(f)
+--[[function love.focus(f)
 	if not f and gamestate == "game"and not editormode and not levelfinished and not everyonedead  then
 		pausemenuopen = true
 		love.audio.pause()
 	end
-end
+end]]
 
 function openSaveFolder(subfolder) --By Slime
 	local path = love.filesystem.getSaveDirectory()
