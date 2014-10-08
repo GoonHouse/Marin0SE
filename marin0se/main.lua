@@ -192,6 +192,7 @@ function add(desc)
 end
 
 function love.load(arg)
+	game = {}
 	debugmode = "none"
 	args = args or {}
 	for k,v in pairs(arg) do
@@ -209,7 +210,7 @@ function love.load(arg)
 			debugmode = arg[k+1] or "none"
 		end
 	end
-	expectedconnections = 3
+	expectedconnections = 2
 	require "hook"
 	require "utils"
 	if debugmode=="client" or debugmode=="server" then
@@ -398,8 +399,9 @@ function love.load(arg)
 	add("Variables")
 	
 	--require ALL the files!
+	require("libs.lube")
 	require "von"
-	require "netplay2"
+	--require "netplay2"
 	require "netplay"
 	--require "client"
 	require "server"

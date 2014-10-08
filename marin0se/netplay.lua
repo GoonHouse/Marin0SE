@@ -2,54 +2,31 @@ local alternatesynctimer = -5
 networkynccedconfig = false
 seesawisync = {}
 
-function client_send(chan, data)
-	if chan~="synccoords" and chan~="otherpointingangle" then
-		print("CLIENT-S: "..chan.." -- sending")
-	end
-	udp:send(von.serialize({chan=chan,data=data,client=networkclientnumber}))
+function client_send(cmd, pl)
+	--if chan~="synccoords" and cmd~="otherpointingangle" then
+	print("[LUBE|client] Issuing server command '"..cmd.."'!")
+	--end
+	client:send(von.serialize({cmd=cmd,pl=pl,fromclient=networkclientnumber}))
 end
-
-function client_sendto(chan, data, ip, port)
-	udp:sendto(von.serialize({chan=chan,data=data,client=networkclientnumber}), ip, port)
-end
-
-function client_receive()
-	local raw, msg = udp:receive()
-	if raw==nil then return nil, nil end
-	raw = von.deserialize(raw)
-	--@TODO: use the ip and port to bind to a particular address
-	return raw.chan, raw.data
-end
-
-function client_receivefrom()
-	local raw, ip, port = udp:receivefrom()
-	--@TODO: In the odd circumstance we are sent no data from somebody?
-	if raw==nil then return nil, nil, ip, port end
-	raw = von.deserialize(raw)
-	--@TODO: use the ip and port to bind to a particular address
-	return raw.chan, raw.data, ip, port
-end
-
 
 function network_load(ip, port)
-	local port = port
-	if not port then
-		port = 27020
-	end
+	ip = ip or "localhost"
+	port = port or 27020
 	marioworld = 1
 	mariolevel = 1
-	udp = socket.udp()
-	udp:settimeout(0)
-	print(ip, tonumber(ip))
-	udp:setpeername(ip, port)
-	print(ip, port, tostring(udp))
-	local thing = tostring(udp)
-	print(thing)
-	local split = thing:split(":")
-	print(split[1])
-	if split[1] == "udp{connected}" then
-		client_send("connect", {nick=guielements.nickentry.value})
+	
+	print("[LUBE|client] connecting...")
+	client = lube.udpClient()
+	client.callbacks.recv = client_recv
+	local suc, err = client:connect(ip, tonumber(port))
+	if suc then
+		game.isClient = true
+		--[[ Upon connection, probe the server to get a unique ID. ]]
+		print("[LUBE|client] probing server")
+		client_send("connect", {nick=guielements.nickentry.value,mappacks=mappacklist})
 	else
+		print("[LUBE|client] connection failed")
+		print("[LUBE|client] failure code: "..tostring(err))
 		notice.new("server not found ", notice.red, 5)
 	end
 	
@@ -57,24 +34,40 @@ function network_load(ip, port)
 	networktimeouttimer = 0
 	networkwarningssent = 0
 
-	local sendthing = "return { nick=\""
-	sendthing = sendthing .. guielements.nickentry.value .. "\"}"
-
-	love.filesystem.write("savenick.txt", sendthing)
+	love.filesystem.write("savenick.txt", "return { nick=\"" .. guielements.nickentry.value .. "\"}")
 
 	network_removeplayertimeouttables = {}
 	for x = 1, math.max(players, 4) do
 		network_removeplayertimeouttables[x] = 0
 	end
 end
+function client_recv(rdata)
+	local data = von.deserialize(rdata)
+	print("[LUBE|client] Running server->client command '"..data.cmd.."'!")
+	print("DEBUG: "..von.serialize(data))
+	assert(_G["client_callback_"..data.cmd]~=nil, "Received invalid server->client command '"..data.cmd.."'!")
+	_G["client_callback_" .. data.cmd](data.pl)
+end
 function network_update(dt)
-	local chan, data = client_receive()
-	while chan and data do
-		if chan~="synccoords" and chan~="otherpointingangle" then
-			print("CLIENT-U: "..chan.." -- doing") 
+	client:update(dt)
+	if objects then
+		networkupdatetimer = networkupdatetimer + dt
+		if networkupdatetimer > networkupdatelimit then 
+			networkupdatetimer = networkupdatetimer - networkupdatelimit
+			client_send("move", {
+				--[[@WARNING: 
+					We don't want to trust the player to be who they say they are, so
+					give the server a function to map a clientid to a playerid.
+				]]
+				playerid=networkclientnumber,
+				x=objects["player"][1].x,
+				y=objects["player"][1].y,
+				speedx=objects["player"][1].speedx,
+				speedy=objects["player"][1].speedy,
+				pointingangle=objects["player"][1].pointingangle,
+				dt=love.timer.getDelta()
+			})
 		end
-		_G["client_callback_" .. chan](data)
-		chan, data = client_receive()
 	end
 end
 function network_update2(dt)
@@ -136,27 +129,7 @@ function network_update2(dt)
 		return
 	end
 	
-	networkupdatetimer = networkupdatetimer + dt
-	if networkupdatetimer > networkupdatelimit then 
-		networkupdatetimer = networkupdatetimer - networkupdatelimit
-		client_send("move", {
-			x=objects["player"][1].x,
-			y=objects["player"][1].y,
-			speedx=objects["player"][1].speedx,
-			speedy=objects["player"][1].speedy,
-			dt=love.timer.getDelta()
-		})
-	end
-
-	angletimer = angletimer + dt
-	if angletimer > .1 and not clientisnetworkhost then
-		angletimer = 0
-		client_send("pointingangle", {angle=objects["player"][1].pointingangle})
-	elseif angletimer > .5 and clientisnetworkhost then
-		if alternatesynctimer < 0 then
-			alternatesynctimer = 0
-		end
-	end
+	
 
 	enemyupdatetimer = enemyupdatetimer + dt
 	if enemyupdatetimer > 1 and clientisnetworkhost then
@@ -274,34 +247,23 @@ function convertclienttoplayer(clientnumber)
 	end
 end
 -- GREAT BIG LIST OF CALLBACKS
-function client_callback_connected(data)
+function client_callback_connected(pl)
 	networksynccedconfig = false
 	local nick = guielements.nickentry.value
 	lobby_load(nick)
-	networkclientnumber = data.clientid
+	networkclientnumber = pl.playerid
 	print("connected, my client number is " .. networkclientnumber)
 end
-function client_callback_startgame(data)
+function client_callback_startgame(pl)
 	connectionstate = "starting game..."
-	players = data.numplayers
+	players = pl.numplayers
 	game_load()
 end
-function client_callback_synccoords(data)
-	if objects then
-		print("hmm "..data.id.." ("..data.x..","..data.y..")")
-		objects["player"][convertclienttoplayer(data.id)].x = data.x
-		objects["player"][convertclienttoplayer(data.id)].y = data.y
-		objects["player"][convertclienttoplayer(data.id)].speedx = data.speedx
-		objects["player"][convertclienttoplayer(data.id)].speedy = data.speedy
-		objects["player"][convertclienttoplayer(data.id)].currentdt = data.dt
-	else
-		print("WARNING: synccoords called too early")
-	end
-end
-function client_callback_otherpointingangle(data)
-	if objects then
-		objects["player"][convertclienttoplayer(data.id)].pointingangle = data.pointingangle
-	else
-		print("WARNING: otherpointingangle called too early")
+function client_callback_synccoords(pl)
+	local pid = pl.playerid
+	if pl.playerid == networkclientnumber then return false end
+	--@DEV: If everything goes wrong, it's because of the above line.
+	for k,v in pairs(pl) do
+		objects["player"][convertclienttoplayer(pid)][k] = v
 	end
 end

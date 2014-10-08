@@ -1,13 +1,27 @@
+--[[ NORMALIZATION:
+	clientid == the id of the client according to lube
+	playerid == the id of a player in the server_peerlist
+]]
+
+
 function server_load()
 	local socket = require "socket"
 	-- begin
-	server_udp = socket.udp()
-	server_udp:settimeout(0)
-	server_peerlist = {}
-	server_udp:setsockname('*', 27020)
+	local port = 27020
+	server = lube.udpServer()
+	server:setPing(true, 0.1, "pingu")
+	server.callbacks.recv = server_recv
+	server.callbacks.connect = server_connect
+	server.callbacks.disconnect = server_disconnect
+	print("[LUBE|server] starting...")
+	server:listen(tonumber(port))
+	game.isServer = true
+	print("[LUBE|server] listening on port " .. port)
+
 	server_startedgame = false
 	server_coordsupdatetimer = 0
 	server_angletimer = 0
+	server_peerlist = {}
 
 	server_startgametimer = 0
 	clientisnetworkhost = true
@@ -20,79 +34,73 @@ function server_load()
 	server_globalmappacklist = mappackname
 
 	lobby_maxplayers = 10
-	net.assign("server")
 end
 local resyncconfig = false
 local resynctimer = -5
 local server_pingtimer = 0
 local timeouttables = {}
 
-function server_send(chan, data)
-	if chan~="synccoords" and chan~="otherpointingangle" then
-		print("SERVER-S: "..chan.." -- sending")
-	end
-	server_udp:send(von.serialize({chan=chan,data=data,client=networkclientnumber}))
-end
-
-function server_sendto(chan, data, ip, port)
-	if chan~="synccoords" and chan~="otherpointingangle" then
-		print("SERVER-S: "..chan.." -- sending to "..ip..":"..port)
-	end
-	server_udp:sendto(von.serialize({chan=chan,data=data,client=networkclientnumber}), ip, port)
-end
-
-function server_receive()
-	local raw, msg = server_udp:receive()
-	if raw==nil then return nil, nil end
-	raw = von.deserialize(raw)
-	--@TODO: use the ip and port to bind to a particular address
-	return raw.chan, raw.data
-end
-
-function server_receivefrom()
-	local raw
-	raw, ip, port = server_udp:receivefrom()
-	--@TODO: In the odd circumstance we are sent no data from somebody?
-	if raw==nil then return false end
-	raw = von.deserialize(raw)
-	raw.data.rip = ip
-	raw.data.rport = port
-	--@TODO: use the ip and port to bind to a particular address
-	return raw.chan, raw.data
-end
-
-function server_sendtootherpeers(chan, data, clientnumber)--10/10 most useful function
-	if clientnumber ~= 1 then
-		if _G["client_callback_" .. chan] then
-			_G["client_callback_" .. chan](data)
+function server_send(cmd, pl, players)
+	if type(players)=="number" then
+		players={players}
+	elseif players==nil then
+		players={}
+		for i=1,#server_peerlist do
+			table.insert(players, i)
 		end
 	end
-	for x = 2, #server_peerlist do 
-		if x ~= clientnumber then
-			server_sendto(chan, data, server_peerlist[x].ip, server_peerlist[x].port)
+	print("DEBUG: "..cmd.." & "..von.serialize(pl).." & "..von.serialize(players))
+	for k,v in pairs(players) do
+		if v~=networkclientnumber then
+			--if chan~="synccoords" and chan~="otherpointingangle" then
+			print("DEBUG: k "..tostring(k))
+			print("DEBUG: v "..tostring(v))
+			print("DEBUG: cmd "..cmd)
+			print("DEBUG: server_peerlist "..von.serialize(server_peerlist))
+			if server_peerlist[v]==nil then print("I AM A GIANT HOMO~") end
+			print("DEBUG: server_peerlist[v] "..von.serialize(server_peerlist[v]))
+			print("DEBUG: server_peerlist[v].nick "..server_peerlist[v].nick)
+			print("DEBUG: server_peerlist[v].clientid "..server_peerlist[v].clientid)
+			print("[LUBE|server] Sending command '"..cmd.."' to "..server_peerlist[v].nick.."("..server_peerlist[v].clientid..")")
+			--end
+			server:send(von.serialize({
+				cmd=cmd,
+				pl=pl,
+				fromclient=networkclientnumber --@DEV: This isn't necessary but it isn't going to kill anybody.
+			}), server_peerlist[v].clientid)
+		else
+			print("[LUBE|server] Running broadcasted command '"..cmd.."' on self.")
+			if _G["client_callback_" .. cmd] then
+				_G["client_callback_" .. cmd](pl)
+			end
 		end
 	end
+end
+
+function server_connect(clientid)
+  print("[LUBE|server] Client " .. clientid .. " connected!")
+end
+
+function server_disconnect(clientid)
+  print("[LUBE|server] Client " .. clientid .. " disconnected!")
+end
+
+function server_recv(rdata, clientid)
+	local data = von.deserialize(rdata)
+	data.pl.clientid = clientid
+	print("[LUBE|server] Running client->server command '"..data.cmd.."' from client("..tostring(clientid).."|"..tostring(data.fromclient)..")!")
+	print("DEBUG: "..von.serialize(data.pl))
+	assert(_G["server_callback_"..data.cmd]~=nil, "Received invalid client->server command '"..data.cmd.."'!")
+	_G["server_callback_" .. data.cmd](data.pl)
 end
 
 function server_update(dt)
-	local chan, data = server_receivefrom()
-	while chan and data do
-		if chan~="synccoords" and chan~="otherpointingangle" then
-			print("SERVER-U: "..chan.." -- doing") 
-		end
-		_G["server_callback_" .. chan](data)
-		chan, data = server_receivefrom()
-	end
-	
-	if not server_startedgame then
+	server:update(dt)
+	--[[if not server_startedgame then
 		server_pingtimer = server_pingtimer + dt
 		if server_pingtimer > 2 then
-			for i, v in pairs(server_peerlist) do
-				for j, k in pairs(server_peerlist) do
-					if v.mostrecentping and k.ip and k.port then
-						server_sendto("pingupdate", {id=i,ping=v.mostrecentping}, k.ip, k.port)
-					end
-				end
+			for k, v in pairs(server_peerlist) do
+				server_send("pingupdate", {id=k,ping=v.mostrecentping})
 			end
 
 			server_pingtimer = server_pingtimer - 2
@@ -102,53 +110,44 @@ function server_update(dt)
 				server_peerlist[x].personalpingtimer = 0
 			end
 		end
-	end
+	end]]
 
-	for x = 2, #server_peerlist do
+	--[[for x = 2, #server_peerlist do
 		if server_peerlist[x].countingping then
 			server_peerlist[x].personalpingtimer = server_peerlist[x].personalpingtimer + dt
 		end
-	end
+	end]]
 
-	if server_resyncmaxplayers then
+	--[[if server_resyncmaxplayers then
 		server_resyncmaxplayers = false
 		for x = 2, #server_peerlist do
 			server_sendto("changemax", {lobby_maxplayers}, server_peerlist[x].ip, server_peerlist[x].port)
 		end
-	end
+	end]]
 	
 	server_coordsupdatetimer = server_coordsupdatetimer + dt
-
-	server_angletimer = server_angletimer + dt
-
 	if server_coordsupdatetimer > .03 and server_startedgame and objects then
 		server_coordsupdatetimer = server_coordsupdatetimer - .03
-		for i, v in pairs(server_peerlist) do
-			for j, k in pairs(server_peerlist) do
-				if j == 1 and i ~= j then
-					server_sendto("synccoords", {
-						id=j,
-						x=objects["player"][1].x,
-						y=objects["player"][1].y,
-						speedx=objects["player"][1].speedx,
-						speedy=objects["player"][1].speedy,
-						dt=dt
-					}, v.ip, v.port)
-				elseif i ~= j and j ~= 1 and k.x and k.y and k.speedx and k.speedy and k.currentdt then
-					server_sendto("synccoords", {
-						id=j,
-						x=k.x,
-						y=k.y,
-						speedx=k.speedx,
-						speedy=k.speedy,
-						dt=k.currentdt
-					}, v.ip, v.port)
-				end
+		for k, v in pairs(server_peerlist) do
+			local tosend={}
+			for i=1,#server_peerlist do
+				table.insert(tosend, i)
 			end
+			tosend[networkclientnumber]=nil
+			server_send("synccoords", {
+				playerid=k,
+				x=objects["player"][k].x,
+				y=objects["player"][k].y,
+				speedx=objects["player"][k].speedx,
+				speedy=objects["player"][k].speedy,
+				pointingangle=objects["player"][k].pointingangle, 
+				--@DEV: ^ This is here until I write an easier way to manage timers.
+				dt=dt,
+			}, tosend)
 		end
 	end
 
-	if server_angletimer > .1 and server_startedgame and objects then
+	--[[if server_angletimer > .1 and server_startedgame and objects then
 		server_angletimer = server_angletimer - .1
 		for i, v in pairs(server_peerlist) do
 			for j, k in pairs(server_peerlist) do
@@ -159,7 +158,7 @@ function server_update(dt)
 				end
 			end
 		end
-	end
+	end]]
 	
 	if server_startedgame then
 		for x = 1, #timeouttables do
@@ -169,6 +168,7 @@ function server_update(dt)
 		end
 	end
 end
+
 function server_update2(dt)
 	if true then
 		if chan == "changemappack" then
@@ -252,10 +252,8 @@ function server_start()
 		end
 	end
 	
-	if lobby_currentmappackallowed and #server_peerlist > 1 then
-		for i, v in pairs(server_peerlist) do
-			server_sendto("startgame", {numplayers=#server_peerlist}, v.ip, v.port)
-		end
+	if lobby_currentmappackallowed --[[and #server_peerlist > 1]] then --debug
+		server_send("startgame", {numplayers=#server_peerlist})
 		server_startedgame = true
 
 		for x = 1, #server_peerlist do
@@ -276,14 +274,15 @@ function server_shutserver()
 end
 
 -- GREAT BIG LIST OF CALLBACKS
-function server_callback_connect(data)
+function server_callback_connect(pl)
 	if #server_peerlist < lobby_maxplayers then
 		--Send swarm of information to a client that connects
-		print("inserting "..ip)
 		--@TODO: We need to *not* have this prebuilt entities table.
-		table.insert(server_peerlist, {ip=ip, port=port, nick=data.nick, mushrooms={}, chatmessages={}, cheepvertable={}, boxes={}, coins={}, plants={}, spikethrows={}, bullets={}, enemiestospawn={}, goombas={}, seesaws={}, koopastomps = {}, koopasyncs={}, spawnedfires = {}, castlefires = {}, platforms = {}, squidstates = {}, squids={}, fishspawns={}, upfiresyncs={}, hammers={}, brojumps={}, shottedobjects={}})
+		table.insert(server_peerlist, {clientid=pl.clientid, nick=pl.nick, mappacks=pl.mappacks})
+		local respondto = #server_peerlist
 		local connecttable = {
-			clientid = #server_peerlist,
+			playerid = respondto,
+			mappacks = mappacklist,
 			inflives = server_inflivesvalue,
 			sharingportals = server_sharingportalsvalue,
 			infinitetime = server_infinitetime,
@@ -295,12 +294,13 @@ function server_callback_connect(data)
 				connecttable.checkboxes[k]=v
 			end
 		end
-		resyncconfig = true
-		server_sendto("connected", connecttable, data.rip, data.rport)
-		hook.Call("ServerClientConnected", #server_peerlist, data.rip, data.rport)
+		--@DEV: don't let this get in the way for now
+		--resyncconfig = true
+		server_send("connected", connecttable, respondto)
+		hook.Call("ServerClientConnected", respondto, pl.clientid)
 		return
 	else
-		server_sendto("rejected", {reason="full"}, data.rip, data.rport)
+		server_udp:sendto("rejected", {reason="full"}, data.rip, data.rport)
 	end
 end
 function server_callback_nextlevel(data)
@@ -312,7 +312,7 @@ function server_callback_nextlevel(data)
 		v.speedy = 0
 	end
 	--@DEV: we'll leave this alone for right now
-	for i, v in pairs(server_peerlist) do
+	--[[for i, v in pairs(server_peerlist) do
 		for j, k in pairs(server_peerlist) do
 			if i ~= j then
 				if v.x and v.y and v.speedx and v.speedy and v.currentdt then
@@ -320,5 +320,14 @@ function server_callback_nextlevel(data)
 				end
 			end
 		end
+	end]]
+end
+function server_callback_move(pl)
+	local sendto={}
+	for i=1,#server_peerlist do
+		table.insert(sendto, i)
 	end
+	sendto[pl.playerid]=nil
+	--@TODO: Make the above available in the form of "everyonebut(pls)"
+	server_send("synccoords", pl, sendto)
 end
