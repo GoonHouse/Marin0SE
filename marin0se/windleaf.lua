@@ -1,4 +1,4 @@
-windleaf = class:new()
+windleaf = class("windleaf")
 
 function windleaf:init(x, y)
 	self.x = x

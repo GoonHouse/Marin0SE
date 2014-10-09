@@ -1,7 +1,7 @@
 entity = class("entity")
 
 entitylist = {	
-	{t="remove", category="misc", description="place anywhere - acts as an entity eraser", iconauthor="Assasin-Kiashi"},
+	{t="remove", category="misc", description="place anywhere - acts as an entity eraser", iconauthor="Assasin-Kiashi"}, --0
 	{t="powerup", category="smb stuff", description="place on block - will give either a mushroom or a flower", iconauthor=""},
 	{t="cheepcheep", category="smb stuff", description="place on empty tile - red or white cheep cheep", iconauthor="alesan99"},
 	{t="musicentity", category="misc", description="place anywhere - takes an input and will play specified music track", iconauthor="idiot9.0"},
@@ -11,7 +11,7 @@ entitylist = {
 	{t="spawn", category="level markers", description="place on empty tile - mario's starting point", iconauthor="TripleXero"},
 	{t="delayer", category="gates", description="place anywhere - will delay an input", output=true, iconauthor=""},
 	{t="rsflipflop", category="gates", description="place anywhere - can be toggled on and off", output=true, iconauthor=""},
-	{t="flag", category="level markers", description="place on block - bottom of the flag, end of level", iconauthor="TripleXero"},
+	{t="flag", category="level markers", description="place on block - bottom of the flag, end of level", iconauthor="TripleXero"}, --10
 	{t=""},
 	{t=""},
 	{t="vine", category="smb stuff", description="place on block - vine - right click to choose destination", iconauthor="Superjustinbros"},
@@ -21,7 +21,7 @@ entitylist = {
 	{t="platform", category="smb stuff", description="place on empty tile - oscillating platform", iconauthor="Assasin-Kiashi"},
 	{t="regiontrigger", category="i/o objects", description="place anywhere - will output when there's an object in a region", output=true, iconauthor="alesan99"},
 	{t="box", category="portal elements", description="place on empty tile - weighted storage cube", output=true, iconauthor="alesan99"},
-	{t="pipe", category="level markers", description="place on pipe tile - pipe - right click for destination sublevel", iconauthor="automatik"},
+	{t="pipe", category="level markers", description="place on pipe tile - pipe - right click for destination sublevel", iconauthor="automatik"}, --20
 	{t=""},
 	{t="mazestart", category="level markers", description="place anywhere - logical maze start", hidden=not DEBUG, iconauthor=""},
 	{t="mazeend", category="level markers", description="place anywhere - logical maze end", hidden=not DEBUG, iconauthor=""},
@@ -31,7 +31,7 @@ entitylist = {
 	{t="door", category="portal elements", description="place on empty tile - it's a door. it opens, it closes, it doors.", iconauthor="idiot9.0"},
 	{t="pedestal", category="portal elements", description="place on empty tile - portal gun ready for pickup", iconauthor=""},
 	{t="wallindicator", category="i/o objects", description="place anywhere - shows on or off state", iconauthor=""},
-	{t="pipespawn", category="level markers", description="place on block - spawn for when coming from a sublevel", iconauthor="TripleXero"},
+	{t="pipespawn", category="level markers", description="place on block - spawn for when coming from a sublevel", iconauthor="TripleXero"}, --30
 	{t="platformfall", category="smb stuff", description="place on empty tile - falling platforms", iconauthor=""},
 	{t="bulletbillstart", category="level markers", description="place anywhere - beginning of bullet zone", iconauthor="Jackostar10000"},
 	{t="bulletbillend", category="level markers", description="place anywhere - end of bullet zone", iconauthor="Jackostar10000"},
@@ -41,7 +41,7 @@ entitylist = {
 	{t="portal2", category="misc", description="place on block - create a orange portal on input", iconauthor="Firaga"},
 	{t="actionblock", category="i/o objects", description="place on empty tile - will create a coinblock style toggle button", output=true, iconauthor=""},
 	{t="button", category="portal elements", description="place on empty tile - floor button", output=true, iconauthor=""},
-	{t="platformspawner", category="smb stuff", description="place on empty tile - platform spawner", iconauthor=""},
+	{t="platformspawner", category="smb stuff", description="place on empty tile - platform spawner", iconauthor=""}, --40
 	{t="animationtrigger", category="i/o objects", description="place anywhere - will start an animation when getting an input signal", iconauthor=""},
 	{t="groundlightver", category="portal elements", description="place anywhere - use to show on/off state", iconauthor="idiot9.0"},
 	{t="groundlighthor", category="portal elements", description="place anywhere - use to show on/off state", iconauthor="idiot9.0"},
@@ -51,7 +51,7 @@ entitylist = {
 	{t="groundlightleftup", category="portal elements", description="place anywhere - use to show on/off state", iconauthor="idiot9.0"},
 	{t="faithplate", category="portal elements", description="place on ground - f-f--fling yourself.", iconauthor="idiot9.0"},
 	{t=""},
-	{t=""},
+	{t=""}, --50
 	{t="laser", category="portal elements", description="place on empty tile - laser pew pew", iconauthor="Pixelworker"},
 	{t=""},
 	{t=""},
@@ -61,7 +61,7 @@ entitylist = {
 	{t=""},
 	{t=""},
 	{t="bulletbill", category="smb stuff", description="place on bulletbill launchers - will make the launcher actually launch bulletbills", iconauthor="Mari0Maker"},
-	{t="geldispenser", category="portal elements", description="place on empty tile - will produce gel", iconauthor=""},
+	{t="geldispenser", category="portal elements", description="place on empty tile - will produce gel", iconauthor=""}, --60
 	{t=""},
 	{t=""},
 	{t=""},
@@ -71,7 +71,7 @@ entitylist = {
 	{t="pushbutton", category="portal elements", description="place on empty tile - will send a toggle signal when used", output=true, iconauthor=""},
 	{t=""},
 	{t=""},
-	{t=""},
+	{t=""}, --70
 	{t=""},
 	{t=""},
 	{t="walltimer", category="i/o objects", description="place anywhere - will send on signal for a duration", output=true, iconauthor=""},
@@ -81,7 +81,7 @@ entitylist = {
 	{t=""},
 	{t="castlefire", category="smb stuff", description="place anywhere - rotating fire stick", iconauthor="Assasin-Kiashi"},
 	{t="seesaw", category="smb stuff", description="place on empty tile - see-saw", iconauthor="Firaga"},
-	{t="warppipe", category="level markers", description="place on block - warp pipe", iconauthor="BobTheLawyer"},
+	{t="warppipe", category="level markers", description="place on block - warp pipe", iconauthor="BobTheLawyer"}, --80
 	{t="squarewave", category="gates", description="place anywhere - sends on signal for x seconds and off signal for y seconds", output=true, iconauthor="crazyal02"},
 	{t="lakitoend", category="level markers", description="place anywhere - defines a right border for lakito", iconauthor=""},
 	{t="notgate", category="gates", description="place anywhere - turns in input around", output=true, iconauthor="Pixelworker"},
@@ -89,17 +89,17 @@ entitylist = {
 	{t="orgate", category="gates", description="place anywhere - or gate", output=true, iconauthor=""},
 	{t="andgate", category="gates", description="place anywhere - and gate", output=true, iconauthor="Turtle95"},
 	{t=""},
-	{t="firestart", category="level markers", description="place anywhere - fire start - bowser firethings will regularly cross the screen", iconauthor=""},
+	{t="firestart", category="level markers", description="place anywhere - fire start - bowser firethings will regularly cross the screen", iconauthor="HammerGuy"},
 	{t="bowser", category="level markers", description="place on empty tile preferably on the first block on a bridge with an axe - bowser", iconauthor="renhoek"},
-	{t="axe", category="level markers", description="place on empty tile preferably behind a bridge - axe, end of level", iconauthor="alesan99"},
+	{t="axe", category="level markers", description="place on empty tile preferably behind a bridge - axe, end of level", iconauthor="alesan99"}, --90
 	{t="platformbonus", category="smb stuff", description="place on empty tile - platform in coin worlds", iconauthor=""},
 	{t="spring", category="smb stuff", description="place on empty tile - spring", iconauthor="Firaga"},
 	{t=""},
 	{t="flyingfishstart", category="level markers", description="place anywhere - defines the start of a flying cheep cheep zone", iconauthor=""},
 	{t="flyingfishend", category="level markers", description="place anywhere - defines the end of a flying cheep cheep zone", iconauthor=""},
-	{t=""},
-	{t=""},
-	{t=""},
+	{t="windstart", category="level markers", description="place anywhere - defines the start of a wind zone", iconauthor="HammerGuy"},
+	{t="windend", category="level markers", description="place anywhere - defines the end of a wind zone", iconauthor="HammerGuy"},
+	{t="fireend", category="level markers", description="place anywhere - fire start - bowser firethings will stop", iconauthor="HammerGuy"},
 	{t="checkpoint", category="level markers", description="place on empty tile - checkpoint - mario will spawn there if he dies after reaching it", iconauthor="TripleXero"},
 	{t="ceilblocker", category="level markers", description="place an	ywhere - makes it impossible to jump over the top row of blocks", iconauthor="alesan99"},
 	{t=""},

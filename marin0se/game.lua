@@ -773,6 +773,35 @@ function game_update(dt)
 		end
 	end
 	
+	--WIND
+	if not levelfinished and windstarted then
+		--[[if windsound:isStopped() then
+			playsound(windsound)
+		end]]
+		local player1 = objects["player"][1]
+		if player1.animationdirection == "left" and player1.animationstate ~= "idle" then
+			if not player1.spring and not player1.springgreen and not player1.springgreenhigh and not player1.springhigh then
+				player1.speedx = player1.speedx + 0.06
+			else
+				
+			end
+		elseif player1.animationstate ~= "idle" then
+			if not player1.spring and not player1.springgreen and not player1.springgreenhigh and not player1.springhigh then
+				player1.speedx = player1.speedx + 0.03
+			else
+				
+			end
+		elseif player1.animationstate == "idle" then
+			player1.speedx = player1.speedx + 1
+		end
+		--make leafs apear
+		windleaftimer = windleaftimer + dt
+		while windleaftimer > 0.05 do
+			windleaftimer = windleaftimer - 0.05
+			table.insert(objects["windleaf"], windleaf:new(xscroll-1, math.random(1, 14)))
+		end
+	end
+	
 	--Editor
 	if editormode then
 		editor_update(dt)
@@ -1864,8 +1893,8 @@ function game_draw()
 		end
 		
 		love.graphics.setColor(255, 255, 255)
-		
-		--nothing to see here
+
+	--nothing to see here
 		for i, v in pairs(rainbooms) do
 			v:draw()
 		end
@@ -2703,6 +2732,10 @@ function loadlevel(level)
 	bulletbillstarted = false
 	bulletbillstartx = false
 	bulletbillendx = false
+	windstarted = false
+	windstartx = false
+	windendx = false
+	windleaftimer = 0.1
 	firetimer = firedelay
 	flyingfishtimer = flyingfishdelay
 	bulletbilltimer = bulletbilldelay
@@ -2816,6 +2849,7 @@ function loadlevel(level)
 	objects["checkpoints"] = {}
 	objects["portalent"] = {}
 	objects["actionblock"] = {}
+	objects["windleaf"] = {}
 	
 	--!
 	objects["enemy"] = {}
@@ -3258,6 +3292,8 @@ function loadmap(filename, createobjects)
 							
 						elseif t == "firestart" then
 							firestartx = x
+						elseif t == "fireend" then
+							fireendx = x
 							
 						elseif t == "flyingfishstart" then
 							flyingfishstartx = x
@@ -3268,6 +3304,11 @@ function loadmap(filename, createobjects)
 							bulletbillstartx = x
 						elseif t == "bulletbillend" then
 							bulletbillendx = x
+
+						elseif t == "windstart" then
+							windstartx = x
+						elseif t == "windend" then
+							windendx = x
 							
 						elseif t == "axe" then
 							axex = x
