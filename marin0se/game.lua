@@ -82,6 +82,11 @@ function game_update(dt)
 	dt = dt * speed
 	gdt = dt
 	
+	--@DEBUG: doing player update here just for testing
+	for i, v in pairs(objects["player"]) do
+		v:update(dt)
+	end
+	
 	--------
 	--GAME--
 	--------
@@ -447,7 +452,7 @@ function game_update(dt)
 		for i = 1, players do
 			local v = objects["player"][i]
 			local old = ylookmodifier
-			if downkey(i) then
+			if v.binds.control.down then
 				if v.looktimer < userscrolltime then
 					v.looktimer = v.looktimer + dt
 				else
@@ -458,7 +463,7 @@ function game_update(dt)
 						end
 					end
 				end
-			elseif upkey(i) then
+			elseif v.binds.control.up then
 				if v.looktimer < userscrolltime then
 					v.looktimer = v.looktimer + dt
 				else
@@ -3834,7 +3839,7 @@ function game_keypressed(key)
 	end
 
 	for i = 1, players do
-		if controls[i]["jump"][1] == key then
+		--[[if controls[i]["jump"][1] == key then
 			objects["player"][i]:jump()
 		elseif controls[i]["run"][1] == key then
 			objects["player"][i]:fire()
@@ -3856,7 +3861,7 @@ function game_keypressed(key)
 		if controls[i]["portal2"][i] == key then
 			shootportal(i, 2, objects["player"][i].x+6/16, objects["player"][i].y+6/16, objects["player"][i].pointingangle)
 			return
-		end
+		end]]
 	end
 	
 	if key == "escape" then
@@ -3891,14 +3896,14 @@ function game_keypressed(key)
 end
 
 function game_keyreleased(key)
-	for i = 1, players do
+	--[[for i = 1, players do
 		if controls[i]["jump"][1] == key then
 			objects["player"][i]:stopjump()
 		end
-	end
+	end]]
 end
 
-function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
+--[[function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 	if objects["player"][plnumber].portalgundisabled then
 		return
 	end
@@ -3932,14 +3937,14 @@ function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
 	
 	local mirror = false
-	if cox and tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy) then
+	if cox and tilequads[map[cox][coy][1]]--[[:getproperty("mirror", cox, coy) then
 		mirror = true
 	end
 	
 	objects["player"][plnumber].lastportal = i
 	
 	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {objects["player"][plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
-end
+end]]
 
 function game_mousepressed(x, y, button)
 	if pausemenuopen then
@@ -3967,6 +3972,7 @@ function game_mousepressed(x, y, button)
 		
 			if button == "l" or button == "r" and objects["player"][mouseowner] then
 				--knockback
+				--@DEV: move this to mario:shootportal
 				if portalknockback then
 					local xadd = math.sin(objects["player"][mouseowner].pointingangle)*30
 					local yadd = math.cos(objects["player"][mouseowner].pointingangle)*30
@@ -3978,7 +3984,7 @@ function game_mousepressed(x, y, button)
 				end
 			end
 		
-			if button == "l" then
+			--[[if button == "l" then
 				if playertype == "portal" then
 					local sourcex = objects["player"][mouseowner].x+6/16
 					local sourcey = objects["player"][mouseowner].y+6/16
@@ -4001,7 +4007,7 @@ function game_mousepressed(x, y, button)
 						--objects["player"][1]:use()
 					end
 				end
-			end
+			end]]
 		end
 			
 		if button == "wd" then
@@ -5081,7 +5087,7 @@ function playsound(sound)
 	end
 end
 
-function runkey(i)
+--[[function runkey(i)
 	local s = controls[i]["run"]
 	return checkkey(s)
 end
@@ -5140,7 +5146,7 @@ function upkey(i)
 		s = controls[i]["left"]
 	end
 	return checkkey(s)
-end
+end]]
 
 function checkkey(s)
 	--[[if s[1] == "joy" then
@@ -5171,13 +5177,13 @@ function checkkey(s)
 				end
 			end
 		end
-	else]]if s[1] then
+	else]]--[[if s[1] then
 		if love.keyboard.isDown(s[1]) then
 			return true
 		else 
 			return false
 		end
-	end
+	end]]
 end
 
 function game_joystickpressed( joystick, button )
@@ -5191,7 +5197,7 @@ function game_joystickpressed( joystick, button )
 	
 	for i = 1, players do
 		if not noupdate and objects["player"][i].controlsenabled and not objects["player"][i].vine then
-			local s1 = controls[i]["jump"]
+			--[[local s1 = controls[i]["jump"]
 			local s2 = controls[i]["run"]
 			local s3 = controls[i]["reload"]
 			local s4 = controls[i]["use"]
@@ -5215,7 +5221,7 @@ function game_joystickpressed( joystick, button )
 			elseif s6[1] == "joy" and joystick == s6[2] and s6[3] == "but" and button == s6[4] then
 				objects["player"][i]:rightkey()
 				return
-			end
+			end]]
 			
 			if i ~= mouseowner then
 				local s = controls[i]["portal1"]

@@ -1,7 +1,6 @@
 -- WHOO BOY THANK THE LORDY FOR SSL FROM http://love2d.org/forums/viewtopic.php?f=5&t=76728
 require("libs.ssl")
 require("libs.https")
-local JSON = require("JSON")
 local https = require("ssl.https")
 local ltn12 = require("ltn12")
 

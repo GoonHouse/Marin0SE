@@ -16,6 +16,76 @@ function mario:init(x, y, i, animation, size, t)
 	end
 	self.t = t or "portal"
 	self.portalsavailable = {unpack(portalsavailable)}
+	local bindtable 
+	if true or self.playernumber == networkclientnumber then
+		bindtable = {
+			keys = {
+				w = "up",
+				a = "left",
+				s = "down",
+				d = "right",
+				f = "use",
+				lshift = "run",
+				r = "reload",
+				[" "] = "jump",
+			},
+			mouseBtns = {
+				l = "primary",
+				m = "reload",
+				r = "secondary",
+			},
+			useJoystick = false,
+			useKeyboard = true,
+			useMouse = true,
+		}
+	else
+		bindtable = {
+			keys = {
+				i = "up",
+				j = "left",
+				k = "down",
+				l = "right",
+				[":"] = "use",
+				rshift = "run",
+				o = "reload",
+				backspace = "jump",
+				n = "primary",
+				m = "secondary",
+			}
+		}
+	end
+	print("giving a mario some controls")
+	self.binds, self.controls = TLbind.giveInstance(bindtable)
+	self.binds.controlPressed = function(control)
+		--[[if onlinemp then
+			client_send("controlsupdate", self.controls) --@TODO: Don't send the entire table, eventually.
+		end]]
+		if control=="jump" then
+			self:jump()
+		elseif control=="run" then
+			self:fire()
+		elseif control=="reload" then
+			self:removeportals()
+		elseif control=="use" then
+			self:use()
+		elseif control=="left" then
+			self:leftkey()
+		elseif control=="right" then
+			self:rightkey()
+		elseif control=="primary" then
+			self:shootportal(1)
+		elseif control=="secondary" then
+			self:shootportal(2)
+		end
+	end
+	self.binds.controlReleased = function(control)
+		--[[if onlinemp then
+			client_send("controlsupdate", self.controls) --@TODO: Don't send the entire table, eventually.
+		end]]
+		if control=="jump" then
+			self:stopjump()
+		end
+	end
 	
 	--PHYSICS STUFF
 	self.speedx = 0
@@ -294,6 +364,9 @@ function mario:adddata()
 end
 
 function mario:update(dt)
+	if self.binds.update and self.controls then
+		self.binds:update()
+	end
 	if replaysystem then
 		livereplaydelay[self.playernumber] = livereplaydelay[self.playernumber] + dt
 		while livereplaydelay[self.playernumber] >= 1/60 do
@@ -923,7 +996,7 @@ function mario:update(dt)
 	if self.vine then
 		self.gravity = 0
 		self.animationstate = "climbing"
-		if upkey(self.playernumber) then
+		if self.binds.control.up then
 			self.vinemovetimer = self.vinemovetimer + dt
 			
 			self.climbframe = math.ceil(math.mod(self.vinemovetimer, vineframedelay*2)/vineframedelay)
@@ -936,7 +1009,7 @@ function mario:update(dt)
 				self.y = objects[t[1]][t[2]].y + objects[t[1]][t[2]].height
 				self.climbframe = 2
 			end
-		elseif downkey(self.playernumber) then
+		elseif self.binds.control.down then
 			self.vinemovetimer = self.vinemovetimer + dt
 			
 			self.climbframe = math.ceil(math.mod(self.vinemovetimer, vineframedelaydown*2)/vineframedelaydown)
@@ -1022,7 +1095,7 @@ function mario:update(dt)
 	
 	if self.controlsenabled then
 		--check for pipe pipe pipe
-		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and downkey(self.playernumber) and self.falling == false and self.jumping == false then
+		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and self.binds.control.down and self.falling == false and self.jumping == false then
 			local t2 = map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][2]
 			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
 				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]-1))
@@ -1037,7 +1110,7 @@ function mario:update(dt)
 		end
 		
 		if self.falling == false and self.jumping == false and self.size > 1 then
-			if downkey(self.playernumber) then
+			if self.binds.control.down then
 				if self.ducking == false then
 					self:duck(true)
 				end
@@ -1074,7 +1147,7 @@ function mario:update(dt)
 		--RACCOON STUFF
 		if self.char.raccoon and self.size == 2 then
 			if not self.falling and not self.jumping then
-				if math.abs(self.speedx) >= maxwalkspeed and runkey(self.playernumber) and ((rightkey(self.playernumber) and not leftkey(self.playernumber)) or (not rightkey(self.playernumber) and leftkey(self.playernumber))) then
+				if math.abs(self.speedx) >= maxwalkspeed and self.binds.control.run and ((self.binds.control.right and not self.binds.control.left) or (not self.binds.control.right and self.binds.control.left)) then
 					if self.raccoonstarttimer < raccoonstarttime then
 						self.raccoonstarttimer = self.raccoonstarttimer + dt
 						if self.raccoonstarttimer >= raccoonstarttime then
@@ -1293,8 +1366,8 @@ function mario:movement(dt)
 	end
 		
 	--HORIZONTAL MOVEMENT
-	if self.controlsenabled and runkey(self.playernumber) then --RUNNING
-		if self.controlsenabled and rightkey(self.playernumber) then --MOVEMENT RIGHT
+	if self.controlsenabled and self.binds.control.run then --RUNNING
+		if self.controlsenabled and self.binds.control.right then --MOVEMENT RIGHT
 			if self.jumping or self.falling then --IN AIR
 				if self.speedx < maxwalkspeed then
 					if self.speedx < 0 then
@@ -1342,7 +1415,7 @@ function mario:movement(dt)
 				end
 			end
 			
-		elseif self.controlsenabled and leftkey(self.playernumber) then --MOVEMENT LEFT
+		elseif self.controlsenabled and self.binds.control.left then --MOVEMENT LEFT
 			if self.jumping or self.falling then --IN AIR
 				if self.speedx > -maxwalkspeed then
 					if self.speedx > 0 then
@@ -1392,7 +1465,7 @@ function mario:movement(dt)
 			end
 		
 		end
-		if (not rightkey(self.playernumber) and not leftkey(self.playernumber)) or (self.ducking and self.falling == false and self.jumping == false) or not self.controlsenabled then  --NO MOVEMENT
+		if (not self.binds.control.right and not self.binds.control.left) or (self.ducking and self.falling == false and self.jumping == false) or not self.controlsenabled then  --NO MOVEMENT
 			if self.jumping or self.falling then
 				if self.speedx > 0 then
 					self.speedx = self.speedx - frictionair*dt
@@ -1436,7 +1509,7 @@ function mario:movement(dt)
 		
 	else --WALKING
 	
-		if self.controlsenabled and rightkey(self.playernumber) then --MOVEMENT RIGHT
+		if self.controlsenabled and self.binds.control.right then --MOVEMENT RIGHT
 			if self.jumping or self.falling then --IN AIR
 				if self.speedx < maxwalkspeed then
 					if self.speedx < 0 then
@@ -1481,7 +1554,7 @@ function mario:movement(dt)
 				end
 			end
 			
-		elseif self.controlsenabled and leftkey(self.playernumber) then --MOVEMENT LEFT
+		elseif self.controlsenabled and self.binds.control.left then --MOVEMENT LEFT
 			if self.jumping or self.falling then --IN AIR
 				if self.speedx > -maxwalkspeed then
 					if self.speedx > 0 then
@@ -1527,7 +1600,7 @@ function mario:movement(dt)
 			end
 		
 		end
-		if (not rightkey(self.playernumber) and not leftkey(self.playernumber)) or (self.ducking and self.falling == false and self.jumping == false) or not self.controlsenabled then --no movement
+		if (not self.binds.control.right and not self.binds.control.left) or (self.ducking and self.falling == false and self.jumping == false) or not self.controlsenabled then --no movement
 			if self.jumping or self.falling then
 				if self.speedx > 0 then
 					self.speedx = self.speedx - frictionair*dt
@@ -1629,7 +1702,7 @@ function mario:underwatermovement(dt)
 	end
 	
 	--HORIZONTAL MOVEMENT	
-	if self.controlsenabled and rightkey(self.playernumber) and (self.jumping or self.falling or not self.ducking) then --MOVEMENT RIGHT
+	if self.controlsenabled and self.binds.control.right and (self.jumping or self.falling or not self.ducking) then --MOVEMENT RIGHT
 		if self.jumping or self.falling then --IN AIR
 			if self.speedx < uwmaxairwalkspeed then
 				if self.speedx < 0 then
@@ -1668,7 +1741,7 @@ function mario:underwatermovement(dt)
 				end
 			end
 		end
-	elseif self.controlsenabled and leftkey(self.playernumber) and (self.jumping or self.falling or not self.ducking) then --MOVEMENT LEFT
+	elseif self.controlsenabled and self.binds.control.left and (self.jumping or self.falling or not self.ducking) then --MOVEMENT LEFT
 		if self.jumping or self.falling then --IN AIR
 			if self.speedx > -uwmaxairwalkspeed then
 				if self.speedx > 0 then
@@ -2164,7 +2237,7 @@ end
 
 function mario:bluegel(dir)
 	if dir == "top" then
-		if downkey(self.playernumber) == false and self.speedy > gdt*yacceleration*10 then
+		if self.binds.control.down == false and self.speedy > gdt*yacceleration*10 then
 			self.speedy = -self.speedy
 			self.falling = true
 			self.animationstate = "jumping"
@@ -2174,7 +2247,7 @@ function mario:bluegel(dir)
 			return true
 		end
 	elseif dir == "left" then
-		if downkey(self.playernumber) == false and (self.falling or self.jumping) then
+		if self.binds.control.down == false and (self.falling or self.jumping) then
 			if self.speedx > horbounceminspeedx then
 				self.speedx = math.min(-horbouncemaxspeedx, -self.speedx*horbouncemul)
 				self.speedy = math.min(self.speedy, -horbouncespeedy)
@@ -2183,7 +2256,7 @@ function mario:bluegel(dir)
 			end
 		end
 	elseif dir == "right" then
-		if downkey(self.playernumber) == false and (self.falling or self.jumping) then
+		if self.binds.control.down == false and (self.falling or self.jumping) then
 			if self.speedx < -horbounceminspeedx then
 				self.speedx = math.min(horbouncemaxspeedx, -self.speedx*horbouncemul)
 				self.speedy = math.min(self.speedy, -horbouncespeedy)
@@ -2341,7 +2414,7 @@ function mario:rightcollide(a, b, c, d)
 		end
 		
 		--Check if it's a pipe with pipe pipe.
-		if self.falling == false and self.jumping == false and (rightkey(self.playernumber) or intermission) then --but only on ground and rightkey
+		if self.falling == false and self.jumping == false and (self.binds.control.right or intermission) then --but only on ground and rightkey
 			local t2 = map[x][y][2]
 			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
 				self:pipe(x, y, "right", tonumber(map[x][y][3])-1)
@@ -3778,6 +3851,51 @@ function mario:portaled(dir)
 		
 		self.hats = {33}
 	end
+end
+
+function mario:shootportal(i, mirrored)
+	if self.portalgundisabled then
+		return
+	end
+	
+	--check if available
+	if not self.portalsavailable[i] then
+		return
+	end
+	
+	--box
+	if self.pickup then
+		return
+	end
+	--portalgun delay
+	if portaldelay[self.playernumber] > 0 then
+		return
+	else
+		portaldelay[self.playernumber] = portalgundelay
+	end
+	
+	local otheri = 1
+	local color = self.portal2color
+	if i == 1 then
+		otheri = 2
+		color = self.portal1color
+	end
+	if not mirrored then
+		self.lastportal = i
+	end
+	local sourcex = self.x+6/16
+	local sourcey = self.y+6/16
+	local direction = self.pointingangle
+	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
+	
+	local mirror = false
+	if cox and tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy) then
+		mirror = true
+	end
+	
+	self.lastportal = i
+	
+	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {self.portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
 end
 
 function mario:shootgel(i)

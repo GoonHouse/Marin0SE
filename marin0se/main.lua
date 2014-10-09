@@ -224,6 +224,7 @@ function love.load(arg)
 	require "hook"
 	require "utils"
 	if debugmode=="client" or debugmode=="server" then
+		uploadoncrash = false
 		hook.Add("GameLoaded", "DebugImmediate", function()
 			onlinemenu_load()
 		end)
@@ -262,7 +263,7 @@ function love.load(arg)
 	lastline = debug.getinfo(1).currentline
 	starttime = love.timer.getTime()
 	totaltime = 0
-	JSON = require "JSON"
+	JSON = require("libs.JSON")
 	require "notice"
 	
 	--Get biggest screen size
@@ -410,7 +411,24 @@ function love.load(arg)
 	
 	--require ALL the files!
 	require("libs.lube")
-	require "von"
+	require("libs.tserial")
+	TLbind = require("libs.TLbind")
+	require("libs.monocle")
+	Monocle.new({
+		isActive=true,
+		customPrinter=false,
+		printColor = {255, 255, 255, 255},
+		debugToggle = 'f1',
+		filesToWatch = {}
+	})
+	Monocle.watch("binds", function()
+		local str = "jack shit"
+		if objects and objects["player"] and objects["player"][1] and objects["player"][1].controls then
+			str=Tserial.pack(objects["player"][1].controls, true, true)
+		end
+		return str
+	end)
+	require("libs.von")
 	--require "netplay2"
 	require "netplay"
 	--require "client"
@@ -420,8 +438,8 @@ function love.load(arg)
 	
 	require "shaders"
 	require "variables"
-	require "sha1"
-	class = require "middleclass"
+	require("libs.sha1")
+	class = require("libs.middleclass")
 	require "camera"
 	
 	require "animatedquad"
@@ -974,6 +992,8 @@ function love.update(dt)
 	if music then
 		music:update()
 	end
+	Monocle.update()
+	TLbind:update()
 	realdt = dt
 	dt = math.min(0.5, dt) --ignore any dt higher than half a second
 	
@@ -1087,6 +1107,7 @@ function love.draw()
 			collectgarbage("collect")
 		end
 	end
+	Monocle.draw()
 end
 
 function saveconfig()

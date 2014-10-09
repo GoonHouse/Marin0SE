@@ -92,8 +92,10 @@ update = function(b)
 		local wt, ht = ws, w*.5-(w-h)*.5
 		-- Set mouse axes if they haven't already gotten input
 		local mA1, mA2 = control[b.mouseAxes[1]], control[b.mouseAxes[2]]
-		if not (mA1 or mA2) or (mA1==0 and mA2==0) then
-			control[b.mouseAxes[1]], control[b.mouseAxes[2]] = (love.mouse.getX()-wt)/hs, (love.mouse.getY()-ht)/hs
+		if b.mouseAxes[1]~=nil or b.mouseAxes[2]~=nil then
+			if (mA1==0 and mA2==0) then
+				control[b.mouseAxes[1]], control[b.mouseAxes[2]] = (love.mouse.getX()-wt)/hs, (love.mouse.getY()-ht)/hs
+			end
 		end
 	end
 	
@@ -126,13 +128,27 @@ update = function(b)
 	for k,v in pairs(control) do
 		if v then
 			release[k] = false
-			if tap[k]==false then tap[k]=true if control.controlPressed then control.controlPressed(k) end
-			elseif tap[k]==true then tap[k]=nil
+			if tap[k]==false then 
+				tap[k]=true
+				if b.controlPressed then
+					b.controlPressed(k)
+				else
+					print("no controlPressed function")
+				end
+			elseif tap[k]==true then
+				tap[k]=nil
 			end
 		else
 			tap[k] = false
-			if release[k]==false then release[k]=true if control.controlReleased then control.controlReleased(k) end
-			elseif release[k]==true then release[k]=nil
+			if release[k]==false then
+				release[k]=true 
+				if b.controlReleased then
+					b.controlReleased(k)
+				else
+					print("no controlReleased function")
+				end
+			elseif release[k]==true then
+				release[k]=nil
 			end
 		end
 	end
