@@ -527,6 +527,11 @@ rightclickmenues.pedestal = {
 	{t="checkbox", text="orange", default="true"}
 }
 
+rightclickmenues.spring = {
+	{t="text", value="type:"},
+	{t="submenu", entries={"regular", "high"}, default=1, width=7}
+}
+
 groundlighttable = {"groundlightver", "groundlighthor", "groundlightupright", "groundlightrightdown", "groundlightdownleft", "groundlightleftup"}
 
 for i = 1, #groundlighttable do

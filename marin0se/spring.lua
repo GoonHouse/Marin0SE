@@ -6,9 +6,9 @@ function spring:init(x, y)
 	
 	--PHYSICS STUFF
 	self.x = x-1
-	self.y = y-31/16
+	self.y = y-32/16
 	self.width = 16/16
-	self.height = 31/16
+	self.height = 32/16
 	self.static = true
 	self.active = true
 	
@@ -37,9 +37,14 @@ function spring:update(dt)
 end
 
 function spring:draw()
-	love.graphics.drawq(springimg, springquads[spriteset][self.frame], math.floor((self.x-xscroll)*16*scale), ((self.y-yscroll)*16-8)*scale, 0, scale, scale)
+	if spring == "high" then
+		love.graphics.drawq(springgrnimg, springgrnquads[spriteset][self.frame], math.floor((self.x-xscroll)*16*scale), ((self.y-yscroll)*16-8)*scale, 0, scale, scale)
+	else
+		love.graphics.drawq(springimg, springquads[spriteset][self.frame], math.floor((self.x-xscroll)*16*scale), ((self.y-yscroll)*16-8)*scale, 0, scale, scale)
+	end
 end
 
 function spring:hit()
 	self.timer = 0
+	playsound("spring")
 end
