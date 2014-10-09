@@ -1,3 +1,4 @@
+--require("lovedebug")
 --[[
 	STEAL MY SHIT AND I'LL FUCK YOU UP
 	PRETTY MUCH EVERYTHING BY MAURICE GUÉGAN AND IF SOMETHING ISN'T BY ME THEN IT SHOULD BE OBVIOUS OR NOBODY CARES
@@ -85,23 +86,22 @@ function love.errhand(msg)
 
 	local err = {}
 
-	table.insert(err, "FLAGRANT SYSTEM ERROR\n")
-	table.insert(err, "Mari0 Over.")
-	table.insert(err, "Crash = Very Yes.\n\n")
+	table.insert(err, "OH NO EVERYTHING IS BROKEN\n")
+	table.insert(err, "A screenshot of this page has been saved as 'crash.png'.")
 	if not versionerror then
-		table.insert(err, "Send us a screenshot of this to crash@stabyourself.net, that'd be swell.\nAlso tell us what you were doing.\n")
+		table.insert(err, "Send a link to EntranceJew with a description of what you were doing.\n")
 	end
-	table.insert(err, "Mari0 " .. (marioversion or "UNKNOWN") .. ", LOVE " .. (love._version or "UNKNOWN") .. " running on " .. (love._os or "UNKNOWN") .. "\n")
+	table.insert(err, "Marin0SE " .. (marioversion or "UNKNOWN") .. ", LOVE " .. (love._version or "UNKNOWN") .. " running on " .. (love._os or "UNKNOWN") .. "\n")
 	if love.graphics.getRendererInfo then
 		local info = {love.graphics.getRendererInfo()}
 		err[#err] = err[#err].."Graphics: "..info[1].." "..info[2].." ("..info[4]..", "..info[3]..")\n"
 	end
-	table.insert(err, msg.."\n\n")
+	table.insert(err, msg.."\n")
 
 	if not versionerror then
 		for l in string.gmatch(trace, "(.-)\n") do
 			if not string.match(l, "boot.lua") then
-				l = string.gsub(l, "stack traceback:", "Traceback\n")
+				l = string.gsub(l, "stack traceback:", "Trace:")
 				table.insert(err, l)
 			end
 		end
@@ -147,22 +147,31 @@ function love.errhand(msg)
 
 	p = string.gsub(p, "\t", "")
 	p = string.gsub(p, "%[string \"(.-)\"%]", "%1")
+	print(p)
 
-	local function draw()
-		--love.graphics.clear()
-		love.graphics.setColor(0, 0, 0, 200)
-		love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-		love.graphics.setColor(0, 0, 0)
-		love.graphics.printf(p, 35*scale, 15*scale-1, love.graphics.getWidth() - 35*scale)
-		love.graphics.printf(p, 35*scale+1, 15*scale, love.graphics.getWidth() - 35*scale)
-		love.graphics.printf(p, 35*scale-1, 15*scale, love.graphics.getWidth() - 35*scale)
-		love.graphics.printf(p, 35*scale, 15*scale+1, love.graphics.getWidth() - 35*scale)
-		love.graphics.setColor(255, 255, 255, 255)
-		love.graphics.printf(p, 35*scale, 15*scale, love.graphics.getWidth() - 35*scale)
-		love.graphics.present()
-	end
+	local canvas=love.graphics.newCanvas()
+	local beforeimagedata = love.graphics.newScreenshot()
+	love.graphics.setCanvas(canvas)
+	love.graphics.draw(love.graphics.newImage(beforeimagedata))
+	love.graphics.setColor(0, 0, 0, 200)
+	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+	love.graphics.setColor(0, 0, 0)
+	love.graphics.printf(p, 35*scale, 15*scale-1, love.graphics.getWidth() - 35*scale)
+	love.graphics.printf(p, 35*scale+1, 15*scale, love.graphics.getWidth() - 35*scale)
+	love.graphics.printf(p, 35*scale-1, 15*scale, love.graphics.getWidth() - 35*scale)
+	love.graphics.printf(p, 35*scale, 15*scale+1, love.graphics.getWidth() - 35*scale)
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.printf(p, 35*scale, 15*scale, love.graphics.getWidth() - 35*scale)
+	-- okay, we got the picture, now show it to the user
+	love.graphics.setCanvas()
+	local crashimagedata=canvas:getImageData()
+	love.graphics.draw(love.graphics.newImage(crashimagedata))
+	love.graphics.present()
 	
-	draw()
+	-- put it on da internet
+	if uploadoncrash then
+		screenshotUploadWrap("crash.png", crashimagedata)
+	end
 
 	while true do
 		love.event.pump()
@@ -202,6 +211,7 @@ function love.load(arg)
 			require("mobdebug").start()
 		elseif v=="-debug" then
 			skipintro = true
+			uploadoncrash = true
 			--DEBUG = false
 			--editordebug = DEBUG
 			--skiplevelscreen = DEBUG
@@ -505,6 +515,7 @@ function love.load(arg)
 	
 	require "enemy"
 	require "enemies"
+	require "imgurupload"
 	add("Requires")
 	
 	http = require("socket.http")
@@ -1604,8 +1615,29 @@ function changescale(s, init)
 		generatespritebatch()
 	end
 end
-
+function screenshotUploadWrap(iname, idata)
+	local t=upload_imagedata(iname, idata)
+	if t.success then
+		print("Your image was uploaded to: "..t.data.link)
+		notice.new("screenshot uploaded")
+		love.filesystem.write("screenshot_url.txt", t.data.link)
+		openImage(t.data.link)
+	else
+		print("Your image upload failed, please upload '"..outname.."' manually.")
+		notice.new("upload failed")
+		notice.new("upload manually")
+		openSaveFolder()
+	end
+end
 function love.keypressed(key, isrepeat)
+	if key == "f11" then
+		screenshotUploadWrap("screenshot.png", love.graphics.newScreenshot())
+	end
+	
+	if key == "f10" then
+		totallynonexistantfunction()
+	end
+	
 	if key == "k" then
 		savelevel()
 	end
@@ -1916,7 +1948,25 @@ end
 		love.audio.pause()
 	end
 end]]
-
+function openImage(img)
+	local path = love.filesystem.getSaveDirectory()
+	
+	local cmdstr
+	local successval = 0
+	
+	if os.getenv("WINDIR") then -- windows
+		cmdstr = "Explorer \"%s\""
+	elseif os.getenv("HOME") then
+		if path:match("/Library/Application Support") then -- OSX
+			cmdstr = "open \"%s\""
+		else -- linux?
+			cmdstr = "xdg-open \"%s\""
+		end
+	end
+	
+	os.execute(cmdstr:format(img))
+	return cmdstr~=nil
+end
 function openSaveFolder(subfolder) --By Slime
 	local path = love.filesystem.getSaveDirectory()
 	path = subfolder and path.."/"..subfolder or path
