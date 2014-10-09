@@ -1,0 +1,4 @@
+name=wacky workbench
+author=hammerguy
+description=
+lives=3
