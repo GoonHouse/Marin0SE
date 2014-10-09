@@ -15,8 +15,8 @@
 	
 	"mask": [true],
 	
-	"downgraphic": "downplantimg",
-	"downquad": "downplantquads",
+	"graphic": "downplantimg",
+	"quad": "downplantquads",
 	
 	"animationtype": "frames",
 	"animationframes": 2,
