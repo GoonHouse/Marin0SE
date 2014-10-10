@@ -3432,7 +3432,7 @@ function loadmap(filename, createobjects)
 							table.insert(objects["portalent"], portalent:new(x, y, 2, r))
 							
 						elseif t == "spring" then
-							table.insert(objects["spring"], spring:new(x, y))
+							table.insert(objects["spring"], spring:new(x, y, r))
 							
 						elseif t == "seesaw" then
 							table.insert(seesaws, seesaw:new(x, y, r))
@@ -3944,7 +3944,7 @@ function game_keyreleased(key)
 	end]]
 end
 
---[[function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
+function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 	if objects["player"][plnumber].portalgundisabled then
 		return
 	end
@@ -3978,14 +3978,14 @@ end
 	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
 	
 	local mirror = false
-	if cox and tilequads[map[cox][coy][1]]--[[:getproperty("mirror", cox, coy) then
+	if cox and tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy) then
 		mirror = true
 	end
 	
 	objects["player"][plnumber].lastportal = i
 	
 	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {objects["player"][plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
-end]]
+end
 
 function game_mousepressed(x, y, button)
 	if pausemenuopen then

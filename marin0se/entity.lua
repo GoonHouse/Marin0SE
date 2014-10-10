@@ -529,7 +529,7 @@ rightclickmenues.pedestal = {
 
 rightclickmenues.spring = {
 	{t="text", value="type:"},
-	{t="submenu", entries={"regular", "high"}, default=1, width=7}
+	{t="submenu", entries={"regular", "high"}, default=1, width=7, actualvalue=true}
 }
 
 groundlighttable = {"groundlightver", "groundlighthor", "groundlightupright", "groundlightrightdown", "groundlightdownleft", "groundlightleftup"}

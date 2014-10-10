@@ -733,14 +733,6 @@ function love.load(arg)
 		end
 	end
 	
-	springgrnquads = {}
-	for i = 1, 4 do
-		springgrnquads[i] = {}
-		for j = 1, 3 do
-			springgrnquads[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*32, 16, 32, 48, 128)
-		end
-	end
-	
 	seesawquad = {}
 	for i = 1, 4 do
 		seesawquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
