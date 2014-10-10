@@ -50,9 +50,11 @@ end
 
 function spring:draw()
 	if self.type == "regular" then
-		love.graphics.draw(springimg, springquads[spriteset][self.frame], math.floor((self.x-xscroll)*16*scale), ((self.y-yscroll)*16-8)*scale, 0, scale, scale)
+		love.graphics.drawq(springimg, springquads[spriteset][self.frame], math.floor((self.x-xscroll)*16*scale), ((self.y-yscroll)*16-8)*scale, 0, scale, scale)
 	elseif self.type == "high" then
-		love.graphics.draw(springgrnimg, springquads[spriteset][self.frame], math.floor((self.x-xscroll)*16*scale), ((self.y-yscroll)*16-8)*scale, 0, scale, scale)
+		love.graphics.drawq(springhighimg, springquads[spriteset][self.frame], math.floor((self.x-xscroll)*16*scale), ((self.y-yscroll)*16-8)*scale, 0, scale, scale)
+	else
+		love.graphics.drawq(springimg, springquads[spriteset][self.frame], math.floor((self.x-xscroll)*16*scale), ((self.y-yscroll)*16-8)*scale, 0, scale, scale)
 	end
 end
 

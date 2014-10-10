@@ -2906,10 +2906,12 @@ end
 function mario:leavespring()
 	self.y = self.springy - self.height-31/16
 	if self.springhigh then
-		if self.springb.type == "regular" then  -- High Springboard
+		if self.springb.type == "regular" then  -- Regular Springboard
 			self.speedy = -springhighforce
-		elseif self.springb.type == "high" then
-			self.speedy = -springgrnhighforce
+		elseif self.springb.type == "high" then  -- High Springboard
+			self.speedy = -springhighhighforce
+		else 
+			self.speedy = -springhighforce	
 		end
 	else
 		self.speedy = -springforce
