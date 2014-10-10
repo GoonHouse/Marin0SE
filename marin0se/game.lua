@@ -309,7 +309,7 @@ function game_update(dt)
 	
 	--UPDATE STUFFFFF
 	
-	local updatetable = {	pedestals, emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers, emancipationgrills, fireworks, miniblocks, bubbles, platformspawners, seesaws, blockdebristable,
+	local updatetable = {	pedestals, emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers, emancipationgrills, fireworks, miniblocks, bubbles, platformspawners, seesaws, blockdebristable, leaf,
 							userects, rainbooms, coinblockanimations, itemanimations}
 							
 	for i, v in pairs(objects) do
@@ -759,14 +759,13 @@ function game_update(dt)
 		elseif player1.animationstate == "idle" then
 			player1.speedx = player1.speedx + 1
 		end
-		--make leafs apear
+		--make leafs appear
 		windtimer = windtimer + dt
 		while windtimer > 0.05 do
 			windtimer = windtimer - 0.05
-			
-			local temp = enemy:new(xscroll-1, math.random(1, 14), "wind")
-			table.insert(objects["enemy"], temp)
-			end
+			local temp = leaf:new(xscroll-1, math.random(1, 14), "leaf")
+			table.insert(objects["leaf"], temp)
+		end
 	end
 	
 	--FLYING FISH
@@ -1438,6 +1437,12 @@ function game_draw()
 		love.graphics.setColor(255, 255, 255)
 		--Bubbles
 		for j, w in pairs(bubbles) do
+			w:draw()
+		end
+		
+		love.graphics.setColor(255, 255, 255)
+		--Leaf
+		for j, w in pairs(leaf) do
 			w:draw()
 		end
 		
@@ -2851,6 +2856,7 @@ function loadlevel(level)
 	objects["checkpoints"] = {}
 	objects["portalent"] = {}
 	objects["actionblock"] = {}
+	objects["leaf"] = {}
 	
 	--!
 	objects["enemy"] = {}
