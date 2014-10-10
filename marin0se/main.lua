@@ -1,3 +1,4 @@
+require("libs.cupid")
 --[[
 	STEAL MY SHIT AND I'LL FUCK YOU UP
 	PRETTY MUCH EVERYTHING BY MAURICE GUÉGAN AND IF SOMETHING ISN'T BY ME THEN IT SHOULD BE OBVIOUS OR NOBODY CARES
@@ -22,7 +23,180 @@
 
 	0. You just DO WHAT THE FUCK YOU WANT TO.
 ]]
+function oldErrHand(msg)
+	--@TODO: Find a way to optionally fallback onto this from cupid.
+	msg = tostring(msg)
+	local trace = debug.traceback()
 
+	local err = {}
+
+	table.insert(err, "OH NO EVERYTHING IS BROKEN\n")
+	table.insert(err, "A screenshot of this page has been saved as 'crash.png'.")
+	if not versionerror then
+		table.insert(err, "Send a link to EntranceJew with a description of what you were doing.\n")
+	end
+	table.insert(err, "Marin0SE " .. (marioversion or "UNKNOWN") .. ", LOVE " .. (love._version or "UNKNOWN") .. " running on " .. (love._os or "UNKNOWN") .. "\n")
+	if love.graphics.getRendererInfo then
+		local info = {love.graphics.getRendererInfo()}
+		err[#err] = err[#err].."Graphics: "..info[1].." "..info[2].." ("..info[4]..", "..info[3]..")\n"
+	end
+	table.insert(err, msg.."\n")
+
+	if not versionerror then
+		for l in string.gmatch(trace, "(.-)\n") do
+			if not string.match(l, "boot.lua") then
+				l = string.gsub(l, "stack traceback:", "Trace:")
+				table.insert(err, l)
+			end
+		end
+	end
+
+	--error_printer(msg, 2)
+
+	if versionerror then
+		-- The rest of this code will only run on 0.9.0+.
+		return
+	end
+
+	if not love.graphics.isCreated() or not love.window.isCreated() then
+		local success, status = pcall(love.window.setMode, 800, 600)
+		if not success or not status then
+			return
+		end
+	end
+
+	local scale = scale or 2
+
+	-- Reset state.
+	if love.mouse then
+		love.mouse.setVisible(true)
+		love.mouse.setGrabbed(false)
+	end
+	if love.joystick then -- Stop all joystick vibrations.
+		for i,v in ipairs(love.joystick.getJoysticks()) do
+			v:setVibration()
+		end
+	end
+	if love.audio then love.audio.stop() end
+	love.graphics.reset()
+	love.graphics.setBackgroundColor(89, 157, 220)
+	local font = love.graphics.setNewFont(scale*7)
+
+	love.graphics.setColor(255, 255, 255, 255)
+
+	love.graphics.origin()
+	--love.graphics.clear()
+
+	local p = table.concat(err, "\n")
+
+	p = string.gsub(p, "\t", "")
+	p = string.gsub(p, "%[string \"(.-)\"%]", "%1")
+	print(p)
+
+	local canvas=love.graphics.newCanvas()
+	local beforeimagedata = love.graphics.newScreenshot()
+	love.graphics.setCanvas(canvas)
+	love.graphics.draw(love.graphics.newImage(beforeimagedata))
+	love.graphics.setColor(0, 0, 0, 200)
+	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+	love.graphics.setColor(0, 0, 0)
+	love.graphics.printf(p, 35*scale, 15*scale-1, love.graphics.getWidth() - 35*scale)
+	love.graphics.printf(p, 35*scale+1, 15*scale, love.graphics.getWidth() - 35*scale)
+	love.graphics.printf(p, 35*scale-1, 15*scale, love.graphics.getWidth() - 35*scale)
+	love.graphics.printf(p, 35*scale, 15*scale+1, love.graphics.getWidth() - 35*scale)
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.printf(p, 35*scale, 15*scale, love.graphics.getWidth() - 35*scale)
+	-- okay, we got the picture, now show it to the user
+	love.graphics.setCanvas()
+	local crashimagedata=canvas:getImageData()
+	love.graphics.draw(love.graphics.newImage(crashimagedata))
+	love.graphics.present()
+	
+	-- put it on da internet
+	if uploadoncrash then
+		screenshotUploadWrap("crash.png", crashimagedata)
+	end
+
+	while true do
+		love.event.pump()
+
+		for e, a, b, c in love.event.poll() do
+			if e == "quit" then
+				return
+			end
+			if e == "keypressed" and a == "escape" then
+				return
+			end
+		end
+
+		--love.graphics.present()
+
+		if love.timer then
+			love.timer.sleep(0.03)
+		end
+	end
+end
+function love.run()
+	love.math.setRandomSeed(os.time())
+	
+	
+    love.load(arg)
+
+    -- Main loop time.
+    while true do
+        -- Process events.
+		love.event.pump()
+		for e,a,b,c,d in love.event.poll() do
+			if e == "quit" then
+				if not love.quit() then
+					love.audio.stop()
+					return
+				end
+			end
+			love.handlers[e](a,b,c,d)
+		end
+
+        -- Update dt, as we'll be passing it to update
+		love.timer.step()
+		local dt = love.timer.getDelta()
+
+        -- Call update and draw
+        love.update(dt) -- will pass 0 if love.timer is disabled
+		love.graphics.clear()
+		love.graphics.origin()
+		
+		--Fullscreen hack
+		if not mkstation and fullscreen and gamestate ~= "intro" then
+			completecanvas:clear()
+			love.graphics.setScissor()
+			completecanvas:renderTo(love.draw)
+			love.graphics.setScissor()
+			if fullscreenmode == "full" then
+				love.graphics.draw(completecanvas, 0, 0, 0, desktopsize.width/(width*16*scale), desktopsize.height/(height*16*scale))
+			else
+				love.graphics.draw(completecanvas, 0, touchfrominsidemissing/2, 0, touchfrominsidescaling/scale, touchfrominsidescaling/scale)
+				love.graphics.setColor(0, 0, 0)
+				love.graphics.rectangle("fill", 0, 0, desktopsize.width, touchfrominsidemissing/2)
+				love.graphics.rectangle("fill", 0, desktopsize.height-touchfrominsidemissing/2, desktopsize.width, touchfrominsidemissing/2)
+				love.graphics.setColor(255, 255, 255, 255)
+			end
+		else
+			love.graphics.setScissor()
+			love.draw()
+		end
+		
+		love.graphics.present()
+		love.timer.sleep(0.001)
+    end
+end
+love.graphics.oldImage = love.graphics.newImage
+love.graphics.newImage = function(img)
+	if type(img)=="string" and not love.filesystem.exists(img) then
+		print("WARNING: Engine couldn't find graphic '"..img.."', call the amberlamps.")
+		img = "graphics/nographic.png"
+	end
+	return love.graphics.oldImage(img)
+end
 function add(desc)
 	print((desc or "") .. "\n" .. round((love.timer.getTime()-starttime)*1000) .. "ms\tlines " .. lastline+1 .. " - " .. debug.getinfo(2).currentline-1 .. "\n")
 	lastline = debug.getinfo(2).currentline
@@ -30,12 +204,12 @@ function add(desc)
 	starttime = love.timer.getTime()
 end
 
-function love.load(arg)
+function love.load(args)
 	game = {}
 	debugmode = "none"
 	args = args or {}
 	uploadoncrash = true
-	for k,v in pairs(arg) do
+	for k,v in pairs(args) do
 		if v=="-zbs" then
 			-- debug features exclusive to zerobrane
 			io.stdout:setvbuf("no")
@@ -48,11 +222,10 @@ function love.load(arg)
 			--skiplevelscreen = DEBUG
 			--debugbinds = DEBUG
 			--debugclasses = false
-			debugmode = arg[k+1] or "none"
+			debugmode = args[k+1] or "none"
 		end
 	end
 	expectedconnections = 2
-	--require("libs.cupid")
 	require "hook"
 	require "utils"
 	if debugmode=="client" or debugmode=="server" then
@@ -86,9 +259,6 @@ function love.load(arg)
 
 	math.mod = math.fmod
 	math.random = love.math.random
-	
-	--blame slime
-	love.graphics.draw = love.graphics.draw
 	
 	print("Loading Mari0 SE!")
 	print("=======================")
@@ -245,8 +415,8 @@ function love.load(arg)
 	require("libs.lube")
 	require("libs.tserial")
 	TLbind = require("libs.TLbind")
-	require("libs.monocle")
-	Monocle.new({
+	--require("libs.monocle")
+	--[[Monocle.new({
 		isActive=true,
 		customPrinter=false,
 		printColor = {255, 255, 255, 255},
@@ -259,7 +429,7 @@ function love.load(arg)
 			str=Tserial.pack(objects["player"][2].controls, true, true)
 		end
 		return str
-	end)
+	end)]]
 	require("libs.von")
 	--require "netplay2"
 	require "netplay"
@@ -795,6 +965,7 @@ function love.load(arg)
 	
 	firstload = true
 	
+	skipintro=true
 	if skipintro then
 		menu_load()
 	else
@@ -824,7 +995,7 @@ function love.update(dt)
 	if music then
 		music:update()
 	end
-	Monocle.update()
+	--Monocle.update()
 	TLbind:update()
 	realdt = dt
 	dt = math.min(0.5, dt) --ignore any dt higher than half a second
@@ -939,7 +1110,7 @@ function love.draw()
 			collectgarbage("collect")
 		end
 	end
-	Monocle.draw()
+	--Monocle.draw()
 end
 
 function saveconfig()
