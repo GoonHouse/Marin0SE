@@ -17,7 +17,7 @@ function mario:init(x, y, i, animation, size, t)
 	self.t = t or "portal"
 	self.portalsavailable = {unpack(portalsavailable)}
 	local bindtable 
-	if true or self.playernumber == networkclientnumber then
+	if self.playernumber == 1 then
 		bindtable = {
 			keys = {
 				w = "up",

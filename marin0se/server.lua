@@ -39,34 +39,34 @@ local resyncconfig = false
 local resynctimer = -5
 local server_pingtimer = 0
 local timeouttables = {}
+server_clientidlookup = {}
 
-function server_send(cmd, pl, players)
-	if type(players)=="number" then
-		players={players}
-	elseif players==nil then
-		players={}
+function server_send(cmd, pl, targets)
+	if type(targets)=="number" then
+		targets={targets}
+	elseif targets==nil then
+		targets={}
 		for i=1,#server_peerlist do
-			table.insert(players, i)
+			table.insert(targets, i)
 		end
 	end
-	print("DEBUG: "..cmd.." & "..von.serialize(pl).." & "..von.serialize(players))
-	for k,v in pairs(players) do
-		if v~=networkclientnumber then
+	--print("DEBUG: "..cmd.." & "..von.serialize(pl).." & "..von.serialize(players))
+	for k,v in pairs(targets) do
+		if v~=1 --[[networkclientnumber]] then
 			--if chan~="synccoords" and chan~="otherpointingangle" then
-			print("DEBUG: k "..tostring(k))
+			--[[print("DEBUG: k "..tostring(k))
 			print("DEBUG: v "..tostring(v))
 			print("DEBUG: cmd "..cmd)
-			print("DEBUG: server_peerlist "..von.serialize(server_peerlist))
+			print("DEBUG: server_peerlist "..von.serialize(server_peerlist))]]
 			if server_peerlist[v]==nil then print("I AM A GIANT HOMO~") end
-			print("DEBUG: server_peerlist[v] "..von.serialize(server_peerlist[v]))
+			--[[print("DEBUG: server_peerlist[v] "..von.serialize(server_peerlist[v]))
 			print("DEBUG: server_peerlist[v].nick "..server_peerlist[v].nick)
-			print("DEBUG: server_peerlist[v].clientid "..server_peerlist[v].clientid)
-			print("[LUBE|server] Sending command '"..cmd.."' to "..server_peerlist[v].nick.."("..server_peerlist[v].clientid..")")
+			print("DEBUG: server_peerlist[v].clientid "..server_peerlist[v].clientid)]]
+			--print("[LUBE|server] Sending command '"..cmd.."' to "..server_peerlist[v].nick.."("..server_peerlist[v].clientid.."|"..v..")")
 			--end
 			server:send(von.serialize({
 				cmd=cmd,
 				pl=pl,
-				fromclient=networkclientnumber --@DEV: This isn't necessary but it isn't going to kill anybody.
 			}), server_peerlist[v].clientid)
 		else
 			print("[LUBE|server] Running broadcasted command '"..cmd.."' on self.")
@@ -84,12 +84,18 @@ end
 function server_disconnect(clientid)
   print("[LUBE|server] Client " .. clientid .. " disconnected!")
 end
-
+function server_getpidfromcid(clientid)
+	return server_clientidlookup[clientid]
+end
 function server_recv(rdata, clientid)
 	local data = von.deserialize(rdata)
 	data.pl.clientid = clientid
-	print("[LUBE|server] Running client->server command '"..data.cmd.."' from client("..tostring(clientid).."|"..tostring(data.fromclient)..")!")
-	print("DEBUG: "..von.serialize(data.pl))
+	data.pl.playerid = server_getpidfromcid(clientid)
+	if data.pl.playerid == nil then
+		print("WARNING: playerid in inbound message '"..data.cmd.."' was nil.")
+	end
+	--print("[LUBE|server] Running client->server command '"..data.cmd.."' from client("..tostring(clientid).."|"..tostring(data.fromclient)..")!")
+	--print("DEBUG: "..von.serialize(data.pl))
 	assert(_G["server_callback_"..data.cmd]~=nil, "Received invalid client->server command '"..data.cmd.."'!")
 	_G["server_callback_" .. data.cmd](data.pl)
 end
@@ -133,9 +139,9 @@ function server_update(dt)
 			for i=1,#server_peerlist do
 				table.insert(tosend, i)
 			end
-			tosend[networkclientnumber]=nil
+			--tosend[k]=nil
 			server_send("synccoords", {
-				playerid=k,
+				target=k,
 				x=objects["player"][k].x,
 				y=objects["player"][k].y,
 				speedx=objects["player"][k].speedx,
@@ -280,8 +286,9 @@ function server_callback_connect(pl)
 		--@TODO: We need to *not* have this prebuilt entities table.
 		table.insert(server_peerlist, {clientid=pl.clientid, nick=pl.nick, mappacks=pl.mappacks})
 		local respondto = #server_peerlist
+		server_clientidlookup[pl.clientid]=respondto
 		local connecttable = {
-			playerid = respondto,
+			yourpid = respondto,
 			mappacks = mappacklist,
 			inflives = server_inflivesvalue,
 			sharingportals = server_sharingportalsvalue,
@@ -303,31 +310,13 @@ function server_callback_connect(pl)
 		server_udp:sendto("rejected", {reason="full"}, data.rip, data.rport)
 	end
 end
-function server_callback_nextlevel(data)
-	finishedlevel = false
-	for _, v in pairs(server_peerlist) do
-		v.x = 1.5
-		v.y = 13
-		v.speedx = 0
-		v.speedy = 0
-	end
-	--@DEV: we'll leave this alone for right now
-	--[[for i, v in pairs(server_peerlist) do
-		for j, k in pairs(server_peerlist) do
-			if i ~= j then
-				if v.x and v.y and v.speedx and v.speedy and v.currentdt then
-					server_sendto("synccoords", {id=i, x=v.x, y=v.y, speedx=v.speedx, speedy=v.speedy, v.currentdt}, k.ip, k.port)
-				end
-			end
-		end
-	end]]
-end
 function server_callback_move(pl)
 	local sendto={}
 	for i=1,#server_peerlist do
 		table.insert(sendto, i)
 	end
 	sendto[pl.playerid]=nil
+	pl.target = pl.playerid
 	--@TODO: Make the above available in the form of "everyonebut(pls)"
 	server_send("synccoords", pl, sendto)
 end

@@ -59,7 +59,6 @@ function network_update(dt)
 					We don't want to trust the player to be who they say they are, so
 					give the server a function to map a clientid to a playerid.
 				]]
-				playerid=networkclientnumber,
 				x=objects["player"][1].x,
 				y=objects["player"][1].y,
 				speedx=objects["player"][1].speedx,
@@ -251,7 +250,7 @@ function client_callback_connected(pl)
 	networksynccedconfig = false
 	local nick = guielements.nickentry.value
 	lobby_load(nick)
-	networkclientnumber = pl.playerid
+	networkclientnumber = pl.yourpid
 	print("connected, my client number is " .. networkclientnumber)
 end
 function client_callback_startgame(pl)
@@ -261,9 +260,19 @@ function client_callback_startgame(pl)
 end
 function client_callback_synccoords(pl)
 	local pid = pl.playerid
-	if pl.playerid == networkclientnumber then return false end
+	local tid = pl.target
+	--if pl.playerid == nil then
+		-- this means we were called synccoords as a direct response to someone's move command
+	--end
+	if tid == networkclientnumber then
+		print("WARNING: we tried to update ourselves from network")
+		return false
+	end
+	pl.target = nil
+	pl.playerid = nil
+	print("pid="..tostring(pid)..", tid="..tostring(tid)..", ncn="..tostring(networkclientnumber))
 	--@DEV: If everything goes wrong, it's because of the above line.
 	for k,v in pairs(pl) do
-		objects["player"][convertclienttoplayer(pid)][k] = v
+		objects["player"][convertclienttoplayer(tid)][k] = v
 	end
 end
