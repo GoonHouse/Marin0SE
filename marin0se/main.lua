@@ -530,7 +530,6 @@ function love.load(arg)
 	require "delayer"
 	require "entitylistitem"
 	require "entitytooltip"
-	require "windleaf"
 	
 	require "enemy"
 	require "enemies"
@@ -589,12 +588,12 @@ function love.load(arg)
 	
 	--IMAGES--
 	overwrittenimages = {}
-	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springgrn", "toad", "peach", "platform", 
+	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", 
 	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", 
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
 	"excursionfunnelend2", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "geldispenser", "cubedispenser", "panel", "pedestalbase",
 	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "musicentity", "smbtiles", "portaltiles",
-	"animatedtiletrigger", "delayer", "windleaf"}
+	"animatedtiletrigger", "delayer", "wind"}
 	
 	for i, v in pairs(imagelist) do
 		_G["default" .. v .. "img"] = love.graphics.newImage("graphics/DEFAULT/" .. v .. ".png")
@@ -688,15 +687,6 @@ function love.load(arg)
 		coinanimationquads[j] = {}
 		for i = 1, 5 do
 			coinanimationquads[j][i] = love.graphics.newQuad((i-1)*5, (j-1)*8, 5, 8, 25, 32)
-		end
-	end
-
-	--windleaf
-	windleafquad = {}
-	for y = 1, 4 do
-		windleafquad[y] = {}
-		for x = 1, 2 do
-			windleafquad[y][x] = love.graphics.newQuad((x-1)*6, (y-1)*6, 6, 6, 12, 24)
 		end
 	end
 	

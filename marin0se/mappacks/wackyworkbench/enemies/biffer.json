@@ -31,10 +31,11 @@
 	"quadcenterY": 0,
 
 	"spawnsenemy": "bulletbill",
-	"spawnenemydelays": [3],
+	"spawnenemydelays": [1.2, 1.4, 1.6],
 	"spawnenemyoffsety": -0.5,
 	"spawnenemyspeedx": -8,
 	"spawnenemyspeedxtowardsplayer": true,	
+	"spawnonlyonextended": true,
 	
 	"stompable": false,	
 	"resistsfire": true,
@@ -53,7 +54,7 @@
 	"pistonretracttime": 1.2,
 	"dontpistonnearplayer": false,
 	"dontpistondist": 1,
-	"inactiveonretracted": true,
+	"inactiveonretracted": false,
 	
 	"ignorefaithplates": true
 }

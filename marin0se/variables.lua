@@ -323,7 +323,7 @@ endtime = 2
 --spring
 springtime = 0.2
 springhighforce = 41 --Regular Springboard
-springgrnhighforce = 190 --High Springboard
+springhighhighforce = 190 --High Springboard
 springforce = 24
 springytable = {0, 0.5, 1}
 

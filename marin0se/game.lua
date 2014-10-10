@@ -738,6 +738,37 @@ function game_update(dt)
 		end
 	end
 	
+	--The Wind
+	if not levelfinished and windstarted then
+		--[[if windsound:isStopped() then
+			playsound(windsound)
+		end]]
+		local player1 = objects["player"][1]
+		if player1.animationdirection == "left" and player1.animationstate ~= "idle" then
+			if not player1.spring and not player1.springhigh then
+				player1.speedx = player1.speedx + 0.06
+			else
+				
+			end
+		elseif player1.animationstate ~= "idle" then
+			if not player1.spring and not player1.springhigh then
+				player1.speedx = player1.speedx + 0.03
+			else
+				
+			end
+		elseif player1.animationstate == "idle" then
+			player1.speedx = player1.speedx + 1
+		end
+		--make leafs apear
+		windtimer = windtimer + dt
+		while windtimer > 0.05 do
+			windtimer = windtimer - 0.05
+			
+			local temp = enemy:new(xscroll-1, math.random(1, 14), "wind")
+			table.insert(objects["enemy"], temp)
+			end
+	end
+	
 	--FLYING FISH
 	if not levelfinished and flyingfishstarted then
 		flyingfishtimer = flyingfishtimer + dt
@@ -770,35 +801,6 @@ function game_update(dt)
 			bulletbilltimer = bulletbilltimer - bulletbilldelay
 			bulletbilldelay = math.random(5, 40)/10
 			table.insert(objects["enemy"], enemy:new(xscroll+width+2, math.random(4, 12), "bulletbill"))
-		end
-	end
-	
-	--WIND
-	if not levelfinished and windstarted then
-		--[[if windsound:isStopped() then
-			playsound(windsound)
-		end]]
-		local player1 = objects["player"][1]
-		if player1.animationdirection == "left" and player1.animationstate ~= "idle" then
-			if not player1.spring and not player1.springgreen and not player1.springgreenhigh and not player1.springhigh then
-				player1.speedx = player1.speedx + 0.06
-			else
-				
-			end
-		elseif player1.animationstate ~= "idle" then
-			if not player1.spring and not player1.springgreen and not player1.springgreenhigh and not player1.springhigh then
-				player1.speedx = player1.speedx + 0.03
-			else
-				
-			end
-		elseif player1.animationstate == "idle" then
-			player1.speedx = player1.speedx + 1
-		end
-		--make leafs apear
-		windleaftimer = windleaftimer + dt
-		while windleaftimer > 0.05 do
-			windleaftimer = windleaftimer - 0.05
-			table.insert(objects["windleaf"], windleaf:new(xscroll-1, math.random(1, 14)))
 		end
 	end
 	
@@ -2735,7 +2737,7 @@ function loadlevel(level)
 	windstarted = false
 	windstartx = false
 	windendx = false
-	windleaftimer = 0.1
+	windtimer = 0.1
 	firetimer = firedelay
 	flyingfishtimer = flyingfishdelay
 	bulletbilltimer = bulletbilldelay
@@ -2849,7 +2851,6 @@ function loadlevel(level)
 	objects["checkpoints"] = {}
 	objects["portalent"] = {}
 	objects["actionblock"] = {}
-	objects["windleaf"] = {}
 	
 	--!
 	objects["enemy"] = {}
