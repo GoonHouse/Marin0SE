@@ -1,13 +1,22 @@
 local alternatesynctimer = -5
 networkynccedconfig = false
+networkupdatelimit = .05
+bypassdupecheck = false
 seesawisync = {}
 
+client_sendhistory = {}
+client_recvhistory = {}
+
 function client_send(cmd, pl)
-	if cmd=="move" then return false end
-	--if chan~="synccoords" and cmd~="otherpointingangle" then
-	--print("[LUBE|client] Issuing server command '"..cmd.."'!")
-	--end
-	client:send(Tserial.pack({cmd=cmd,pl=pl}),true)
+	local digest = Tserial.pack({cmd=cmd,pl=pl},true)
+	if client_sendhistory[cmd]~=digest or bypassdupecheck then
+		client_sendhistory[cmd] = digest
+		print("[LUBE|client] Issuing server command '"..cmd.."'!")
+		print("CLIENT-DEBUG: "..digest)
+		client:send(digest)
+	--else
+		--print("CLIENT-WARNING-SENDDUPE")
+	end
 end
 
 function network_load(ip, port)
@@ -44,10 +53,16 @@ function network_load(ip, port)
 end
 function client_recv(rdata)
 	local data = Tserial.unpack(rdata, true)
-	--print("[LUBE|client] Running server->client command '"..data.cmd.."'!")
-	--print("DEBUG: "..Tserial.pack(data,true))
-	assert(_G["client_callback_"..data.cmd]~=nil, "Received invalid server->client command '"..data.cmd.."'!")
-	_G["client_callback_" .. data.cmd](data.pl)
+	if client_recvhistory[data.cmd]~=rdata or bypassdupecheck then
+		client_recvhistory[data.cmd] = rdata
+		--print("[LUBE|client] Running server->client command '"..data.cmd.."'!")
+		--print("DEBUG: "..Tserial.pack(data,true))
+		assert(_G["client_callback_"..data.cmd]~=nil, "Received invalid server->client command '"..data.cmd.."'!")
+		_G["client_callback_" .. data.cmd](data.pl)
+	--else
+		--print("CLIENT-WARNING-RECVDUPE")
+	end
+	
 end
 function network_update(dt)
 	client:update(dt)
@@ -55,7 +70,7 @@ function network_update(dt)
 		networkupdatetimer = networkupdatetimer + dt
 		if networkupdatetimer > networkupdatelimit then 
 			networkupdatetimer = networkupdatetimer - networkupdatelimit
-			client_send("move", {
+			client_send("coordsupdate", {
 				--[[@WARNING: 
 					We don't want to trust the player to be who they say they are, so
 					give the server a function to map a clientid to a playerid.
@@ -65,7 +80,7 @@ function network_update(dt)
 				speedx=objects["player"][1].speedx,
 				speedy=objects["player"][1].speedy,
 				pointingangle=objects["player"][1].pointingangle,
-				dt=love.timer.getDelta()
+				--dt=love.timer.getDelta()
 			})
 		end
 	end
@@ -253,6 +268,11 @@ function client_callback_connected(pl)
 	lobby_load(nick)
 	networkclientnumber = pl.yourpid
 	print("connected, my client number is " .. networkclientnumber)
+end
+function client_callback_rejected(pl)
+	notice.new(pl.reason, notice.red, 5)
+	onlinemp = false
+	client:close()
 end
 function client_callback_startgame(pl)
 	connectionstate = "starting game..."

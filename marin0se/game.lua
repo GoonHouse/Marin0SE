@@ -1,4 +1,3 @@
-networkupdatelimit = .03
 networkupdatetimer = 0
 enemyupdatetimer = 0
 angletimer = 0
@@ -763,7 +762,7 @@ function game_update(dt)
 		windtimer = windtimer + dt
 		while windtimer > 0.05 do
 			windtimer = windtimer - 0.05
-			local temp = leaf:new(xscroll-1, math.random(1, 14), "leaf")
+			local temp = leaf:new(xscroll-1, math.random(1, mapheight))
 			table.insert(objects["leaf"], temp)
 		end
 	end
@@ -1442,7 +1441,7 @@ function game_draw()
 		
 		love.graphics.setColor(255, 255, 255)
 		--Leaf
-		for j, w in pairs(leaf) do
+		for j, w in pairs(objects["leaf"]) do
 			w:draw()
 		end
 		

@@ -1,0 +1,4 @@
+name=multiplayertest
+author=goonhouse
+description=look at all the features jerry
+lives=3

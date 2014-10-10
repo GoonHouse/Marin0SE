@@ -19,10 +19,10 @@ local config = {
 	console_key_repeat = true,
 	console_start_open = false,
 
-	enable_remote = true, --true
+	enable_remote = false, --true
 	font = "whitrabt.ttf",
 
-	enable_watcher = true,--true
+	enable_watcher = false,--true
 	watcher_interval = 1.0,
 	watcher_onchanged = "reload()",
 	watcher_patterns = {"lua$"},

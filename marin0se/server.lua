@@ -3,6 +3,8 @@
 	playerid == the id of a player in the server_peerlist
 ]]
 
+server_sendhistory = {}
+server_recvhistory = {}
 
 function server_load()
 	local socket = require "socket"
@@ -39,10 +41,11 @@ local resyncconfig = false
 local resynctimer = -5
 local server_pingtimer = 0
 local timeouttables = {}
+server_coordsupdatedelta = .05
 server_clientidlookup = {}
 
 function server_send(cmd, pl, targets)
-	if cmd=="synccoords" then return false end
+	local digest = Tserial.pack({cmd=cmd,pl=pl})
 	if type(targets)=="number" then
 		targets={targets}
 	elseif targets==nil then
@@ -53,27 +56,32 @@ function server_send(cmd, pl, targets)
 	end
 	--print("DEBUG: "..cmd.." & "..von.serialize(pl).." & "..von.serialize(players))
 	for k,v in pairs(targets) do
-		if v~=1 --[[networkclientnumber]] then
-			--if chan~="synccoords" and chan~="otherpointingangle" then
-			--[[print("DEBUG: k "..tostring(k))
-			print("DEBUG: v "..tostring(v))
-			print("DEBUG: cmd "..cmd)
-			print("DEBUG: server_peerlist "..von.serialize(server_peerlist))]]
-			if server_peerlist[v]==nil then print("I AM A GIANT HOMO~") end
-			--[[print("DEBUG: server_peerlist[v] "..von.serialize(server_peerlist[v]))
-			print("DEBUG: server_peerlist[v].nick "..server_peerlist[v].nick)
-			print("DEBUG: server_peerlist[v].clientid "..server_peerlist[v].clientid)]]
-			--print("[LUBE|server] Sending command '"..cmd.."' to "..server_peerlist[v].nick.."("..server_peerlist[v].clientid.."|"..v..")")
-			--end
-			server:send(Tserial.pack({
-				cmd=cmd,
-				pl=pl,
-			}, true), server_peerlist[v].clientid)
-		else
-			--print("[LUBE|server] Running broadcasted command '"..cmd.."' on self.")
-			if _G["client_callback_" .. cmd] then
-				_G["client_callback_" .. cmd](pl)
+		if server_sendhistory[server_peerlist[v].clientid]==nil then
+			server_sendhistory[server_peerlist[v].clientid]={}
+		end
+		if server_sendhistory[server_peerlist[v].clientid][cmd]~=digest or bypassdupecheck then
+			server_sendhistory[server_peerlist[v].clientid][cmd] = digest
+			if v~=1 --[[networkclientnumber]] then
+				--if chan~="synccoords" and chan~="otherpointingangle" then
+				--[[print("DEBUG: k "..tostring(k))
+				print("DEBUG: v "..tostring(v))
+				print("DEBUG: cmd "..cmd)
+				print("DEBUG: server_peerlist "..von.serialize(server_peerlist))]]
+				if server_peerlist[v]==nil then print("INVISIBLE PEER?!") end
+				--[[print("DEBUG: server_peerlist[v] "..von.serialize(server_peerlist[v]))
+				print("DEBUG: server_peerlist[v].nick "..server_peerlist[v].nick)
+				print("DEBUG: server_peerlist[v].clientid "..server_peerlist[v].clientid)]]
+				--print("[LUBE|server] Sending command '"..cmd.."' to "..server_peerlist[v].nick.."("..server_peerlist[v].clientid.."|"..v..")")
+				--end
+				server:send(digest, server_peerlist[v].clientid)
+			else
+				print("[LUBE|server] Running broadcasted command '"..cmd.."' on self.")
+				if _G["client_callback_" .. cmd] then
+					_G["client_callback_" .. cmd](pl)
+				end
 			end
+		--else
+			--print("SERVER-WARNING-SENDDUPE")
 		end
 	end
 end
@@ -95,10 +103,18 @@ function server_recv(rdata, clientid)
 	if data.pl.playerid == nil then
 		print("WARNING: playerid in inbound message '"..data.cmd.."' was nil.")
 	end
-	--print("[LUBE|server] Running client->server command '"..data.cmd.."' from client("..tostring(clientid).."|"..tostring(data.fromclient)..")!")
-	--print("DEBUG: "..von.serialize(data.pl))
-	assert(_G["server_callback_"..data.cmd]~=nil, "Received invalid client->server command '"..data.cmd.."'!")
-	_G["server_callback_" .. data.cmd](data.pl)
+	if server_recvhistory[clientid]==nil then
+		server_recvhistory[clientid]={}
+	end
+	if server_recvhistory[clientid][data.cmd]~=rdata or bypassdupecheck then
+		server_recvhistory[clientid][data.cmd] = rdata
+		print("[LUBE|server] Running client->server command '"..data.cmd.."' from client("..tostring(clientid).."|"..tostring(data.pl.playerid)..")!")
+		print("SERVER-DEBUG: "..Tserial.pack(data.pl,true))
+		assert(_G["server_callback_"..data.cmd]~=nil, "Received invalid client->server command '"..data.cmd.."'!")
+		_G["server_callback_" .. data.cmd](data.pl)
+	--else
+		--print("SERVER-WARNING-RECVDUPE")
+	end
 end
 
 function server_update(dt)
@@ -133,14 +149,14 @@ function server_update(dt)
 	end]]
 	
 	server_coordsupdatetimer = server_coordsupdatetimer + dt
-	if server_coordsupdatetimer > .03 and server_startedgame and objects then
-		server_coordsupdatetimer = server_coordsupdatetimer - .03
+	if server_coordsupdatetimer > server_coordsupdatedelta and server_startedgame and objects then
+		server_coordsupdatetimer = server_coordsupdatetimer - server_coordsupdatedelta
 		for k, v in pairs(server_peerlist) do
 			local tosend={}
 			for i=1,#server_peerlist do
 				table.insert(tosend, i)
 			end
-			--tosend[k]=nil
+			tosend[k]=nil
 			server_send("synccoords", {
 				target=k,
 				x=objects["player"][k].x,
@@ -149,7 +165,7 @@ function server_update(dt)
 				speedy=objects["player"][k].speedy,
 				pointingangle=objects["player"][k].pointingangle, 
 				--@DEV: ^ This is here until I write an easier way to manage timers.
-				dt=dt,
+				--dt=dt,
 			}, tosend)
 		end
 	end
@@ -288,6 +304,8 @@ function server_callback_connect(pl)
 		table.insert(server_peerlist, {clientid=pl.clientid, nick=pl.nick, mappacks=pl.mappacks})
 		local respondto = #server_peerlist
 		server_clientidlookup[pl.clientid]=respondto
+		server_sendhistory[pl.clientid] = {}
+		server_recvhistory[pl.clientid] = {}
 		local connecttable = {
 			yourpid = respondto,
 			mappacks = mappacklist,
@@ -308,10 +326,10 @@ function server_callback_connect(pl)
 		hook.Call("ServerClientConnected", respondto, pl.clientid)
 		return
 	else
-		server_udp:sendto("rejected", {reason="full"}, data.rip, data.rport)
+		server_send("rejected", {reason="lobby full"}, pl.clientid)
 	end
 end
-function server_callback_move(pl)
+function server_callback_coordsupdate(pl)
 	local sendto={}
 	for i=1,#server_peerlist do
 		table.insert(sendto, i)

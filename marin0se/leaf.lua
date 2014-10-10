@@ -5,8 +5,8 @@ function leaf:init(x, y)
 	self.y = y
 	self.speedy = 0
 	self.speedx = 50
-	self.width = -100000000
-	self.height = -100000000
+	self.width = 1
+	self.height = 1
 	self.static = false
 	self.active = true
 	self.category = 29
@@ -32,11 +32,8 @@ function leaf:init(x, y)
 end
 
 function leaf:update(dt)
-	if self.x > xscroll+width+1 or self.y > mapheight and self.active then --check if off screen
-		return true
-	else
-		return false
-	end
+	--@WARNING: WHOO BOY THIS SHIT AIN'T WORKING.
+	return false
 end
 
 function leaf:draw()

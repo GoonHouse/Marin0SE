@@ -284,12 +284,12 @@ function mario:controlPress(control, fromnetwork)
 	end
 	if fromnetwork then
 		print("network-pressed: "..control)
+		self.controls[control]=true
+		self.controls.tap[control]=true
+		self.controls.release[control]=true
 	else
 		print("pressed: "..control)
 	end
-	self.controls[control]=true
-	self.controls.tap[control]=true
-	self.controls.release[control]=true
 	if control=="jump" then
 		self:jump()
 	elseif control=="run" then
@@ -314,12 +314,12 @@ function mario:controlRelease(control, fromnetwork)
 	end
 	if fromnetwork then
 		print("network-released: "..control)
+		self.controls[control]=false
+		self.controls.tap[control]=false
+		self.controls.release[control]=false
 	else
 		print("released: "..control)
 	end
-	self.controls[control]=false
-	self.controls.tap[control]=false
-	self.controls.release[control]=false
 	if control=="jump" then
 		self:stopjump()
 	end
