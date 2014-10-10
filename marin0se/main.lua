@@ -88,7 +88,7 @@ function love.load(arg)
 	math.random = love.math.random
 	
 	--blame slime
-	love.graphics.drawq = love.graphics.draw
+	love.graphics.draw = love.graphics.draw
 	
 	print("Loading Mari0 SE!")
 	print("=======================")
