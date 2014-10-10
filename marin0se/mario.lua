@@ -40,20 +40,7 @@ function mario:init(x, y, i, animation, size, t)
 			useMouse = true,
 		}
 	else
-		bindtable = {
-			keys = {
-				i = "up",
-				j = "left",
-				k = "down",
-				l = "right",
-				[":"] = "use",
-				rshift = "run",
-				o = "reload",
-				backspace = "jump",
-				n = "primary",
-				m = "secondary",
-			}
-		}
+		bindtable = {}
 	end
 	self.binds, self.controls = TLbind.giveInstance(bindtable)
 	self.binds.controlPressed = function(control)
@@ -300,7 +287,9 @@ function mario:controlPress(control, fromnetwork)
 	else
 		print("pressed: "..control)
 	end
-	self.controls[control]=false
+	self.controls[control]=true
+	self.controls.tap[control]=true
+	self.controls.release[control]=true
 	if control=="jump" then
 		self:jump()
 	elseif control=="run" then
@@ -329,6 +318,8 @@ function mario:controlRelease(control, fromnetwork)
 		print("released: "..control)
 	end
 	self.controls[control]=false
+	self.controls.tap[control]=false
+	self.controls.release[control]=false
 	if control=="jump" then
 		self:stopjump()
 	end
@@ -386,7 +377,7 @@ function mario:adddata()
 end
 
 function mario:update(dt)
-	if self.binds.update and self.controls then
+	if self.binds.update and self.controls and self.playernumber == 1 then
 		self.binds:update()
 	end
 	if replaysystem then

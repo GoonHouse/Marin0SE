@@ -291,10 +291,10 @@ function client_callback_synccontrol(pl)
 	end
 	--[[pl.target = nil
 	pl.playerid = nil]]
-	--print("pid="..tostring(pid)..", tid="..tostring(tid)..", ncn="..tostring(networkclientnumber))
+	print("pid="..tostring(pid)..", tid="..tostring(tid)..", ncn="..tostring(networkclientnumber))
 	if pl.direction == "press" then
-		objects["player"][tid]:controlPress(pl.control, true)
+		objects["player"][convertclienttoplayer(tid)]:controlPress(pl.control, true)
 	elseif pl.direction == "release" then
-		objects["player"][tid]:controlRelease(pl.control, true)
+		objects["player"][convertclienttoplayer(tid)]:controlRelease(pl.control, true)
 	end
 end

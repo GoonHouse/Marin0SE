@@ -415,8 +415,8 @@ function love.load(args)
 	require("libs.lube")
 	require("libs.tserial")
 	TLbind = require("libs.TLbind")
-	--require("libs.monocle")
-	--[[Monocle.new({
+	require("libs.monocle")
+	Monocle.new({
 		isActive=true,
 		customPrinter=false,
 		printColor = {255, 255, 255, 255},
@@ -425,11 +425,11 @@ function love.load(args)
 	})
 	Monocle.watch("binds", function()
 		local str = "jack shit"
-		if objects and objects["player"] and objects["player"][2] and objects["player"][2].controls then
-			str=Tserial.pack(objects["player"][2].controls, true, true)
+		if objects and objects["player"] and objects["player"][2] and objects["player"][2].binds then
+			str=Tserial.pack(objects["player"][2].binds, true, true)
 		end
 		return str
-	end)]]
+	end)
 	require("libs.von")
 	--require "netplay2"
 	require "netplay"
@@ -995,7 +995,7 @@ function love.update(dt)
 	if music then
 		music:update()
 	end
-	--Monocle.update()
+	Monocle.update()
 	TLbind:update()
 	realdt = dt
 	dt = math.min(0.5, dt) --ignore any dt higher than half a second
@@ -1110,7 +1110,7 @@ function love.draw()
 			collectgarbage("collect")
 		end
 	end
-	--Monocle.draw()
+	Monocle.draw()
 end
 
 function saveconfig()

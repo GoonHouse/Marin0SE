@@ -1,5 +1,6 @@
 function editor_load()
 	print("Editor loaded!")
+	mapbuttons={}
 	currentanimation = 1
 	tilecount1 = 168
 	tilecount2 = 74
