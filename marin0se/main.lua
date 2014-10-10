@@ -532,7 +532,7 @@ function love.load(args)
 	require "delayer"
 	require "entitylistitem"
 	require "entitytooltip"
-	require "leaf"
+	--require "leaf"
 	
 	require "enemy"
 	require "enemies"
@@ -711,14 +711,14 @@ function love.load(args)
 		end
 	end
 	
-	--leaf
+	--[[leaf
 	leafquad = {}
 	for y = 1, 4 do
 		leafquad[y] = {}
 		for x = 1, 2 do
 			leafquad[y][x] = love.graphics.newQuad((x-1)*6, (y-1)*6, 6, 6, 12, 24)
 		end
-	end
+	end]]
 	
 	--axe
 	axequads = {}

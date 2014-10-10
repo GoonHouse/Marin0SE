@@ -308,7 +308,7 @@ function game_update(dt)
 	
 	--UPDATE STUFFFFF
 	
-	local updatetable = {	pedestals, emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers, emancipationgrills, fireworks, miniblocks, bubbles, platformspawners, seesaws, blockdebristable, leaf,
+	local updatetable = {	pedestals, emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers, emancipationgrills, fireworks, miniblocks, bubbles, platformspawners, seesaws, blockdebristable,
 							userects, rainbooms, coinblockanimations, itemanimations}
 							
 	for i, v in pairs(objects) do
@@ -760,8 +760,9 @@ function game_update(dt)
 		end
 		--make leafs appear
 		windtimer = windtimer + dt
-		while windtimer > 0.05 do
-			windtimer = windtimer - 0.05
+		while windtimer > 0.10 do
+			windtimer = windtimer - 0.10
+			
 			local temp = leaf:new(xscroll-1, math.random(1, mapheight))
 			table.insert(objects["leaf"], temp)
 		end

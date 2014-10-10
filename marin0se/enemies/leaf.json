@@ -3,14 +3,15 @@
 	"dontmirror": true,
 	
 	"movement": "none",
-	"lifetime": 2,
+	"lifetime": 3,
 	"nocollidestops": true,
 	
 	"stompable": false,
 	"stompcombosuppressor": false,
 	"portalable": false,
 	
-	"speedx": 80,
+	"speedx": 24,
+	"starttowardsplayerhorizontal": true,
 	
 	"width": 1,
 	"height": 1,
