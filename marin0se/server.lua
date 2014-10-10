@@ -42,6 +42,7 @@ local timeouttables = {}
 server_clientidlookup = {}
 
 function server_send(cmd, pl, targets)
+	if cmd=="synccoords" then return false end
 	if type(targets)=="number" then
 		targets={targets}
 	elseif targets==nil then
@@ -64,12 +65,12 @@ function server_send(cmd, pl, targets)
 			print("DEBUG: server_peerlist[v].clientid "..server_peerlist[v].clientid)]]
 			--print("[LUBE|server] Sending command '"..cmd.."' to "..server_peerlist[v].nick.."("..server_peerlist[v].clientid.."|"..v..")")
 			--end
-			server:send(von.serialize({
+			server:send(Tserial.pack({
 				cmd=cmd,
 				pl=pl,
-			}), server_peerlist[v].clientid)
+			}, true), server_peerlist[v].clientid)
 		else
-			print("[LUBE|server] Running broadcasted command '"..cmd.."' on self.")
+			--print("[LUBE|server] Running broadcasted command '"..cmd.."' on self.")
 			if _G["client_callback_" .. cmd] then
 				_G["client_callback_" .. cmd](pl)
 			end
@@ -88,7 +89,7 @@ function server_getpidfromcid(clientid)
 	return server_clientidlookup[clientid]
 end
 function server_recv(rdata, clientid)
-	local data = von.deserialize(rdata)
+	local data = Tserial.unpack(rdata, true)
 	data.pl.clientid = clientid
 	data.pl.playerid = server_getpidfromcid(clientid)
 	if data.pl.playerid == nil then
@@ -319,4 +320,15 @@ function server_callback_move(pl)
 	pl.target = pl.playerid
 	--@TODO: Make the above available in the form of "everyonebut(pls)"
 	server_send("synccoords", pl, sendto)
+end
+function server_callback_controlupdate(pl)
+	local sendto={}
+	for i=1,#server_peerlist do
+		table.insert(sendto, i)
+	end
+	sendto[pl.playerid]=nil
+	pl.target = pl.playerid
+	--print("ZDEBUG: "..von.serialize(pl))
+	--@TODO: Make the above available in the form of "everyonebut(pls)"
+	server_send("synccontrol", pl, sendto)
 end

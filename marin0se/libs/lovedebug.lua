@@ -32,7 +32,7 @@ local _Debug = {
 	keyRepeatDelay = 0.4,
 	
 	liveOutput='',
-	liveLastModified=love.filesystem.getLastModified('main.lua'),
+	--liveLastModified=love.filesystem.getLastModified('main.lua'),
 	liveDo=false
 }
 
@@ -566,6 +566,9 @@ end
 _G["love"].run = function()
 	if love.math then
 		love.math.setRandomSeed(os.time())
+	end
+	for i=1, 2 do 
+		love.math.random() 
 	end
 	
 	if love.event then

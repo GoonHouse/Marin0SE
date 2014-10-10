@@ -20,6 +20,7 @@ function mario:init(x, y, i, animation, size, t)
 	if self.playernumber == 1 then
 		bindtable = {
 			keys = {
+				x = "debug",
 				w = "up",
 				a = "left",
 				s = "down",
@@ -54,37 +55,14 @@ function mario:init(x, y, i, animation, size, t)
 			}
 		}
 	end
-	print("giving a mario some controls")
 	self.binds, self.controls = TLbind.giveInstance(bindtable)
 	self.binds.controlPressed = function(control)
-		--[[if onlinemp then
-			client_send("controlsupdate", self.controls) --@TODO: Don't send the entire table, eventually.
-		end]]
-		if control=="jump" then
-			self:jump()
-		elseif control=="run" then
-			self:fire()
-		elseif control=="reload" then
-			self:removeportals()
-		elseif control=="use" then
-			self:use()
-		elseif control=="left" then
-			self:leftkey()
-		elseif control=="right" then
-			self:rightkey()
-		elseif control=="primary" then
-			self:shootportal(1)
-		elseif control=="secondary" then
-			self:shootportal(2)
-		end
+		print("wrap control press")
+		self:controlPress(control, false)
 	end
 	self.binds.controlReleased = function(control)
-		--[[if onlinemp then
-			client_send("controlsupdate", self.controls) --@TODO: Don't send the entire table, eventually.
-		end]]
-		if control=="jump" then
-			self:stopjump()
-		end
+		print("wrap control release")
+		self:controlRelease(control, false)
 	end
 	
 	--PHYSICS STUFF
@@ -310,6 +288,50 @@ function mario:init(x, y, i, animation, size, t)
 		end
 	end
 	self:setquad()
+end
+
+
+function mario:controlPress(control, fromnetwork)
+	if onlinemp and not fromnetwork then
+		client_send("controlupdate", {control=control,direction="press"})
+	end
+	if fromnetwork then
+		print("network-pressed: "..control)
+	else
+		print("pressed: "..control)
+	end
+	self.controls[control]=false
+	if control=="jump" then
+		self:jump()
+	elseif control=="run" then
+		self:fire()
+	elseif control=="reload" then
+		self:removeportals()
+	elseif control=="use" then
+		self:use()
+	elseif control=="left" then
+		self:leftkey()
+	elseif control=="right" then
+		self:rightkey()
+	elseif control=="primary" then
+		self:shootportal(1)
+	elseif control=="secondary" then
+		self:shootportal(2)
+	end
+end
+function mario:controlRelease(control, fromnetwork)
+	if onlinemp and not fromnetwork then
+		client_send("controlupdate", {control=control,direction="release"})
+	end
+	if fromnetwork then
+		print("network-released: "..control)
+	else
+		print("released: "..control)
+	end
+	self.controls[control]=false
+	if control=="jump" then
+		self:stopjump()
+	end
 end
 
 function mario:adddata()

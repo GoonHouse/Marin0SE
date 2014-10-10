@@ -3,10 +3,11 @@ networkynccedconfig = false
 seesawisync = {}
 
 function client_send(cmd, pl)
+	if cmd=="move" then return false end
 	--if chan~="synccoords" and cmd~="otherpointingangle" then
-	print("[LUBE|client] Issuing server command '"..cmd.."'!")
+	--print("[LUBE|client] Issuing server command '"..cmd.."'!")
 	--end
-	client:send(von.serialize({cmd=cmd,pl=pl,fromclient=networkclientnumber}))
+	client:send(Tserial.pack({cmd=cmd,pl=pl}),true)
 end
 
 function network_load(ip, port)
@@ -42,9 +43,9 @@ function network_load(ip, port)
 	end
 end
 function client_recv(rdata)
-	local data = von.deserialize(rdata)
-	print("[LUBE|client] Running server->client command '"..data.cmd.."'!")
-	print("DEBUG: "..von.serialize(data))
+	local data = Tserial.unpack(rdata, true)
+	--print("[LUBE|client] Running server->client command '"..data.cmd.."'!")
+	--print("DEBUG: "..Tserial.pack(data,true))
 	assert(_G["client_callback_"..data.cmd]~=nil, "Received invalid server->client command '"..data.cmd.."'!")
 	_G["client_callback_" .. data.cmd](data.pl)
 end
@@ -270,9 +271,30 @@ function client_callback_synccoords(pl)
 	end
 	pl.target = nil
 	pl.playerid = nil
-	print("pid="..tostring(pid)..", tid="..tostring(tid)..", ncn="..tostring(networkclientnumber))
+	--print("pid="..tostring(pid)..", tid="..tostring(tid)..", ncn="..tostring(networkclientnumber))
 	--@DEV: If everything goes wrong, it's because of the above line.
 	for k,v in pairs(pl) do
 		objects["player"][convertclienttoplayer(tid)][k] = v
+	end
+end
+function client_callback_synccontrol(pl)
+	local pid = pl.playerid
+	local tid = pl.target
+	--if pl.playerid == nil then
+		-- this means we were called synccoords as a direct response to someone's move command
+	--end
+	--print("XDEBUG: "..Tserial.pack(pl,true))
+	--print("WE ARE: "..tostring(networkclientnumber).."TID: "..tostring(tid).."CID: "..tostring(convertclienttoplayer(tid)))
+	if tid == networkclientnumber then
+		print("WARNING: we tried to update ourselves from network")
+		return false
+	end
+	--[[pl.target = nil
+	pl.playerid = nil]]
+	--print("pid="..tostring(pid)..", tid="..tostring(tid)..", ncn="..tostring(networkclientnumber))
+	if pl.direction == "press" then
+		objects["player"][tid]:controlPress(pl.control, true)
+	elseif pl.direction == "release" then
+		objects["player"][tid]:controlRelease(pl.control, true)
 	end
 end
