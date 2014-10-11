@@ -26,6 +26,7 @@ function mario:init(x, y, i, animation, size, t)
 				s = "down",
 				d = "right",
 				f = "use",
+				[":"] = "suicide",
 				lshift = "run",
 				r = "reload",
 				[" "] = "jump",
@@ -298,6 +299,8 @@ function mario:controlPress(control, fromnetwork)
 		self:removeportals()
 	elseif control=="use" then
 		self:use()
+	elseif control=="suicide" then
+		self:die("Suicide")
 	elseif control=="left" then
 		self:leftkey()
 	elseif control=="right" then

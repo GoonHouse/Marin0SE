@@ -37,6 +37,11 @@ local config = {
 -----------------------------------------------------
 
 local cupid_error = function(...) error(...) end
+local cupid_canvas
+local cupid_preshot
+local cupid_preshot_image
+local cupid_screenshot
+local cupid_screenshot_image
 local main_args = {...}
 
 local wraped_love = {}
@@ -315,7 +320,7 @@ mods.console = function() return {
 			self.font = cupid_font(self.lineheight)
 		end
 		retaining("Color","Font", function()
-			cupid_load_identity()
+			--cupid_load_identity()
 			g.setColor(0,0,0,120)
 			g.rectangle("fill", 0, 0, g.getWidth(), self.height)
 			g.setColor(0,0,0,120)
@@ -451,17 +456,35 @@ mods.error = function() return {
 		cupid_error = function(...) self:error(...) end
 	end,
 	["error"] = function(self, msg) 
-		
 		local obj = {msg = msg, traceback = debug.traceback()}
 		cupid_print(obj.msg, {255, 0, 0})
+		obj.gamedata="Marin0SE " .. (marioversion or "UNKNOWN") .. ", LOVE " .. (love._version or "UNKNOWN") .. " running on " .. (love._os or "UNKNOWN") .. "\n"
+		local info = {love.graphics.getRendererInfo()}
+		obj.render="Graphics: "..info[1].." "..info[2].." ("..info[4]..", "..info[3]..")\n"
 		if not self.always_ignore then self.lasterror = obj end
+		if cupid_canvas==nil and cupid_preshot==nil then
+			cupid_canvas = g.newCanvas()
+			cupid_preshot = g.newScreenshot()
+			cupid_preshot_image = g.newImage(cupid_preshot)
+			g.setCanvas(cupid_canvas)
+		end
+		local t={}
+		for l in string.gmatch(obj.traceback, "(.-)\n") do
+			if not string.match(l, "boot.lua") and not string.match(l, "cupid.lua") then
+				l = string.gsub(l, "stack traceback:", "Trace:")
+				table.insert(t, l)
+			end
+		end
+		obj.traceback=table.concat(t,"\n")
+		
 		return msg
 	end,
 	["paused"] = function(self) return self.lasterror ~= nil end,
 	["post-draw"] = function(self)
 		if not self.lasterror then return end
 		retaining("Color", "Font", function()
-			cupid_load_identity()
+			g.draw(cupid_preshot_image)
+			--cupid_load_identity()
 			local ox = g.getWidth() * 0.1;
 			local oy = g.getWidth() * 0.1;
 			if self.height ~= g.getHeight() * config.console_height then
@@ -476,7 +499,7 @@ mods.error = function() return {
 			g.setColor(0, 0, 0, 255)
 			g.rectangle("line", ox,oy, g.getWidth()-ox*2, g.getHeight()-ox*2)
 			g.setColor(255, 255, 255, 255)
-			local msg = string.format("%s\n\n%s\n\n\n[C]ontinue, [A]lways, [R]eload, [E]xit",
+			local msg = string.format("%s\n\n%s\n\n\n[C]ontinue, [A]lways, [R]eload, [E]xit, [U]pload Screenshot",
 				self.lasterror.msg, self.lasterror.traceback)
 			if self.font then g.setFont(self.font) end
 			g.setColor(255, 255, 255, 255)
@@ -485,6 +508,13 @@ mods.error = function() return {
 			g.printf(msg, ox*1.1+1, hh + oy*1.1+1, g.getWidth() - ox * 2.2, "left")
 			g.setColor(255, 255, 255, 255)
 			g.printf(msg, ox*1.1, hh + oy*1.1, g.getWidth() - ox * 2.2, "left")
+			g.setCanvas()
+			if cupid_screenshot == nil then
+				cupid_screenshot = cupid_canvas:getImageData()
+				cupid_screenshot_image = g.newImage(cupid_screenshot)
+			end
+			g.draw(cupid_screenshot_image)
+			--love.graphics.present()
 		end)
 	end,
 	["post-keypressed"] = function(self, key, unicode) 
@@ -499,6 +529,8 @@ mods.error = function() return {
 			self.always_ignore = true
 		elseif key == "e" then
 			love.event.push("quit")
+		elseif key == "u" then
+			screenshotUploadWrap("crash.png", cupid_screenshot)
 		end
 	end
 

@@ -23,119 +23,6 @@ require("libs.cupid")
 
 	0. You just DO WHAT THE FUCK YOU WANT TO.
 ]]
-function oldErrHand(msg)
-	--@TODO: Find a way to optionally fallback onto this from cupid.
-	msg = tostring(msg)
-	local trace = debug.traceback()
-
-	local err = {}
-
-	table.insert(err, "OH NO EVERYTHING IS BROKEN\n")
-	table.insert(err, "A screenshot of this page has been saved as 'crash.png'.")
-	if not versionerror then
-		table.insert(err, "Send a link to EntranceJew with a description of what you were doing.\n")
-	end
-	table.insert(err, "Marin0SE " .. (marioversion or "UNKNOWN") .. ", LOVE " .. (love._version or "UNKNOWN") .. " running on " .. (love._os or "UNKNOWN") .. "\n")
-	if love.graphics.getRendererInfo then
-		local info = {love.graphics.getRendererInfo()}
-		err[#err] = err[#err].."Graphics: "..info[1].." "..info[2].." ("..info[4]..", "..info[3]..")\n"
-	end
-	table.insert(err, msg.."\n")
-
-	if not versionerror then
-		for l in string.gmatch(trace, "(.-)\n") do
-			if not string.match(l, "boot.lua") then
-				l = string.gsub(l, "stack traceback:", "Trace:")
-				table.insert(err, l)
-			end
-		end
-	end
-
-	--error_printer(msg, 2)
-
-	if versionerror then
-		-- The rest of this code will only run on 0.9.0+.
-		return
-	end
-
-	if not love.graphics.isCreated() or not love.window.isCreated() then
-		local success, status = pcall(love.window.setMode, 800, 600)
-		if not success or not status then
-			return
-		end
-	end
-
-	local scale = scale or 2
-
-	-- Reset state.
-	if love.mouse then
-		love.mouse.setVisible(true)
-		love.mouse.setGrabbed(false)
-	end
-	if love.joystick then -- Stop all joystick vibrations.
-		for i,v in ipairs(love.joystick.getJoysticks()) do
-			v:setVibration()
-		end
-	end
-	if love.audio then love.audio.stop() end
-	love.graphics.reset()
-	love.graphics.setBackgroundColor(89, 157, 220)
-	local font = love.graphics.setNewFont(scale*7)
-
-	love.graphics.setColor(255, 255, 255, 255)
-
-	love.graphics.origin()
-	--love.graphics.clear()
-
-	local p = table.concat(err, "\n")
-
-	p = string.gsub(p, "\t", "")
-	p = string.gsub(p, "%[string \"(.-)\"%]", "%1")
-	print(p)
-
-	local canvas=love.graphics.newCanvas()
-	local beforeimagedata = love.graphics.newScreenshot()
-	love.graphics.setCanvas(canvas)
-	love.graphics.draw(love.graphics.newImage(beforeimagedata))
-	love.graphics.setColor(0, 0, 0, 200)
-	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-	love.graphics.setColor(0, 0, 0)
-	love.graphics.printf(p, 35*scale, 15*scale-1, love.graphics.getWidth() - 35*scale)
-	love.graphics.printf(p, 35*scale+1, 15*scale, love.graphics.getWidth() - 35*scale)
-	love.graphics.printf(p, 35*scale-1, 15*scale, love.graphics.getWidth() - 35*scale)
-	love.graphics.printf(p, 35*scale, 15*scale+1, love.graphics.getWidth() - 35*scale)
-	love.graphics.setColor(255, 255, 255, 255)
-	love.graphics.printf(p, 35*scale, 15*scale, love.graphics.getWidth() - 35*scale)
-	-- okay, we got the picture, now show it to the user
-	love.graphics.setCanvas()
-	local crashimagedata=canvas:getImageData()
-	love.graphics.draw(love.graphics.newImage(crashimagedata))
-	love.graphics.present()
-	
-	-- put it on da internet
-	if uploadoncrash then
-		screenshotUploadWrap("crash.png", crashimagedata)
-	end
-
-	while true do
-		love.event.pump()
-
-		for e, a, b, c in love.event.poll() do
-			if e == "quit" then
-				return
-			end
-			if e == "keypressed" and a == "escape" then
-				return
-			end
-		end
-
-		--love.graphics.present()
-
-		if love.timer then
-			love.timer.sleep(0.03)
-		end
-	end
-end
 function love.run()
 	love.math.setRandomSeed(os.time())
 	
@@ -208,7 +95,6 @@ function love.load(args)
 	game = {}
 	debugmode = "none"
 	args = args or {}
-	uploadoncrash = true
 	for k,v in pairs(args) do
 		if v=="-zbs" then
 			-- debug features exclusive to zerobrane
@@ -1653,13 +1539,13 @@ function screenshotUploadWrap(iname, idata)
 	local t=upload_imagedata(iname, idata)
 	if t.success then
 		print("Your image was uploaded to: "..t.data.link)
+		love.system.setClipboardText(t.data.link)
 		notice.new("screenshot uploaded")
-		love.filesystem.write("screenshot_url.txt", t.data.link)
-		openImage(t.data.link)
+		--love.filesystem.write("screenshot_url.txt", t.data.link)
+		--openImage(t.data.link)
 	else
 		print("Your image upload failed, please upload '"..outname.."' manually.")
-		notice.new("upload failed")
-		notice.new("upload manually")
+		notice.new("upload failed, try manually")
 		openSaveFolder()
 	end
 end
