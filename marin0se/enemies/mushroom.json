@@ -4,7 +4,9 @@
 	"movement": "truffleshuffle",
 	"speedx": 3.6,
 	
-	"makesmariogrow": true,
+	"ispowerup": true,
+	"poweruptype": "super",
+	"powerdowntarget": "small",
 	"removeonmariocontact": true,
 	"dontmirror": true,
 	

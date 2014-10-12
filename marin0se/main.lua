@@ -1,3 +1,5 @@
+require("hook")
+require("utils")
 require("libs.cupid")
 --[[
 	STEAL MY SHIT AND I'LL FUCK YOU UP
@@ -111,9 +113,18 @@ function love.load(args)
 			debugmode = args[k+1] or "none"
 		end
 	end
+	hook.Add("GameConsoleOpened", "ConsoleDisableControls", function()
+		if objects and objects["player"] and objects["player"][1] then
+			objects["player"][1].controlsenabled = false
+		end
+	end)
+	hook.Add("GameConsoleClosed", "ConsoleReEnableControls", function()
+		--@WARNING: This might enable someone's controls at the wrong time, like when the game is paused.
+		if objects and objects["player"] and objects["player"][1] then
+			objects["player"][1].controlsenabled = false
+		end
+	end)
 	expectedconnections = 2
-	require "hook"
-	require "utils"
 	if debugmode=="client" or debugmode=="server" then
 		uploadoncrash = false
 		hook.Add("GameLoaded", "DebugImmediate", function()
@@ -309,13 +320,28 @@ function love.load(args)
 		debugToggle = 'f1',
 		filesToWatch = {}
 	})
-	Monocle.watch("binds", function()
+	oldsize = nil
+	oldself = nil
+	--[[Monocle.watch("binds", function()
 		local str = "jack shit"
-		if objects and objects["player"] and objects["player"][2] and objects["player"][2].binds then
-			str=Tserial.pack(objects["player"][2].binds, true, true)
+		if objects and objects["player"] and objects["player"][1] and objects["player"][1].size then
+			if oldsize and oldsize~=objects["player"][1].size then
+				print("Mario's size changed from "..tostring(oldsize).." to "..tostring(objects["player"][1].size))
+			end
+			oldsize = objects["player"][1].size
+			str=tostring(oldsize)
+		end
+		if objects and objects["player"] and objects["player"][1] then
+			if oldself and oldself~=objects["player"][1] then
+				print("Mario changed selfs! That monster!")
+			end
+			oldself = objects["player"][1]
+		end
+		if oldself and not objects["player"][1] then
+			print("Mario fucking disappeared! Holy shit!")
 		end
 		return str
-	end)
+	end)]]
 	require("libs.von")
 	--require "netplay2"
 	require "netplay"
@@ -1781,19 +1807,6 @@ function newRecoloredImage(path, tablein, tableout)
 	end
 	
 	return love.graphics.newImage(imagedata)
-end
-
-function string:split(delimiter) --Not by me
-	local result = {}
-	local from  = 1
-	local delim_from, delim_to = string.find( self, delimiter, from  )
-	while delim_from do
-		table.insert( result, string.sub( self, from , delim_from-1 ) )
-		from = delim_to + 1
-		delim_from, delim_to = string.find( self, delimiter, from  )
-	end
-	table.insert( result, string.sub( self, from  ) )
-	return result
 end
 
 function tablecontains(t, entry)

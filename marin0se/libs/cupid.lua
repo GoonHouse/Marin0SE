@@ -376,8 +376,8 @@ mods.console = function() return {
 			if ( #self.buffer > 0 ) then
 				self:command(self.buffer)
 				self.buffer = ""
-			else
-				self:toggle()
+			--else
+				--self:toggle()
 			end
 		elseif key == "backspace" then
 			self.buffer = self.buffer:sub(0, -2)

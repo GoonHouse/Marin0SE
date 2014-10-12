@@ -8,7 +8,9 @@
 	"animationstart": 1,
 	"animationspeed": 0.04,
 	
-	"makesmariogrow": true,
+	"ispowerup": true,
+	"poweruptype": "fire",
+	"powerdowntarget": "super",
 	"removeonmariocontact": true,
 	
 	"notkilledfromblocksbelow": true,
