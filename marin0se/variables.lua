@@ -12,6 +12,15 @@ gellifetime = 2
 bulletbilllifetime = 20
 playertypelist = {"portal", "gelcannon"}
 
+newpoweruproutine=true --makes it so that if mario touches a "tier2" powerup he skips bigmario ala nsmb
+powerupstates = {
+	"death", --this bypasses the powerup chain processing and kills mario instantly
+	"hurt",  --causes mario to simply be hurt, you shouldn't use this as a powerdowntarget
+	"small", --mario spawns with this
+	"super", --mario after getting a mushroom
+	"fire",  --mario after getting a flower
+}
+
 spawnarea = {1, 1, 1, 1}
 
 joystickdeadzone = 0.2

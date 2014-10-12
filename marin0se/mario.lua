@@ -14,6 +14,8 @@ function mario:init(x, y, i, animation, size, t)
 	else
 		self.size = size or 1
 	end
+	self.powerupstate = "small"
+	self.powerdowntargetstate = "death"
 	self.t = t or "portal"
 	self.portalsavailable = {unpack(portalsavailable)}
 	local bindtable 
@@ -45,11 +47,11 @@ function mario:init(x, y, i, animation, size, t)
 	end
 	self.binds, self.controls = TLbind.giveInstance(bindtable)
 	self.binds.controlPressed = function(control)
-		print("wrap control press")
+		--print("wrap control press")
 		self:controlPress(control, false)
 	end
 	self.binds.controlReleased = function(control)
-		print("wrap control release")
+		--print("wrap control release")
 		self:controlRelease(control, false)
 	end
 	
@@ -289,7 +291,7 @@ function mario:controlPress(control, fromnetwork)
 		self.controls.tap[control]=true
 		self.controls.release[control]=true
 	else
-		print("pressed: "..control)
+		--print("pressed: "..control)
 	end
 	if control=="jump" then
 		self:jump()
@@ -321,7 +323,7 @@ function mario:controlRelease(control, fromnetwork)
 		self.controls.tap[control]=false
 		self.controls.release[control]=false
 	else
-		print("released: "..control)
+		--print("released: "..control)
 	end
 	if control=="jump" then
 		self:stopjump()
@@ -2091,8 +2093,7 @@ function mario:leftkey()
 		end
 	end
 end
-
-function mario:grow()
+--[[function mario:grow()
 	self.animationmisc = self.animationstate
 	if self.animation and self.animation ~= "invincible" then
 		return
@@ -2120,15 +2121,14 @@ function mario:grow()
 		else
 			self.animation = "grow2"
 		end
-		
 		self.drawable = true
 		self.invincible = false
 		self.animationtimer = 0
 		noupdate = true
 	end
-end
+end]]
 
-function mario:shrink()
+--[[function mario:shrink()
 	self.animationmisc = self.animationstate
 	if self.animation then
 		return
@@ -2153,6 +2153,115 @@ function mario:shrink()
 	self.height = 12/16
 	
 	noupdate = true
+end]]
+
+function mario:getpowerup(poweruptype, powerdowntarget, reason)
+	powerdowntarget = powerdowntarget or "death"
+	reason = reason or "it is a mystery"
+	if self.powerupstate == poweruptype then
+		-- this is here because for whatever reason touching a mushroom doubletaps
+		-- which is very bad because the animation system is fucked
+		return
+	end
+	--self.size = size
+	print("Mario got powerup '"..poweruptype.."', pd: '"..tostring(powerdowntarget).."' because "..tostring(reason).." also he is size "..tostring(self.size))
+	--self:grow()
+	--return false
+	
+	--self.powerupstate = "small"
+	--self.powerdowntargetstate = "death"
+	
+	--[[self.animationmisc = self.animationstate
+	if self.animation and self.animation ~= "invincible" then
+		return
+	end]]
+	local pointstoadd=1000
+	local soundtoplay="mushroomeat"
+	local animationtodo="grow2"
+	local makeinvincible=false
+	local makeunduck=false
+	
+	self.powerupstate = poweruptype
+	self.powerdowntargetstate = powerdowntarget
+	
+	if poweruptype == "super" then
+		if self.size == 1 then
+			self.y = self.y - 12/16
+			animationtodo = "grow1"
+		elseif self.size > 2 then
+			self.colors = mariocolors[self.playernumber]
+			makeinvincible = true
+			soundtoplay = "shrink"
+		end
+		self.quadcenterY = self.char.bigquadcenterY
+		self.quadcenterX = self.char.bigquadcenterX
+		self.offsetY = self.char.bigoffsetY
+		self.graphic = self.biggraphic
+		self.size = 2
+		self.height = 24/16
+	elseif poweruptype == "fire" then
+		if self.size == 1 then
+			self.y = self.y - 12/16
+			animationtodo = "grow1"
+		end
+		self.size = 3
+		self.quadcenterY = self.char.bigquadcenterY
+		self.quadcenterX = self.char.bigquadcenterX
+		self.offsetY = self.char.bigoffsetY
+		self.graphic = self.biggraphic
+		self.height = 24/16
+		self.colors = self.char.flowercolor or flowercolor
+	elseif poweruptype == "small" then
+		--@WARNING: incomplete
+		makeinvincible = true
+		self.graphic = self.smallgraphic
+		self.colors = mariocolors[self.playernumber]
+		self.size = 1
+		self.height = 12/16
+		soundtoplay = "shrink"
+		animationtodo = "shrink"
+		pointstoadd = false
+		
+		self.raccoontimer = 0
+		self.raccoonascendtimer = 0
+		
+		self.y = self.y + 12/16
+		self.height = 12/16
+	elseif poweruptype == "death" then
+		animationtodo=false
+		soundtoplay=false
+		pointstoadd=false
+		self:die(reason)
+	end
+	
+	if self.ducking and makeunduck then
+		self:duck(false)
+	end
+	
+	if animationtodo~=false then
+		self.animationtimer = 0
+		self.drawable = true
+		self.animation = animationtodo
+		noupdate = true
+	end
+	if pointstoadd~=false then
+		addpoints(pointstoadd, self.x+self.width/2, self.y)
+	end
+	if soundtoplay~=false then
+		playsound(soundtoplay)
+	end
+	if makeinvincible then
+		self:goinvincible()
+	end
+end
+
+function mario:washurt(reason)
+	print("Mario was hurt because '"..reason.."' also he is size "..tostring(self.size))
+	if self.powerdowntargetstate=="super" then
+		self:getpowerup(self.powerdowntargetstate, "small", reason)
+	else
+		self:getpowerup(self.powerdowntargetstate, nil, reason)
+	end
 end
 
 function mario:floorcollide(a, b, c, d)
@@ -2749,8 +2858,8 @@ function mario:globalcollide(a, b, c, d, dir)
 				return false
 			end
 		end
-	elseif b.makesmariogrow then
-		self:grow()
+	elseif b.ispowerup then
+		self:getpowerup(b.poweruptype, b.powerdowntarget, b.t)
 		return true
 	elseif b.givesalife then
 		givelive(self.playernumber, b)
@@ -3202,11 +3311,17 @@ function mario:goinvincible()
 	self.animation = "invincible"
 	self.invincible = true
 	noupdate = false
-	self.quadcenterY = self.char.smallquadcenterY
-	self.graphic = self.smallgraphic
+	if self.size==1 then
+		self.quadcenterY = self.char.smallquadcenterY
+		self.quadcenterX = self.char.smallquadcenterX
+		self.offsetY = self.char.smalloffsetY
+	else
+		self.quadcenterY = self.char.bigquadcenterY
+		self.quadcenterX = self.char.bigquadcenterX
+		self.offsetY = self.char.bigoffsetY
+	end
 	self.animationtimer = 0
-	self.quadcenterX = self.char.smallquadcenterX
-	self.offsetY = self.char.smalloffsetY
+	
 	self.drawable = true
 end
 
@@ -3279,6 +3394,7 @@ function mario:startfall()
 end
 
 function mario:die(how)
+	print("Mario was told to die because '"..how.."' also he is size "..tostring(self.size))
 	if self.dead then 
 		return
 	end
@@ -3291,7 +3407,7 @@ function mario:die(how)
 	
 	if how ~= "pit" and how ~= "time" then
 		if self.size > 1 then
-			self:shrink()
+			self:washurt(how)
 			return
 		end
 	elseif how ~= "time" then
@@ -3777,7 +3893,7 @@ function mario:fire()
 		self:spinhit(self.x+self.width+.75, self.y+self.height-.5, "right")
 		self:spinhit(self.x-.75, self.y+self.height-.5, "left")
 	end
-	if (not noupdate and self.animation ~= "grow1" and self.animation ~= "grow2") and self.controlsenabled and self.size == 3 and self.ducking == false then
+	if (not noupdate and self.animation ~= "grow1" and self.animation ~= "grow2") and self.controlsenabled and self.powerupstate == "fire" and self.ducking == false then
 		if self.fireballcount < maxfireballs then
 			local dir = "right"
 			local mul = 1
