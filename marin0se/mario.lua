@@ -4003,7 +4003,9 @@ function mario:portaled(dir)
 end
 
 function mario:shootportal(i, mirrored)
-	if self.portalgundisabled then
+	shootportal(self.playernumber, i, self.x+6/16, self.y+6/16, self.pointingangle, mirrored)
+	-- I can't make this local to the player just yet but I can leave the foundation by wrapping it.
+	--[[if self.portalgundisabled then
 		return
 	end
 	
@@ -4038,13 +4040,13 @@ function mario:shootportal(i, mirrored)
 	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
 	
 	local mirror = false
-	if cox and tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy) then
+	if cox and tilequads[map[cox][coy][1]]--[[:getproperty("mirror", cox, coy) then
 		mirror = true
 	end
 	
 	self.lastportal = i
 	
-	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {self.portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
+	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {self.portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))]]
 end
 
 function mario:shootgel(i)

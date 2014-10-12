@@ -957,7 +957,7 @@ function drawlevel()
 							r = math.pi*1.5
 						end
 						
-						for i = 1, 4 do
+						for i = 1, numgeltypes do
 							if t["gels"][dir] == i then
 								local img
 								if i == 1 then
@@ -968,8 +968,12 @@ function drawlevel()
 									img = gel3groundimg
 								elseif i == 4 then
 									img = gel4groundimg
+								elseif i == 5 then
+									img = gel5groundimg
+								elseif i == 6 then
+									img = gel6groundimg
 								end
-									
+								
 								love.graphics.draw(img, math.floor((x-.5-math.mod(xscroll, 1))*16*scale), math.floor((y-1-math.mod(yscroll, 1)-bounceyoffset)*16*scale), r, scale, scale, 8, 8)
 							end
 						end
@@ -1183,6 +1187,10 @@ function drawforeground()
 										img = gel3groundimg
 									elseif i == 4 then
 										img = gel4groundimg
+									elseif i == 5 then
+										img = gel5groundimg
+									elseif i == 6 then
+										img = gel6groundimg
 									end
 										
 									love.graphics.draw(img, math.floor((x-.5-math.mod(xscroll, 1))*16*scale), math.floor((y-1-math.mod(yscroll, 1))*16*scale), r, scale, scale, 8, 8)
@@ -3983,10 +3991,24 @@ function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 		objects["player"][plnumber].lastportal = i
 	end
 	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
-	
 	local mirror = false
-	if cox and tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy) then
-		mirror = true
+	local gelstat = false
+	if cox then
+		if map[cox][coy]["gels"] and map[cox][coy]["gels"][side] then
+			gelstat = map[cox][coy]["gels"][side]
+		end
+		local ismirror = tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy)
+		--[[if gelstat and gelstat == 6 or (ismirror and (gelstat==1 or gelstat==2 or gelstat==4)) then
+			return
+		end]]
+		
+		if ismirror then
+			if gelstat and gelstat~=5 then
+				mirror = false
+			else
+				mirror = true
+			end
+		end
 	end
 	
 	objects["player"][plnumber].lastportal = i
@@ -4402,11 +4424,22 @@ function getTile(x, y, portalable, portalcheck, facing, ignoregrates, dir) --ret
 		if map[x][y]["portaloverride"][side] then
 			return true, map[x][y][1]
 		end
-		
-		if map[x][y]["gels"][side] == 3 then
-			return true, map[x][y][1]
+		local gelstat = false
+		if map[x][y]["gels"] and map[x][y]["gels"][side] then
+			gelstat = map[x][y]["gels"][side]
+		end
+		local ismirror = tilequads[map[x][y][1]]:getproperty("mirror", x, y)
+		if gelstat then
+			--[[@WARNING:
+				This bypasses all the other checks, so, we might be causing a mess.
+			]]
+			if gelstat and gelstat == 6 or (ismirror and (gelstat==1 or gelstat==2 or gelstat==4)) then
+				return false, map[x][y][1]
+			else
+				return true, map[x][y][1]
+			end
 		else
-			return tilequads[map[x][y][1]]:getproperty("collision", x, y) and tilequads[map[x][y][1]]:getproperty("portalable", x, y) and tilequads[map[x][y][1]]:getproperty("grate", x, y) == false and tilequads[map[x][y][1]]:getproperty("mirror", x, y) == false, map[x][y][1]
+			return tilequads[map[x][y][1]]:getproperty("collision", x, y) and tilequads[map[x][y][1]]:getproperty("portalable", x, y) and tilequads[map[x][y][1]]:getproperty("grate", x, y) == false --[[ismirror == false]], map[x][y][1]
 		end
 	else
 		if ignoregrates then

@@ -315,7 +315,7 @@ function lightbridgebody:draw()
 			r = math.pi*1.5
 		end
 		
-		for i = 1, 4 do
+		for i = 1, numgeltypes do
 			if self.gels[dir] == i then
 				if i == 1 then
 					img = gel1groundimg
@@ -325,6 +325,10 @@ function lightbridgebody:draw()
 					img = gel3groundimg
 				elseif i == 4 then
 					img = gel4groundimg
+				elseif i == 5 then
+					img = gel5groundimg
+				elseif i == 6 then
+					img = gel6groundimg
 				end
 				
 				love.graphics.draw(img, math.floor((self.cox-.5-xscroll)*16*scale), math.floor((self.coy-1-yscroll)*16*scale), r, scale, scale, 8, 2)

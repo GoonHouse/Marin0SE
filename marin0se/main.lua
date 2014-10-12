@@ -94,6 +94,7 @@ function add(desc)
 end
 
 function love.load(args)
+	hook.Call("LovePreLoad", args)
 	game = {}
 	debugmode = "none"
 	args = args or {}
@@ -506,7 +507,7 @@ function love.load(args)
 	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", 
 	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", 
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
-	"excursionfunnelend2", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "geldispenser", "cubedispenser", "panel", "pedestalbase",
+	"excursionfunnelend2", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase",
 	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "musicentity", "smbtiles", "portaltiles",
 	"animatedtiletrigger", "delayer", "leaf"}
 	
@@ -911,9 +912,11 @@ function love.load(args)
 	
 	mycamera = camera:new()
 	mycamera:zoomTo(0.4)
+	hook.Call("LovePostLoad", args)
 end
 
 function love.update(dt)
+	hook.Call("LovePreUpdate", dt)
 	if music then
 		music:update()
 	end
@@ -998,9 +1001,11 @@ function love.update(dt)
 		
 		love.window.setTitle("NCN:"..networkclientnumber.."; FPS:" .. love.timer.getFPS())
 	end
+	hook.Call("LovePostUpdate", dt)
 end
 
 function love.draw()
+	hook.Call("LovePreDraw")
 	shaders:predraw()
 	
 	--mycamera:attach()
@@ -1033,6 +1038,7 @@ function love.draw()
 		end
 	end
 	Monocle.draw()
+	hook.Call("LovePostDraw")
 end
 
 function saveconfig()

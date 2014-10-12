@@ -34,6 +34,10 @@ function gel:init(x, y, id)
 		self.graphic = gel3img
 	elseif self.id == 4 then
 		self.graphic = gel4img
+	elseif self.id == 5 then
+		self.graphic = gel5img
+	elseif self.id == 6 then
+		self.graphic = gel6img
 	end
 	
 	self.destroy = false
