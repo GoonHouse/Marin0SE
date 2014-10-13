@@ -1,4 +1,4 @@
-networkupdatetimer = 0
+﻿networkupdatetimer = 0
 enemyupdatetimer = 0
 angletimer = 0
 
@@ -82,9 +82,9 @@ function game_update(dt)
 	gdt = dt
 	
 	--@DEBUG: doing player update here just for testing
-	for i, v in pairs(objects["player"]) do
+	--[[for i, v in pairs(objects["player"]) do
 		v:update(dt)
-	end
+	end]]
 	
 	--------
 	--GAME--
@@ -737,7 +737,7 @@ function game_update(dt)
 		end
 	end
 	
-	--The Wind
+	-- High Wind
 	if not levelfinished and windstarted then
 		--[[if windsound:isStopped() then
 			playsound(windsound)
@@ -758,13 +758,11 @@ function game_update(dt)
 		elseif player1.animationstate == "idle" then
 			player1.speedx = player1.speedx + 1
 		end
-		--make leafs appear
+		-- Make high wind leaves appear
 		windtimer = windtimer + dt
 		while windtimer > 0.10 do
 			windtimer = windtimer - 0.10
-			
-			local temp = leaf:new(xscroll-1, math.random(1, mapheight))
-			table.insert(objects["leaf"], temp)
+			--table.insert(objects["leaf"], leaf:new(xscroll-1, math.random(1, mapheight)))
 		end
 	end
 	
@@ -1713,7 +1711,12 @@ function game_draw()
 		for j, w in pairs(objects["bowser"]) do
 			w:draw()
 		end
-		
+	
+		--leaf
+		for j, w in pairs(objects["leaf"]) do
+			w:draw()
+		end
+	
 		--Geldispensers
 		for j, w in pairs(objects["geldispenser"]) do
 			w:draw()
