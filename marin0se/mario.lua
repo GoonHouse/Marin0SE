@@ -2862,6 +2862,10 @@ function mario:globalcollide(a, b, c, d, dir)
 		self:getpowerup(b.poweruptype, b.powerdowntarget, b.t)
 		return true
 	elseif b.givesalife then
+		if b.lifeamount then
+			givemelives = b.lifeamount
+			print("Mario got the lives:"..tostring(givemelives))
+		end
 		givelive(self.playernumber, b)
 		return true
 	elseif b.makesmariostar then

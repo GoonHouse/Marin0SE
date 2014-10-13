@@ -1821,7 +1821,9 @@ function game_draw()
 			if type(scrollingscores[i].i) == "number" then
 				properprint2(scrollingscores[i].i, math.floor((scrollingscores[i].x-0.4)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale))
 			elseif scrollingscores[i].i == "1up" then
-				love.graphics.draw(oneuptextimage, math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
+				love.graphics.draw(popupfontimage, popupfontquads[1], math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
+			elseif scrollingscores[i].i == "3up" then
+				love.graphics.draw(popupfontimage, popupfontquads[3], math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
 			end
 		end
 		
@@ -2777,6 +2779,7 @@ function loadlevel(level)
 	gelcannontimer = 0
 	pausemenuselected = 1
 	coinblocktimers = {}
+	givemelives = 0
 	
 	portaldelay = {}
 	for i = 1, players do
@@ -5112,15 +5115,22 @@ function item(i, x, y, size)
 end
 
 function givelive(id, t)
+	if givemelives == 3 then
+		table.insert(scrollingscores, scrollingscore:new("3up", t.x, t.y))
+	else 
+		table.insert(scrollingscores, scrollingscore:new("1up", t.x, t.y))
+	end
 	if mariolivecount ~= false then
 		for i = 1, players do
+			while givemelives ~= 0 do
 			mariolives[i] = mariolives[i]+1
+			givemelives = givemelives-1
+			end
 			respawnplayers()
 		end
 	end
 	t.destroy = true
 	t.active = false
-	table.insert(scrollingscores, scrollingscore:new("1up", t.x, t.y))
 	playsound("oneup")
 end	
 

@@ -1,16 +1,10 @@
 {
 	"quadcount": 1,
 
-	"movement": "truffleshuffle",
-	
 	"givesalife": true,
-	"lifeamount": 1,
+	"lifeamount": 3,
 	"removeonmariocontact": true,
 	"dontmirror": true,
-	
-	"speedx": 3.6,
-	"truffleshufflespeed": 3.6,
-	"truffleshuffleacceleration": 8,
 	
 	"notkilledfromblocksbelow": true,
 	"jumpsfromblocksbelow": true,

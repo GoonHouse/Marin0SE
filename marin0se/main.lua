@@ -579,10 +579,15 @@ function love.load(args)
 	end
 	entitiescount = width*height
 	
-	numberglyphs = "012458"
+	numberglyphs = "0123456789"
 	font2quads = {}
+	for i = 1, 10 do
+		font2quads[string.sub(numberglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 40, 8)
+	end
+
+	popupfontquads = {}
 	for i = 1, 6 do
-		font2quads[string.sub(numberglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 24, 8)
+		popupfontquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 8, 96, 8)
 	end
 	
 	blockdebrisquads = {}
@@ -2142,7 +2147,7 @@ function reloadGraphics()
 	
 	entitiesimg = love.graphics.newImage("entities.png")
 	
-	oneuptextimage = love.graphics.newImage("oneuptext.png")
+	popupfontimage = love.graphics.newImage("popupfont.png")
 	
 	linktoolpointerimg = love.graphics.newImage("linktoolpointer.png")
 	
