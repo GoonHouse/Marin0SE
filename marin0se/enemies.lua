@@ -110,9 +110,7 @@ function loadenemy(filename)
 		end
 		
 		--Load graphics if it exists
-		if love.filesystem.exists(folder .. s .. ".png") then
-			enemiesdata[s].graphic = love.graphics.newImage(folder .. s .. ".png")
-		end
+		enemiesdata[s].graphic = love.graphics.newImage(folder .. s .. ".png")
 		
 		--Set up quads if given
 		if enemiesdata[s].graphic and enemiesdata[s].quadcount then

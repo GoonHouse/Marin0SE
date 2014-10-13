@@ -125,7 +125,7 @@ end
 tooltipimages = {}
 
 for i = 1, #entitylist do
-	local path = "graphics/entitytooltips/" .. entitylist[i].t .. ".png"
+	local path = "entitytooltips/" .. entitylist[i].t .. ".png"
 	if love.filesystem.isFile(path) then
 		tooltipimages[i] = love.graphics.newImage(path)
 	end

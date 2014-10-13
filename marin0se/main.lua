@@ -1,6 +1,6 @@
 require("hook")
 require("utils")
-require("libs.cupid")
+--require("libs.cupid")
 --[[
 	STEAL MY SHIT AND I'LL FUCK YOU UP
 	PRETTY MUCH EVERYTHING BY MAURICE GUÉGAN AND IF SOMETHING ISN'T BY ME THEN IT SHOULD BE OBVIOUS OR NOBODY CARES
@@ -25,6 +25,45 @@ require("libs.cupid")
 
 	0. You just DO WHAT THE FUCK YOU WANT TO.
 ]]
+love.graphics.oldImage = love.graphics.newImage
+love.graphics.newImage = function(img, ex)
+	local finalpath = img
+	if type(img)=="string" and not love.filesystem.exists(img) then
+		if love.filesystem.exists("graphics/"..graphicspack.."/"..img) then
+			finalpath = "graphics/"..graphicspack.."/"..img
+		elseif love.filesystem.exists("graphics/DEFAULT/"..img) then
+			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
+			finalpath = "graphics/DEFAULT/"..img
+		elseif love.filesystem.exists("graphics/DEFAULT/nographic.png") then
+			print("ALERT: Engine couldn't find graphic '"..img.."' anywhere!")
+			finalpath = "graphics/DEFAULT/nographic.png"
+		else
+			assert(false, "CALL THE COPS: The fallback nographic image is GONE.")
+		end
+		img = finalpath
+	end
+	return love.graphics.oldImage(img, ex)
+end
+love.image.oldImageData = love.image.newImageData
+love.image.newImageData = function(img, ex)
+	local finalpath = img
+	if type(img)=="string" and not love.filesystem.exists(img) then
+		if love.filesystem.exists("graphics/"..graphicspack.."/"..img) then
+			finalpath = "graphics/"..graphicspack.."/"..img
+		elseif love.filesystem.exists("graphics/DEFAULT/"..img) then
+			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
+			finalpath = "graphics/DEFAULT/"..img
+		elseif love.filesystem.exists("graphics/DEFAULT/nographic.png") then
+			print("ALERT: Engine couldn't find graphic '"..img.."' anywhere!")
+			finalpath = "graphics/DEFAULT/nographic.png"
+		else
+			assert(false, "CALL THE COPS: The fallback nographic image is GONE.")
+		end
+		img = finalpath
+	end
+	return love.image.oldImageData(img, ex)
+end
+
 function love.run()
 	love.math.setRandomSeed(os.time())
 	
@@ -78,14 +117,7 @@ function love.run()
 		love.timer.sleep(0.001)
     end
 end
-love.graphics.oldImage = love.graphics.newImage
-love.graphics.newImage = function(img)
-	if type(img)=="string" and not love.filesystem.exists(img) then
-		print("WARNING: Engine couldn't find graphic '"..img.."', call the amberlamps.")
-		img = "graphics/nographic.png"
-	end
-	return love.graphics.oldImage(img)
-end
+
 function add(desc)
 	print((desc or "") .. "\n" .. round((love.timer.getTime()-starttime)*1000) .. "ms\tlines " .. lastline+1 .. " - " .. debug.getinfo(2).currentline-1 .. "\n")
 	lastline = debug.getinfo(2).currentline
@@ -181,17 +213,6 @@ function love.load(args)
 	recordskip = 1
 	recordframe = 1
 	
-	magicdns_session_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	magicdns_session = ""
-	for i = 1, 8 do
-		rand = math.random(string.len(magicdns_session_chars))
-		magicdns_session = magicdns_session .. string.sub(magicdns_session_chars, rand, rand)
-	end
-	--use love.filesystem.getIdentity() when it works
-	magicdns_identity = love.filesystem.getSaveDirectory():split("/")
-	magicdns_identity = string.upper(magicdns_identity[#magicdns_identity])
-
-	
 	shaderlist = love.filesystem.getDirectoryItems( "shaders/" )
 	local rem
 	for i, v in pairs(shaderlist) do
@@ -205,10 +226,25 @@ function love.load(args)
 	table.remove(shaderlist, rem)
 	table.insert(shaderlist, 1, "none")
 	
-	iconimg = love.image.newImageData("graphics/icon.gif")
-	love.window.setIcon(iconimg)
-	
 	love.graphics.setDefaultFilter("nearest", "nearest")
+	
+	overwrittenimages = {}
+	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", 
+	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", 
+	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
+	"excursionfunnelend2", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase",
+	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "musicentity", "smbtiles", "portaltiles",
+	"animatedtiletrigger", "delayer", "leaf"}
+	
+	graphicspacki = 1
+	graphicspack = "DEFAULT"
+	graphicspacklist = {}
+	for k,v in pairs(love.filesystem.getDirectoryItems( "graphics" )) do
+		if love.filesystem.isDirectory("graphics/"..v) and string.upper(v)==v then
+			table.insert(graphicspacklist, v)
+		end
+	end
+	
 	
 	add("Variables, shaderlist")
 	
@@ -219,6 +255,8 @@ function love.load(args)
 		print("== FAILED TO LOAD CONFIG ==")
 		print(err)
 	end
+	
+	reloadGraphics()
 	
 	physicsdebug = false
 	incognito = false
@@ -259,8 +297,6 @@ function love.load(args)
 	
 	love.graphics.setBackgroundColor(0, 0, 0)
 	
-	fontimage = love.graphics.newImage("graphics/font.png")
-	fontimageback = love.graphics.newImage("graphics/fontback.png")
 	fontglyphs = "0123456789abcdefghijklmnopqrstuvwxyz.:/,\"C-_A* !{}?'()+=><#%"
 	fontquads = {}
 	for i = 1, string.len(fontglyphs) do
@@ -282,14 +318,6 @@ function love.load(args)
 					"how do i programm", "making palette inaccurate..", "y cant mario crawl?"}
 	
 	loadingtext = loadingtexts[math.random(#loadingtexts)]
-	
-	if mariocharacter[1] == "rainbow dash-unfinished" then -- /)^3^(\
-		logo = love.graphics.newImage("graphics/stabyourselfdash.png")
-		logoblood = love.graphics.newImage("graphics/stabyourselfblooddash.png")
-	else
-		logo = love.graphics.newImage("graphics/stabyourself.png")
-		logoblood = love.graphics.newImage("graphics/stabyourselfblood.png")
-	end
 	
 	local logoscale = scale
 	if logoscale <= 1 then
@@ -502,28 +530,6 @@ function love.load(args)
 					}
 	add("Update Check, variables")
 	
-	--IMAGES--
-	overwrittenimages = {}
-	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", 
-	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", 
-	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
-	"excursionfunnelend2", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase",
-	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "musicentity", "smbtiles", "portaltiles",
-	"animatedtiletrigger", "delayer", "leaf"}
-	
-	for i, v in pairs(imagelist) do
-		_G["default" .. v .. "img"] = love.graphics.newImage("graphics/DEFAULT/" .. v .. ".png")
-		_G[v .. "img"] = _G["default" .. v .. "img"]
-	end
-	
-	menuselection = love.graphics.newImage("graphics/menuselect.png")
-	mappackback = love.graphics.newImage("graphics/mappackback.png")
-	mappacknoicon = love.graphics.newImage("graphics/mappacknoicon.png")
-	mappackoverlay = love.graphics.newImage("graphics/mappackoverlay.png")
-	mappackhighlight = love.graphics.newImage("graphics/mappackhighlight.png")
-	
-	mappackscrollbar = love.graphics.newImage("graphics/mappackscrollbar.png")
-	
 	--tiles
 	tilequads = {}
 	rgblist = {}
@@ -532,7 +538,7 @@ function love.load(args)
 	local imgwidth, imgheight = smbtilesimg:getWidth(), smbtilesimg:getHeight()
 	local width = math.floor(imgwidth/17)
 	local height = math.floor(imgheight/17)
-	local imgdata = love.image.newImageData("graphics/DEFAULT/smbtiles.png")
+	local imgdata = love.image.newImageData("smbtiles.png")
 	
 	for y = 1, height do
 		for x = 1, width do
@@ -547,7 +553,7 @@ function love.load(args)
 	local imgwidth, imgheight = portaltilesimg:getWidth(), portaltilesimg:getHeight()
 	local width = math.floor(imgwidth/17)
 	local height = math.floor(imgheight/17)
-	local imgdata = love.image.newImageData("graphics/DEFAULT/portaltiles.png")
+	local imgdata = love.image.newImageData("portaltiles.png")
 	
 	for y = 1, height do
 		for x = 1, width do
@@ -559,12 +565,11 @@ function love.load(args)
 	portaltilecount = width*height
 	
 	--add entities
-	entitiesimg = love.graphics.newImage("graphics/entities.png")
 	entityquads = {}
 	local imgwidth, imgheight = entitiesimg:getWidth(), entitiesimg:getHeight()
 	local width = math.floor(imgwidth/17)
 	local height = math.floor(imgheight/17)
-	local imgdata = love.image.newImageData("graphics/entities.png")
+	local imgdata = love.image.newImageData("entities.png")
 	
 	for y = 1, height do
 		for x = 1, width do
@@ -574,16 +579,11 @@ function love.load(args)
 	end
 	entitiescount = width*height
 	
-	fontimage2 = love.graphics.newImage("graphics/smallfont.png")
 	numberglyphs = "012458"
 	font2quads = {}
 	for i = 1, 6 do
 		font2quads[string.sub(numberglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 24, 8)
 	end
-	
-	oneuptextimage = love.graphics.newImage("graphics/oneuptext.png")
-	
-	linktoolpointerimg = love.graphics.newImage("graphics/linktoolpointer.png")
 	
 	blockdebrisquads = {}
 	for y = 1, 4 do
@@ -652,9 +652,6 @@ function love.load(args)
 	for i = 1, 4 do
 		seesawquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
 	end
-	
-	titleimage = love.graphics.newImage("graphics/title.png")
-	playerselectimg = love.graphics.newImage("graphics/playerselectarrow.png")
 	
 	starquad = {}
 	for i = 1, 4 do
@@ -777,7 +774,6 @@ function love.load(args)
 	boxquad = {love.graphics.newQuad(0, 0, 12, 12, 32, 16), love.graphics.newQuad(16, 0, 12, 12, 32, 16)}
 	
 	--eh
-	rainboomimg = love.graphics.newImage("graphics/rainboom.png")
 	rainboomquad = {}
 	for x = 1, 7 do
 		for y = 1, 7 do
@@ -786,35 +782,19 @@ function love.load(args)
 	end
 	
 	--magic!
-	magicimg = love.graphics.newImage("graphics/magic.png")
 	magicquad = {}
 	for x = 1, 6 do
 		magicquad[x] = love.graphics.newQuad((x-1)*9, 0, 9, 9, 54, 9)
 	end
 	
 	--GUI
-	checkboximg = love.graphics.newImage("graphics/checkbox.png")
 	checkboxquad = {{love.graphics.newQuad(0, 0, 9, 9, 18, 18), love.graphics.newQuad(9, 0, 9, 9, 18, 18)}, {love.graphics.newQuad(0, 9, 9, 9, 18, 18), love.graphics.newQuad(9, 9, 9, 9, 18, 18)}}
-	
-	dropdownarrowimg = love.graphics.newImage("graphics/dropdownarrow.png")
 	
 	--portals
 	portalquad = {}
 	for i = 0, 7 do
 		portalquad[i] = love.graphics.newQuad(0, i*4, 32, 4, 32, 28)
 	end
-	
-	portalparticleimg = love.graphics.newImage("graphics/portalparticle.png")
-	portalcrosshairimg = love.graphics.newImage("graphics/portalcrosshair.png")
-	portaldotimg = love.graphics.newImage("graphics/portaldot.png")
-	portalprojectileimg = love.graphics.newImage("graphics/portalprojectile.png")
-	portalprojectileparticleimg = love.graphics.newImage("graphics/portalprojectileparticle.png")
-	portalbackgroundimg = love.graphics.newImage("graphics/portalbackground.png")
-	
-	--Menu shit
-	huebarimg = love.graphics.newImage("graphics/huehuehuebar.png")
-	huebarmarkerimg = love.graphics.newImage("graphics/huebarmarker.png")
-	volumesliderimg = love.graphics.newImage("graphics/volumeslider.png")
 	
 	--Portal props	
 	buttonquad = {love.graphics.newQuad(0, 0, 32, 5, 64, 5), love.graphics.newQuad(32, 0, 32, 5, 64, 5)}
@@ -828,7 +808,6 @@ function love.load(args)
 		walltimerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 160, 16)
 	end
 	
-	directionsimg = love.graphics.newImage("graphics/directions.png")
 	directionsquad = {}
 	for x = 1, 6 do
 		directionsquad[x] = love.graphics.newQuad((x-1)*7, 0, 7, 7, 42, 7)
@@ -842,8 +821,6 @@ function love.load(args)
 	faithplatequad = {love.graphics.newQuad(0, 0, 32, 16, 32, 32), love.graphics.newQuad(0, 16, 32, 16, 32, 32)}
 	
 	gelquad = {love.graphics.newQuad(0, 0, 12, 12, 36, 12), love.graphics.newQuad(12, 0, 12, 12, 36, 12), love.graphics.newQuad(24, 0, 12, 12, 36, 12)}
-	
-	gradientimg = love.graphics.newImage("graphics/gradient.png");gradientimg:setFilter("linear", "linear")
 	
 	panelquad = {}
 	for x = 1, 2 do
@@ -1121,6 +1098,8 @@ function saveconfig()
 	s = s .. "shader1:" .. shaderlist[currentshaderi1] .. ";"
 	s = s .. "shader2:" .. shaderlist[currentshaderi2] .. ";"
 	
+	s = s .. "graphicspack:" .. graphicspacklist[graphicspacki] .. ";"
+	
 	s = s .. "volume:" .. volume .. ";"
 	s = s .. "mouseowner:" .. mouseowner .. ";"
 	
@@ -1233,6 +1212,13 @@ function loadconfig()
 			for i = 1, #shaderlist do
 				if shaderlist[i] == s2[2] then
 					currentshaderi2 = i
+				end
+			end
+		elseif s2[1] == "graphicspack" then
+			for i = 1, #graphicspacklist do
+				if graphicspacklist[i] == s2[2] then
+					graphicspacki = i
+					graphicspack = s2[2]
 				end
 			end
 		elseif s2[1] == "volume" then
@@ -1370,6 +1356,8 @@ function defaultconfig()
 	vsync = false
 	currentshaderi1 = 1
 	currentshaderi2 = 1
+	graphicspacki = 1
+	graphicspack = "DEFAULT"
 	firstpersonview = false
 	firstpersonrotate = false
 	seethroughportals = false
@@ -2125,6 +2113,65 @@ function loadcustomtiles()
 		customtiles = false
 		customtilecount = 0
 	end
+end
+
+function reloadGraphics()
+	-- this doesn't rebuild quads so if any of these change resolution we're royally hosed
+		iconimg = love.image.newImageData("icon.gif")
+	love.window.setIcon(iconimg)
+
+	fontimage = love.graphics.newImage("font.png")
+	fontimageback = love.graphics.newImage("fontback.png")
+	
+	logo = love.graphics.newImage("stabyourself.png")
+	logoblood = love.graphics.newImage("stabyourselfblood.png")
+	
+	for _, v in pairs(imagelist) do
+		_G[v .. "img"] = love.graphics.newImage( v .. ".png")
+	end
+	
+	menuselection = love.graphics.newImage("menuselect.png")
+	mappackback = love.graphics.newImage("mappackback.png")
+	mappacknoicon = love.graphics.newImage("mappacknoicon.png")
+	mappackoverlay = love.graphics.newImage("mappackoverlay.png")
+	mappackhighlight = love.graphics.newImage("mappackhighlight.png")
+	
+	mappackscrollbar = love.graphics.newImage("mappackscrollbar.png")
+	
+	fontimage2 = love.graphics.newImage("smallfont.png")
+	
+	entitiesimg = love.graphics.newImage("entities.png")
+	
+	oneuptextimage = love.graphics.newImage("oneuptext.png")
+	
+	linktoolpointerimg = love.graphics.newImage("linktoolpointer.png")
+	
+	titleimage = love.graphics.newImage("title.png")
+	playerselectimg = love.graphics.newImage("playerselectarrow.png")
+	
+	rainboomimg = love.graphics.newImage("rainboom.png")
+	
+	magicimg = love.graphics.newImage("magic.png")
+	
+	checkboximg = love.graphics.newImage("checkbox.png")
+	
+	dropdownarrowimg = love.graphics.newImage("dropdownarrow.png")
+	
+	portalparticleimg = love.graphics.newImage("portalparticle.png")
+	portalcrosshairimg = love.graphics.newImage("portalcrosshair.png")
+	portaldotimg = love.graphics.newImage("portaldot.png")
+	portalprojectileimg = love.graphics.newImage("portalprojectile.png")
+	portalprojectileparticleimg = love.graphics.newImage("portalprojectileparticle.png")
+	portalbackgroundimg = love.graphics.newImage("portalbackground.png")
+	
+	--Menu shit
+	huebarimg = love.graphics.newImage("huehuehuebar.png")
+	huebarmarkerimg = love.graphics.newImage("huebarmarker.png")
+	volumesliderimg = love.graphics.newImage("volumeslider.png")
+	directionsimg = love.graphics.newImage("directions.png")
+	
+	gradientimg = love.graphics.newImage("gradient.png")
+	gradientimg:setFilter("linear", "linear")
 end
 
 function love.quit()
