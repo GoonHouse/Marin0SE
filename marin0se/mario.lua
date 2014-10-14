@@ -2864,9 +2864,14 @@ function mario:globalcollide(a, b, c, d, dir)
 	elseif b.givesalife then
 		if b.lifeamount then
 			givemelives = b.lifeamount
-			print("Mario got the lives:"..tostring(givemelives))
 		end
 		givelive(self.playernumber, b)
+		return true
+	elseif b.givestime then
+		if b.timeamount then
+			givemetime = b.timeamount
+		end
+		givetime(self.playernumber, b)
 		return true
 	elseif b.makesmariostar then
 		self:star()

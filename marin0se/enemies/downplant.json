@@ -4,7 +4,7 @@
 	"nospritesets": [false],
 	
 	"spawnoffsetx": 0.5,
-	"spawnoffsety": 1.4375,
+	"spawnoffsety": -1.4375,
 	"width": 1,
 	"height": 0.875,
 	
@@ -15,8 +15,8 @@
 	
 	"mask": [true],
 	
-	"graphic": "plantimg",
-	"quad": "plantquads",
+	"graphic": "downplantimg",
+	"quad": "downplantquads",
 	
 	"animationtype": "frames",
 	"animationframes": 2,
@@ -24,19 +24,19 @@
 	"animationspeed": 0.15,
 	
 	"offsetX": 0,
-	"offsetY": 17,
+	"offsetY": 11,
 	"quadcenterX": 0,
 	"quadcenterY": 0,
 	
 	"kills": true,
 	"doesntflyawayonfireball": true,
 	
-	"customscissor": [0, -1, 2, 2],
+	"customscissor": [0, 0, 2, 2],
 	
 	"emancipatecheck": true,
 	"movement": "piston",
 	"pistondistx": 0,
-	"pistondisty": -1.5,
+	"pistondisty": 1.5,
 	"pistonspeedx": 0,
 	"pistonspeedy": 2.3,
 	"pistonextendtime": 2,

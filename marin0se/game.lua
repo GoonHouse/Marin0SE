@@ -1061,6 +1061,7 @@ function drawui(hidetime)
 	printfunction("world", uispace*2.5 - 20*scale, 8*scale)
 	printfunction(marioworld .. "-" .. mariolevel, uispace*2.5 - 12*scale, 16*scale)
 	
+	
 	printfunction("time", uispace*3.5 - 16*scale, 8*scale)
 	if not hidetime then
 		if editormode then
@@ -1824,6 +1825,12 @@ function game_draw()
 				love.graphics.draw(popupfontimage, popupfontquads[1], math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
 			elseif scrollingscores[i].i == "3up" then
 				love.graphics.draw(popupfontimage, popupfontquads[3], math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
+			elseif scrollingscores[i].i == "timeupten" then
+				love.graphics.draw(popupfontimage, popupfontquads[6], math.floor((scrollingscores[i].x)*16*scale)-32, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
+				properprint2(10, math.floor((scrollingscores[i].x-0.4)*16*scale)+8, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale))
+			elseif scrollingscores[i].i == "timeuphundred" then
+				love.graphics.draw(popupfontimage, popupfontquads[6], math.floor((scrollingscores[i].x)*16*scale)-32, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
+				properprint2(100, math.floor((scrollingscores[i].x-0.4)*16*scale)+12, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale))
 			end
 		end
 		
@@ -2780,7 +2787,9 @@ function loadlevel(level)
 	pausemenuselected = 1
 	coinblocktimers = {}
 	givemelives = 0
-	
+	givemetime = 0
+	givemecoinage = 0
+		
 	portaldelay = {}
 	for i = 1, players do
 		portaldelay[i] = 0
@@ -5134,6 +5143,19 @@ function givelive(id, t)
 	playsound("oneup")
 end	
 
+function givetime(id, t)
+	if givemetime == 10 then
+		table.insert(scrollingscores, scrollingscore:new("timeupten", t.x, t.y))
+	elseif givemetime == 100 then
+		table.insert(scrollingscores, scrollingscore:new("timeuphundred", t.x, t.y))
+	end
+	while givemetime ~= 0 do
+	mariotime = mariotime+1
+	givemetime = givemetime-1
+	end
+playsound("addtime")
+end	
+
 function addpoints(i, x, y)
 	if i > 0 then
 		marioscore = marioscore + i
@@ -5156,6 +5178,14 @@ function properprint2(s, x, y)
 	for i = 1, string.len(tostring(s)) do
 		if fontquads[string.sub(s, i, i)] then
 			love.graphics.draw(fontimage2, font2quads[string.sub(s, i, i)], x+((i-1)*4)*scale, y, 0, scale, scale)
+		end
+	end
+end
+
+function properprint3(s, x, y)
+	for i = 1, string.len(tostring(s)) do
+		if fontquads[string.sub(s, i, i)] then
+			love.graphics.draw(fontimage3, font3quads[string.sub(s, i, i)], x+((i-1)*4)*scale, y, 0, scale, scale)
 		end
 	end
 end

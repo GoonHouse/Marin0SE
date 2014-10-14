@@ -585,6 +585,12 @@ function love.load(args)
 		font2quads[string.sub(numberglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 40, 8)
 	end
 
+	symbolglyphs = "0123"
+	font3quads = {}
+	for i = 1, 4 do
+		font3quads[string.sub(symbolglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 40, 8)
+	end
+	
 	popupfontquads = {}
 	for i = 1, 6 do
 		popupfontquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 8, 96, 8)
@@ -837,7 +843,7 @@ function love.load(args)
 	--AUDIO--
 	--sounds
 	soundstoload = {"jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball",
-					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill",
+					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill", "addtime",
 					"lowtime", "tailwag", "planemode", "stab", "spring", "portal1open", "portal2open", "portalenter", "portalfizzle"}
 				
 	soundlist = {}
@@ -2144,6 +2150,7 @@ function reloadGraphics()
 	mappackscrollbar = love.graphics.newImage("mappackscrollbar.png")
 	
 	fontimage2 = love.graphics.newImage("smallfont.png")
+	fontimage3 = love.graphics.newImage("smallsymbols.png")
 	
 	entitiesimg = love.graphics.newImage("entities.png")
 	
@@ -2170,7 +2177,7 @@ function reloadGraphics()
 	portalbackgroundimg = love.graphics.newImage("portalbackground.png")
 	
 	--Menu shit
-	huebarimg = love.graphics.newImage("huehuehuebar.png")
+	huebarimg = love.graphics.newImage("huebar.png")
 	huebarmarkerimg = love.graphics.newImage("huebarmarker.png")
 	volumesliderimg = love.graphics.newImage("volumeslider.png")
 	directionsimg = love.graphics.newImage("directions.png")

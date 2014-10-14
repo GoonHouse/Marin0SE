@@ -15,8 +15,8 @@
 	
 	"mask": [true],
 	
-	"graphic": "plantimg",
-	"quad": "plantquads",
+	"graphic": "redplantimg",
+	"quad": "redplantquads",
 	
 	"animationtype": "frames",
 	"animationframes": 2,
@@ -38,11 +38,11 @@
 	"pistondistx": 0,
 	"pistondisty": -1.5,
 	"pistonspeedx": 0,
-	"pistonspeedy": 2.3,
-	"pistonextendtime": 2,
-	"pistonretracttime": 1.8,
+	"pistonspeedy": 4,
+	"pistonextendtime": 1.5,
+	"pistonretracttime": 1.2,
 	"dontpistonnearplayer": true,
-	"dontpistondist": 3,
+	"dontpistondist": 1,
 	"inactiveonretracted": true,
 	
 	"ignorefaithplates": true
