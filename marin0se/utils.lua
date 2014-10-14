@@ -22,3 +22,4 @@ local function interp(s, tab)
 				'%('..k..')'..fmt end))
 end
 getmetatable("").__mod = interp
+-- refer to: https://docs.python.org/2/library/stdtypes.html#string-formatting if confused
