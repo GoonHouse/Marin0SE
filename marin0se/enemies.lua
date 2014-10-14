@@ -110,16 +110,10 @@ function loadenemy(filename)
 		end
 		
 		--Load graphics if it exists
-		local graphicattempts = {
-			"mappacks/"..mappack.."/enemies/"..s..".png",
-			"graphics/"..graphicspack.."/enemies/"..s..".png",
-			"graphics/DEFAULT/enemies/"..s..".png",
-			"enemies/"..s..".png",
-		}
-		
-		for k,v in pairs(graphicattempts) do
-			if love.filesystem.exists(v) then
-				enemiesdata[s].graphic = love.graphics.newImage(v)
+		for i,j in pairs(enemygraphicsearchdirs) do
+			j = j % {mappack=mappack,file=s..".png",graphicspack=graphicspack}
+			if love.filesystem.exists(j) then
+				enemiesdata[s].graphic = love.graphics.newImage(j)
 				break
 			end
 		end

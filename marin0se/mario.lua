@@ -14,8 +14,23 @@ function mario:init(x, y, i, animation, size, t)
 	else
 		self.size = size or 1
 	end
-	self.powerupstate = "small"
-	self.powerdowntargetstate = "death"
+	--[[@WARNING:
+		this is a bit of a hack but apparently every time a level transition
+		happens we destroy our mario to set his position relative to the new world
+		
+		eventually we wanna use enemiesdata["powerup"] and register each powerup right
+	]]
+	
+	if self.size == 1 then
+		self.powerupstate = "small"
+		self.powerdowntargetstate = "death"
+	elseif self.size == 2 then
+		self.powerupstate = "super"
+		self.powerdowntargetstate = "small"
+	elseif self.size == 3 then
+		self.powerupstate = "fire"
+		self.powerdowntargetstate = "super"
+	end
 	self.t = t or "portal"
 	self.portalsavailable = {unpack(portalsavailable)}
 	local bindtable 
