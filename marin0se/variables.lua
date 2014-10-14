@@ -23,6 +23,8 @@ powerupstates = {
 
 numgeltypes=6
 
+
+
 spawnarea = {1, 1, 1, 1}
 
 joystickdeadzone = 0.2

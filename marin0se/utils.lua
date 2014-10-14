@@ -15,3 +15,10 @@ function string:split(delimiter) --Not by me
 	table.insert( result, string.sub( self, from  ) )
 	return result
 end
+
+local function interp(s, tab)
+	return (s:gsub('%%%((%a%w*)%)([-0-9%.]*[cdeEfgGiouxXsq])',
+			function(k, fmt) return tab[k] and ("%"..fmt):format(tab[k]) or
+				'%('..k..')'..fmt end))
+end
+getmetatable("").__mod = interp

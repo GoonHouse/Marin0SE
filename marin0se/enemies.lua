@@ -120,6 +120,7 @@ function loadenemy(filename)
 		for k,v in pairs(graphicattempts) do
 			if love.filesystem.exists(v) then
 				enemiesdata[s].graphic = love.graphics.newImage(v)
+				break
 			end
 		end
 		if enemiesdata[s].graphic == nil then

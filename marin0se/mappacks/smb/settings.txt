@@ -1,0 +1,4 @@
+name=smb
+author=nintendo
+description=i love videogames
+lives=3
