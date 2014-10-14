@@ -18,7 +18,6 @@ function leaf:init(x, y)
 	--IMAGE STUFF
 	self.drawable = true
 	self.graphic = leafimage
-	self.quad = leafquad[spriteset][math.random(1,2)] --random leaf bro!
 	self.offsetX = 6
 	self.offsetY = 2
 	self.quadcenterX = 3
@@ -32,10 +31,13 @@ function leaf:init(x, y)
 end
 
 function leaf:update(dt)
-	--@WARNING: WHOO BOY THIS SHIT AIN'T WORKING.
+	self.x = self.x + 0.75
+	if self.x > width or self.y > mapheight then
+		return true
+	end
 	return false
 end
 
 function leaf:draw()
-	love.graphics.draw(leafimg, math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll)*16*scale), 0, scale, scale, 0, 0)
+	love.graphics.draw(leafimg, leafquad[spriteset][math.random(1,2)], math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-.5)*16*scale), 0, scale, scale, 2, 2)
 end
