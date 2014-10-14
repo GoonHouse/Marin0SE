@@ -18,6 +18,7 @@ function leaf:init(x, y)
 	--IMAGE STUFF
 	self.drawable = true
 	self.graphic = leafimage
+	self.frame = math.random(1,2) --random leaf bro!
 	self.offsetX = 6
 	self.offsetY = 2
 	self.quadcenterX = 3
@@ -39,5 +40,5 @@ function leaf:update(dt)
 end
 
 function leaf:draw()
-	love.graphics.draw(leafimg, leafquad[spriteset][math.random(1,2)], math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-.5)*16*scale), 0, scale, scale, 2, 2)
+	love.graphics.draw(leafimg, leafquad[spriteset][self.frame], math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-.5)*16*scale), 0, scale, scale, 2, 2)
 end
