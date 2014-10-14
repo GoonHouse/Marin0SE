@@ -912,19 +912,19 @@ function menu_draw()
 			else
 				love.graphics.setColor(100, 100, 100, 255)
 			end
-			properprint("volume:", 30*scale, 105*scale)
-			drawrectangle(90, 108, 90, 1)
-			drawrectangle(90, 105, 1, 7)
-			drawrectangle(179, 105, 1, 7)
-			love.graphics.draw(volumesliderimg, math.floor((89+89*volume)*scale), 105*scale, 0, scale, scale)
+			properprint("sounds:", 30*scale, 90*scale)
+			properprint(string.lower(soundpack), (180-(string.len(soundpack))*8)*scale, 90*scale)
 			
 			if optionsselection == 7 then
 				love.graphics.setColor(255, 255, 255, 255)
 			else
 				love.graphics.setColor(100, 100, 100, 255)
 			end
-			
-			properprint("reset game mappacks", 30*scale, 120*scale)
+			properprint("volume:", 30*scale, 105*scale)
+			drawrectangle(90, 108, 90, 1)
+			drawrectangle(90, 105, 1, 7)
+			drawrectangle(179, 105, 1, 7)
+			love.graphics.draw(volumesliderimg, math.floor((89+89*volume)*scale), 105*scale, 0, scale, scale)
 			
 			if optionsselection == 8 then
 				love.graphics.setColor(255, 255, 255, 255)
@@ -932,9 +932,17 @@ function menu_draw()
 				love.graphics.setColor(100, 100, 100, 255)
 			end
 			
-			properprint("reset all settings", 30*scale, 135*scale)
+			properprint("reset game mappacks", 30*scale, 120*scale)
 			
 			if optionsselection == 9 then
+				love.graphics.setColor(255, 255, 255, 255)
+			else
+				love.graphics.setColor(100, 100, 100, 255)
+			end
+			
+			properprint("reset all settings", 30*scale, 135*scale)
+			
+			if optionsselection == 10 then
 				love.graphics.setColor(255, 255, 255, 255)
 			else
 				love.graphics.setColor(100, 100, 100, 255)
@@ -1680,9 +1688,9 @@ function menu_keypressed(key)
 					keypromptstart()
 				end
 			elseif optionstab == 3 then
-				if optionsselection == 7 then
+				if optionsselection == 8 then
 					reset_mappacks()
-				elseif optionsselection == 8 then
+				elseif optionsselection == 9 then
 					resetconfig()
 				end
 			end
@@ -1713,7 +1721,7 @@ function menu_keypressed(key)
 					optionsselection = 1
 				end
 			elseif optionstab == 3 then
-				if optionsselection < 9 then
+				if optionsselection < 10 then
 					optionsselection = optionsselection + 1
 				else
 					optionsselection = 1
@@ -1742,7 +1750,7 @@ function menu_keypressed(key)
 					end
 					optionsselection = limit
 				elseif optionstab == 3 then
-					optionsselection = 9
+					optionsselection = 10
 				elseif optionstab == 4 and gamefinished then
 					optionsselection = 10
 				end
@@ -1796,6 +1804,14 @@ function menu_keypressed(key)
 					graphicspack = graphicspacklist[graphicspacki]
 					reloadGraphics()
 				elseif optionsselection == 6 then
+					soundpacki = soundpacki + 1
+					if soundpacki > #soundpacklist then
+						soundpacki = 1
+					end
+					soundpack = soundpacklist[soundpacki]
+					reloadSounds()
+					playsound("coin")
+				elseif optionsselection == 7 then
 					if volume < 0.99 then
 						volume = volume + 0.1
 						if volume > 1 then
@@ -1805,7 +1821,7 @@ function menu_keypressed(key)
 						playsound("coin")
 						soundenabled = true
 					end
-				elseif optionsselection == 8 then
+				elseif optionsselection == 9 then
 					vsync = not vsync
 					changescale(scale)
 				end
@@ -1889,6 +1905,14 @@ function menu_keypressed(key)
 					graphicspack = graphicspacklist[graphicspacki]
 					reloadGraphics()
 				elseif optionsselection == 6 then
+					soundpacki = soundpacki - 1
+					if soundpacki < 1 then
+						soundpacki = #soundpacklist
+					end
+					soundpack = soundpacklist[soundpacki]
+					reloadSounds()
+					playsound("coin")
+				elseif optionsselection == 7 then
 					if volume > 0 then
 						volume = volume - 0.1
 						if volume <= 0 then
@@ -1898,7 +1922,7 @@ function menu_keypressed(key)
 						love.audio.setVolume( volume )
 						playsound("coin")
 					end
-				elseif optionsselection == 8 then
+				elseif optionsselection == 9 then
 					vsync = not vsync
 					changescale(scale)
 				end

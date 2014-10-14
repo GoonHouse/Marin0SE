@@ -26,6 +26,32 @@ require("libs.cupid")
 
 	0. You just DO WHAT THE FUCK YOU WANT TO.
 ]]
+love.audio.oldSource = love.audio.newSource
+love.audio.newSource = function(snd, stype)
+	local finalpath = snd
+	stype = stype or "static"
+	if type(snd)=="string" and not love.filesystem.exists(snd) then
+		local depth = 0
+		for k,v in pairs(soundsearchdirs) do
+			local p = v % {mappack=mappack,file=snd,soundpack=soundpack}
+			if love.filesystem.exists(p) then
+				depth = k
+				finalpath = p
+				break
+			end
+		end
+		if depth == #soundsearchdirs then
+			print("ALERT: Engine couldn't find sound '"..snd.."' anywhere!")
+		elseif depth == #soundsearchdirs-1 then
+			print("WARNING: Engine couldn't find sound '"..snd.."', used fallback.")
+		elseif depth == 0 then
+			assert(false, "CALL THE COPS: The fallback missingsound file is GONE.")
+		end
+		snd = finalpath
+	end
+	return love.audio.oldSource(snd, stype)
+end
+
 love.graphics.oldImage = love.graphics.newImage
 love.graphics.newImage = function(img, ex)
 	local finalpath = img
@@ -44,12 +70,13 @@ love.graphics.newImage = function(img, ex)
 		elseif depth == #graphicssearchdirs-1 then
 			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
 		elseif depth == 0 then
-			assert(false, "CALL THE COPS: The fallback nographic image is GONE.")
+			assert(false, "CALL THE COPS: The fallback missinggraphic image is GONE.")
 		end
 		img = finalpath
 	end
 	return love.graphics.oldImage(img, ex)
 end
+
 love.image.oldImageData = love.image.newImageData
 love.image.newImageData = function(img, ex)
 	local finalpath = img
@@ -68,7 +95,7 @@ love.image.newImageData = function(img, ex)
 		elseif depth == #graphicssearchdirs-1 then
 			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
 		elseif depth == 0 then
-			assert(false, "CALL THE COPS: The fallback nographic image is GONE.")
+			assert(false, "CALL THE COPS: The fallback missinggraphic image is GONE.")
 		end
 		img = finalpath
 	end
@@ -250,12 +277,22 @@ function love.load(args)
 	graphicspacki = 1
 	graphicspack = "DEFAULT"
 	graphicspacklist = {}
+	--@WARNING: This will be inaccurate for any mappacks that provide a namespaced graphicspack or potential mods.
 	for k,v in pairs(love.filesystem.getDirectoryItems( "graphics" )) do
 		if love.filesystem.isDirectory("graphics/"..v) and string.upper(v)==v then
 			table.insert(graphicspacklist, v)
 		end
 	end
 	
+	soundpacki = 1
+	soundpack = "DEFAULT"
+	soundpacklist = {}
+	--@WARNING: Same goes for me.
+	for k,v in pairs(love.filesystem.getDirectoryItems( "sounds" )) do
+		if love.filesystem.isDirectory("graphics/"..v) and string.upper(v)==v then
+			table.insert(soundpacklist, v)
+		end
+	end
 	
 	add("Variables, shaderlist")
 	
@@ -853,24 +890,7 @@ function love.load(args)
 	
 	--AUDIO--
 	--sounds
-	soundstoload = {"jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball",
-					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill", "addtime",
-					"lowtime", "tailwag", "planemode", "stab", "spring", "portal1open", "portal2open", "portalenter", "portalfizzle"}
-				
-	soundlist = {}
-	
-	for i, v in pairs(soundstoload) do
-		soundlist[v] = {}
-		soundlist[v].source = love.audio.newSource("sounds/" .. v .. ".ogg", "stream")
-		soundlist[v].lastplayed = 0
-	end
-	
-	soundlist["scorering"].source:setLooping(true)
-	soundlist["planemode"].source:setLooping(true)
-	soundlist["portal1open"].source:setVolume(0.3)
-	soundlist["portal2open"].source:setVolume(0.3)
-	soundlist["portalenter"].source:setVolume(0.3)
-	soundlist["portalfizzle"].source:setVolume(0.3)
+	reloadSounds()
 	
 	delaylist = {}
 	delaylist["blockhit"] = 0.2
@@ -1121,6 +1141,7 @@ function saveconfig()
 	s = s .. "shader2:" .. shaderlist[currentshaderi2] .. ";"
 	
 	s = s .. "graphicspack:" .. graphicspacklist[graphicspacki] .. ";"
+	s = s .. "soundpack:" .. soundpacklist[soundpacki] .. ";"
 	
 	s = s .. "volume:" .. volume .. ";"
 	s = s .. "mouseowner:" .. mouseowner .. ";"
@@ -1241,6 +1262,13 @@ function loadconfig()
 				if graphicspacklist[i] == s2[2] then
 					graphicspacki = i
 					graphicspack = s2[2]
+				end
+			end
+		elseif s2[1] == "soundpack" then
+			for i = 1, #soundpacklist do
+				if soundpacklist[i] == s2[2] then
+					soundpacki = i
+					soundpack = s2[2]
 				end
 			end
 		elseif s2[1] == "volume" then
@@ -1380,6 +1408,8 @@ function defaultconfig()
 	currentshaderi2 = 1
 	graphicspacki = 1
 	graphicspack = "DEFAULT"
+	soundpacki = 1
+	soundpack = "DEFAULT"
 	firstpersonview = false
 	firstpersonrotate = false
 	seethroughportals = false
@@ -2139,7 +2169,7 @@ end
 
 function reloadGraphics()
 	-- this doesn't rebuild quads so if any of these change resolution we're royally hosed
-		iconimg = love.image.newImageData("icon.gif")
+	iconimg = love.image.newImageData("icon.gif")
 	love.window.setIcon(iconimg)
 
 	fontimage = love.graphics.newImage("font.png")
@@ -2195,6 +2225,27 @@ function reloadGraphics()
 	
 	gradientimg = love.graphics.newImage("gradient.png")
 	gradientimg:setFilter("linear", "linear")
+end
+
+function reloadSounds()
+	soundstoload = {"jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball",
+					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill", "addtime",
+					"lowtime", "tailwag", "planemode", "stab", "spring", "portal1open", "portal2open", "portalenter", "portalfizzle"}
+				
+	soundlist = {}
+	
+	for i, v in pairs(soundstoload) do
+		soundlist[v] = {}
+		soundlist[v].source = love.audio.newSource(v .. ".ogg", "stream")
+		soundlist[v].lastplayed = 0
+	end
+	
+	soundlist["scorering"].source:setLooping(true)
+	soundlist["planemode"].source:setLooping(true)
+	soundlist["portal1open"].source:setVolume(0.3)
+	soundlist["portal2open"].source:setVolume(0.3)
+	soundlist["portalenter"].source:setVolume(0.3)
+	soundlist["portalfizzle"].source:setVolume(0.3)
 end
 
 function love.quit()
