@@ -19,11 +19,11 @@ music = {
 
 
 function getfilepath(name)
-	local musicpaths = {"sounds/", "mappacks/" .. mappack .. "/music/"}
-	
-	for i = 1, #musicpaths do
-		if love.filesystem.isFile(musicpaths[i] .. name) then
-			return musicpaths[i] .. name
+	for i=1,#soundsearchdirs-1 do
+		--@NOTE: This is making the assumption that the direct file link is at the end.
+		local p = soundsearchdirs[i] % {mappack=mappack,file=name,soundpack=soundpack}
+		if love.filesystem.isFile(p) then
+			return p
 		end
 	end
 end
