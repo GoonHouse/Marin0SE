@@ -308,7 +308,7 @@ function game_update(dt)
 	
 	--UPDATE STUFFFFF
 	
-	local updatetable = {	pedestals, emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers, emancipationgrills, fireworks, miniblocks, bubbles, platformspawners, seesaws, blockdebristable,
+	local updatetable = {	pedestals, emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers, emancipationgrills, fireworks, miniblocks, bubbles, platformspawners, seesaws, blockdebristable, leaves,
 							userects, rainbooms, coinblockanimations, itemanimations}
 							
 	for i, v in pairs(objects) do
@@ -760,9 +760,9 @@ function game_update(dt)
 		end
 		-- Make high wind leaves appear
 		windtimer = windtimer + dt
-		while windtimer > 0.10 do
-			windtimer = windtimer - 0.10
-			--table.insert(objects["leaf"], leaf:new(xscroll-1, math.random(1, mapheight)))
+		while windtimer > 0.05 do
+			windtimer = windtimer - 0.05
+			table.insert(leaves, leaf:new(xscroll, math.random(1, mapheight)))
 		end
 	end
 	
@@ -1448,8 +1448,8 @@ function game_draw()
 		end
 		
 		love.graphics.setColor(255, 255, 255)
-		--Leaf
-		for j, w in pairs(objects["leaf"]) do
+		--Leafs
+		for j, w in pairs(leaves) do
 			w:draw()
 		end
 		
@@ -1710,11 +1710,6 @@ function game_draw()
 		
 		--bowser
 		for j, w in pairs(objects["bowser"]) do
-			w:draw()
-		end
-	
-		--leaf
-		for j, w in pairs(objects["leaf"]) do
 			w:draw()
 		end
 	
@@ -2809,6 +2804,7 @@ function loadlevel(level)
 	fireworks = {}
 	seesaws = {}
 	bubbles = {}
+	leaves = {}
 	rainbooms = {}
 	emancipateanimations = {}
 	emancipationfizzles = {}
