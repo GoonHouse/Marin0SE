@@ -1,5 +1,6 @@
 require("hook")
 require("utils")
+require("globals")
 require("libs.cupid")
 --[[
 	STEAL MY SHIT AND I'LL FUCK YOU UP
@@ -29,15 +30,20 @@ love.graphics.oldImage = love.graphics.newImage
 love.graphics.newImage = function(img, ex)
 	local finalpath = img
 	if type(img)=="string" and not love.filesystem.exists(img) then
-		if love.filesystem.exists("graphics/"..graphicspack.."/"..img) then
-			finalpath = "graphics/"..graphicspack.."/"..img
-		elseif love.filesystem.exists("graphics/DEFAULT/"..img) then
-			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
-			finalpath = "graphics/DEFAULT/"..img
-		elseif love.filesystem.exists("graphics/DEFAULT/nographic.png") then
+		local depth = 0
+		for k,v in pairs(graphicssearchdirs) do
+			local p = v % {mappack=mappack,file=img,graphicspack=graphicspack}
+			if love.filesystem.exists(p) then
+				depth = k
+				finalpath = p
+				break
+			end
+		end
+		if depth == #graphicssearchdirs then
 			print("ALERT: Engine couldn't find graphic '"..img.."' anywhere!")
-			finalpath = "graphics/DEFAULT/nographic.png"
-		else
+		elseif depth == #graphicssearchdirs-1 then
+			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
+		elseif depth == 0 then
 			assert(false, "CALL THE COPS: The fallback nographic image is GONE.")
 		end
 		img = finalpath
@@ -48,15 +54,20 @@ love.image.oldImageData = love.image.newImageData
 love.image.newImageData = function(img, ex)
 	local finalpath = img
 	if type(img)=="string" and not love.filesystem.exists(img) then
-		if love.filesystem.exists("graphics/"..graphicspack.."/"..img) then
-			finalpath = "graphics/"..graphicspack.."/"..img
-		elseif love.filesystem.exists("graphics/DEFAULT/"..img) then
-			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
-			finalpath = "graphics/DEFAULT/"..img
-		elseif love.filesystem.exists("graphics/DEFAULT/nographic.png") then
+		local depth = 0
+		for k,v in pairs(graphicssearchdirs) do
+			local p = v % {mappack=mappack,file=img,graphicspack=graphicspack}
+			if love.filesystem.exists(p) then
+				depth = k
+				finalpath = p
+				break
+			end
+		end
+		if depth == #graphicssearchdirs then
 			print("ALERT: Engine couldn't find graphic '"..img.."' anywhere!")
-			finalpath = "graphics/DEFAULT/nographic.png"
-		else
+		elseif depth == #graphicssearchdirs-1 then
+			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
+		elseif depth == 0 then
 			assert(false, "CALL THE COPS: The fallback nographic image is GONE.")
 		end
 		img = finalpath

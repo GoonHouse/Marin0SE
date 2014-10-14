@@ -23,15 +23,6 @@ powerupstates = {
 
 numgeltypes=6
 
-enemygraphicsearchdirs = {
-	"mappacks/%(mappack)s/graphics/%(graphicspack)s/enemies/%(file)s",
-	"mappacks/%(mappack)s/graphics/DEFAULT/enemies/%(file)s",
-	"mappacks/%(mappack)s/enemies/%(file)s",
-	"graphics/%(graphicspack)s/enemies/%(file)s",
-	"graphics/DEFAULT/enemies/%(file)s",
-	"enemies/%(file)s",
-}
-
 spawnarea = {1, 1, 1, 1}
 
 joystickdeadzone = 0.2
