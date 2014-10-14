@@ -1,6 +1,6 @@
 require("hook")
 require("utils")
---require("libs.cupid")
+require("libs.cupid")
 --[[
 	STEAL MY SHIT AND I'LL FUCK YOU UP
 	PRETTY MUCH EVERYTHING BY MAURICE GUÉGAN AND IF SOMETHING ISN'T BY ME THEN IT SHOULD BE OBVIOUS OR NOBODY CARES

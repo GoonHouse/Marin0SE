@@ -3130,8 +3130,8 @@ function startlevel(levelstart)
 end
 
 function loadmap(filename, createobjects)
-	print("**************************" .. string.rep("*", #(mappack .. filename)))
-	print("* Loading mappacks/" .. mappack .. "/" .. filename .. ".txt *")
+	--print("**************************" .. string.rep("*", #(mappack .. filename)))
+	print("LOADING: mappacks/" .. mappack .. "/" .. filename .. ".txt")
 	if love.filesystem.exists("mappacks/" .. mappack .. "/" .. filename .. ".txt") == false then
 		print("mappacks/" .. mappack .. "/" .. filename .. ".txt not found!")
 		return false
@@ -3609,8 +3609,8 @@ function loadmap(filename, createobjects)
 		end
 	end
 	
-	print("* DONE!" .. string.rep(" ", #(mappack .. filename)+17) .. " *")
-	print("**************************" .. string.rep("*", #(mappack .. filename)))
+	--print("* DONE!" .. string.rep(" ", #(mappack .. filename)+17) .. " *")
+	--print("**************************" .. string.rep("*", #(mappack .. filename)))
 	return true
 end
 

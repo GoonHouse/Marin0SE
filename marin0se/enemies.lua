@@ -75,8 +75,8 @@ function loadenemy(filename)
 						loaddelayed[base] = {}
 					end
 					table.insert(loaddelayed[base], filename)
+					print("ENEMIES: Didn't have base " .. base .. " for " .. s ..", loading later.")
 				end
-				print("DON'T HAVE BASE " .. base .. " FOR " .. s)
 				return
 			end
 		else
@@ -110,7 +110,23 @@ function loadenemy(filename)
 		end
 		
 		--Load graphics if it exists
-		enemiesdata[s].graphic = love.graphics.newImage(folder .. s .. ".png")
+		local graphicattempts = {
+			"mappacks/"..mappack.."/enemies/"..s..".png",
+			"graphics/"..graphicspack.."/enemies/"..s..".png",
+			"graphics/DEFAULT/enemies/"..s..".png",
+			"enemies/"..s..".png",
+		}
+		
+		for k,v in pairs(graphicattempts) do
+			if love.filesystem.exists(v) then
+				enemiesdata[s].graphic = love.graphics.newImage(v)
+			end
+		end
+		if enemiesdata[s].graphic == nil then
+			-- presumably, our graphics are derived from something else
+			print("ENEMIES: "..s.." had no matching png and wasn't BASEd on anything!")
+			enemiesdata[s].graphic = love.graphics.newImage("graphics/DEFAULT/nographic.png")
+		end
 		
 		--Set up quads if given
 		if enemiesdata[s].graphic and enemiesdata[s].quadcount then
