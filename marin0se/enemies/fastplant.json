@@ -1,8 +1,6 @@
 {
 	"quadcount": 2,
 	
-	"nospritesets": [false],
-	
 	"spawnoffsetx": 0.5,
 	"spawnoffsety": 1.4375,
 	"width": 1,
