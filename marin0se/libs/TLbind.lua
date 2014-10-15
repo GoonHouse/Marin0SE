@@ -64,7 +64,17 @@ update = function(b)
 	-- Check key inputs (if enabled)
 	if b.useKeyboard then
 		assert(love.keyboard, "TLbind was told to use keyboard input, but love.keyboard isn't available! (Check conf.lua)")
-		for k,v in pairs(b.keys) do control[v] = control[v] or love.keyboard.isDown(k) end
+		for k,v in pairs(b.keys) do
+			local t={}
+			if type(v)=="table" then
+				t=v
+			else
+				t={v}
+			end
+			for k2,v2 in pairs(t) do
+				control[v2] = control[v2] or love.keyboard.isDown(k)
+			end
+		end
 	end
 	
 	-- Check joystick inputs (if enabled)

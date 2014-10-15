@@ -126,9 +126,7 @@ tooltipimages = {}
 
 for i = 1, #entitylist do
 	local path = "entitytooltips/" .. entitylist[i].t .. ".png"
-	if love.filesystem.isFile(path) then
-		tooltipimages[i] = love.graphics.newImage(path)
-	end
+	tooltipimages[i] = love.graphics.newImage(path)
 end
 
 rightclickmenues = {}

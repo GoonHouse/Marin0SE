@@ -28,3 +28,7 @@ enemygraphicsearchdirs = {
 	"graphics/DEFAULT/enemies/%(file)s",
 	"enemies/%(file)s",
 }
+
+controlTable = {
+	a = "left",
+}

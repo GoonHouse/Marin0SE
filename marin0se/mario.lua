@@ -41,7 +41,7 @@ function mario:init(x, y, i, animation, size, t)
 				w = "up",
 				a = "left",
 				s = "down",
-				d = "right",
+				d = {"right", "debug"},
 				f = "use",
 				[":"] = "suicide",
 				lshift = "run",
@@ -310,6 +310,8 @@ function mario:controlPress(control, fromnetwork)
 	end
 	if control=="jump" then
 		self:jump()
+	elseif control=="debug" then
+		print("oh boy I'm a test")
 	elseif control=="run" then
 		self:fire()
 	elseif control=="reload" then
@@ -3693,7 +3695,7 @@ function mario:duck(ducking) --goose
 	end
 end
 
-function mario:pipe(x, y, dir, i)	
+function mario:pipe(x, y, dir, i)
 	if editormode then
 		return
 	end
@@ -3720,7 +3722,7 @@ function mario:pipe(x, y, dir, i)
 		end
 		self.animationstate = "idle"
 		self.customscissor = {x-4, y-3, 6, 2}
-	else
+	elseif dir == "right" then
 		if self.size == 1 then
 			self.y = self.animationy-1/16 - self.height
 		else
@@ -3728,6 +3730,22 @@ function mario:pipe(x, y, dir, i)
 		end
 		self.animationstate = "running"
 		self.customscissor = {x-2, y-5, 1, 6}
+	elseif dir == "left" then
+		--this is wrong
+		if self.size == 1 then
+			self.y = self.animationy-1/16 - self.height
+		else
+			self.y = self.animationy-1/16 - self.height
+		end
+		self.animationstate = "running"
+		self.customscissor = {x-2, y-5, 1, 6}
+	elseif dir == "up" then
+		--this is wrong
+		if self.size > 1 then
+			self.animationy = y - self.height + 12/16
+		end
+		self.animationstate = "idle"
+		self.customscissor = {x-4, y-3, 6, 2}
 	end
 	
 	self:setquad()
