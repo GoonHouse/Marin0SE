@@ -94,7 +94,17 @@ update = function(b)
 	-- Check mouse inputs (if enabled)
 	if b.useMouse then
 		assert(love.mouse, "TLbind was told to use mouse input, but love.mouse isn't available! (Check conf.lua)")
-		for k,v in pairs(b.mouseBtns) do control[v] = control[v] or love.mouse.isDown(k) end
+		for k,v in pairs(b.mouseBtns) do
+			local t={}
+			if type(v)=="table" then
+				t=v
+			else
+				t={v}
+			end
+			for k2,v2 in pairs(t) do
+				control[v2] = control[v2] or love.mouse.isDown(k)
+			end
+		end
 		
 		-- Get screen metrics, to convert pixel coordinates into normals (treating the center of the screen as (0,0) )
 		local w, h = love.graphics.getWidth(), love.graphics.getHeight()
@@ -142,8 +152,6 @@ update = function(b)
 				tap[k]=true
 				if b.controlPressed then
 					b.controlPressed(k)
-				else
-					print("no controlPressed function")
 				end
 			elseif tap[k]==true then
 				tap[k]=nil
@@ -154,8 +162,6 @@ update = function(b)
 				release[k]=true 
 				if b.controlReleased then
 					b.controlReleased(k)
-				else
-					print("no controlReleased function")
 				end
 			elseif release[k]==true then
 				release[k]=nil

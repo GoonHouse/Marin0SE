@@ -463,6 +463,7 @@ mods.error = function() return {
 		obj.render="Graphics: "..info[1].." "..info[2].." ("..info[4]..", "..info[3]..")\n"
 		if not self.always_ignore then self.lasterror = obj end
 		if cupid_canvas==nil and cupid_preshot==nil then
+			g.setBackgroundColor(255,255,255,0)
 			cupid_canvas = g.newCanvas()
 			cupid_preshot = g.newScreenshot()
 			cupid_preshot_image = g.newImage(cupid_preshot)
@@ -483,7 +484,9 @@ mods.error = function() return {
 	["post-draw"] = function(self)
 		if not self.lasterror then return end
 		retaining("Color", "Font", function()
+			--g.setBackgroundColor(255,255,255,255)
 			g.draw(cupid_preshot_image)
+			g.setBackgroundColor(255,255,255,0)
 			--cupid_load_identity()
 			local ox = g.getWidth() * 0.1;
 			local oy = g.getWidth() * 0.1;

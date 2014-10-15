@@ -3783,22 +3783,29 @@ function generatespritebatch()
 	end
 end
 
-function game_keypressed(key)
-	if key == "return" then
-		game_joystickpressed(1, 4)
+function game_controlupdate(dt)
+	if controls.tap.debugEmbiggen then
+		local p1 = objects["player"][1]
+		if p1.size==1 then
+			p1:getpowerup("super", "small","debug embiggen")
+		elseif p1.size==2 then
+			p1:getpowerup("fire", "super","debug embiggen")
+		end
 	end
 	
-	if key == "f" and debugbinds then
-		objects["player"][1]:grow()
+	if controls.debugModifier then
+		if controls.tap.editorToggle then
+			editormode = not editormode
+		end
 	end
-
+	
 	if pausemenuopen then
 		if menuprompt then
-			if (key == "left" or key == "a") then
+			if controls.tap.menuLeft then
 				pausemenuselected2 = 1
-			elseif (key == "right" or key == "d") then
+			elseif controls.tap.menuRight then
 				pausemenuselected2 = 2
-			elseif (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
+			elseif controls.tap.menuSelect then
 				if pausemenuselected2 == 1 then
 					love.audio.stop()
 					pausemenuopen = false
@@ -3808,32 +3815,32 @@ function game_keypressed(key)
 				else
 					menuprompt = false
 				end
-			elseif key == "escape" then
+			elseif controls.tap.menuBack then
 				menuprompt = false
 			end
 			return
 		elseif desktopprompt then
-			if (key == "left" or key == "a") then
+			if controls.tap.menuLeft then
 				pausemenuselected2 = 1
-			elseif (key == "right" or key == "d") then
+			elseif controls.tap.menuRight then
 				pausemenuselected2 = 2
-			elseif (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
+			elseif controls.tap.menuSelect then
 				if pausemenuselected2 == 1 then
 					love.audio.stop()
 					love.event.quit()
 				else
 					desktopprompt = false
 				end
-			elseif key == "escape" then
+			elseif controls.tap.menuBack then
 				desktopprompt = false
 			end
 			return
 		elseif suspendprompt then
-			if (key == "left" or key == "a") then
+			if controls.tap.menuLeft then
 				pausemenuselected2 = 1
-			elseif (key == "right" or key == "d") then
+			elseif controls.tap.menuRight then
 				pausemenuselected2 = 2
-			elseif (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
+			elseif controls.tap.menuEnter then
 				if pausemenuselected2 == 1 then
 					love.audio.stop()
 					suspendgame()
@@ -3843,20 +3850,22 @@ function game_keypressed(key)
 				else
 					suspendprompt = false
 				end
-			elseif key == "escape" then
+			elseif controls.tap.menuBack then
 				suspendprompt = false
 			end
 			return
 		end
-		if (key == "down" or key == "s") then
-			if pausemenuselected < #pausemenuoptions then
-				pausemenuselected = pausemenuselected + 1
+		if controls.tap.menuDown then
+			pausemenuselected = pausemenuselected + 1
+			if pausemenuselected > #pausemenuoptions then
+				pausemenuselected = 1
 			end
-		elseif (key == "up" or key == "w") then
-			if pausemenuselected > 1 then
-				pausemenuselected = pausemenuselected - 1
+		elseif controls.tap.menuUp then
+			pausemenuselected = pausemenuselected - 1
+			if pausemenuselected < 1 then
+				pausemenuselected = #pausemenuoptions
 			end
-		elseif (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
+		elseif controls.tap.menuSelect then
 			if pausemenuoptions[pausemenuselected] == "resume" then
 				pausemenuopen = false
 				saveconfig()
@@ -3871,11 +3880,11 @@ function game_keypressed(key)
 				desktopprompt = true
 				pausemenuselected2 = 1
 			end
-		elseif key == "escape" then
+		elseif controls.tap.menuBack then
 			pausemenuopen = false
 			saveconfig()
 			love.audio.resume()
-		elseif (key == "right" or key == "d") then
+		elseif controls.tap.menuRight then
 			if pausemenuoptions[pausemenuselected] == "volume" then
 				if volume < 0.99 then
 					volume = volume + 0.1
@@ -3885,7 +3894,7 @@ function game_keypressed(key)
 				end
 			end
 			
-		elseif (key == "left" or key == "a") then
+		elseif controls.tap.menuLeft then
 			if pausemenuoptions[pausemenuselected] == "volume" then
 				volume = math.max(volume - 0.1, 0)
 				love.audio.setVolume( volume )
@@ -3898,11 +3907,40 @@ function game_keypressed(key)
 			
 		return
 	end
-	
-	if endpressbutton then
+	--[[if endpressbutton then
 		endpressbutton = false
 		endgame()
 		return
+	end]]
+	if controls.tap.menuBack then
+		if not editormode and testlevel then
+			checkpointsub = false
+			marioworld = testlevelworld
+			mariolevel = testlevellevel
+			testlevel = false
+			editormode = true
+			
+			if mariosublevel > 0 then
+				loadlevel(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
+			else
+				loadlevel(marioworld .. "-" .. mariolevel)
+			end
+			startlevel()
+			return
+		elseif not editormode and not everyonedead then
+			pausemenuopen = true
+			love.audio.pause()
+			playsound("pause")
+		end
+	end
+	if editormode then
+		editor_controlupdate(dt)
+	end
+end
+
+function game_keypressed(key)
+	if key == "return" then
+		game_joystickpressed(1, 4)
 	end
 
 	for i = 1, players do
@@ -3931,32 +3969,7 @@ function game_keypressed(key)
 		end]]
 	end
 	
-	if key == "escape" then
-		if not editormode and testlevel then
-			checkpointsub = false
-			marioworld = testlevelworld
-			mariolevel = testlevellevel
-			testlevel = false
-			editormode = true
-			
-			if mariosublevel > 0 then
-				loadlevel(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
-			else
-				loadlevel(marioworld .. "-" .. mariolevel)
-			end
-			startlevel()
-			return
-		elseif not editormode and not everyonedead then
-			pausemenuopen = true
-			love.audio.pause()
-			playsound("pause")
-		end
-	end
-	
-	if key == "t" and editordebug then
-		editormode = not editormode
-	end
-	
+
 	if editormode then
 		editor_keypressed(key)
 	end

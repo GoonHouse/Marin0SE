@@ -159,12 +159,12 @@ function menu_update(dt)
 		if characters[mariocharacter[skinningplayer]].colorables and optionsselection > 5 and optionsselection < 9 then
 			local colorRGB = optionsselection-5
 			
-			if (love.keyboard.isDown("right") or love.keyboard.isDown("d")) and mariocolors[skinningplayer][colorsetedit][colorRGB] < 255 then
+			if (controls.menuRight) and mariocolors[skinningplayer][colorsetedit][colorRGB] < 255 then
 				mariocolors[skinningplayer][colorsetedit][colorRGB] = mariocolors[skinningplayer][colorsetedit][colorRGB] + RGBchangespeed*dt
 				if mariocolors[skinningplayer][colorsetedit][colorRGB] > 255 then
 					mariocolors[skinningplayer][colorsetedit][colorRGB] = 255
 				end
-			elseif (love.keyboard.isDown("left") or love.keyboard.isDown("a")) and mariocolors[skinningplayer][colorsetedit][colorRGB] > 0 then
+			elseif (controls.menuLeft) and mariocolors[skinningplayer][colorsetedit][colorRGB] > 0 then
 				mariocolors[skinningplayer][colorsetedit][colorRGB] = mariocolors[skinningplayer][colorsetedit][colorRGB] - RGBchangespeed*dt
 				if mariocolors[skinningplayer][colorsetedit][colorRGB] < 0 then
 					mariocolors[skinningplayer][colorsetedit][colorRGB] = 0
@@ -172,14 +172,14 @@ function menu_update(dt)
 			end
 			
 		elseif (characters[mariocharacter[skinningplayer]].colorables and optionsselection == 9) or (not characters[mariocharacter[skinningplayer]].colorables and optionsselection == 5) then
-			if (love.keyboard.isDown("right") or love.keyboard.isDown("d")) and portalhues[skinningplayer][1] < 1 then
+			if (controls.menuRight) and portalhues[skinningplayer][1] < 1 then
 				portalhues[skinningplayer][1] = portalhues[skinningplayer][1] + huechangespeed*dt
 				if portalhues[skinningplayer][1] > 1 then
 					portalhues[skinningplayer][1] = 1
 				end
 				portalcolor[skinningplayer][1] = getrainbowcolor(portalhues[skinningplayer][1])
 				
-			elseif (love.keyboard.isDown("left") or love.keyboard.isDown("a")) and portalhues[skinningplayer][1] > 0 then
+			elseif (controls.menuLeft) and portalhues[skinningplayer][1] > 0 then
 				portalhues[skinningplayer][1] = portalhues[skinningplayer][1] - huechangespeed*dt
 				if portalhues[skinningplayer][1] < 0 then
 					portalhues[skinningplayer][1] = 0
@@ -188,14 +188,14 @@ function menu_update(dt)
 			end
 			
 		elseif (characters[mariocharacter[skinningplayer]].colorables and optionsselection == 10) or (not characters[mariocharacter[skinningplayer]].colorables and optionsselection == 6) then
-			if (love.keyboard.isDown("right") or love.keyboard.isDown("d")) and portalhues[skinningplayer][2] < 1 then
+			if (controls.menuRight) and portalhues[skinningplayer][2] < 1 then
 				portalhues[skinningplayer][2] = portalhues[skinningplayer][2] + huechangespeed*dt
 				if portalhues[skinningplayer][2] > 1 then
 					portalhues[skinningplayer][2] = 1
 				end
 				portalcolor[skinningplayer][2] = getrainbowcolor(portalhues[skinningplayer][2])
 				
-			elseif (love.keyboard.isDown("left") or love.keyboard.isDown("a")) and portalhues[skinningplayer][2] > 0 then
+			elseif (controls.menuLeft) and portalhues[skinningplayer][2] > 0 then
 				portalhues[skinningplayer][2] = portalhues[skinningplayer][2] - huechangespeed*dt
 				if portalhues[skinningplayer][2] < 0 then
 					portalhues[skinningplayer][2] = 0
@@ -645,9 +645,9 @@ function menu_draw()
 					
 					local s = ""
 					
-					if controls[skinningplayer][controlstable[i]] then
-						for j = 1, #controls[skinningplayer][controlstable[i]] do
-							s = s .. controls[skinningplayer][controlstable[i]][j]
+					if oldcontrols[skinningplayer][controlstable[i]] then
+						for j = 1, #oldcontrols[skinningplayer][controlstable[i]] do
+							s = s .. oldcontrols[skinningplayer][controlstable[i]][j]
 						end
 					end
 					if s == " " then
@@ -1487,10 +1487,10 @@ function downloadmappacks()
 	return true
 end
 
-function menu_keypressed(key)
+function menu_controlupdate(dt)
 	if gamestate == "menu" then --PLEASE don't use this menu system as an example. It's fucking awful. But you knew that.
 		if selectworldopen then
-			if (key == "right" or key == "d") then
+			if controls.tap.menuRight then
 				local target = selectworldcursor+1
 				while target < 9 and not reachedworlds[mappack][target] do
 					target = target + 1
@@ -1498,7 +1498,7 @@ function menu_keypressed(key)
 				if target < 9 then
 					selectworldcursor = target
 				end
-			elseif (key == "left" or key == "a") then
+			elseif controls.tap.menuLeft then
 				local target = selectworldcursor-1
 				while target > 0 and not reachedworlds[mappack][target] do
 					target = target - 1
@@ -1506,15 +1506,15 @@ function menu_keypressed(key)
 				if target > 0 then
 					selectworldcursor = target
 				end
-			elseif (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
+			elseif controls.tap.menuSelect then
 				selectworldopen = false
 				game_load(selectworldcursor)
-			elseif key == "escape" then
+			elseif controls.tap.menuBack then
 				selectworldopen = false
 			end
 			return
 		end
-		if (key == "up" or key == "w") then
+		if controls.tap.menuUp then
 			if continueavailable then
 				if selection > 0 then
 					selection = selection - 1
@@ -1524,11 +1524,11 @@ function menu_keypressed(key)
 					selection = selection - 1
 				end
 			end
-		elseif (key == "down" or key == "s") then
+		elseif controls.tap.menuDown then
 			if selection < 5 then
 				selection = selection + 1
 			end
-		elseif (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
+		elseif controls.tap.menuSelect then
 			if selection == 0 then
 				game_load(true)
 			elseif selection == 1 then
@@ -1569,20 +1569,20 @@ function menu_keypressed(key)
 			elseif selection == 5 then
 				gamestate = "options"
 			end
-		elseif key == "escape" then
+		elseif controls.tap.menuBack then
 			love.event.quit()
-		elseif (key == "left" or key == "a") then
+		elseif controls.tap.menuLeft then
 			if players > 1 then
 				players = players - 1
 			end
-		elseif (key == "right" or key == "d") then
+		elseif controls.tap.menuRight then
 			players = players + 1
 			if players > 4 then
 				players = 4
 			end
 		end
 	elseif gamestate == "mappackmenu" then
-		if (key == "up" or key == "w") then
+		if controls.tap.menuUp then
 			if mappacktype == "local" then
 				if mappackselection > 1 then
 					mappackselection = mappackselection - 1
@@ -1598,7 +1598,7 @@ function menu_keypressed(key)
 					onlineupdatescroll()
 				end
 			end
-		elseif (key == "down" or key == "s") then
+		elseif controls.tap.menuDown then
 			if mappacktype == "local" then
 				if mappackselection < #mappacklist then
 					mappackselection = mappackselection + 1
@@ -1614,7 +1614,7 @@ function menu_keypressed(key)
 					onlineupdatescroll()
 				end
 			end	
-		elseif key == "escape" or (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
+		elseif controls.tap.menuSelect or controls.tap.menuBack then
 			gamestate = "menu"
 			saveconfig()
 			if mappack == "custom_mappack" then
@@ -1623,52 +1623,40 @@ function menu_keypressed(key)
 			
 			--load background
 			loadbackgroundsafe("1-1.txt")
-		elseif (key == "right" or key == "d") then
+		elseif controls.tap.menuRight then
 			loadonlinemappacks()
 			mappackhorscroll = 1
-		elseif (key == "left" or key == "a") then
+		elseif controls.tap.menuLeft then
 			loadmappacks()
 			mappackhorscroll = 0
-		elseif key == "m" then
+		elseif controls.tap.mappackShortcut then
 			if not openSaveFolder("mappacks") then
 				savefolderfailed = true
 			end
 		end
-	elseif gamestate == "onlinemenu" then
-		if CLIENT == false and SERVER == false then
-			if key == "c" then
-				client_load()
-			elseif key == "s" then
-				server_load()
-			end
-		elseif SERVER then
-			if (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
-				server_start()
-			end
-		end
 	elseif gamestate == "options" then
 		if optionsselection == 1 then
-			if (key == "left" or key == "a") then
+			if controls.tap.menuLeft then
 				if optionstab > 1 then
 					optionstab = optionstab - 1
 				end
-			elseif (key == "right" or key == "d") then
+			elseif controls.tap.menuRight then
 				if optionstab < 4 then
 					optionstab = optionstab + 1
 				end
 			end
 		elseif optionsselection == 2 then
-			if (key == "left" or key == "a") then
+			if controls.tap.menuLeft then
 				if optionstab == 2 or optionstab == 1 then
 					if skinningplayer > 1 then
 						skinningplayer = skinningplayer - 1
 					end
 				end
-			elseif (key == "right" or key == "d") then
+			elseif controls.tap.menuRight then
 				if optionstab == 2 or optionstab == 1 then
 					if skinningplayer < 4 then
 						skinningplayer = skinningplayer + 1
-						if players > #controls then
+						if players > #oldcontrols then
 							loadconfig()
 						end
 					end
@@ -1676,7 +1664,7 @@ function menu_keypressed(key)
 			end
 		end
 		
-		if (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
+		if controls.tap.menuSelect then
 			if optionstab == 1 then
 				if optionsselection == 3 then
 					if mouseowner == skinningplayer then
@@ -1694,7 +1682,7 @@ function menu_keypressed(key)
 					resetconfig()
 				end
 			end
-		elseif (key == "down" or key == "s") then
+		elseif controls.tap.menuDown then
 			if optionstab == 1 then
 				if skinningplayer ~= mouseowner then
 					if optionsselection < 15 then
@@ -1733,7 +1721,7 @@ function menu_keypressed(key)
 					optionsselection = 1
 				end
 			end
-		elseif (key == "up" or key == "w") then
+		elseif controls.tap.menuUp then
 			if optionsselection > 1 then
 				optionsselection = optionsselection - 1
 			else
@@ -1755,7 +1743,7 @@ function menu_keypressed(key)
 					optionsselection = 10
 				end
 			end
-		elseif (key == "right" or key == "d") then
+		elseif controls.tap.menuRight then
 			if optionstab == 2 then
 				if optionsselection == 3 then
 					nextcharacter()
@@ -1855,7 +1843,7 @@ function menu_keypressed(key)
 					infinitelives = not infinitelives
 				end
 			end				
-		elseif (key == "left" or key == "a") then
+		elseif controls.tap.menuLeft then
 			if optionstab == 2 then
 				if optionsselection == 3 then
 					previouscharacter()
@@ -1956,7 +1944,7 @@ function menu_keypressed(key)
 					infinitelives = not infinitelives
 				end
 			end
-		elseif key == "escape" then
+		elseif controls.tap.menuBack then
 			gamestate = "menu"
 			saveconfig()
 		end
@@ -1997,7 +1985,7 @@ function keypromptenter(t, ...)
 			if tablecontains(axisonly, controlstable[optionsselection-3]) then
 				axiserror = true
 			else
-				controls[skinningplayer][controlstable[optionsselection-3]] = {arg[1]}
+				oldcontrols[skinningplayer][controlstable[optionsselection-3]] = {arg[1]}
 			end
 		elseif t == "joybutton" then
 			if tablecontains(axisonly, controlstable[optionsselection-3]) then

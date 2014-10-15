@@ -280,7 +280,7 @@ function editor_update(dt)
 	
 	if editormenuopen == false then
 		--key scroll
-		if love.keyboard.isDown("left") then
+		if controls.editorScrollLeft then
 			autoscroll = false
 			guielements["autoscrollcheckbox"].var = autoscroll
 			xscroll = xscroll - 30*gdt
@@ -288,7 +288,7 @@ function editor_update(dt)
 				xscroll = 0
 			end
 			generatespritebatch()
-		elseif love.keyboard.isDown("right") then
+		elseif controls.editorScrollRight then
 			autoscroll = false
 			guielements["autoscrollcheckbox"].var = autoscroll
 			xscroll = xscroll + 30*gdt
@@ -297,7 +297,7 @@ function editor_update(dt)
 			end
 			generatespritebatch()
 		end
-		if love.keyboard.isDown("up") then
+		if controls.editorScrollUp then
 			autoscroll = false
 			guielements["autoscrollcheckbox"].var = autoscroll
 			yscroll = yscroll - 30*gdt
@@ -305,7 +305,7 @@ function editor_update(dt)
 				yscroll = 0
 			end
 			generatespritebatch()
-		elseif love.keyboard.isDown("down") then
+		elseif controls.editorScrollDown then
 			autoscroll = false
 			guielements["autoscrollcheckbox"].var = autoscroll
 			yscroll = yscroll + 30*gdt
@@ -2126,7 +2126,7 @@ function editor_mousereleased(x, y, button)
 		return
 	end
 	
-	if button == "l" then
+	if controls.release.editorSelect then
 		if selectiondragging then
 			selectionend()
 		end
@@ -2148,9 +2148,9 @@ function editor_mousereleased(x, y, button)
 	end
 end
 
-function editor_keypressed(key)
+function editor_controlupdate(dt)
 	if selectionwidth then
-		if key == "delete" then
+		if controls.tap.editorDelete then
 			local x, y = round(selectionx/scale), round(selectiony/scale)
 			local width, height = round(selectionwidth/scale), round(selectionheight/scale)
 			
@@ -2164,19 +2164,7 @@ function editor_keypressed(key)
 		end
 	end
 	
-	if rightclickm then
-		rightclickm:keypressed(key)
-	end
-	
-	if animationguilines then
-		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v) do
-				w:keypressed(key)
-			end
-		end
-	end
-	
-	if key == "escape" then
+	if controls.tap.menuBack then
 		if rightclickm then
 			closerightclickmenu()
 		elseif changemapwidthmenu then
@@ -2186,6 +2174,20 @@ function editor_keypressed(key)
 				editorclose()
 			else
 				editoropen()
+			end
+		end
+	end
+end
+
+function editor_keypressed(key)
+	if rightclickm then
+		rightclickm:keypressed(key)
+	end
+	
+	if animationguilines then
+		for i, v in pairs(animationguilines) do
+			for k, w in pairs(v) do
+				w:keypressed(key)
 			end
 		end
 	end

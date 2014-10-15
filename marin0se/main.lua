@@ -389,6 +389,7 @@ function love.load(args)
 	require("libs.lube")
 	require("libs.tserial")
 	TLbind = require("libs.TLbind")
+	binds, controls = TLbind.giveInstance(controlTable)
 	require("libs.monocle")
 	Monocle.new({
 		isActive=true,
@@ -399,26 +400,14 @@ function love.load(args)
 	})
 	oldsize = nil
 	oldself = nil
-	--[[Monocle.watch("binds", function()
+	Monocle.watch("controls", function()
 		local str = "jack shit"
-		if objects and objects["player"] and objects["player"][1] and objects["player"][1].size then
-			if oldsize and oldsize~=objects["player"][1].size then
-				print("Mario's size changed from "..tostring(oldsize).." to "..tostring(objects["player"][1].size))
-			end
-			oldsize = objects["player"][1].size
-			str=tostring(oldsize)
-		end
-		if objects and objects["player"] and objects["player"][1] then
-			if oldself and oldself~=objects["player"][1] then
-				print("Mario changed selfs! That monster!")
-			end
-			oldself = objects["player"][1]
-		end
-		if oldself and not objects["player"][1] then
-			print("Mario fucking disappeared! Holy shit!")
+		if controls then
+			--if controls.tap then controls.tap={} end
+			str = Tserial.pack(controls, true, true)
 		end
 		return str
-	end)]]
+	end)
 	require("libs.von")
 	--require "netplay2"
 	require "netplay"
@@ -941,6 +930,8 @@ function love.update(dt)
 	end
 	Monocle.update()
 	TLbind:update()
+	binds:update()
+	controlsUpdate(dt)
 	realdt = dt
 	dt = math.min(0.5, dt) --ignore any dt higher than half a second
 	
@@ -1066,14 +1057,14 @@ function saveconfig()
 	end
 	
 	local s = ""
-	for i = 1, #controls do
+	for i = 1, #oldcontrols do
 		s = s .. "playercontrols:" .. i .. ":"
 		local count = 0
-		for j, k in pairs(controls[i]) do
+		for j, k in pairs(oldcontrols[i]) do
 			local c = ""
-			for l = 1, #controls[i][j] do
-				c = c .. controls[i][j][l]
-				if l ~= #controls[i][j] then
+			for l = 1, #oldcontrols[i][j] do
+				c = c .. oldcontrols[i][j][l]
+				if l ~= #oldcontrols[i][j] then
 					c = c ..  "-"
 				end
 			end
@@ -1194,19 +1185,19 @@ function loadconfig()
 	for i = 1, #s1-1 do
 		s2 = s1[i]:split(":")
 		if s2[1] == "playercontrols" then
-			if controls[tonumber(s2[2])] == nil then
-				controls[tonumber(s2[2])] = {}
+			if oldcontrols[tonumber(s2[2])] == nil then
+				oldcontrols[tonumber(s2[2])] = {}
 			end
 			
 			s3 = s2[3]:split(",")
 			for j = 1, #s3 do
 				s4 = s3[j]:split("-")
-				controls[tonumber(s2[2])][s4[1]] = {}
+				oldcontrols[tonumber(s2[2])][s4[1]] = {}
 				for k = 2, #s4 do
 					if tonumber(s4[k]) ~= nil then
-						controls[tonumber(s2[2])][s4[1]][k-1] = tonumber(s4[k])
+						oldcontrols[tonumber(s2[2])][s4[1]][k-1] = tonumber(s4[k])
 					else
-						controls[tonumber(s2[2])][s4[1]][k-1] = s4[k]
+						oldcontrols[tonumber(s2[2])][s4[1]][k-1] = s4[k]
 					end
 				end
 			end
@@ -1321,37 +1312,37 @@ function defaultconfig()
 	
 	mouseowner = 1
 	
-	controls = {}
+	oldcontrols = {}
 	
 	local i = 1
-	controls[i] = {}
-	controls[i]["right"] = {"d"}
-	controls[i]["left"] = {"a"}
-	controls[i]["down"] = {"s"}
-	controls[i]["up"] = {"w"}
-	controls[i]["run"] = {"lshift"}
-	controls[i]["jump"] = {" "}
-	controls[i]["aimx"] = {""} --mouse aiming, so no need
-	controls[i]["aimy"] = {""}
-	controls[i]["portal1"] = {""}
-	controls[i]["portal2"] = {""}
-	controls[i]["reload"] = {"r"}
-	controls[i]["use"] = {"e"}
+	oldcontrols[i] = {}
+	oldcontrols[i]["right"] = {"d"}
+	oldcontrols[i]["left"] = {"a"}
+	oldcontrols[i]["down"] = {"s"}
+	oldcontrols[i]["up"] = {"w"}
+	oldcontrols[i]["run"] = {"lshift"}
+	oldcontrols[i]["jump"] = {" "}
+	oldcontrols[i]["aimx"] = {""} --mouse aiming, so no need
+	oldcontrols[i]["aimy"] = {""}
+	oldcontrols[i]["portal1"] = {""}
+	oldcontrols[i]["portal2"] = {""}
+	oldcontrols[i]["reload"] = {"r"}
+	oldcontrols[i]["use"] = {"e"}
 	
 	for i = 2, 4 do
-		controls[i] = {}		
-		controls[i]["right"] = {"joy", i-1, "hat", 1, "r"}
-		controls[i]["left"] = {"joy", i-1, "hat", 1, "l"}
-		controls[i]["down"] = {"joy", i-1, "hat", 1, "d"}
-		controls[i]["up"] = {"joy", i-1, "hat", 1, "u"}
-		controls[i]["run"] = {"joy", i-1, "but", 3}
-		controls[i]["jump"] = {"joy", i-1, "but", 1}
-		controls[i]["aimx"] = {"joy", i-1, "axe", 5, "neg"}
-		controls[i]["aimy"] = {"joy", i-1, "axe", 4, "neg"}
-		controls[i]["portal1"] = {"joy", i-1, "but", 5}
-		controls[i]["portal2"] = {"joy", i-1, "but", 6}
-		controls[i]["reload"] = {"joy", i-1, "but", 4}
-		controls[i]["use"] = {"joy", i-1, "but", 2}
+		oldcontrols[i] = {}		
+		oldcontrols[i]["right"] = {"joy", i-1, "hat", 1, "r"}
+		oldcontrols[i]["left"] = {"joy", i-1, "hat", 1, "l"}
+		oldcontrols[i]["down"] = {"joy", i-1, "hat", 1, "d"}
+		oldcontrols[i]["up"] = {"joy", i-1, "hat", 1, "u"}
+		oldcontrols[i]["run"] = {"joy", i-1, "but", 3}
+		oldcontrols[i]["jump"] = {"joy", i-1, "but", 1}
+		oldcontrols[i]["aimx"] = {"joy", i-1, "axe", 5, "neg"}
+		oldcontrols[i]["aimy"] = {"joy", i-1, "axe", 4, "neg"}
+		oldcontrols[i]["portal1"] = {"joy", i-1, "but", 5}
+		oldcontrols[i]["portal2"] = {"joy", i-1, "but", 6}
+		oldcontrols[i]["reload"] = {"joy", i-1, "but", 4}
+		oldcontrols[i]["use"] = {"joy", i-1, "but", 2}
 	end
 	-------------------
 	-- PORTAL COLORS --
@@ -1621,36 +1612,52 @@ function screenshotUploadWrap(iname, idata)
 		openSaveFolder()
 	end
 end
-function love.keypressed(key, isrepeat)
-	if key == "f11" then
+
+function controlsUpdate(dt)
+	if controls.tap.screenshot then
 		screenshotUploadWrap("screenshot.png", love.graphics.newScreenshot())
 	end
 	
-	if key == "f10" then
-		totallynonexistantfunction()
-	end
-	
-	if key == "k" then
+	if controls.editorShortcutModifier and controls.tap.editorQuickSave then
 		savelevel()
 	end
-
-	if key == "y" and debugbinds then
-		if love.keyboard.isDown("lalt") then
+	
+	if controls.debugModifier then
+		if controls.tap.recordToggle then
 			recording = not recording
 		end
-	end
-	
-	if key == "lctrl" and debugbinds then
-		debug.debug()
-		return
-	end
-	
-	if replaysystem then
-		if key == "k" then
+		if replaysystem and controls.tap.replaySave then
 			objects["player"][1]:savereplaydata()
+		end
+		if controls.tap.debugLua then
+			debug.debug()
+		end
+		if controls.tap.debugCrash then
+			totallynonexistantfunction()
 		end
 	end
 	
+	if controls.tap.grabMouseToggle then
+		love.mouse.setGrabbed(not love.mouse.isGrabbed())
+	end
+	
+	if gamestate == "lobby" or gamestate == "onlinemenu" then
+		if controls.tap.menuBack then
+			net_quit()
+			return
+		end
+	end
+	
+	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" then
+		menu_controlupdate(dt)
+	elseif gamestate == "game" then
+		game_controlupdate(dt)
+	elseif gamestate == "intro" then
+		intro_keypressed(dt)
+	end
+end
+
+function love.keypressed(key, isrepeat)
 	if keyprompt then
 		keypromptenter("key", key)
 		return
@@ -1658,17 +1665,6 @@ function love.keypressed(key, isrepeat)
 
 	for i, v in pairs(guielements) do
 		if v:keypress(string.lower(key)) then
-			return
-		end
-	end
-	
-	if key == "f12" then
-		love.mouse.setGrabbed(not love.mouse.isGrabbed())
-	end
-	
-	if gamestate == "lobby" or gamestate == "onlinemenu" then
-		if key == "escape" then
-			net_quit()
 			return
 		end
 	end
@@ -1687,11 +1683,10 @@ function love.keypressed(key, isrepeat)
 			saveconfig()
 			notice.new("Cheats unlocked!")
 		end
-		menu_keypressed(key)
 	elseif gamestate == "game" then
 		game_keypressed(key)
 	elseif gamestate == "intro" then
-		intro_keypressed()
+		--intro_keypressed()
 	end
 end
 
