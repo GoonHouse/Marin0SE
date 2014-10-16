@@ -20,7 +20,7 @@ function castlefire:init(x, y, r)
 	end
 	--DELAY
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.delay = tonumber(self.r[1])
+		self.delay = tonumber(self.r[1])/10
 		table.remove(self.r, 1)
 	end
 	--DIR

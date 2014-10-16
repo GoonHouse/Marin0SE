@@ -1164,6 +1164,13 @@ function enemy:spawnenemy(t)
 	if self.spawnenemyspeedy then
 		speedy = self.spawnenemyspeedy
 	end
+	if self.spawnmomentum then
+		if objects["player"][1].x < self.x then
+		speedx = self.speedx + math.random(-6,2)
+		else
+		speedx = self.speedx + math.random(-2,6)
+		end
+	end
 	
 	if (self.spawnenemyspeedxrandomstart and self.spawnenemyspeedxrandomend) then
 		speedx = math.random()*(self.spawnenemyspeedxrandomend-self.spawnenemyspeedxrandomstart) + self.spawnenemyspeedxrandomstart
