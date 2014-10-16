@@ -1629,7 +1629,7 @@ function menu_controlupdate(dt)
 		elseif controls.tap.menuLeft then
 			loadmappacks()
 			mappackhorscroll = 0
-		elseif controls.tap.mappackShortcut then
+		elseif controls.tap.gameShortcutMappackFolder then
 			if not openSaveFolder("mappacks") then
 				savefolderfailed = true
 			end

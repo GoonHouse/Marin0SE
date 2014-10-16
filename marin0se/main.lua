@@ -1613,12 +1613,8 @@ function screenshotUploadWrap(iname, idata)
 end
 
 function controlsUpdate(dt)
-	if controls.tap.screenshot then
+	if controls.tap.gameScreenshot then
 		screenshotUploadWrap("screenshot.png", love.graphics.newScreenshot())
-	end
-	
-	if controls.editorShortcutModifier and controls.tap.editorQuickSave then
-		savelevel()
 	end
 	
 	if controls.debugModifier then
@@ -1636,7 +1632,7 @@ function controlsUpdate(dt)
 		end
 	end
 	
-	if controls.tap.grabMouseToggle then
+	if controls.tap.gameGrabMouseToggle then
 		love.mouse.setGrabbed(not love.mouse.isGrabbed())
 	end
 	

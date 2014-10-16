@@ -3784,18 +3784,17 @@ function generatespritebatch()
 end
 
 function game_controlupdate(dt)
-	if controls.tap.debugEmbiggen then
-		local p1 = objects["player"][1]
-		if p1.size==1 then
-			p1:getpowerup("super", "small","debug embiggen")
-		elseif p1.size==2 then
-			p1:getpowerup("fire", "super","debug embiggen")
-		end
-	end
-	
 	if controls.debugModifier then
 		if controls.tap.editorToggle then
 			editormode = not editormode
+		end
+		if controls.tap.debugEmbiggen then
+			local p1 = objects["player"][1]
+			if p1.size==1 then
+				p1:getpowerup("super", "small","debug embiggen")
+			elseif p1.size==2 then
+				p1:getpowerup("fire", "super","debug embiggen")
+			end
 		end
 	end
 	
@@ -3818,7 +3817,6 @@ function game_controlupdate(dt)
 			elseif controls.tap.menuBack then
 				menuprompt = false
 			end
-			return
 		elseif desktopprompt then
 			if controls.tap.menuLeft then
 				pausemenuselected2 = 1
@@ -3834,7 +3832,6 @@ function game_controlupdate(dt)
 			elseif controls.tap.menuBack then
 				desktopprompt = false
 			end
-			return
 		elseif suspendprompt then
 			if controls.tap.menuLeft then
 				pausemenuselected2 = 1
@@ -3853,7 +3850,6 @@ function game_controlupdate(dt)
 			elseif controls.tap.menuBack then
 				suspendprompt = false
 			end
-			return
 		end
 		if controls.tap.menuDown then
 			pausemenuselected = pausemenuselected + 1
@@ -3904,8 +3900,6 @@ function game_controlupdate(dt)
 				playsound("coin")
 			end
 		end
-			
-		return
 	end
 	--[[if endpressbutton then
 		endpressbutton = false
@@ -3926,15 +3920,11 @@ function game_controlupdate(dt)
 				loadlevel(marioworld .. "-" .. mariolevel)
 			end
 			startlevel()
-			return
 		elseif not editormode and not everyonedead then
 			pausemenuopen = true
 			love.audio.pause()
 			playsound("pause")
 		end
-	end
-	if editormode then
-		editor_controlupdate(dt)
 	end
 	
 	if frameskip then
@@ -3961,6 +3951,7 @@ function game_controlupdate(dt)
 			end
 		end
 	end
+	
 	if speeddebug then
 		if controls.tap.debugSpeedDecrease then
 			speed = math.max(0, speed/2)
@@ -3968,6 +3959,10 @@ function game_controlupdate(dt)
 		if controls.tap.debugSpeedIncrease then
 			speed = math.min(1, speed*2)
 		end
+	end
+	
+	if editormode then
+		editor_controlupdate(dt)
 	end
 end
 

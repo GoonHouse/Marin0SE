@@ -137,15 +137,13 @@ function regiondrag:draw()
 	end
 end
 
-function regiondrag:mousepressed(x, y, button)
+function regiondrag:checkGrab(x, y)
 	for i = 1, 5 do
 		if self:inhighlight(mouse.getX(), mouse.getY(), i) then
 			self.grabbed = i
 			break
 		end
 	end
-	
-	print("REGIONDRAG: Grabstatus=="..tostring(self.grabbed))
 	
 	if self.grabbed == 5 then
 		self.movex = x
@@ -157,8 +155,7 @@ function regiondrag:mousepressed(x, y, button)
 	end
 end
 
-function regiondrag:close()
-	print("REGIONDRAG: Issued a close command.")
+function regiondrag:releaseGrab()
 	self.grabbed = 0
 end
 

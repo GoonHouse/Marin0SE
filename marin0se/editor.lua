@@ -1,6 +1,19 @@
+-- unused for now
+editor_undohistory = {}
+--indexed by operation stack, largest number is most recent
+--[[element example:
+	{
+	op="tile",
+	data={
+		before=map[x][y],
+		after=map[x][y],
+	},
+	}
+]]
+
 function editor_load()
 	print("Editor loaded!")
-	editortool = "tile" --tile, linker, region, 
+	editortool = "tile" --tile, linker, region, select
 	editorlasttool = "tile"
 	editorignorerelease = false --this is an ugly hack until we figure out how to wrangle our inputs
 	editorignoretap = false
@@ -25,7 +38,7 @@ function editor_load()
 	minimapscrollspeed = 30
 	minimapdragging = false
 	
-	allowdrag = true
+	allowdrag = false
 	
 	animationguiarea =  {12, 33, 399, 212}
 	mapbuttonarea =  {4, 21, 381, 220}
@@ -234,9 +247,9 @@ function editor_load()
 		editoropen()
 		editorloadopen = false
 	else
-		editorclose()
 		editorstate = "main"
 		editentities = false
+		editorclose()
 	end
 end
 
@@ -282,207 +295,7 @@ function editor_update(dt)
 		return
 	end
 	
-	if editormenuopen == false then
-		--key scroll
-		if controls.editorScrollLeft then
-			autoscroll = false
-			guielements["autoscrollcheckbox"].var = autoscroll
-			xscroll = xscroll - 30*gdt
-			if xscroll < 0 then
-				xscroll = 0
-			end
-			generatespritebatch()
-		elseif controls.editorScrollRight then
-			autoscroll = false
-			guielements["autoscrollcheckbox"].var = autoscroll
-			xscroll = xscroll + 30*gdt
-			if xscroll > mapwidth-width then
-				xscroll = mapwidth-width
-			end
-			generatespritebatch()
-		end
-		if controls.editorScrollUp then
-			autoscroll = false
-			guielements["autoscrollcheckbox"].var = autoscroll
-			yscroll = yscroll - 30*gdt
-			if yscroll < 0 then
-				yscroll = 0
-			end
-			generatespritebatch()
-		elseif controls.editorScrollDown then
-			autoscroll = false
-			guielements["autoscrollcheckbox"].var = autoscroll
-			yscroll = yscroll + 30*gdt
-			if yscroll > mapheight-height-1 then
-				yscroll = mapheight-height-1
-			end
-			generatespritebatch()
-		end
-		
-		if editorstate == "lightdraw" then
-			if love.mouse.isDown("l") then
-				local mousex, mousey = mouse.getPosition()
-				local currentx, currenty = getMouseTile(mousex, mousey+8*scale)
-				
-				if lightdrawX and (currentx ~= lightdrawX or currenty ~= lightdrawY) then
-					
-					local xdir = 0
-					if currentx > lightdrawX then
-						xdir = 1
-					elseif currentx < lightdrawX then
-						xdir = -1
-					end
-					
-					local ydir = 0
-					if currenty > lightdrawY then
-						ydir = 1
-					elseif currenty < lightdrawY then
-						ydir = -1
-					end
-					
-					--fill in the gaps
-					local x, y = lightdrawX, lightdrawY
-					while x ~= currentx or y ~= currenty do
-						if x ~= currentx then
-							if x < currentx then
-								x = x + 1
-							else
-								x = x - 1
-							end
-						else
-							if y < currenty then
-								y = y + 1
-							else
-								y = y - 1
-							end
-						end
-						table.insert(lightdrawtable, {x=x,y=y})
-					
-						if #lightdrawtable >= 3 then
-							local prevx, prevy = lightdrawtable[#lightdrawtable-2].x, lightdrawtable[#lightdrawtable-2].y
-							local currx, curry = lightdrawtable[#lightdrawtable-1].x, lightdrawtable[#lightdrawtable-1].y
-							local nextx, nexty = lightdrawtable[#lightdrawtable].x, lightdrawtable[#lightdrawtable].y
-							
-							local prev = "up"
-							if prevx < currx then
-								prev = "left"
-							elseif prevx > currx then
-								prev = "right"
-							elseif prevy > curry then
-								prev = "down"
-							end
-							
-							local next = "up"
-							if nextx < currx then
-								next = "left"
-							elseif nextx > currx then
-								next = "right"
-							elseif nexty > curry then
-								next = "down"
-							end
-							
-							local tile
-							if (prev == "up" and next == "down") or (prev == "down" and next == "up") then
-								tile = 43
-							elseif (prev == "left" and next == "right") or (prev == "right" and next == "left") then
-								tile = 44
-							elseif (prev == "up" and next == "right") or (prev == "right" and next == "up") then
-								tile = 45
-							elseif (prev == "right" and next == "down") or (prev == "down" and next == "right") then
-								tile = 46
-							elseif (prev == "down" and next == "left") or (prev == "left" and next == "down") then
-								tile = 47
-							elseif (prev == "left" and next == "up") or (prev == "up" and next == "left") then
-								tile = 48
-							end
-							
-							placetile((currx-xscroll-.5)*16*scale, (curry-yscroll-1)*16*scale, tile, true)
-						end
-					end
-					
-					lightdrawX = currentx
-					lightdrawY = currenty
-				end
-				
-				return
-			end
-		end
-		
-		if rightclickactive or editorstate == "lightdraw" or editorstate == "selection" then
-			return
-		end
-		
-		if love.mouse.isDown("l") and allowdrag then
-			local x, y = mouse.getPosition()
-			placetile(x, y)
-		end
-	elseif editorstate == "main" then
-		if love.mouse.isDown("l") then
-			local mousex, mousey = mouse.getPosition()
-			if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
-				if mousex >= minimapx*scale and mousex < (minimapx+394)*scale then
-					--HORIZONTAL
-					if mousex < (minimapx+width)*scale then
-						if minimapscroll > 0 then
-							minimapscroll = minimapscroll - minimapscrollspeed*dt
-							if minimapscroll < 0 then
-								minimapscroll = 0
-							end
-						end
-					elseif mousex >= (minimapx+394-width)*scale then
-						if minimapscroll < mapwidth-width-170 then
-							minimapscroll = minimapscroll + minimapscrollspeed*dt
-							if minimapscroll > mapwidth-width-170 then
-								minimapscroll = mapwidth-width-170
-							end
-						end
-					end
-					
-					--VERTICAL
-					if mousey < (minimapy+5)*scale then
-						if yscroll > 0 then
-							yscroll = yscroll - minimapscrollspeed*dt
-							if yscroll < 0 then
-								yscroll = 0
-							end
-						end
-					elseif mousey >= (minimapy+minimapheight*2+4-5)*scale then
-						if yscroll < mapheight-height then
-							yscroll = yscroll + minimapscrollspeed*dt
-							if yscroll > mapheight-height-1 then
-								yscroll = mapheight-height-1
-							end
-						end
-					end
-				
-					xscroll = (mousex/scale-3-width) / 2 + minimapscroll
-					
-					if xscroll < minimapscroll then
-						xscroll = minimapscroll
-					end
-					if xscroll > 170 + minimapscroll then
-						xscroll = 170 + minimapscroll
-					end
-					if xscroll > mapwidth-width then
-						xscroll = mapwidth-width
-					end
-	
-					--SPRITEBATCH UPDATE
-					if math.floor(xscroll) ~= spritebatchX[1] then
-						generatespritebatch()
-						spritebatchX[1] = math.floor(xscroll)
-					elseif math.floor(yscroll) ~= spritebatchY[1] then
-						generatespritebatch()
-						spritebatchY[1] = math.floor(yscroll)
-					end
-				end
-			end
-			
-			updatescrollfactor()
-			updatefscrollfactor()
-			updatebackground()
-		end
-	elseif editorstate == "tiles" then
+	if editorstate == "tiles" then
 		tilesoffset = guielements["tilesscrollbar"].value * tilescrollbarheight * scale
 		if editentities and not editenemies then
 			local x, y = mouse.getPosition()
@@ -1757,11 +1570,8 @@ function placetile(x, y, t, ent)
 	end
 	
 	if editentities == false then
-		if tilequads[currenttile]:getproperty("coin") then
-			coinmap[cox][coy] = not editorcoinstart
-			return
-		end
-	
+		coinmap[cox][coy] = tilequads[currenttile]:getproperty("coin")
+		
 		if tilequads[currenttile]:getproperty("collision") == true and tilequads[map[cox][coy][1]]:getproperty("collision") == false then
 			objects["tile"][cox .. "-" .. coy] = tile:new(cox-1, coy-1, 1, 1, true)
 		elseif tilequads[currenttile]:getproperty("collision") == false and tilequads[map[cox][coy][1]]:getproperty("collision") == true then
@@ -1857,7 +1667,7 @@ function editoropen()
 	end
 end
 
-function mapnumberclick(i, j, k)
+--[[function mapnumberclick(i, j, k)
 	if editormode then
 		marioworld = i
 		mariolevel = j
@@ -1869,7 +1679,7 @@ function mapnumberclick(i, j, k)
 		end
 		startlevel()
 	end
-end
+end]]
 
 function getmaps()
 	existingmaps = {}
@@ -1916,9 +1726,155 @@ end
 
 function editor_controlupdate(dt)
 	local x, y = getMousePos()
-	local button = "honk"
-	-- here we enum controls into a mouse equivalent for the sake of Just Getting It To Work For Now(tm)
+	local button = "honk" --for the sake of Just Getting It To Work For Now(tm)
 	
+	if controls.editorShortcutModifier then
+		if controls.tap.editorQuickSave then
+			savelevel()
+		end
+		
+		if controls.tap.editorTilesAll then
+			editorstate = "tiles"
+			editoropen()
+			tilesall()
+		elseif controls.tap.editorTilesSMB then
+			editorstate = "tiles"
+			editoropen()
+			tilessmb()
+		elseif controls.tap.editorTilesPortal then
+			editorstate = "tiles"
+			editoropen()
+			tilesportal()
+		elseif controls.tap.editorTilesCustom then
+			editorstate = "tiles"
+			editoropen()
+			tilescustom()
+		elseif controls.tap.editorTilesAnimated then
+			editorstate = "tiles"
+			editoropen()
+			tilesanimated()
+		elseif controls.tap.editorTilesEntities then
+			editorstate = "tiles"
+			editoropen()
+			tilesentities()
+		elseif controls.tap.editorTilesEnemies then
+			editorstate = "tiles"
+			editoropen()
+			tilesenemies()
+		end
+	end
+	
+	-- constants and paints
+	if controls.editorPaint then
+		if editorstate == "lightdraw" and editormenuopen == false then
+			paintLight()
+		elseif editorstate == "main" then
+			local mousex, mousey = mouse.getPosition()
+			if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
+				if mousex >= minimapx*scale and mousex < (minimapx+394)*scale then
+					--HORIZONTAL
+					if mousex < (minimapx+width)*scale then
+						if minimapscroll > 0 then
+							minimapscroll = minimapscroll - minimapscrollspeed*dt
+							if minimapscroll < 0 then
+								minimapscroll = 0
+							end
+						end
+					elseif mousex >= (minimapx+394-width)*scale then
+						if minimapscroll < mapwidth-width-170 then
+							minimapscroll = minimapscroll + minimapscrollspeed*dt
+							if minimapscroll > mapwidth-width-170 then
+								minimapscroll = mapwidth-width-170
+							end
+						end
+					end
+					
+					--VERTICAL
+					if mousey < (minimapy+5)*scale then
+						if yscroll > 0 then
+							yscroll = yscroll - minimapscrollspeed*dt
+							if yscroll < 0 then
+								yscroll = 0
+							end
+						end
+					elseif mousey >= (minimapy+minimapheight*2+4-5)*scale then
+						if yscroll < mapheight-height then
+							yscroll = yscroll + minimapscrollspeed*dt
+							if yscroll > mapheight-height-1 then
+								yscroll = mapheight-height-1
+							end
+						end
+					end
+				
+					xscroll = (mousex/scale-3-width) / 2 + minimapscroll
+					
+					if xscroll < minimapscroll then
+						xscroll = minimapscroll
+					end
+					if xscroll > 170 + minimapscroll then
+						xscroll = 170 + minimapscroll
+					end
+					if xscroll > mapwidth-width then
+						xscroll = mapwidth-width
+					end
+
+					--SPRITEBATCH UPDATE
+					if math.floor(xscroll) ~= spritebatchX[1] then
+						generatespritebatch()
+						spritebatchX[1] = math.floor(xscroll)
+					elseif math.floor(yscroll) ~= spritebatchY[1] then
+						generatespritebatch()
+						spritebatchY[1] = math.floor(yscroll)
+					end
+				end
+			end
+			
+			updatescrollfactor()
+			updatefscrollfactor()
+			updatebackground()
+		elseif allowdrag and editormenuopen == false and editortool == "tile" then
+			local x, y = mouse.getPosition()
+			placetile(x, y)
+		end
+	end
+	
+	if controls.editorScrollLeft and editormenuopen == false then
+		autoscroll = false
+		guielements["autoscrollcheckbox"].var = autoscroll
+		xscroll = xscroll - 30*gdt
+		if xscroll < 0 then
+			xscroll = 0
+		end
+		generatespritebatch()
+	elseif controls.editorScrollRight and editormenuopen == false then
+		autoscroll = false
+		guielements["autoscrollcheckbox"].var = autoscroll
+		xscroll = xscroll + 30*gdt
+		if xscroll > mapwidth-width then
+			xscroll = mapwidth-width
+		end
+		generatespritebatch()
+	end
+	if controls.editorScrollUp and editormenuopen == false then
+		autoscroll = false
+		guielements["autoscrollcheckbox"].var = autoscroll
+		yscroll = yscroll - 30*gdt
+		if yscroll < 0 then
+			yscroll = 0
+		end
+		generatespritebatch()
+	elseif controls.editorScrollDown and editormenuopen == false then
+		autoscroll = false
+		guielements["autoscrollcheckbox"].var = autoscroll
+		yscroll = yscroll + 30*gdt
+		if yscroll > mapheight-height-1 then
+			yscroll = mapheight-height-1
+		end
+		generatespritebatch()
+	end
+	
+	
+	-- taps and releases
 	if controls.tap.editorSelect and editorignoretap then
 		print("CONTROLS-TAP: Ignored editor input for a frame.")
 		editorignoretap = false
@@ -1936,44 +1892,15 @@ function editor_controlupdate(dt)
 			elseif editorstate == "selection" then
 				selectionstart()
 			elseif editortool == "region" then
-				--[[@WARNING:
-					This code behaves strangely. The behavior that *should* be implemented would be:
-					Is the mouse over one of the region handles?
-						Begin dragging.
-					Else?
-						Destroy.
-					
-					With corresponding code in the release section being:
-					Set the grabbed edge to none.
-				]]
 				if regiondragging then
-					print("REGION: Finished from tap.")
-					--[[@NOTE:
-						This isn't a real mousedpressed event but I left the name alone because
-						I have no idea what it really "does".
-					]]
-					
-					if regiondragging:mousepressed(x, y, button) then
-						editorignoretap = true
-						editorignorerelease = true
+					if regiondragging:checkGrab(x, y) then
 						finishregion()
-					else
-						print("inside else")
-						--rightclickactive=false
-						--finishregion()
-						--regiondragging:close()
-						--regiondragging = nil
 					end
 				end
+			-- this is covered in painting elsewhere, but if it's not here, it makes a mess ???
 			else
 				local cox, coy = getMouseTile(x, y+8*scale)
 				if inmap(cox, coy) then
-					if coinmap[cox][coy] then
-						editorcoinstart = true
-					else
-						editorcoinstart = false
-					end
-					
 					placetile(x, y)
 				end
 			end
@@ -1982,6 +1909,7 @@ function editor_controlupdate(dt)
 				local tile = gettilelistpos(x, y)
 				if editentities == false then
 					if tile and tile <= tilelistcount+1 then
+						changeTool("tile")
 						if animatedtilelist then
 							currenttile = tile + tileliststart-1+10000
 						else
@@ -2021,19 +1949,10 @@ function editor_controlupdate(dt)
 			selectionend()
 		end
 		
-		if rightclickactive and editortool == "region" then
-			print("release: controls inside region")
+		if editortool == "region" then
 			if regiondragging then
-				print("REGION: Setting grab to none.")
-				
-				regiondragging:mousepressed(x, y, button)
-				regiondragging:close()
-				--finishregion()
-				--regiondragging = nil
-				rightclickactive = false
+				regiondragging:releaseGrab()
 			end
-		else
-			print("REGION: Evaded death.")
 		end
 		
 		guirepeattimer = 0
@@ -2158,12 +2077,11 @@ function editor_controlupdate(dt)
 	
 	if controls.tap.editorDropper then
 		local cox, coy = getMouseTile(x, y+8*scale)
-		if inmap(cox, coy) == false then
-			return
+		if inmap(cox, coy) then
+			editentities = false
+			tilesall()
+			currenttile = map[cox][coy][1]
 		end
-		editentities = false
-		tilesall()
-		currenttile = map[cox][coy][1]
 	end
 	
 
@@ -2354,6 +2272,8 @@ end
 
 function lightdrawbutton()
 	editorstate = "lightdraw"
+	editorignoretap = true
+	editorignorerelease = true
 	lightdrawX = nil
 	lightdrawY = nil
 	editorclose()
@@ -2522,8 +2442,7 @@ function closerightclickmenu()
 end
 
 function startlinking(x, y, t)
-	editorlasttool = editortool
-	editortool = "linker"
+	changeTool("linker")
 	editorignoretap = true
 	rightclickactive = true
 	linktoolX = x
@@ -2535,8 +2454,7 @@ function startlinking(x, y, t)
 end
 
 function startregion(x, y, t)
-	editorlasttool = editortool
-	editortool = "region"
+	changeTool("region")
 	editorignoretap = true
 	editorignorerelease = true
 	rightclickactive = true
@@ -2577,10 +2495,8 @@ function startregion(x, y, t)
 end
 
 function finishregion()
-	editortool = editorlasttool
-	editorlasttool = "region"
 	if regiondragging then
-		print("REGION: Was region dragging.")
+		previousTool()
 		local t = regiontoolt
 		local x, y = regiontoolX, regiontoolY
 		
@@ -2608,8 +2524,6 @@ function finishregion()
 		
 		regiondragging = nil
 		rightclickactive = false
-	else
-		print("REGION: Was not region dragging.")
 	end
 end
 
@@ -2647,10 +2561,8 @@ function removelink(x, y, t)
 end
 
 function finishlinking(x, y)
-	editortool = editorlasttool
-	editorlasttool = "linker"
 	if rightclickactive then
-		print("LINKER: Rightclick was active.")
+		previousTool()
 		local startx, starty = linktoolX, linktoolY
 		local endx, endy = getMouseTile(x, y+8*scale)
 		
@@ -2695,8 +2607,6 @@ function finishlinking(x, y)
 			end
 		end
 		linktoolt = false
-	else
-		print("LINKER: Rightclick was NOT active.")
 	end
 end
 
@@ -2711,6 +2621,7 @@ function drawlinkline2(x1, y1, x2, y2)
 end
 
 function selectionbutton()
+	changeTool("select")
 	editorstate = "selection"
 	editorclose()
 end
@@ -2758,4 +2669,98 @@ function selectiongettiles(x, y, width, height)
 	end
 	
 	return out
+end
+
+function changeTool(toolname)
+	editorlasttool = editortool
+	editortool = toolname
+end
+
+function previousTool()
+	local temp = editortool
+	editortool = editorlasttool
+	editorlasttool = temp
+end
+
+function paintLight()
+	local mousex, mousey = mouse.getPosition()
+	local currentx, currenty = getMouseTile(mousex, mousey+8*scale)
+	if lightdrawX and (currentx ~= lightdrawX or currenty ~= lightdrawY) then
+		local xdir = 0
+		if currentx > lightdrawX then
+			xdir = 1
+		elseif currentx < lightdrawX then
+			xdir = -1
+		end
+		
+		local ydir = 0
+		if currenty > lightdrawY then
+			ydir = 1
+		elseif currenty < lightdrawY then
+			ydir = -1
+		end
+		
+		--fill in the gaps
+		local x, y = lightdrawX, lightdrawY
+		while x ~= currentx or y ~= currenty do
+			if x ~= currentx then
+				if x < currentx then
+					x = x + 1
+				else
+					x = x - 1
+				end
+			else
+				if y < currenty then
+					y = y + 1
+				else
+					y = y - 1
+				end
+			end
+			table.insert(lightdrawtable, {x=x,y=y})
+		
+			if #lightdrawtable >= 3 then
+				local prevx, prevy = lightdrawtable[#lightdrawtable-2].x, lightdrawtable[#lightdrawtable-2].y
+				local currx, curry = lightdrawtable[#lightdrawtable-1].x, lightdrawtable[#lightdrawtable-1].y
+				local nextx, nexty = lightdrawtable[#lightdrawtable].x, lightdrawtable[#lightdrawtable].y
+				
+				local prev = "up"
+				if prevx < currx then
+					prev = "left"
+				elseif prevx > currx then
+					prev = "right"
+				elseif prevy > curry then
+					prev = "down"
+				end
+				
+				local next = "up"
+				if nextx < currx then
+					next = "left"
+				elseif nextx > currx then
+					next = "right"
+				elseif nexty > curry then
+					next = "down"
+				end
+				
+				local tile
+				if (prev == "up" and next == "down") or (prev == "down" and next == "up") then
+					tile = 43
+				elseif (prev == "left" and next == "right") or (prev == "right" and next == "left") then
+					tile = 44
+				elseif (prev == "up" and next == "right") or (prev == "right" and next == "up") then
+					tile = 45
+				elseif (prev == "right" and next == "down") or (prev == "down" and next == "right") then
+					tile = 46
+				elseif (prev == "down" and next == "left") or (prev == "left" and next == "down") then
+					tile = 47
+				elseif (prev == "left" and next == "up") or (prev == "up" and next == "left") then
+					tile = 48
+				end
+				
+				placetile((currx-xscroll-.5)*16*scale, (curry-yscroll-1)*16*scale, tile, true)
+			end
+		end
+		
+		lightdrawX = currentx
+		lightdrawY = currenty
+	end
 end
