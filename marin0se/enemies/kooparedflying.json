@@ -2,13 +2,10 @@ base=koopaflying
 {	
 	"bounces": false,
 	
-	"movement": "piston",
-	"pistondistx": 0,
-	"pistondisty": 7.5,
-	"pistonspeedx": 0,
-	"pistonspeedy": 2,
-	"pistonextendtime": 3,
-	"pistonretracttime": 3,
+	"movement": "flytime",
+	"flyingtime": 7,
+	"flyingdisx": 0,
+	"flyingdisy": 7.5,
 	
 	"static": true,
 	
