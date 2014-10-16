@@ -38,7 +38,7 @@ function editor_load()
 	minimapscrollspeed = 30
 	minimapdragging = false
 	
-	allowdrag = false
+	allowdrag = true
 	
 	animationguiarea =  {12, 33, 399, 212}
 	mapbuttonarea =  {4, 21, 381, 220}
@@ -1733,6 +1733,10 @@ function editor_controlupdate(dt)
 			savelevel()
 		end
 		
+		if controls.tap.editorTestLevel then
+			test_level()
+		end
+		
 		if controls.tap.editorTilesAll then
 			editorstate = "tiles"
 			editoropen()
@@ -1898,7 +1902,7 @@ function editor_controlupdate(dt)
 					end
 				end
 			-- this is covered in painting elsewhere, but if it's not here, it makes a mess ???
-			else
+			elseif not rightclickm then
 				local cox, coy = getMouseTile(x, y+8*scale)
 				if inmap(cox, coy) then
 					placetile(x, y)
