@@ -3906,7 +3906,7 @@ function game_controlupdate(dt)
 		endgame()
 		return
 	end]]
-	if controls.tap.menuBack then
+	if controls.tap.playerPause then
 		if not editormode and testlevel then
 			checkpointsub = false
 			marioworld = testlevelworld

@@ -19,6 +19,7 @@ local function giveInstance( binds )
 	-- @field useMouse if true, process mouse input
 	-- @field useJoystick if true, process joystick input
 	-- @field deadzone clip analogue deadzoneAxes pairs to 0 when under this number (must be >= 0 and < 1)
+	-- @field pairedAxes [joystick#][index#] = {axis#1, axis#2}
 	-- @field deadzoneAxes [index#] = {"analogue 1", "analogue 2"} (note: pairs will also be normalized, which fixes the common "running diagonally is faster" bug)
 	-- @field keys [KeyConstant] = "control"
 	-- @field mouseAxes {"x control", "y control"}
@@ -32,7 +33,7 @@ local function giveInstance( binds )
 		useKeyboard = true, useMouse = false, useJoystick = true, 
 		deadzone = 0.1, keys = {}, mouseAxes = {}, mouseBtns = {}, 
 		joyAxes = {}, joyBtns = {}, joyBalls = {}, joyHats = {}, 
-		deadzoneAxes = {}, maps = {},
+		deadzoneAxes = {}, maps = {}, pairedAxes = {}
 	}
 	
 	if binds then		-- use supplied binds, if given (safer to copy than directly reference!)
@@ -81,14 +82,62 @@ update = function(b)
 	if b.useJoystick then
 		assert(love.joystick, "TLbind was told to use joystick input, but love.joystick isn't available! (Check conf.lua)")
 		local lj = love.joystick
-		for j,binds in pairs(b.joyAxes) do for k,v in pairs(binds) do control[v] = lj.getAxis(j,k) end end
-		for j,binds in pairs(b.joyBtns) do for k,v in pairs(binds) do control[v] = control[v] or lj.isDown(j,k) end end
-		for j,binds in pairs(b.joyBalls) do for k,v in pairs(binds) do control[v[1]], control[v[2]] = lj.getBall(j,k) end end
-		for j,binds in pairs(b.joyHats) do for k,v in pairs(binds) do
-			local z = lj.getHat(j,k)
-			if string.sub(z,1,1)=="l" then control[v[1]]=true elseif string.sub(z,1,1)=="r" then control[v[2]]=true end
-			if string.sub(z,-1)=="u" then control[v[3]]=true elseif string.sub(z,-1)=="d" then control[v[4]]=true end
-		end end
+		local js = lj.getJoysticks()
+		for j,binds in pairs(b.joyAxes) do 
+			for k,v in pairs(binds) do
+				local t={}
+				if type(v)=="table" then
+					t=v
+				else
+					t={v}
+				end
+				for k2,v2 in pairs(t) do
+					control[v2] = control[v2] or js[j]:getAxis(k)
+				end
+			end
+		end
+		for j,binds in pairs(b.joyBtns) do
+			for k,v in pairs(binds) do
+				local t={}
+				if type(v)=="table" then
+					t=v
+				else
+					t={v}
+				end
+				for k2,v2 in pairs(t) do
+					control[v2] = control[v2] or js[j]:isDown(k)
+				end
+			end
+		end
+		-- balls are missing in love0.9.1, goodbye balls
+		--for j,binds in pairs(b.joyBalls) do
+		--	for k,v in pairs(binds) do
+		--		control[v[1]], control[v[2]] = js[j]:getBall(k)
+		--	end
+		--end
+		for j,binds in pairs(b.joyHats) do
+			for k,v in pairs(binds) do
+				local t={}
+				if type(v)=="table" then
+					t=v
+				else
+					t={v}
+				end
+				local z = js[j]:getHat(k)
+				for k2,v2 in pairs(t) do
+					if string.sub(z,1,1)=="l" then 
+						control[v2[1]]=true
+					elseif string.sub(z,1,1)=="r" then
+						control[v2[2]]=true 
+					end
+					if string.sub(z,-1)=="u" then
+						control[v2[3]]=true
+					elseif string.sub(z,-1)=="d" then
+						control[v2[4]]=true
+					end
+				end
+			end
+		end
 	end
 	
 	-- Check mouse inputs (if enabled)
@@ -119,29 +168,81 @@ update = function(b)
 		end
 	end
 	
-	-- Impose digital controls onto analogue controls and vice versa (binding first if needed)
-	for a,d in pairs(b.maps) do
-		if not control[a] then control[a]=0 end
-		if not control[d[1]] then control[d[1]]=false end
-		if not control[d[2]] then control[d[2]]=false end
-		if control[d[1]] then control[a]=-1 elseif control[d[2]] then control[a]=1 end
-		if control[a]<0 then control[d[1]]=true elseif control[a]>0 then control[d[2]]=true end
+	-- Apply scaled radial deadzone on desired axis pairs (requires normalizing them too)
+	
+	--[[for j,binds in pairs(b.deadzoneAxes) do 
+		for k,v in pairs(binds) do
+			local t={}
+			if type(v)=="table" then
+				t=v
+			else
+				t={v}
+			end
+			for k2,v2 in pairs(t) do
+				control[v2] = control[v2] or js[j]:getAxis(k)
+			end
+		end
+	end]]
+	
+	local lj = love.joystick
+	local js = lj.getJoysticks()
+	for j,index in pairs(b.pairedAxes) do
+		-- j is the controller number
+		-- index is the pair doesn't mean much
+		for k,tpairs in pairs(index) do
+			-- k isn't important
+			-- tpairs is the data
+			local x, y = js[j]:getAxis(tpairs[1]), js[j]:getAxis(tpairs[2])
+			if x and y then
+				local l = (x*x+y*y)^.5
+				if l > 1 then x,y,l = x/l, y/l, 1 end
+				if l<b.deadzone then
+					control[b.deadzoneAxes[j][tpairs[1]]], control[b.deadzoneAxes[j][tpairs[2]]] = 0, 0
+				else
+					local n = ((l-b.deadzone)/(1-b.deadzone))
+					control[b.deadzoneAxes[j][tpairs[1]]], control[b.deadzoneAxes[j][tpairs[2]]] = x*n, y*n
+				end
+			end
+		end
 	end
 	
-	-- Apply scaled radial deadzone on desired axis pairs (requires normalizing them too)
-	for k,axes in pairs(b.deadzoneAxes or b.circleAnalogue) do	-- legacy support for circleAnalogue (now depreciated)
-		local x, y = control[axes[1]], control[axes[2]]
-		if x and y then
-			local l = (x*x+y*y)^.5
-			if l > 1 then x,y,l = x/l, y/l, 1 end
-			if l<b.deadzone then control[axes[1]], control[axes[2]] = 0, 0
-			else
-				local n = ((l-b.deadzone)/(1-b.deadzone))
-				control[axes[1]], control[axes[2]] = x*n, y*n
+	-- Impose digital controls onto analogue controls and vice versa (binding first if needed)
+	for a,d in pairs(b.maps) do
+		if type(controls[a])=="boolean" then 
+			if controls[a] then
+				controls[a]=1
+			else 
+				controls[a]=0
 			end
-		else
-			print("TLbind can't deadzone unbound analogues! (deadzoneAxes."..k.." = { "..axes[1]..", "..axes[2].." }?)")
+		elseif type(controls[a])=="nil" then 
+			controls[a]=0 
 		end
+		--print("tier1", a, d)
+		for h,o in pairs(d) do
+			--print("tier2", h, o)
+			--for k,v in pairs(o) do
+				local t={}
+				if type(o)=="table" then
+					t=o
+				else
+					t={o}
+				end
+				for k2,v2 in pairs(t) do
+					--print("tier3", k2, v2)
+					-- I think this is how maps?!
+					--if control[d[1]]--[[ then control[a]=-1 elseif control[d[2]]--[[ then control[a]=1 end
+					if h==1 and control[a]<-b.deadzone then
+						--print("valueneg", control[a], v2)
+						control[v2]=true 
+					elseif h==2 and control[a]>b.deadzone then
+						--print("valuepos", control[a], v2)
+						control[v2]=true
+					end
+				end
+			--end
+		end
+		--if control[d[1]]--[[ then control[a]=-1 elseif control[d[2]]--[[ then control[a]=1 end
+		--if control[a]<0 then control[d[1]]--[[=true elseif control[a]>0 then control[d[2]]--[[=true end]]
 	end
 	
 	-- Detect controls being tapped and released

@@ -35,7 +35,8 @@ function mario:init(x, y, i, animation, size, t)
 	self.portalsavailable = {unpack(portalsavailable)}
 	local bindtable 
 	if self.playernumber == 1 then
-		bindtable = {
+		bindtable = controlTable
+		--[[{
 			keys = {
 				x = "debug",
 				w = "up",
@@ -56,7 +57,7 @@ function mario:init(x, y, i, animation, size, t)
 			useJoystick = false,
 			useKeyboard = true,
 			useMouse = true,
-		}
+		}]]
 	else
 		bindtable = {}
 	end
@@ -308,25 +309,25 @@ function mario:controlPress(control, fromnetwork)
 	else
 		--print("pressed: "..control)
 	end
-	if control=="jump" then
+	if control=="playerJump" then
 		self:jump()
-	elseif control=="debug" then
+	elseif control=="playerDebug" then
 		print("oh boy I'm a test")
-	elseif control=="run" then
+	elseif control=="playerRun" then
 		self:fire()
-	elseif control=="reload" then
+	elseif control=="playerReload" then
 		self:removeportals()
-	elseif control=="use" then
+	elseif control=="playerUse" then
 		self:use()
-	elseif control=="suicide" then
+	elseif control=="playerSuicide" then
 		self:die("Suicide")
-	elseif control=="left" then
+	elseif control=="playerLeft" then
 		self:leftkey()
-	elseif control=="right" then
+	elseif control=="playerRight" then
 		self:rightkey()
-	elseif control=="primary" then
+	elseif control=="playerPrimaryFire" then
 		self:shootportal(1)
-	elseif control=="secondary" then
+	elseif control=="playerSecondaryFire" then
 		self:shootportal(2)
 	end
 end
@@ -342,7 +343,7 @@ function mario:controlRelease(control, fromnetwork)
 	else
 		--print("released: "..control)
 	end
-	if control=="jump" then
+	if control=="playerJump" then
 		self:stopjump()
 	end
 end
@@ -1182,7 +1183,7 @@ function mario:update(dt)
 		--RACCOON STUFF
 		if self.char.raccoon and self.size == 2 then
 			if not self.falling and not self.jumping then
-				if math.abs(self.speedx) >= maxwalkspeed and self.binds.control.run and ((self.binds.control.right and not self.binds.control.left) or (not self.binds.control.right and self.binds.control.left)) then
+				if math.abs(self.speedx) >= maxwalkspeed and self.binds.control.playerRun and ((self.binds.control.playerRight and not self.binds.control.playerLeft) or (not self.binds.control.playerRight and self.binds.control.playerLeft)) then
 					if self.raccoonstarttimer < raccoonstarttime then
 						self.raccoonstarttimer = self.raccoonstarttimer + dt
 						if self.raccoonstarttimer >= raccoonstarttime then
@@ -1319,10 +1320,10 @@ function mario:updateangle()
 		local scale = scale
 		if shaders and shaders.scale then scale = shaders.scale end
 		self.pointingangle = math.atan2(self.x+6/16-xscroll-(mouse.getX()/16/scale), (self.y-yscroll+6/16-.5)-(mouse.getY()/16/scale))
-	elseif #controls[self.playernumber]["aimx"] > 0 then
+	elseif #oldcontrols[self.playernumber]["aimx"] > 0 then
 		local x, y
 		
-		local s = controls[self.playernumber]["aimx"]
+		local s = oldcontrols[self.playernumber]["aimx"]
 		--[[if s[1] == "joy" then
 			x = -love.joystick.getAxis(s[2], s[4])
 			if s[5] == "neg" then
@@ -1330,7 +1331,7 @@ function mario:updateangle()
 			end
 		end]]
 		
-		s = controls[self.playernumber]["aimy"]
+		s = oldcontrols[self.playernumber]["aimy"]
 		--[[if s[1] == "joy" then
 			y = -love.joystick.getAxis(s[2], s[4])
 			if s[5] == "neg" then
@@ -1412,8 +1413,8 @@ function mario:movement(dt)
 	end
 		
 	--HORIZONTAL MOVEMENT
-	if self.controlsenabled and self.binds.control.run then --RUNNING
-		if self.controlsenabled and self.binds.control.right then --MOVEMENT RIGHT
+	if self.controlsenabled and self.binds.control.playerRun then --RUNNING
+		if self.controlsenabled and self.binds.control.playerRight then --MOVEMENT RIGHT
 			if self.jumping or self.falling then --IN AIR
 				if self.speedx < maxwalkspeed then
 					if self.speedx < 0 then
@@ -1461,7 +1462,7 @@ function mario:movement(dt)
 				end
 			end
 			
-		elseif self.controlsenabled and self.binds.control.left then --MOVEMENT LEFT
+		elseif self.controlsenabled and self.binds.control.playerLeft then --MOVEMENT LEFT
 			if self.jumping or self.falling then --IN AIR
 				if self.speedx > -maxwalkspeed then
 					if self.speedx > 0 then
@@ -1511,7 +1512,7 @@ function mario:movement(dt)
 			end
 		
 		end
-		if (not self.binds.control.right and not self.binds.control.left) or (self.ducking and self.falling == false and self.jumping == false) or not self.controlsenabled then  --NO MOVEMENT
+		if (not self.binds.control.playerRight and not self.binds.control.playerLeft) or (self.ducking and self.falling == false and self.jumping == false) or not self.controlsenabled then  --NO MOVEMENT
 			if self.jumping or self.falling then
 				if self.speedx > 0 then
 					self.speedx = self.speedx - frictionair*dt
@@ -1555,7 +1556,7 @@ function mario:movement(dt)
 		
 	else --WALKING
 	
-		if self.controlsenabled and self.binds.control.right then --MOVEMENT RIGHT
+		if self.controlsenabled and self.binds.control.playerRight then --MOVEMENT RIGHT
 			if self.jumping or self.falling then --IN AIR
 				if self.speedx < maxwalkspeed then
 					if self.speedx < 0 then
@@ -1600,7 +1601,7 @@ function mario:movement(dt)
 				end
 			end
 			
-		elseif self.controlsenabled and self.binds.control.left then --MOVEMENT LEFT
+		elseif self.controlsenabled and self.binds.control.playerLeft then --MOVEMENT LEFT
 			if self.jumping or self.falling then --IN AIR
 				if self.speedx > -maxwalkspeed then
 					if self.speedx > 0 then
@@ -1646,7 +1647,7 @@ function mario:movement(dt)
 			end
 		
 		end
-		if (not self.binds.control.right and not self.binds.control.left) or (self.ducking and self.falling == false and self.jumping == false) or not self.controlsenabled then --no movement
+		if (not self.binds.control.playerRight and not self.binds.control.playerLeft) or (self.ducking and self.falling == false and self.jumping == false) or not self.controlsenabled then --no movement
 			if self.jumping or self.falling then
 				if self.speedx > 0 then
 					self.speedx = self.speedx - frictionair*dt
@@ -1748,7 +1749,7 @@ function mario:underwatermovement(dt)
 	end
 	
 	--HORIZONTAL MOVEMENT	
-	if self.controlsenabled and self.binds.control.right and (self.jumping or self.falling or not self.ducking) then --MOVEMENT RIGHT
+	if self.controlsenabled and self.binds.control.playerRight and (self.jumping or self.falling or not self.ducking) then --MOVEMENT RIGHT
 		if self.jumping or self.falling then --IN AIR
 			if self.speedx < uwmaxairwalkspeed then
 				if self.speedx < 0 then
@@ -1787,7 +1788,7 @@ function mario:underwatermovement(dt)
 				end
 			end
 		end
-	elseif self.controlsenabled and self.binds.control.left and (self.jumping or self.falling or not self.ducking) then --MOVEMENT LEFT
+	elseif self.controlsenabled and self.binds.control.playerLeft and (self.jumping or self.falling or not self.ducking) then --MOVEMENT LEFT
 		if self.jumping or self.falling then --IN AIR
 			if self.speedx > -uwmaxairwalkspeed then
 				if self.speedx > 0 then
@@ -2567,7 +2568,7 @@ function mario:rightcollide(a, b, c, d)
 		end
 		
 		--Check if it's a pipe with pipe pipe.
-		if self.falling == false and self.jumping == false and (self.binds.control.right or intermission) then --but only on ground and rightkey
+		if self.falling == false and self.jumping == false and (self.binds.control.playerRight or intermission) then --but only on ground and rightkey
 			local t2 = map[x][y][2]
 			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
 				self:pipe(x, y, "right", tonumber(map[x][y][3])-1)

@@ -402,10 +402,26 @@ function love.load(args)
 	oldself = nil
 	watchfunction = function()
 		local str = "jack shit"
-		if editortool and editorlasttool then
+		--[[if editortool and editorlasttool then
 			str = "\ntool: "..editortool.."\nlast: "..editorlasttool
+		end]]
+		--[[local joy = love.joystick.getJoysticks()
+		joy = joy[1]
+		local t = {}
+		for i=1,joy:getButtonCount() do
+			t[i] = tostring(i)
+			if joy:isDown(i) then
+				t[i] = "true  "..t[i]
+			else
+				t[i] = "false "..t[i]
+			end
+		end]]
+		--[[if controls then
+			--controls.tap = {}
+			--controls.release = {}
+			str = Tserial.pack(controls,true,true)
 		end
-		return str
+		return str]]
 	end
 	Monocle.watch("misc", watchfunction)
 	require("libs.von")
@@ -896,13 +912,6 @@ function love.load(args)
 	
 	firstload = true
 	
-	skipintro=true
-	if skipintro then
-		menu_load()
-	else
-		intro_load()
-	end
-	
 	--@DEV: Copied this over, too. Probably making a mess.
 	magicdns_session_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	magicdns_session = ""
@@ -919,6 +928,14 @@ function love.load(args)
 	
 	mycamera = camera:new()
 	mycamera:zoomTo(0.4)
+	
+	skipintro=true
+	if skipintro then
+		menu_load()
+	else
+		intro_load()
+	end
+	
 	hook.Call("LovePostLoad", args)
 end
 
