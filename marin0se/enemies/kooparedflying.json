@@ -1,4 +1,19 @@
 base=koopaflying
 {	
+	"bounces": false,
 	
+	"movement": "piston",
+	"pistondistx": 0,
+	"pistondisty": 7.5,
+	"pistonspeedx": 0,
+	"pistonspeedy": 2,
+	"pistonextendtime": 3,
+	"pistonretracttime": 3,
+	
+	"static": true,
+	
+	"transforms": true,
+	"transformsinto": "koopared",
+	"transformtrigger": "stomp",
+	"stompable": true
 }

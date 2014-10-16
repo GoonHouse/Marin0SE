@@ -272,8 +272,8 @@ usesquaresize = 1
 blockdebrisanimationtime = 0.1
 blockdebrisgravity = 60
 
-castlefireangleadd = 11.25
-castlefiredelay = 3.4/(360/castlefireangleadd) --the number in front of the bracket is how long a full turn takes
+castlefireangleadd = 1.125
+castlefiredelay = .34/(360/castlefireangleadd) --the number in front of the bracket is how long a full turn takes
 castlefireanimationdelay = 0.07
 
 --plants
