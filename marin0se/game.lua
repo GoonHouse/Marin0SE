@@ -3936,15 +3936,44 @@ function game_controlupdate(dt)
 	if editormode then
 		editor_controlupdate(dt)
 	end
+	
+	if frameskip then
+		if controls.tap.gameFrameSkipDecrease then
+			frameskip = math.max(0, frameskip - 1)
+			return
+		elseif controls.tap.gameFrameSkipIncrease then
+			frameskip = frameskip + 1
+			return
+		end
+	end
+	
+	if bullettime then
+		if controls.tap.gameBulletTimeDecrease then
+			speedtarget = speedtarget - 0.1
+			if speedtarget < 0.1 then
+				speedtarget = 0.1
+			end
+		end
+		if controls.tap.gameBulletTimeIncrease then
+			speedtarget = speedtarget + 0.1
+			if speedtarget > 1 then
+				speedtarget = 1
+			end
+		end
+	end
+	if speeddebug then
+		if controls.tap.debugSpeedDecrease then
+			speed = math.max(0, speed/2)
+		end
+		if controls.tap.debugSpeedIncrease then
+			speed = math.min(1, speed*2)
+		end
+	end
 end
 
-function game_keypressed(key)
-	if key == "return" then
-		game_joystickpressed(1, 4)
-	end
-
+--[[function game_keypressed(key)
 	for i = 1, players do
-		--[[if controls[i]["jump"][1] == key then
+		if controls[i]["jump"][1] == key then
 			objects["player"][i]:jump()
 		elseif controls[i]["run"][1] == key then
 			objects["player"][i]:fire()
@@ -3966,22 +3995,17 @@ function game_keypressed(key)
 		if controls[i]["portal2"][i] == key then
 			shootportal(i, 2, objects["player"][i].x+6/16, objects["player"][i].y+6/16, objects["player"][i].pointingangle)
 			return
-		end]]
+		end
 	end
-	
+end]]
 
-	if editormode then
-		editor_keypressed(key)
-	end
-end
-
-function game_keyreleased(key)
-	--[[for i = 1, players do
+--[[function game_keyreleased(key)
+	for i = 1, players do
 		if controls[i]["jump"][1] == key then
 			objects["player"][i]:stopjump()
 		end
-	end]]
-end
+	end
+end]]
 
 function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 	if objects["player"][plnumber].portalgundisabled then
@@ -4038,6 +4062,15 @@ function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 	objects["player"][plnumber].lastportal = i
 	
 	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {objects["player"][plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
+	if not mirrored and portalknockback then
+		local xadd = math.sin(objects["player"][plnumber].pointingangle)*30
+		local yadd = math.cos(objects["player"][plnumber].pointingangle)*30
+		objects["player"][plnumber].speedx = objects["player"][plnumber].speedx + xadd
+		objects["player"][plnumber].speedy = objects["player"][plnumber].speedy + yadd
+		objects["player"][plnumber].falling = true
+		objects["player"][plnumber].animationstate = "falling"
+		objects["player"][plnumber]:setquad()
+	end
 end
 
 function game_mousepressed(x, y, button)
@@ -4045,40 +4078,19 @@ function game_mousepressed(x, y, button)
 		return
 	end
 	
-	if frameskip then
-		if button == "wu" then
-			frameskip = math.max(0, frameskip - 1)
-			return
-		elseif button == "wd" then
-			frameskip = frameskip + 1
-			return
-		end
-	end
+	
 	
 	if editormode then
 		editor_mousepressed(x, y, button)
 	else
+		-- why is this?!
 		if editormode then
 			editor_mousepressed(x, y, button)
 		end
 		
-		if not noupdate and objects["player"][mouseowner] and objects["player"][mouseowner].controlsenabled and objects["player"][mouseowner].vine == false then
-		
-			if button == "l" or button == "r" and objects["player"][mouseowner] then
-				--knockback
-				--@DEV: move this to mario:shootportal
-				if portalknockback then
-					local xadd = math.sin(objects["player"][mouseowner].pointingangle)*30
-					local yadd = math.cos(objects["player"][mouseowner].pointingangle)*30
-					objects["player"][mouseowner].speedx = objects["player"][mouseowner].speedx + xadd
-					objects["player"][mouseowner].speedy = objects["player"][mouseowner].speedy + yadd
-					objects["player"][mouseowner].falling = true
-					objects["player"][mouseowner].animationstate = "falling"
-					objects["player"][mouseowner]:setquad()
-				end
-			end
-		
-			--[[if button == "l" then
+		-- old shootportal code
+		--[[if not noupdate and objects["player"][mouseowner] and objects["player"][mouseowner].controlsenabled and objects["player"][mouseowner].vine == false then
+			if button == "l" then
 				if playertype == "portal" then
 					local sourcex = objects["player"][mouseowner].x+6/16
 					local sourcey = objects["player"][mouseowner].y+6/16
@@ -4101,28 +4113,8 @@ function game_mousepressed(x, y, button)
 						--objects["player"][1]:use()
 					end
 				end
-			end]]
-		end
-			
-		if button == "wd" then
-			if bullettime then
-				speedtarget = speedtarget - 0.1
-				if speedtarget < 0.1 then
-					speedtarget = 0.1
-				end
-			elseif speeddebug then
-				speed = math.max(0, speed/2)
 			end
-		elseif button == "wu" then
-			if bullettime then
-				speedtarget = speedtarget + 0.1
-				if speedtarget > 1 then
-					speedtarget = 1
-				end
-			elseif speeddebug then
-				speed = math.min(1, speed*2)
-			end
-		end
+		end]]
 	end
 end
 
@@ -5282,6 +5274,7 @@ function upkey(i)
 end]]
 
 function checkkey(s)
+	print("DEPRECIATED: Call to checkkey.")
 	--[[if s[1] == "joy" then
 		if s[3] == "hat" then
 			if string.match(love.joystick.getHat(s[2], s[4]), s[5]) then
@@ -5319,7 +5312,7 @@ function checkkey(s)
 	end]]
 end
 
-function game_joystickpressed( joystick, button )
+--[[function game_joystickpressed( joystick, button )
 	if pausemenuopen then
 		return
 	end
@@ -5330,7 +5323,7 @@ function game_joystickpressed( joystick, button )
 	
 	for i = 1, players do
 		if not noupdate and objects["player"][i].controlsenabled and not objects["player"][i].vine then
-			--[[local s1 = controls[i]["jump"]
+			local s1 = controls[i]["jump"]
 			local s2 = controls[i]["run"]
 			local s3 = controls[i]["reload"]
 			local s4 = controls[i]["use"]
@@ -5354,7 +5347,7 @@ function game_joystickpressed( joystick, button )
 			elseif s6[1] == "joy" and joystick == s6[2] and s6[3] == "but" and button == s6[4] then
 				objects["player"][i]:rightkey()
 				return
-			end]]
+			end
 			
 			if i ~= mouseowner then
 				local s = controls[i]["portal1"]
@@ -5379,9 +5372,9 @@ function game_joystickpressed( joystick, button )
 			end
 		end
 	end
-end
+end]]
 
-function game_joystickreleased( joystick, button )
+--[[function game_joystickreleased( joystick, button )
 	for i = 1, players do
 		local s = controls[i]["jump"]
 		if s[1] == "joy" then
@@ -5393,7 +5386,7 @@ function game_joystickreleased( joystick, button )
 			end
 		end
 	end
-end
+end]]
 
 function inrange(i, a, b, include)
 	if a > b then

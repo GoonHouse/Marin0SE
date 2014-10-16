@@ -1,5 +1,9 @@
 function editor_load()
 	print("Editor loaded!")
+	editortool = "tile" --tile, linker, region, 
+	editorlasttool = "tile"
+	editorignorerelease = false --this is an ugly hack until we figure out how to wrangle our inputs
+	editorignoretap = false
 	mapbuttons={}
 	currentanimation = 1
 	tilecount1 = 168
@@ -1910,42 +1914,57 @@ function getmaps()
 	mapsymissing = math.max(0, yadd-200)
 end
 
-function editor_mousepressed(x, y, button)
-	if regiondragging then
-		if regiondragging:mousepressed(x, y, button) then
-			finishregion()
-		end
-		return
-	end
+function editor_controlupdate(dt)
+	local x, y = getMousePos()
+	local button = "honk"
+	-- here we enum controls into a mouse equivalent for the sake of Just Getting It To Work For Now(tm)
 	
-	if rightclickm then
-		allowdrag = false
-		if button == "r" or not rightclickm:mousepressed(x, y, button) then
-			closerightclickmenu()
-			return
-		else
-			return
-		end
-	end
-	
-	
-	if changemapwidthmenu then
-		return
-	end
-	
-	for i, v in pairs(mapbuttons) do
-		v:click(x, y, button)
-	end
-	
-	if button == "l" then
+	if controls.tap.editorSelect and editorignoretap then
+		print("CONTROLS-TAP: Ignored editor input for a frame.")
+		editorignoretap = false
+	elseif controls.release.editorSelect and editorignorerelease then
+		print("CONTROLS-RELEASE: Ignored editor input for a frame.")
+		editorignorerelease = false
+	elseif controls.tap.editorSelect then
 		if editormenuopen == false then
 			if editorstate == "lightdraw" then
 				lightdrawX, lightdrawY = getMouseTile(x, y+8*scale)
 				lightdrawtable = {{x=lightdrawX, y=lightdrawY}}
-			elseif rightclickactive then
+			elseif rightclickactive and editortool == "linker" then
+				print("CONTROLS: Conditions met to finish linking.")
 				finishlinking(x, y)
 			elseif editorstate == "selection" then
 				selectionstart()
+			elseif editortool == "region" then
+				--[[@WARNING:
+					This code behaves strangely. The behavior that *should* be implemented would be:
+					Is the mouse over one of the region handles?
+						Begin dragging.
+					Else?
+						Destroy.
+					
+					With corresponding code in the release section being:
+					Set the grabbed edge to none.
+				]]
+				if regiondragging then
+					print("REGION: Finished from tap.")
+					--[[@NOTE:
+						This isn't a real mousedpressed event but I left the name alone because
+						I have no idea what it really "does".
+					]]
+					
+					if regiondragging:mousepressed(x, y, button) then
+						editorignoretap = true
+						editorignorerelease = true
+						finishregion()
+					else
+						print("inside else")
+						--rightclickactive=false
+						--finishregion()
+						--regiondragging:close()
+						--regiondragging = nil
+					end
+				end
 			else
 				local cox, coy = getMouseTile(x, y+8*scale)
 				if inmap(cox, coy) then
@@ -1997,49 +2016,79 @@ function editor_mousepressed(x, y, button)
 				end
 			end
 		end
-	elseif button == "m" then
-		local cox, coy = getMouseTile(x, y+8*scale)
-		if inmap(cox, coy) == false then
-			return
+	elseif controls.release.editorSelect then
+		if selectiondragging then
+			selectionend()
 		end
-		editentities = false
-		tilesall()
-		currenttile = map[cox][coy][1]
 		
-	elseif button == "wu" then
-		if not editormenuopen then
-			if editentities then
-				if editenemies then
-					--get which current tile
-					local curr = 1
-					while enemies[curr] ~= currenttile and curr > 0 do
-						curr = curr + 1
+		if rightclickactive and editortool == "region" then
+			print("release: controls inside region")
+			if regiondragging then
+				print("REGION: Setting grab to none.")
+				
+				regiondragging:mousepressed(x, y, button)
+				regiondragging:close()
+				--finishregion()
+				--regiondragging = nil
+				rightclickactive = false
+			end
+		else
+			print("REGION: Evaded death.")
+		end
+		
+		guirepeattimer = 0
+		minimapdragging = false
+		allowdrag = true
+	end
+	
+	if controls.tap.editorContext then
+		if editormenuopen == false then
+			local tileX, tileY = getMouseTile(x, y+8*scale)
+			if inmap(tileX, tileY) == false then
+				return
+			end
+			
+			if editorstate ~= "lightdraw" then
+				local r = map[tileX][tileY]
+				if #r > 1 then
+					local tile = r[2]
+					if entitylist[tile] and rightclickmenues[entitylist[tile].t] then
+						local tileX, tileY = getMouseTile(x, y+8*scale)
+						rightclickm = rightclickmenu:new(x/scale, y/scale, rightclickmenues[entitylist[r[2]].t], tileX, tileY)
+						rightclickactive = false
+						linktoolfadeouttime = linktoolfadeouttimefast
+						linktoolX, linktoolY = tileX, tileY
 					end
+				else
+					local cox, coy = getMouseTile(x, y+8*scale)
 					
-					if curr-1 == 0 then
-						curr = #enemies+1
-					end
-					
-					currenttile = enemies[curr-1]
-				end
-			elseif animatedtilelist then
-				if currenttile > 10000 then
-					currenttile = currenttile - 1
-					if currenttile == 10000 then
-						currenttile = 10000+animatedtilecount
+					if objects["player"][1] and not objects["player"][1].vine then
+						objects["player"][1].x = cox-1+2/16
+						objects["player"][1].y = coy-objects["player"][1].height
+						objects["player"][1].vine = false
 					end
 				end
-			else
-				if currenttile > 0 then
-					currenttile = currenttile - 1
-					if currenttile == 0 then
-						currenttile = smbtilecount+portaltilecount+customtilecount
+			end
+		else
+			if editorstate == "main" then
+				-- this code transportates the player to the cursor position
+				--@TODO: Make this player-specific and use a different keyboard shortcut
+				if y >= (minimapy+2)*scale and y < (minimapy+32)*scale then
+					if x >= (minimapx+2)*scale and x < (minimapx+392)*scale then
+						local x = math.floor((x-minimapx*scale+math.floor(minimapscroll*scale*2))/scale/2)
+						local y = math.floor((y-minimapy*scale)/scale/2+math.floor(yscroll))
+						
+						if objects["player"][1] then
+							objects["player"][1].x = x-1+2/16
+							objects["player"][1].y = y-1+2/16
+						end
 					end
 				end
 			end
 		end
-		
-	elseif button == "wd" then
+	end
+	
+	if controls.tap.editorPrevBlock then
 		if not editormenuopen then
 			if editentities then
 				if editenemies then
@@ -2071,95 +2120,62 @@ function editor_mousepressed(x, y, button)
 				end
 			end
 		end
-		
-	elseif button == "r" then
-		if editormenuopen == false then
-			local tileX, tileY = getMouseTile(x, y+8*scale)
-			if inmap(tileX, tileY) == false then
-				return
-			end
-			
-			if editorstate ~= "lightdraw" then
-				local r = map[tileX][tileY]
-				if #r > 1 then
-					local tile = r[2]
-					if entitylist[tile] and rightclickmenues[entitylist[tile].t] then
-						local tileX, tileY = getMouseTile(x, y+8*scale)
-						rightclickm = rightclickmenu:new(x/scale, y/scale, rightclickmenues[entitylist[r[2]].t], tileX, tileY)
-						rightclickactive = false
-						linktoolfadeouttime = linktoolfadeouttimefast
-						linktoolX, linktoolY = tileX, tileY
+	end
+	
+	if controls.tap.editorNextBlock then
+		if not editormenuopen then
+			if editentities then
+				if editenemies then
+					--get which current tile
+					local curr = 1
+					while enemies[curr] ~= currenttile and curr > 0 do
+						curr = curr + 1
 					end
-				else
-					local cox, coy = getMouseTile(x, y+8*scale)
 					
-					if objects["player"][1] and not objects["player"][1].vine then
-						objects["player"][1].x = cox-1+2/16
-						objects["player"][1].y = coy-objects["player"][1].height
-						objects["player"][1].vine = false
+					if curr-1 == 0 then
+						curr = #enemies+1
+					end
+					
+					currenttile = enemies[curr-1]
+				end
+			elseif animatedtilelist then
+				if currenttile > 10000 then
+					currenttile = currenttile - 1
+					if currenttile == 10000 then
+						currenttile = 10000+animatedtilecount
+					end
+				end
+			else
+				if currenttile > 0 then
+					currenttile = currenttile - 1
+					if currenttile == 0 then
+						currenttile = smbtilecount+portaltilecount+customtilecount
 					end
 				end
 			end
-		else
-			if editorstate == "main" then
-				if y >= (minimapy+2)*scale and y < (minimapy+32)*scale then
-					if x >= (minimapx+2)*scale and x < (minimapx+392)*scale then
-						local x = math.floor((x-minimapx*scale+math.floor(minimapscroll*scale*2))/scale/2)
-						local y = math.floor((y-minimapy*scale)/scale/2+math.floor(yscroll))
-						
-						if objects["player"][1] then
-							objects["player"][1].x = x-1+2/16
-							objects["player"][1].y = y-1+2/16
-						end
-					end
-				end
-			end
 		end
-	end
-end
-
-function editor_mousereleased(x, y, button)
-	if regiondragging then
-		if regiondragging:mousereleased(x, y, button) then
-			regiondragging = nil
-		end
-		return
 	end
 	
-	if controls.release.editorSelect then
-		if selectiondragging then
-			selectionend()
+	if controls.tap.editorDropper then
+		local cox, coy = getMouseTile(x, y+8*scale)
+		if inmap(cox, coy) == false then
+			return
 		end
-			
-		if rightclickm then
-			rightclickm:mousereleased(x, y, button)
-		end
-		guirepeattimer = 0
-		minimapdragging = false
+		editentities = false
+		tilesall()
+		currenttile = map[cox][coy][1]
 	end
-	allowdrag = true
 	
-	if animationguilines and editormenuopen and not changemapwidthmenu then
-		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v) do					
-				w:unclick(x, y, button)
-			end
-		end
-	end
-end
 
-function editor_controlupdate(dt)
-	if selectionwidth then
-		if controls.tap.editorDelete then
-			local x, y = round(selectionx/scale), round(selectiony/scale)
-			local width, height = round(selectionwidth/scale), round(selectionheight/scale)
-			
-			local selectionlist = selectiongettiles(selectionx, selectiony, selectionwidth, selectionheight)
-			
-			for i = 1, #selectionlist do
-				for j = 2, #map[selectionlist[i].x][selectionlist[i].y] do
-					map[selectionlist[i].x][selectionlist[i].y][j] = nil
-				end
+	if controls.tap.editorDelete and selectionwidth then
+		local x, y = round(selectionx/scale), round(selectiony/scale)
+		local width, height = round(selectionwidth/scale), round(selectionheight/scale)
+		
+		local selectionlist = selectiongettiles(selectionx, selectiony, selectionwidth, selectionheight)
+		
+		for i = 1, #selectionlist do
+			for j = 2, #map[selectionlist[i].x][selectionlist[i].y] do
+				map[selectionlist[i].x][selectionlist[i].y][j] = nil
 			end
 		end
 	end
@@ -2174,20 +2190,6 @@ function editor_controlupdate(dt)
 				editorclose()
 			else
 				editoropen()
-			end
-		end
-	end
-end
-
-function editor_keypressed(key)
-	if rightclickm then
-		rightclickm:keypressed(key)
-	end
-	
-	if animationguilines then
-		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v) do
-				w:keypressed(key)
 			end
 		end
 	end
@@ -2520,6 +2522,9 @@ function closerightclickmenu()
 end
 
 function startlinking(x, y, t)
+	editorlasttool = editortool
+	editortool = "linker"
+	editorignoretap = true
 	rightclickactive = true
 	linktoolX = x
 	linktoolY = y
@@ -2530,6 +2535,10 @@ function startlinking(x, y, t)
 end
 
 function startregion(x, y, t)
+	editorlasttool = editortool
+	editortool = "region"
+	editorignoretap = true
+	editorignorerelease = true
 	rightclickactive = true
 	regiontoolX = x
 	regiontoolY = y
@@ -2568,7 +2577,10 @@ function startregion(x, y, t)
 end
 
 function finishregion()
+	editortool = editorlasttool
+	editorlasttool = "region"
 	if regiondragging then
+		print("REGION: Was region dragging.")
 		local t = regiontoolt
 		local x, y = regiontoolX, regiontoolY
 		
@@ -2596,6 +2608,8 @@ function finishregion()
 		
 		regiondragging = nil
 		rightclickactive = false
+	else
+		print("REGION: Was not region dragging.")
 	end
 end
 
@@ -2633,7 +2647,10 @@ function removelink(x, y, t)
 end
 
 function finishlinking(x, y)
+	editortool = editorlasttool
+	editorlasttool = "linker"
 	if rightclickactive then
+		print("LINKER: Rightclick was active.")
 		local startx, starty = linktoolX, linktoolY
 		local endx, endy = getMouseTile(x, y+8*scale)
 		
@@ -2678,6 +2695,8 @@ function finishlinking(x, y)
 			end
 		end
 		linktoolt = false
+	else
+		print("LINKER: Rightclick was NOT active.")
 	end
 end
 

@@ -145,6 +145,8 @@ function regiondrag:mousepressed(x, y, button)
 		end
 	end
 	
+	print("REGIONDRAG: Grabstatus=="..tostring(self.grabbed))
+	
 	if self.grabbed == 5 then
 		self.movex = x
 		self.movey = y
@@ -155,7 +157,8 @@ function regiondrag:mousepressed(x, y, button)
 	end
 end
 
-function regiondrag:mousereleased(x, y, button)
+function regiondrag:close()
+	print("REGIONDRAG: Issued a close command.")
 	self.grabbed = 0
 end
 

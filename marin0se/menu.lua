@@ -1951,26 +1951,6 @@ function menu_controlupdate(dt)
 	end
 end
 
-function menu_keyreleased(key)
-
-end
-
-function menu_mousepressed(x, y, button)
-
-end
-
-function menu_mousereleased(x, y, button)
-
-end
-
-function menu_joystickpressed(joystick, button)
-
-end
-
-function menu_joystickreleased(joystick, button)
-
-end
-
 function keypromptenter(t, ...)
 	arg = {...}
 	if t == "key" and (arg[1] == ";" or arg[1] == "," or arg[1] == "," or arg[1] == "-") then

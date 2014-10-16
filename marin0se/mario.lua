@@ -2188,10 +2188,10 @@ function mario:getpowerup(poweruptype, powerdowntarget, reason)
 	--self.powerupstate = "small"
 	--self.powerdowntargetstate = "death"
 	
-	--[[self.animationmisc = self.animationstate
-	if self.animation and self.animation ~= "invincible" then
+	self.animationmisc = self.animationstate
+	if self.animation --[[and self.animation ~= "invincible"]] then
 		return
-	end]]
+	end
 	local pointstoadd=1000
 	local soundtoplay="mushroomeat"
 	local animationtodo="grow2"
@@ -4045,7 +4045,9 @@ function mario:portaled(dir)
 end
 
 function mario:shootportal(i, mirrored)
-	shootportal(self.playernumber, i, self.x+6/16, self.y+6/16, self.pointingangle, mirrored)
+	if not editormode then
+		shootportal(self.playernumber, i, self.x+6/16, self.y+6/16, self.pointingangle, mirrored)
+	end
 	-- I can't make this local to the player just yet but I can leave the foundation by wrapping it.
 	--[[if self.portalgundisabled then
 		return

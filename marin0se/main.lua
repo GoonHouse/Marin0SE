@@ -400,14 +400,14 @@ function love.load(args)
 	})
 	oldsize = nil
 	oldself = nil
-	Monocle.watch("controls", function()
+	watchfunction = function()
 		local str = "jack shit"
-		if controls then
-			--if controls.tap then controls.tap={} end
-			str = Tserial.pack(controls, true, true)
+		if editortool and editorlasttool then
+			str = "\ntool: "..editortool.."\nlast: "..editorlasttool
 		end
 		return str
-	end)
+	end
+	Monocle.watch("misc", watchfunction)
 	require("libs.von")
 	--require "netplay2"
 	require "netplay"
@@ -915,7 +915,6 @@ function love.load(args)
 	magicdns_identity = string.upper(magicdns_identity[#magicdns_identity])
 	
 	add("Intro Load")
-	print("=======================\nDONE!")
 	print("TOTAL: " .. totaltime .. "ms")
 	
 	mycamera = camera:new()
@@ -1653,7 +1652,7 @@ function controlsUpdate(dt)
 	elseif gamestate == "game" then
 		game_controlupdate(dt)
 	elseif gamestate == "intro" then
-		intro_keypressed(dt)
+		intro_skip()
 	end
 end
 
@@ -1663,9 +1662,19 @@ function love.keypressed(key, isrepeat)
 		return
 	end
 
+	--@WARNING: This is the sample of code that causes the online lobby to edit all textboxes at once.
 	for i, v in pairs(guielements) do
 		if v:keypress(string.lower(key)) then
 			return
+		end
+	end
+	
+	-- this code snippet was transplanted from the editor because a similar stack was here in the mousepress methods
+	if animationguilines then
+		for i, v in pairs(animationguilines) do
+			for k, w in pairs(v) do
+				w:keypressed(key)
+			end
 		end
 	end
 	
@@ -1683,22 +1692,16 @@ function love.keypressed(key, isrepeat)
 			saveconfig()
 			notice.new("Cheats unlocked!")
 		end
-	elseif gamestate == "game" then
-		game_keypressed(key)
+	elseif gamestate == "game" and editormode and rightclickm then
+		-- aside from the transplanted code above, this was the only thing left in the editor's keypressed
+		rightclickm:keypressed(key)
 	elseif gamestate == "intro" then
-		--intro_keypressed()
+		intro_skip()
 	end
 end
 
-function love.keyreleased(key)
-	if gamestate == "menu" or gamestate == "options" then
-		menu_keyreleased(key)
-	elseif gamestate == "game" then
-		game_keyreleased(key)
-	end
-end
-
-function love.mousepressed(x, y, button)
+function getMousePos()
+	local x, y = love.mouse.getX(), love.mouse.getY()
 	if fullscreen then
 		if fullscreenmode == "full" then
 			x, y = x/(desktopsize.width/(width*16*scale)), y/(desktopsize.height/(height*16*scale))
@@ -1706,12 +1709,31 @@ function love.mousepressed(x, y, button)
 			x, y = x/(touchfrominsidescaling/scale), y/(touchfrominsidescaling/scale)-touchfrominsidemissing/2
 		end
 	end
-	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" then
-		menu_mousepressed(x, y, button)
-	elseif gamestate == "game" then
-		game_mousepressed(x, y, button)
-	elseif gamestate == "intro" then
-		intro_mousepressed()
+	return x, y
+end
+
+function love.mousepressed(ox, oy, button)
+	local x, y = getMousePos()
+	if gamestate == "intro" then
+		intro_skip()
+	end
+	
+	--editor transplant because I guess the editor doesn't use the standard guielements array
+	if mapbuttons then
+		for i, v in pairs(mapbuttons) do
+			v:click(x, y, button)
+		end
+	end
+	
+	--editor transplant because ???
+	if rightclickm then
+		allowdrag = false
+		if button == "r" or not rightclickm:mousepressed(x, y, button) then
+			closerightclickmenu()
+			return
+		else
+			return
+		end
 	end
 	
 	if animationguilines and editormenuopen and not changemapwidthmenu and not guielements["animationselectdrop"].extended then
@@ -1757,37 +1779,26 @@ function love.mousepressed(x, y, button)
 	end
 end
 
-function love.mousereleased(x, y, button)
-	x, y = desktopsize.width/(width*16*scale)*x, desktopsize.height/(height*16*scale)*y
-	if gamestate == "menu" or gamestate == "options" then
-		menu_mousereleased(x, y, button)
-	elseif gamestate == "game" then
-		game_mousereleased(x, y, button)
-	end
+function love.mousereleased(ox, oy, button)
+	local x, y = getMousePos()
+	--desktopsize.width/(width*16*scale)*x, desktopsize.height/(height*16*scale)*y
 	
 	for i, v in pairs(guielements) do
 		v:unclick(x, y, button)
 	end
-end
-
-function love.joystickpressed(joystick, button)
-	if keyprompt then
-		keypromptenter("joybutton", joystick, button)
-		return
+	
+	--transplanted from the editor to match the mousepressed dealio
+	if animationguilines and editormenuopen and not changemapwidthmenu then
+		for i, v in pairs(animationguilines) do
+			for k, w in pairs(v) do					
+				w:unclick(x, y, button)
+			end
+		end
 	end
 	
-	if gamestate == "menu" or gamestate == "options" then
-		menu_joystickpressed(joystick, button)
-	elseif gamestate == "game" then
-		game_joystickpressed(joystick, button)
-	end
-end
-
-function love.joystickreleased(joystick, button)
-	if gamestate == "menu" or gamestate == "options" then
-		menu_joystickreleased(joystick, button)
-	elseif gamestate == "game" then
-		game_joystickreleased(joystick, button)
+	--same as above
+	if rightclickm then
+		rightclickm:mousereleased(x, y, button)
 	end
 end
 

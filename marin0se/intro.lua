@@ -70,17 +70,7 @@ function intro_draw()
 	end
 end
 
-function intro_mousepressed()
-	if not allowskip then
-		return
-	end
-	soundlist["stab"].source:stop()
-	menu_load()
-	shaders:set(1, shaderlist[currentshaderi1])
-	shaders:set(2, shaderlist[currentshaderi2])
-end
-
-function intro_keypressed()
+function intro_skip()
 	if not allowskip then
 		return
 	end
