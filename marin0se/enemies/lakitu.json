@@ -37,7 +37,7 @@
 	"distancetime": 1.5,
 	
 	"emancipatecheck": true,
-	"spawnsenemy": "spikeyegg",
+	"spawnsenemy": "spinyegg",
 	"spawnenemydelays": [2],
 	"spawnenemyspeedy": -12,
 	"spawnmomentum": true,
