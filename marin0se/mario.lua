@@ -1303,7 +1303,7 @@ function mario:updateangle()
 		local scale = scale
 		if shaders and shaders.scale then scale = shaders.scale end
 		self.pointingangle = math.atan2(self.x+6/16-xscroll-(mouse.getX()/16/scale), (self.y-yscroll+6/16-.5)-(mouse.getY()/16/scale))
-	else
+	elseif self.binds.control.playerAimX then
 		local x, y = -self.binds.control.playerAimX, -self.binds.control.playerAimY
 		
 		if not x or not y then
@@ -1317,6 +1317,8 @@ function mario:updateangle()
 				--this is really silly, but will crash the game if I don't do this. It's because it's -0 or something. I'm not good with computers.
 			end
 		end
+	else
+		--assert(false, "Player#"..self.playernumber.." has no way of knowing where he's aiming.")
 	end
 end
 
