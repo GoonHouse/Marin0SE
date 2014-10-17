@@ -337,7 +337,9 @@ function enemy:update(dt)
 						self.kickedupsidedown = false
 						self.movement = self.firstmovement
 						self.animationtype = self.firstanimationtype
-						
+						if self.resetspiny then
+							self.stompable = false
+						end
 						if self.chasemarioonwakeup then
 							local px = objects["player"][getclosestplayer(self.x)].x
 							if px > self.x then
@@ -780,6 +782,7 @@ function enemy:shotted(dir, below, high, fireball, star)
 		if below then
 			self.upsidedown = true
 			self.kickedupsidedown = true
+			self.stompable = true
 			self.offsetY = 4
 			self.movement = self.smallmovement
 			self.animationtype = "none"
