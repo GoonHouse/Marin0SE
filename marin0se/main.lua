@@ -2246,9 +2246,9 @@ function reloadGraphics()
 	gradientimg:setFilter("linear", "linear")
 end
 
-function reloadSounds()
+function reloadSounds() -- mastersfx, master list of sounds current being looked at.
 	soundstoload = {"jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball",
-					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill", "addtime",
+					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill", "addtime", "throw",
 					"lowtime", "tailwag", "planemode", "stab", "spring", "portal1open", "portal2open", "portalenter", "portalfizzle"}
 				
 	soundlist = {}

@@ -11,7 +11,7 @@
 	"spawnsound": "throw",
 	
 	"transforms": true,
-	"transformsinto": "spikey",
+	"transformsinto": "spiny",
 	"transformtrigger": "floorcollide",
 	
 	"nospritesets": true,
