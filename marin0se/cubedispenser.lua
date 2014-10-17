@@ -90,7 +90,7 @@ function cubedispenser:update(dt)
 				temp = box:new(self.cox+.5, self.coy)
 				temp:addoutput(self, "drop")
 				table.insert(objects["box"], temp)
-			elseif tablecontains(enemies, self.t) then
+			elseif table.contains(enemies, self.t) then
 				temp = enemy:new(self.cox, self.coy+2-enemiesdata[self.t].height, self.t)
 				
 				if self.spawnondestroy then

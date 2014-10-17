@@ -986,7 +986,7 @@ function drawlevel()
 					if #t > 1 and t[2] ~= "link" then
 						tilenumber = t[2]
 						love.graphics.setColor(255, 255, 255, 150)
-						if tablecontains(enemies, tilenumber) then --ENEMY PREVIEW THING
+						if table.contains(enemies, tilenumber) then --ENEMY PREVIEW THING
 							local v = enemiesdata[tilenumber]
 							local xoff, yoff = (((v.spawnoffsetx or 0)+v.width/2-.5)*16 - v.offsetX + v.quadcenterX)*scale, (((v.spawnoffsety or 0)-v.height+1)*16-v.offsetY - v.quadcenterY)*scale
 							
@@ -3366,12 +3366,12 @@ function loadmap(filename, createobjects)
 						elseif t == "checkpoint" then
 							table.insert(objects["checkpoints"], checkpoint:new(x, y, r))
 						elseif t == "mazestart" then
-							if not tablecontains(mazestarts, x) then
+							if not table.contains(mazestarts, x) then
 								table.insert(mazestarts, x)
 							end
 							
 						elseif t == "mazeend" then
-							if not tablecontains(mazeends, x) then
+							if not table.contains(mazeends, x) then
 								table.insert(mazeends, x)
 							end
 							
@@ -3876,7 +3876,7 @@ function game_controlupdate(dt)
 				desktopprompt = true
 				pausemenuselected2 = 1
 			end
-		elseif controls.tap.menuBack then
+		elseif controls.tap.playerPause then
 			pausemenuopen = false
 			saveconfig()
 			love.audio.resume()
@@ -3966,42 +3966,6 @@ function game_controlupdate(dt)
 	end
 end
 
---[[function game_keypressed(key)
-	for i = 1, players do
-		if controls[i]["jump"][1] == key then
-			objects["player"][i]:jump()
-		elseif controls[i]["run"][1] == key then
-			objects["player"][i]:fire()
-		elseif controls[i]["reload"][1] == key then
-			objects["player"][i]:removeportals()
-		elseif controls[i]["use"][1] == key then
-			objects["player"][i]:use()
-		elseif controls[i]["left"][1] == key then
-			objects["player"][i]:leftkey()
-		elseif controls[i]["right"][1] == key then
-			objects["player"][i]:rightkey()
-		end
-		
-		if controls[i]["portal1"][i] == key then
-			shootportal(i, 1, objects["player"][i].x+6/16, objects["player"][i].y+6/16, objects["player"][i].pointingangle)
-			return
-		end
-		
-		if controls[i]["portal2"][i] == key then
-			shootportal(i, 2, objects["player"][i].x+6/16, objects["player"][i].y+6/16, objects["player"][i].pointingangle)
-			return
-		end
-	end
-end]]
-
---[[function game_keyreleased(key)
-	for i = 1, players do
-		if controls[i]["jump"][1] == key then
-			objects["player"][i]:stopjump()
-		end
-	end
-end]]
-
 function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 	if objects["player"][plnumber].portalgundisabled then
 		return
@@ -4082,34 +4046,6 @@ function game_mousepressed(x, y, button)
 		if editormode then
 			editor_mousepressed(x, y, button)
 		end
-		
-		-- old shootportal code
-		--[[if not noupdate and objects["player"][mouseowner] and objects["player"][mouseowner].controlsenabled and objects["player"][mouseowner].vine == false then
-			if button == "l" then
-				if playertype == "portal" then
-					local sourcex = objects["player"][mouseowner].x+6/16
-					local sourcey = objects["player"][mouseowner].y+6/16
-					local direction = objects["player"][mouseowner].pointingangle
-					
-					shootportal(mouseowner, 1, sourcex, sourcey, direction)
-					if mkstation then
-						--objects["player"][1]:use()
-					end
-				end
-				
-			elseif button == "r" then
-				if playertype == "portal" then
-					local sourcex = objects["player"][mouseowner].x+6/16
-					local sourcey = objects["player"][mouseowner].y+6/16
-					local direction = objects["player"][mouseowner].pointingangle
-					
-					shootportal(mouseowner, 2, sourcex, sourcey, direction)
-					if mkstation then
-						--objects["player"][1]:use()
-					end
-				end
-			end
-		end]]
 	end
 end
 
@@ -5049,7 +4985,7 @@ function spawnenemy(x, y)
 	local r = map[x][y]
 	if #r > 1 then 
 		local wasenemy = false
-		if allowenemy and tablecontains(enemies, r[2]) and not editormode then
+		if allowenemy and table.contains(enemies, r[2]) and not editormode then
 			if not tilequads[map[x][y][1] ]:getproperty("breakable", x, y) and not tilequads[map[x][y][1] ]:getproperty("coinblock", x, y) then
 				table.insert(objects["enemy"], enemy:new(x, y, r[2], r))
 				wasenemy = true
@@ -5266,121 +5202,6 @@ function upkey(i)
 		s = controls[i]["left"]
 	end
 	return checkkey(s)
-end]]
-
-function checkkey(s)
-	print("DEPRECIATED: Call to checkkey.")
-	--[[if s[1] == "joy" then
-		if s[3] == "hat" then
-			if string.match(love.joystick.getHat(s[2], s[4]), s[5]) then
-				return true
-			else
-				return false
-			end
-		elseif s[3] == "but" then
-			if love.joystick.isDown(s[2], s[4]) then
-				return true
-			else
-				return false
-			end
-		elseif s[3] == "axe" then
-			if s[5] == "pos" then
-				if love.joystick.getAxis(s[2], s[4]) > joystickdeadzone then
-					return true
-				else
-					return false
-				end
-			else
-				if love.joystick.getAxis(s[2], s[4]) < -joystickdeadzone then
-					return true
-				else
-					return false
-				end
-			end
-		end
-	else]]--[[if s[1] then
-		if love.keyboard.isDown(s[1]) then
-			return true
-		else 
-			return false
-		end
-	end]]
-end
-
---[[function game_joystickpressed( joystick, button )
-	if pausemenuopen then
-		return
-	end
-	if endpressbutton then
-		endgame()
-		return
-	end
-	
-	for i = 1, players do
-		if not noupdate and objects["player"][i].controlsenabled and not objects["player"][i].vine then
-			local s1 = controls[i]["jump"]
-			local s2 = controls[i]["run"]
-			local s3 = controls[i]["reload"]
-			local s4 = controls[i]["use"]
-			local s5 = controls[i]["left"]
-			local s6 = controls[i]["right"]
-			if s1[1] == "joy" and joystick == tonumber(s1[2]) and s1[3] == "but" and button == tonumber(s1[4]) then
-				objects["player"][i]:jump()
-				return
-			elseif s2[1] == "joy" and joystick == s2[2] and s2[3] == "but" and button == s2[4] then
-				objects["player"][i]:fire()
-				return
-			elseif s3[1] == "joy" and joystick == s3[2] and s3[3] == "but" and button == s3[4] then
-				objects["player"][i]:removeportals()
-				return
-			elseif s4[1] == "joy" and joystick == s4[2] and s4[3] == "but" and button == s4[4] then
-				objects["player"][i]:use()
-				return
-			elseif s5[1] == "joy" and joystick == s5[2] and s5[3] == "but" and button == s5[4] then
-				objects["player"][i]:leftkey()
-				return
-			elseif s6[1] == "joy" and joystick == s6[2] and s6[3] == "but" and button == s6[4] then
-				objects["player"][i]:rightkey()
-				return
-			end
-			
-			if i ~= mouseowner then
-				local s = controls[i]["portal1"]
-				if s and s[1] == "joy" then
-					if s[3] == "but" then
-						if joystick == s[2] and button == s[4] then
-							shootportal(i, 1, objects["player"][i].x+6/16, objects["player"][i].y+6/16, objects["player"][i].pointingangle)
-							return
-						end
-					end
-				end
-				
-				local s = controls[i]["portal2"]
-				if s and s[1] == "joy" then
-					if s[3] == "but" then
-						if joystick == tonumber(s[2]) and button == tonumber(s[4]) then
-							shootportal(i, 2, objects["player"][i].x+6/16, objects["player"][i].y+6/16, objects["player"][i].pointingangle)
-							return
-						end
-					end
-				end
-			end
-		end
-	end
-end]]
-
---[[function game_joystickreleased( joystick, button )
-	for i = 1, players do
-		local s = controls[i]["jump"]
-		if s[1] == "joy" then
-			if s[3] == "but" then
-				if joystick == tonumber(s[2]) and button == tonumber(s[4]) then
-					objects["player"][i]:stopjump()
-					return
-				end
-			end
-		end
-	end
 end]]
 
 function inrange(i, a, b, include)

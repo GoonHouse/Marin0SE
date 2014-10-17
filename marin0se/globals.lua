@@ -80,16 +80,16 @@ controlTable = {
 	},
 	joyBtns = {
 		[1] = { -- first controller
-			[1] = {"playerUp", "menuUp", "editorNudgeUp"}, -- xbox povup
-			[2] = {"playerDown", "menuDown", "editorNudgeDown"}, -- xbox povdown
-			[3] = {"playerLeft", "menuLeft", "editorNudgeLeft"}, -- xbox povleft
-			[4] = {"playerRight", "menuRight", "editorNudgeRight"}, -- xbox povright
+			[1] = {--[["playerUp",]] "menuUp", "editorNudgeUp"}, -- xbox povup
+			[2] = {--[["playerDown",]] "menuDown", "editorNudgeDown"}, -- xbox povdown
+			[3] = {--[["playerLeft",]] "menuLeft", "editorNudgeLeft", "playerPrevWeapon", "editorPrevBlock", "gameFrameSkipDecrease", "gameBulletTimeDecrease", "debugSpeedDecrease"}, -- xbox povleft
+			[4] = {--[["playerRight",]] "menuRight", "editorNudgeRight", "playerNextWeapon", "editorNextBlock", "gameFrameSkipIncrease", "gameBulletTimeIncrease", "debugSpeedIncrease"}, -- xbox povright
 			[5] = {"playerPause"}, -- xbox start
 			[6] = {"menuBack"}, -- xbox back
-			[7] = {}, -- xbox leftstickclick
-			[8] = {}, -- xbox rightstickclick
-			[9] = {"playerPrevWeapon", "editorPrevBlock", "gameFrameSkipDecrease", "gameBulletTimeDecrease", "debugSpeedDecrease"}, -- xbox lbumper
-			[10] = {"playerNextWeapon", "editorNextBlock", "gameFrameSkipIncrease", "gameBulletTimeIncrease", "debugSpeedIncrease"}, -- xbox rbumper
+			[7] = {"playerRun"}, -- xbox leftstickclick
+			[8] = {"playerJump"}, -- xbox rightstickclick
+			[9] = {"playerRun"}, -- xbox lbumper
+			[10] = {"playerJump"}, -- xbox rbumper
 			[11] = {"menuSelect", "playerJump"}, -- xbox A
 			[12] = {"menuBack", "playerUse"}, -- xbox B
 			[13] = {"playerRun"}, -- xbox X
@@ -128,38 +128,38 @@ controlTable = {
 	},
 	deadzoneAxes = {
 		[1] = {
-			[1] = "dleftx", -- xbox left X
-			[2] = "dlefty", -- xbox left Y
-			[3] = "drightx", -- xbox right X
-			[4] = "drighty", -- xbox right Y
-			[5] = "dlefttrigger", -- xbox left trigger
-			[6] = "drighttrigger", -- xbox right trigger
+			[1] = "playerMoveX", -- xbox left X
+			[2] = "playerMoveY", -- xbox left Y
+			[3] = "playerAimX", -- xbox right X
+			[4] = "playerAimY", -- xbox right Y
+			[5] = "playerPressureLeft", -- xbox left trigger
+			[6] = "playerPressureRight", -- xbox right trigger
 		},
 	},
 	maps = {
 		--a       --d
-		dleftx = {
+		playerMoveX = {
 			--h=0 --o={}
 			{"playerLeft", "menuLeft", "editorNudgeLeft"},
 			{"playerRight", "menuRight", "editorNudgeRight"},
 		},
-		dlefty = {
+		playerMoveY = {
 			{"playerUp", "menuUp", "editorNudgeUp"},
 			{"playerDown", "menuDown", "editorNudgeDown"},
 		},
-		drightx = {
+		playerAimX = {
 			{"editorScrollLeft"},
 			{"editorScrollRight"},
 		},
-		drighty = {
+		playerAimY = {
 			{"editorScrollUp"},
 			{"editorScrollDown"},
 		},
-		dlefttrigger = {
+		playerPressureLeft = {
 			{},
 			{"playerPrimaryFire", "editorSelect", "editorPaint"},
 		},
-		drighttrigger = {
+		playerPressureRight = {
 			{},
 			{"playerSecondaryFire", "editorContext"},
 		},
@@ -169,7 +169,7 @@ controlTable = {
 			
 		},
 	},]]
-	deadzone = 0.5,
+	deadzone = 0.3,
 	useJoystick = true,
 	useKeyboard = true,
 	useMouse = true,

@@ -394,7 +394,7 @@ function love.load(args)
 	Monocle.new({
 		isActive=true,
 		customPrinter=false,
-		printColor = {255, 255, 255, 255},
+		customColor = {0, 128, 0, 255},
 		debugToggle = 'f1',
 		filesToWatch = {}
 	})
@@ -416,12 +416,12 @@ function love.load(args)
 				t[i] = "false "..t[i]
 			end
 		end]]
-		--[[if controls then
+		if controls then
 			--controls.tap = {}
 			--controls.release = {}
-			str = Tserial.pack(controls,true,true)
+			--str = Tserial.pack(controls,true,true)
 		end
-		return str]]
+		return str
 	end
 	Monocle.watch("misc", watchfunction)
 	require("libs.von")
@@ -1438,7 +1438,7 @@ function loadcustomimages(path)
 		local v = fl[i]
 		if love.filesystem.isFile(path .. "/" .. v) then
 			local s = string.sub(v, 1, -5)
-			if tablecontains(imagelist, s) then
+			if table.contains(imagelist, s) then
 				_G[s .. "img"] = love.graphics.newImage(path .. "/" .. v)
 				table.insert(overwrittenimages, s)
 			end
@@ -1872,15 +1872,6 @@ function newRecoloredImage(path, tablein, tableout)
 	end
 	
 	return love.graphics.newImage(imagedata)
-end
-
-function tablecontains(t, entry)
-	for i, v in pairs(t) do
-		if v == entry then
-			return true
-		end
-	end
-	return false
 end
 
 function getaveragecolor(imgdata, cox, coy)	

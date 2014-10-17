@@ -3,6 +3,15 @@ function table.pack(...)
 	return { n = select("#", ...), ... }
 end
 
+function table.contains(t, entry)
+	for i, v in pairs(t) do
+		if v == entry then
+			return true
+		end
+	end
+	return false
+end
+
 function string:split(delimiter) --Not by me
 	local result = {}
 	local from  = 1

@@ -1962,27 +1962,27 @@ function keypromptenter(t, ...)
 	local axisonly = {"aimx", "aimy"}
 	if t ~= "key" or arg[1] ~= "escape" then
 		if t == "key" then
-			if tablecontains(axisonly, controlstable[optionsselection-3]) then
+			if table.contains(axisonly, controlstable[optionsselection-3]) then
 				axiserror = true
 			else
 				oldcontrols[skinningplayer][controlstable[optionsselection-3]] = {arg[1]}
 			end
 		elseif t == "joybutton" then
-			if tablecontains(axisonly, controlstable[optionsselection-3]) then
+			if table.contains(axisonly, controlstable[optionsselection-3]) then
 				axiserror = true
 			else
 				controls[skinningplayer][controlstable[optionsselection-3]] = {"joy", arg[1], "but", arg[2]}
 			end
 		elseif t == "joyhat" then
-			if tablecontains(buttononly, controlstable[optionsselection-3]) then
+			if table.contains(buttononly, controlstable[optionsselection-3]) then
 				buttonerror = true
-			elseif tablecontains(axisonly, controlstable[optionsselection-3]) then
+			elseif table.contains(axisonly, controlstable[optionsselection-3]) then
 				axiserror = true
 			else
 				controls[skinningplayer][controlstable[optionsselection-3]] = {"joy", arg[1], "hat", arg[2], arg[3]}
 			end
 		elseif t == "joyaxis" then
-			if tablecontains(buttononly, controlstable[optionsselection-3]) then
+			if table.contains(buttononly, controlstable[optionsselection-3]) then
 				buttonerror = true
 			else
 				controls[skinningplayer][controlstable[optionsselection-3]] = {"joy", arg[1], "axe", arg[2], arg[3]}

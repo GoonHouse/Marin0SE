@@ -406,9 +406,9 @@ function editor_draw()
 							local r = map[x][y]
 							local drawline = false
 							
-							if cox == x and coy == y and tablecontains(outputsi, map[x][y][2]) then
+							if cox == x and coy == y and table.contains(outputsi, map[x][y][2]) then
 								love.graphics.setColor(255, 255, 150, 255)
-							elseif tablecontains(outputsi, map[x][y][2]) then
+							elseif table.contains(outputsi, map[x][y][2]) then
 								love.graphics.setColor(255, 255, 150, 150)
 							end
 							love.graphics.rectangle("fill", math.floor((x-xscroll-1)*16*scale), ((y-1-yscroll)*16-8)*scale, 16*scale, 16*scale)
@@ -1606,7 +1606,7 @@ function placetile(x, y, t, ent)
 				if rightclickmenues[entitylist[currenttile].t] then
 					for i = 1, #rightclickmenues[entitylist[currenttile].t] do
 						local v = rightclickmenues[entitylist[currenttile].t][i]
-						if tablecontains(rightclickelementslist, v.t) then
+						if table.contains(rightclickelementslist, v.t) then
 							if v.default then
 								table.insert(map[cox][coy], v.default)
 							else
@@ -2400,7 +2400,7 @@ function closerightclickmenu()
 			
 			for i = 1, #selectionlist do
 				local v = selectionlist[i]
-				if (map[v.x][v.y][2] == map[rightclickm.tx][rightclickm.ty][2] or (tablecontains(groundlighttable, entitylist[map[rightclickm.tx][rightclickm.ty][2]].t) and tablecontains(groundlighttable, entitylist[map[v.x][v.y][2]].t))) and (v.x ~= rightclickm.tx or v.y ~= rightclickm.ty) then
+				if (map[v.x][v.y][2] == map[rightclickm.tx][rightclickm.ty][2] or (table.contains(groundlighttable, entitylist[map[rightclickm.tx][rightclickm.ty][2]].t) and table.contains(groundlighttable, entitylist[map[v.x][v.y][2]].t))) and (v.x ~= rightclickm.tx or v.y ~= rightclickm.ty) then
 					table.insert(edittable, {x=v.x, y=v.y})
 				end
 			end
@@ -2539,7 +2539,7 @@ function removelink(x, y, t)
 		
 		for i = 1, #selectionlist do
 			local v = selectionlist[i]
-			if (map[v.x][v.y][2] == map[x][y][2] or (entitylist[map[v.x][v.y][2]] and tablecontains(groundlighttable, entitylist[map[v.x][v.y][2]].t) and tablecontains(groundlighttable, entitylist[map[x][y][2]].t))) and (v.x ~= x or v.y ~= y) then
+			if (map[v.x][v.y][2] == map[x][y][2] or (entitylist[map[v.x][v.y][2]] and table.contains(groundlighttable, entitylist[map[v.x][v.y][2]].t) and table.contains(groundlighttable, entitylist[map[x][y][2]].t))) and (v.x ~= x or v.y ~= y) then
 				table.insert(edittable, {x=v.x, y=v.y})
 			end
 		end
@@ -2577,7 +2577,7 @@ function finishlinking(x, y)
 			
 			for i = 1, #selectionlist do
 				local v = selectionlist[i]
-				if (map[v.x][v.y][2] == map[startx][starty][2] or (entitylist[map[v.x][v.y][2]] and tablecontains(groundlighttable, entitylist[map[v.x][v.y][2]].t) and tablecontains(groundlighttable, entitylist[map[startx][starty][2]].t))) and (v.x ~= startx or v.y ~= starty) then
+				if (map[v.x][v.y][2] == map[startx][starty][2] or (entitylist[map[v.x][v.y][2]] and table.contains(groundlighttable, entitylist[map[v.x][v.y][2]].t) and table.contains(groundlighttable, entitylist[map[startx][starty][2]].t))) and (v.x ~= startx or v.y ~= starty) then
 					table.insert(edittable, {x=v.x, y=v.y})
 				end
 			end
@@ -2590,7 +2590,7 @@ function finishlinking(x, y)
 				local r = map[endx][endy]
 				
 				--LIST OF NUMBERS THAT ARE ACCEPTED AS INPUTS (buttons, laserdetectors)
-				if #r > 1 and tablecontains( outputsi, r[2] ) then
+				if #r > 1 and table.contains( outputsi, r[2] ) then
 					r = map[x][y]
 					
 					local i = 1

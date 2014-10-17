@@ -31,33 +31,16 @@ function mario:init(x, y, i, animation, size, t)
 		self.powerupstate = "fire"
 		self.powerdowntargetstate = "super"
 	end
+	self.prefermouse = true
 	self.t = t or "portal"
 	self.portalsavailable = {unpack(portalsavailable)}
 	local bindtable 
 	if self.playernumber == 1 then
 		bindtable = controlTable
-		--[[{
-			keys = {
-				x = "debug",
-				w = "up",
-				a = "left",
-				s = "down",
-				d = "right",
-				f = "use",
-				l = "suicide",
-				lshift = "run",
-				r = "reload",
-				[" "] = "jump",
-			},
-			mouseBtns = {
-				l = "primary",
-				m = "reload",
-				r = "secondary",
-			},
-			useJoystick = false,
-			useKeyboard = true,
-			useMouse = true,
-		}]]
+		if false then
+			bindtable.keys = nil
+			bindtable.mouseBtns = nil
+		end
 	else
 		bindtable = {}
 	end
@@ -1316,28 +1299,12 @@ function mario:updateangle()
 		return
 	end
 	--UPDATE THE PLAYER ANGLE
-	if self.playernumber == mouseowner then
+	if self.playernumber == mouseowner and self.prefermouse then
 		local scale = scale
 		if shaders and shaders.scale then scale = shaders.scale end
 		self.pointingangle = math.atan2(self.x+6/16-xscroll-(mouse.getX()/16/scale), (self.y-yscroll+6/16-.5)-(mouse.getY()/16/scale))
-	elseif #oldcontrols[self.playernumber]["aimx"] > 0 then
-		local x, y
-		
-		local s = oldcontrols[self.playernumber]["aimx"]
-		--[[if s[1] == "joy" then
-			x = -love.joystick.getAxis(s[2], s[4])
-			if s[5] == "neg" then
-				x = -x
-			end
-		end]]
-		
-		s = oldcontrols[self.playernumber]["aimy"]
-		--[[if s[1] == "joy" then
-			y = -love.joystick.getAxis(s[2], s[4])
-			if s[5] == "neg" then
-				y = -y
-			end
-		end]]
+	else
+		local x, y = -self.binds.control.playerAimX, -self.binds.control.playerAimY
 		
 		if not x or not y then
 			return
@@ -1346,7 +1313,8 @@ function mario:updateangle()
 		if math.abs(x) > joystickaimdeadzone or math.abs(y) > joystickaimdeadzone then
 			self.pointingangle = math.atan2(x, y)
 			if self.pointingangle == 0 then
-				self.pointingangle = 0 --this is really silly, but will crash the game if I don't do this. It's because it's -0 or something. I'm not good with computers.
+				self.pointingangle = 0
+				--this is really silly, but will crash the game if I don't do this. It's because it's -0 or something. I'm not good with computers.
 			end
 		end
 	end
@@ -3183,7 +3151,7 @@ function hitblock(x, y, t, koopa)
 			else
 				playsound("mushroomappear")
 			end
-		elseif #r > 1 and tablecontains(enemies, r[2]) then
+		elseif #r > 1 and table.contains(enemies, r[2]) then
 			table.insert(blockbouncecontent, r[2])
 			table.insert(blockbouncecontent2, t.size)
 			playsound("mushroomappear")

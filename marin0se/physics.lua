@@ -1,6 +1,6 @@
 --[[
 	PHYSICS LIBRARY THING
-	WRITTEN BY MAURICE GUÉGAN FOR MARI0
+	WRITTEN BY MAURICE GUGAN FOR MARI0
 	DON'T STEAL MY SHIT
 	Licensed under WTFPL
 ]]--
@@ -46,7 +46,7 @@
 
 function prerotatecall(a, b)
 	local prerotatecalls = {"goomba", "koopa", "hammerbros", "lakito", "cheep", "flyingfish", "squid"}
-	if tablecontains(prerotatecalls, a) then
+	if table.contains(prerotatecalls, a) then
 		return true
 	end
 	

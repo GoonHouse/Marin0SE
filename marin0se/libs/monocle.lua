@@ -97,6 +97,7 @@ end
 --]]
 function Monocle.draw()
 	if Monocle.active then
+		local oldcolor = {love.graphics.getColor()}
 		love.graphics.setColor(Monocle.printColor)
 		--love.graphics.print("> " .. Monocle.text .. "|", 0, 0)
 		local draw_y = 0
@@ -113,6 +114,7 @@ function Monocle.draw()
 			end
 			draw_y = draw_y + 1
 		end	-- For name,result
+		love.graphics.setColor(oldcolor)
 	end -- Monocle.active
 end
 
