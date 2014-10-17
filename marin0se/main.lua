@@ -365,6 +365,36 @@ function love.load(args)
 					"attack while its tail's up!", "what a horrible night to have a curse", "han shot first", "establishing connection to nsa servers..",
 					"how do i programm", "making palette inaccurate..", "y cant mario crawl?"}
 	
+	--[[@DEV:
+		I'm getting really tired of nonstandard global containers for entities, so
+		to reduce the number of crazy all-over-the-place codepoints I'm creating an
+		iterable whitelist of entities that adhere to a specific standard.
+		Those being:
+			* @TODO: write standards
+			
+	]]
+	saneents = {
+		"player", "portalwall", "tile", "vine", "box", "door", "button",
+		"groundlight", "wallindicator", "animatedtiletrigger", "delayer",
+		"walltimer", "notgate", "rsflipflop", "orgate", "andgate",
+		"musicentity", "enemyspawner", "squarewave", "lightbridge",
+		"lightbridgebody", "faithplate", "laser", "noportal",
+		"laserdetector", "gel", "geldispenser", "fireball", "pushbutton",
+		"cubedispenser", "platform", "castlefire", "platformspawner",
+		"castlefirefire", "bowser", "spring", "seesawplatform", 
+		"ceilblocker", "funnel", "panel", "scaffold", 
+		"regiontrigger", "animationtrigger", "checkpoints",
+		"portalent", "actionblock", "leaf", "enemy",
+	}
+	--[[ here are a list of entities that have BROKEN THE LAW ]]
+	insaneents = {
+		"spawn", "textentity", "warppipe", "manycoins", "flag", "firestart", "fireend",
+		"flyingfishstart", "flyingfishend", "bulletbillstart", "bulletbillend", 
+		"windstart", "windend", "axe", "lakitoend", "pipespawn", "gel", "mazestart",
+		"mazeend", "emance", "groundlight*", "platformspawner", "portal1/2", "seesaw",
+		"pedestal"
+	}
+	
 	loadingtext = loadingtexts[math.random(#loadingtexts)]
 	
 	local logoscale = scale
@@ -438,6 +468,12 @@ function love.load(args)
 	class = require("libs.middleclass")
 	require "camera"
 	
+	-- we don't use the saneents list here because entity name weirdness 
+	for _,v in pairs(love.filesystem.getDirectoryItems("entities")) do
+		-- we're doing sub because I forgot how not to \o/
+		require("entities."..v:sub(0, -5))
+	end
+	
 	require "animatedquad"
 	require "intro"
 	require "menu"
@@ -448,8 +484,6 @@ function love.load(args)
 	require "physics"
 	require "quad"
 	require "entity"
-	require "portalwall"
-	require "tile"
 	require "mario"
 	require "hatconfigs"
 	require "bighatconfigs"
@@ -457,78 +491,36 @@ function love.load(args)
 	require "coinblockanimation"
 	require "scrollingscore"
 	require "scrollingtext"
-	require "platform"
-	require "platformspawner"
 	require "portalparticle"
 	require "portalprojectile"
-	require "box"
 	require "emancipationgrill"
-	require "door"
-	require "button"
-	require "groundlight"
-	require "wallindicator"
-	require "walltimer"
-	require "lightbridge"
-	require "faithplate"
-	require "laser"
-	require "laserdetector"
-	require "gel"
-	require "geldispenser"
-	require "cubedispenser"
-	require "pushbutton"
 	require "screenboundary"
 	require "bulletbill"
-	require "fireball"
 	require "gui"
 	require "blockdebris"
 	require "firework"
-	require "castlefire"
 	require "fire"
-	require "bowser"
-	require "vine"
-	require "spring"
 	require "seesaw"
-	require "seesawplatform"
 	require "bubble"
 	require "rainboom"
 	require "miniblock"
-	require "notgate"
-	require "rsflipflop"
-	require "andgate"
-	require "orgate"
-	require "musicentity"
-	require "enemyspawner"
 	require "musicloader"
 	require "magic"
-	require "ceilblocker"
-	require "funnel"
-	require "panel"
 	require "rightclickmenu"
 	require "emancipateanimation"
 	require "emancipationfizzle"
 	require "textentity"
-	require "squarewave"
-	require "scaffold"
 	require "animation"
 	require "animationsystem"
 	require "regiondrag"
-	require "regiontrigger"
-	require "checkpoint"
 	require "portal"
-	require "portalent"
 	require "pedestal"
-	require "actionblock"
-	require "animationtrigger"
 	require "dialogbox"
 	require "itemanimation"
 	require "animatedtimer"
-	require "animatedtiletrigger"
-	require "delayer"
 	require "entitylistitem"
 	require "entitytooltip"
-	require "leaf"
 	
-	require "enemy"
 	require "enemies"
 	require "imgurupload"
 	add("Requires")

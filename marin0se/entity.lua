@@ -53,7 +53,7 @@ entitylist = {
 	{t=""},
 	{t=""}, --50
 	{t="laser", category="portal elements", description="place on empty tile - laser pew pew", iconauthor="Pixelworker"},
-	{t=""},
+	{t="noportal", category="portal elements", description="all portals shot into this region will be destroyed", iconauthor="EntranceJew"},
 	{t=""},
 	{t=""},
 	{t="laserdetector", category="portal elements", description="place on empty tile - will send signal if laser is detected", output=true, iconauthor="QwertymanO07"},
@@ -462,6 +462,13 @@ rightclickmenues.regiontrigger = {
 	{t="text", value="trigger on:"},
 	{t="checkbox", text="players", default="true"},
 	{t="checkbox", text="enemies", default="true"},
+	{},
+	{t="regionselect", value="select region", region="region", default="region:0:0:1:1"}
+}
+
+rightclickmenues.noportal = {
+	{t="text", value="allow:"},
+	{t="checkbox", text="shooting", default="false"},
 	{},
 	{t="regionselect", value="select region", region="region", default="region:0:0:1:1"}
 }

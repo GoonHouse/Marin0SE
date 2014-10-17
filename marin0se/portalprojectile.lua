@@ -164,3 +164,7 @@ function portalprojectile:createportal()
 		portal.createportal(unpack(self.payload))
 	end
 end
+
+function portalprojectile:remove()
+	self=nil
+end

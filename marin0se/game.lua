@@ -1281,12 +1281,21 @@ function game_draw()
 			drawui()
 		end
 		
-		love.graphics.setColor(255, 255, 255)
-		--vines
-		for j, w in pairs(objects["vine"]) do
-			w:draw()
+		-- We're going to buck draw depth for now.
+		--[[
+			for some reason, the following objects were excluded from the giant generic draw handler below: 
+			
+			"vine", "platform", "scaffold", "seesawplatform", "spring", "panel", "button",
+			"pushbutton", "lightbridgebody", "lightbridge", "laser", "laserdetector", 
+			"groundlight", "faithplate", 
+		]]
+		for _, entname in pairs(saneents) do
+			love.graphics.setColor(255, 255, 255)
+			for k,v in pairs(objects[entname]) do
+				if v.draw then v:draw() end
+			end
 		end
-		
+
 		love.graphics.setColor(255, 255, 255)
 		--warpzonetext
 		if displaywarpzonetext then
@@ -1297,32 +1306,8 @@ function game_draw()
 		end
 		
 		love.graphics.setColor(255, 255, 255)
-		--platforms
-		for j, w in pairs(objects["platform"]) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--scaffolds
-		for j, w in pairs(objects["scaffold"]) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--seesawplatforms
-		for j, w in pairs(objects["seesawplatform"]) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
 		--seesaws
 		for j, w in pairs(seesaws) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--springs
-		for j, w in pairs(objects["spring"]) do
 			w:draw()
 		end
 		
@@ -1379,65 +1364,10 @@ function game_draw()
 				end
 			end
 		end
-		love.graphics.setColor(255, 255, 255)
-		--Panels
-		for j, w in pairs(objects["panel"]) do
-			w:draw()
-		end
 		
 		love.graphics.setColor(255, 255, 255)
 		--Fireworks
 		for j, w in pairs(fireworks) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--Buttons
-		for j, w in pairs(objects["button"]) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--Pushbuttons
-		for j, w in pairs(objects["pushbutton"]) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		
-		--hardlight bridges
-		for j, w in pairs(objects["lightbridgebody"]) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		
-		--lightbridge
-		for j, w in pairs(objects["lightbridge"]) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--laser
-		for j, w in pairs(objects["laser"]) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--laserdetector
-		for j, w in pairs(objects["laserdetector"]) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--Groundlights
-		for j, w in pairs(objects["groundlight"]) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--Faithplates
-		for j, w in pairs(objects["faithplate"]) do
 			w:draw()
 		end
 		
@@ -1477,6 +1407,7 @@ function game_draw()
 		love.graphics.setColor(255, 255, 255)
 		
 		--OBJECTS
+		-- apparently this *doesn't* draw all the objects? what kind of crap is this?
 		for j, w in pairs(objects) do	
 			if j ~= "tile" then
 				for i, v in pairs(w) do
@@ -1707,89 +1638,10 @@ function game_draw()
 		end
 		
 		love.graphics.setColor(255, 255, 255)
-		
-		--bowser
-		for j, w in pairs(objects["bowser"]) do
-			w:draw()
-		end
-	
-		--Geldispensers
-		for j, w in pairs(objects["geldispenser"]) do
-			w:draw()
-		end
-		
-		--Cubedispensers
-		for j, w in pairs(objects["cubedispenser"]) do
-			w:draw()
-		end
-		
-		--Funnels
-		for j, w in pairs(objects["funnel"]) do
-			w:draw()
-		end
+
 		
 		--Emancipationgrills
 		for j, w in pairs(emancipationgrills) do
-			w:draw()
-		end
-		
-		--Doors
-		for j, w in pairs(objects["door"]) do
-			w:draw()
-		end
-		
-		--Wallindicators
-		for j, w in pairs(objects["wallindicator"]) do
-			w:draw()
-		end
-		
-		--Tiletriggers
-		for j, w in pairs(objects["animatedtiletrigger"]) do
-			w:draw()
-		end
-		
-		--Delayers
-		for j, w in pairs(objects["delayer"]) do
-			w:draw()
-		end
-		
-		--Walltimers
-		for j, w in pairs(objects["walltimer"]) do
-			w:draw()
-		end
-		
-		--Notgates
-		for j, w in pairs(objects["notgate"]) do
-			w:draw()
-		end
-		
-		--RSFlipflops
-		for j, w in pairs(objects["rsflipflop"]) do
-			w:draw()
-		end
-		
-		--Orgates
-		for j, w in pairs(objects["orgate"]) do
-			w:draw()
-		end
-		
-		--Andgates
-		for j, w in pairs(objects["andgate"]) do
-			w:draw()
-		end
-		
-		--Musicentities
-		for j, w in pairs(objects["musicentity"]) do
-			w:draw()
-		end
-		
-		--Squarewaves
-		for j, w in pairs(objects["squarewave"]) do
-			w:draw()
-		end
-		
-		--Squarewaves
-		for j, w in pairs(objects["actionblock"]) do
 			w:draw()
 		end
 		
@@ -1916,7 +1768,8 @@ function game_draw()
 		
 		love.graphics.setColor(255, 255, 255)
 
-	--nothing to see here
+		--nothing to see here
+		--http://ejew.in/pub/click_the_horse.swf
 		for i, v in pairs(rainbooms) do
 			v:draw()
 		end
@@ -1925,6 +1778,7 @@ function game_draw()
 	end --SCENE DRAW FUNCTION END
 	
 	if players == 1 and love.graphics.isSupported("canvas") and seethroughportals then
+		--what's this all about
 		if not scenecanvas then
 			scenecanvas = love.graphics.newCanvas()
 		end
@@ -2257,8 +2111,8 @@ function game_draw()
 	love.graphics.translate(0, yoffset*scale)
 	
 	if testlevel then
-		love.graphics.setColor(255, 0, 0)
-		properprint("testing level - press esc to return to editor", 0, 0)
+		love.graphics.setColor(0, 128, 0)
+		properprint("test", 0, 0)
 	end
 	
 	--pause menu
@@ -2830,55 +2684,10 @@ function loadlevel(level)
 	portals = {}
 	
 	objects = {}
-	objects["player"] = {}
-	objects["portalwall"] = {}
-	objects["tile"] = {}
-	objects["vine"] = {}
-	objects["box"] = {}
-	objects["door"] = {}
-	objects["button"] = {}
-	objects["groundlight"] = {}
-	objects["wallindicator"] = {}
-	objects["animatedtiletrigger"] = {}
-	objects["delayer"] = {}
-	objects["walltimer"] = {}
-	objects["notgate"] = {}
-	objects["rsflipflop"] = {}
-	objects["orgate"] = {}
-	objects["andgate"] = {}
-	objects["musicentity"] = {}
-	objects["enemyspawner"] = {}
-	objects["squarewave"] = {}
-	objects["lightbridge"] = {}
-	objects["lightbridgebody"] = {}
-	objects["faithplate"] = {}
-	objects["laser"] = {}
-	objects["laserdetector"] = {}
-	objects["gel"] = {}
-	objects["geldispenser"] = {}
-	objects["cubedispenser"] = {}
-	objects["pushbutton"] = {}
-	objects["fireball"] = {}
-	objects["platform"] = {}
-	objects["platformspawner"] = {}
-	objects["castlefire"] = {}
-	objects["castlefirefire"] = {}
-	objects["bowser"] = {}
-	objects["spring"] = {}
-	objects["seesawplatform"] = {}
-	objects["ceilblocker"] = {}
-	objects["funnel"] = {}
-	objects["panel"] = {}
-	objects["scaffold"] = {}
-	objects["regiontrigger"] = {}
-	objects["animationtrigger"] = {}
-	objects["checkpoints"] = {}
-	objects["portalent"] = {}
-	objects["actionblock"] = {}
-	objects["leaf"] = {}
-	
-	--!
-	objects["enemy"] = {}
+	-- Initialize all registered object arrays.
+	for _,v in pairs(saneents) do
+		objects[v]={}
+	end
 	
 	xscroll = 0
 	yscroll = 0
@@ -3279,6 +3088,8 @@ function loadmap(filename, createobjects)
 				if entitylist[r[2]] then
 					local t = entitylist[r[2]].t
 					
+					
+					
 					if t == "spawn" then
 						local r2 = {unpack(r)}
 						table.remove(r2, 1)
@@ -3306,7 +3117,11 @@ function loadmap(filename, createobjects)
 						table.insert(textentities, textentity:new(x-1, y-1, r))
 						
 					elseif createobjects and not editormode then
-						if t == "warppipe" then
+						-- All the sane entities get to play nicely here.
+						if table.contains(saneents, t) then
+							table.insert(objects[t], _G[t]:new(x, y, r))
+							
+						elseif t == "warppipe" then
 							table.insert(warpzonenumbers, {x, y, r[3]})
 							
 						elseif t == "manycoins" then
@@ -3363,8 +3178,6 @@ function loadmap(filename, createobjects)
 								end
 							end
 							
-						elseif t == "checkpoint" then
-							table.insert(objects["checkpoints"], checkpoint:new(x, y, r))
 						elseif t == "mazestart" then
 							if not table.contains(mazestarts, x) then
 								table.insert(mazestarts, x)
@@ -3378,18 +3191,6 @@ function loadmap(filename, createobjects)
 						elseif t == "emance" then
 							table.insert(emancipationgrills, emancipationgrill:new(x, y, r))
 							
-						elseif t == "door" then
-							table.insert(objects["door"], door:new(x, y, r))
-							
-						elseif t == "button" then
-							table.insert(objects["button"], button:new(x, y, r))
-							
-						elseif t == "pushbutton" then
-							table.insert(objects["pushbutton"], pushbutton:new(x, y, r))
-							
-						elseif t == "wallindicator" then
-							table.insert(objects["wallindicator"], wallindicator:new(x, y, r))
-							
 						elseif t == "groundlightver" then
 							table.insert(objects["groundlight"], groundlight:new(x, y, 1, r))
 						elseif t == "groundlighthor" then
@@ -3402,54 +3203,8 @@ function loadmap(filename, createobjects)
 							table.insert(objects["groundlight"], groundlight:new(x, y, 5, r))
 						elseif t == "groundlightleftup" then
 							table.insert(objects["groundlight"], groundlight:new(x, y, 6, r))
-							
-						elseif t == "faithplate" then
-							table.insert(objects["faithplate"], faithplate:new(x, y, r))
-							
-						elseif t == "laser" then
-							table.insert(objects["laser"], laser:new(x, y, r))
-							
-						elseif t == "lightbridge" then
-							table.insert(objects["lightbridge"], lightbridge:new(x, y, r))
-							
-						elseif t == "laserdetector" then
-							table.insert(objects["laserdetector"], laserdetector:new(x, y, r))
-							
-						elseif t == "boxtube" then
-							table.insert(objects["cubedispenser"], cubedispenser:new(x, y, r))
-						
-						elseif t == "walltimer" then
-							table.insert(objects["walltimer"], walltimer:new(x, y, r))
-							
-						elseif t == "notgate" then
-							table.insert(objects["notgate"], notgate:new(x, y, r))
-							
-						elseif t == "rsflipflop" then
-							table.insert(objects["rsflipflop"], rsflipflop:new(x, y, r))
-							
-						elseif t == "orgate" then
-							table.insert(objects["orgate"], orgate:new(x, y, r))
-							
-						elseif t == "andgate" then
-							table.insert(objects["andgate"], andgate:new(x, y, r))
-							
-						elseif t == "musicentity" then
-							table.insert(objects["musicentity"], musicentity:new(x, y, r))
-							
-						elseif t == "enemyspawner" then
-							table.insert(objects["enemyspawner"], enemyspawner:new(x, y, r))
-							
-						elseif t == "squarewave" then
-							table.insert(objects["squarewave"], squarewave:new(x, y, r))
-							
 						elseif t == "platformspawner" then
 							table.insert(platformspawners, platformspawner:new(x, y, r))
-							
-						elseif t == "scaffold" then
-							table.insert(objects["scaffold"], scaffold:new(x, y, r))
-							
-						elseif t == "box" then
-							table.insert(objects["box"], box:new(x, y))
 							
 						elseif t == "portal1" then
 							table.insert(objects["portalent"], portalent:new(x, y, 1, r))
@@ -3457,36 +3212,11 @@ function loadmap(filename, createobjects)
 						elseif t == "portal2" then
 							table.insert(objects["portalent"], portalent:new(x, y, 2, r))
 							
-						elseif t == "spring" then
-							table.insert(objects["spring"], spring:new(x, y, r))
-							
 						elseif t == "seesaw" then
 							table.insert(seesaws, seesaw:new(x, y, r))
-						
-						elseif t == "ceilblocker" then
-							table.insert(objects["ceilblocker"], ceilblocker:new(x))
-							
-						elseif t == "funnel" then
-							table.insert(objects["funnel"], funnel:new(x, y, r))
-							
-						elseif t == "regiontrigger" then
-							table.insert(objects["regiontrigger"], regiontrigger:new(x, y, r))
-							
-						elseif t == "animationtrigger" then
-							table.insert(objects["animationtrigger"], animationtrigger:new(x, y, r))
 							
 						elseif t == "pedestal" then
 							table.insert(pedestals, pedestal:new(x, y, r))
-							
-						elseif t == "actionblock" then
-							table.insert(objects["actionblock"], actionblock:new(x, y, r))
-							
-						elseif t == "animatedtiletrigger" then
-							table.insert(objects["animatedtiletrigger"], animatedtiletrigger:new(x, y, r))
-							
-						elseif t == "delayer" then
-							table.insert(objects["delayer"], delayer:new(x, y, r))
-							
 						end
 					end
 				end
