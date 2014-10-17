@@ -4032,23 +4032,6 @@ function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 	end
 end
 
-function game_mousepressed(x, y, button)
-	if pausemenuopen then
-		return
-	end
-	
-	
-	
-	if editormode then
-		editor_mousepressed(x, y, button)
-	else
-		-- why is this?!
-		if editormode then
-			editor_mousepressed(x, y, button)
-		end
-	end
-end
-
 function modifyportalwalls()
 	--Create and remove new stuff
 	for a, b in pairs(portals) do
@@ -4616,12 +4599,6 @@ function warpzone(w, l)
 	end
 	
 	levelscreen_load("next")
-end
-
-function game_mousereleased(x, y, button)
-	if editormode then
-		editor_mousereleased(x, y, button)
-	end
 end
 
 function getMouseTile(x, y)
@@ -5317,6 +5294,7 @@ function hitrightside()
 end
 
 function getclosestplayer(x)
+	--@WARNING: This should also check y.
 	closestplayer = 1
 	for i = 2, players do
 		if math.abs(objects["player"][closestplayer].x+6/16-x) < math.abs(objects["player"][i].x+6/16-x) then

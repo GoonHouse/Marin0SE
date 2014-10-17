@@ -1015,7 +1015,7 @@ function mario:update(dt)
 	if self.vine then
 		self.gravity = 0
 		self.animationstate = "climbing"
-		if self.binds.control.up then
+		if self.binds.control.playerUp then
 			self.vinemovetimer = self.vinemovetimer + dt
 			
 			self.climbframe = math.ceil(math.mod(self.vinemovetimer, vineframedelay*2)/vineframedelay)
@@ -1028,7 +1028,7 @@ function mario:update(dt)
 				self.y = objects[t[1]][t[2]].y + objects[t[1]][t[2]].height
 				self.climbframe = 2
 			end
-		elseif self.binds.control.down then
+		elseif self.binds.control.playerDown then
 			self.vinemovetimer = self.vinemovetimer + dt
 			
 			self.climbframe = math.ceil(math.mod(self.vinemovetimer, vineframedelaydown*2)/vineframedelaydown)
@@ -1114,7 +1114,7 @@ function mario:update(dt)
 	
 	if self.controlsenabled then
 		--check for pipe pipe pipe
-		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and self.binds.control.down and self.falling == false and self.jumping == false then
+		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and self.binds.control.playerDown and self.falling == false and self.jumping == false then
 			local t2 = map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][2]
 			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
 				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]-1))
@@ -1129,7 +1129,7 @@ function mario:update(dt)
 		end
 		
 		if self.falling == false and self.jumping == false and self.size > 1 then
-			if self.binds.control.down then
+			if self.binds.control.playerDown then
 				if self.ducking == false then
 					self:duck(true)
 				end
@@ -2312,22 +2312,16 @@ function mario:floorcollide(a, b, c, d)
 	self.falling = false
 	self.jumping = false
 	
-	--Make mario snap to runspeed if at walkspeed. why is this commented out
-	--[[if leftkey(self.playernumber) then
-		if runkey(self.playernumber) then
-			if self.speedx <= -maxwalkspeed then
-				self.speedx = -maxrunspeed
-				self.animationdirection = "left"
-			end
+	--Make mario snap to runspeed if at walkspeed.
+	if self.binds.control.playerRun then
+		if self.binds.control.playerLeft and self.speedx <= -maxwalkspeed then
+			self.speedx = -maxrunspeed
+			self.animationdirection = "left"
+		elseif self.binds.control.playerRight and self.speedx >= maxwalkspeed then
+			self.speedx = maxrunspeed
+			self.animationdirection = "right"
 		end
-	elseif rightkey(self.playernumber) then
-		if runkey(self.playernumber) then
-			if self.speedx >= maxwalkspeed then
-				self.speedx = maxrunspeed
-				self.animationdirection = "right"
-			end
-		end
-	end--]]
+	end
 	
 	if b.stompable then
 		self:stompenemy(a, b, c, d)
@@ -2361,7 +2355,7 @@ end
 
 function mario:bluegel(dir)
 	if dir == "top" then
-		if self.binds.control.down == false and self.speedy > gdt*yacceleration*10 then
+		if self.binds.control.playerDown == false and self.speedy > gdt*yacceleration*10 then
 			self.speedy = -self.speedy
 			self.falling = true
 			self.animationstate = "jumping"
@@ -2371,7 +2365,7 @@ function mario:bluegel(dir)
 			return true
 		end
 	elseif dir == "left" then
-		if self.binds.control.down == false and (self.falling or self.jumping) then
+		if self.binds.control.playerDown == false and (self.falling or self.jumping) then
 			if self.speedx > horbounceminspeedx then
 				self.speedx = math.min(-horbouncemaxspeedx, -self.speedx*horbouncemul)
 				self.speedy = math.min(self.speedy, -horbouncespeedy)
@@ -2380,7 +2374,7 @@ function mario:bluegel(dir)
 			end
 		end
 	elseif dir == "right" then
-		if self.binds.control.down == false and (self.falling or self.jumping) then
+		if self.binds.control.playerDown == false and (self.falling or self.jumping) then
 			if self.speedx < -horbounceminspeedx then
 				self.speedx = math.min(horbouncemaxspeedx, -self.speedx*horbouncemul)
 				self.speedy = math.min(self.speedy, -horbouncespeedy)
