@@ -1,6 +1,6 @@
 {
 	"quadcount": 4,
-	"nospritesets": false,
+	"nospritesets": true,
 
 	"movement": "wiggle",
 	"wiggledistance": 1.5,

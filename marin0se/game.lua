@@ -4639,12 +4639,6 @@ function spawnenemy(x, y)
 			
 			elseif t == "bulletbill" then
 				table.insert(rocketlaunchers, rocketlauncher:new(x, y))
-			
-			elseif t == "geldispenser" then
-				table.insert(objects["geldispenser"], geldispenser:new(x, y, r))
-				
-			elseif t == "upfire" then
-				table.insert(objects["upfire"], upfire:new(x, y, r))
 				
 			elseif t == "panel" then
 				table.insert(objects["panel"], panel:new(x-1, y-1, r))

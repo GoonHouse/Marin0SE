@@ -13,6 +13,7 @@ editor_undohistory = {}
 
 function editor_load()
 	print("Editor loaded!")
+	editorstate = "main"
 	editortool = "tile" --tile, linker, region, select
 	editorlasttool = "tile"
 	editorignorerelease = false --this is an ugly hack until we figure out how to wrangle our inputs
@@ -1729,6 +1730,12 @@ function editor_controlupdate(dt)
 	local button = "honk" --for the sake of Just Getting It To Work For Now(tm)
 	
 	if controls.editorShortcutModifier then
+		if controls.tap.editorErase then
+			currenttile = 1
+			editenemies = false
+			editentities = not editentities
+		end
+		
 		if controls.tap.editorQuickSave then
 			savelevel()
 		end
