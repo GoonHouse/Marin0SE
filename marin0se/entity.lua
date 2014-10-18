@@ -49,7 +49,7 @@ entitylist = {
 	{t=""},
 	{t=""},
 	{t=""},
-	{t=""},
+	{t="faithplate", category="portal elements", description="place on ground - f-f--fling yourself.", iconauthor="idiot9.0"},
 	{t=""},
 	{t=""}, --50
 	{t="laser", category="portal elements", description="place on empty tile - laser pew pew", iconauthor="Pixelworker"},

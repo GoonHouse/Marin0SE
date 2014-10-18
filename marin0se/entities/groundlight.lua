@@ -54,7 +54,6 @@ function groundlight:link()
 end
 
 function groundlight:update(dt)
-	print("groundlight", self.dir, self.lighted)
 	if self.timer > 0 then
 		self.timer = self.timer - dt
 		if self.timer <= 0 then

@@ -1,10 +1,11 @@
 bowser = class("bowser")
 
-function bowser:init(x, y, i)
+function bowser:init(x, y)
 	--PHYSICS STUFF
 	self.x = x+4
 	self.y = y-27/16
-	self.level = i or marioworld
+	self.level = --[[i or]] marioworld
+	-- removed for now for sanity rasins
 	self.startx = x+12
 	self.starty = y
 	self.speedy = 0
