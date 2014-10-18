@@ -1151,7 +1151,6 @@ function loadbackground(backgroundlevel)
 	coinframe = 1
 	
 	itemanimations = {}
-	textentities = {}
 	
 	if love.filesystem.exists("mappacks/" .. mappack .. "/" .. backgroundlevel) == false then
 		return false

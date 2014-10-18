@@ -308,11 +308,14 @@ function game_update(dt)
 	
 	--UPDATE STUFFFFF
 	
-	local updatetable = {	pedestals, emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers, emancipationgrills, fireworks, miniblocks, bubbles, platformspawners, seesaws, blockdebristable, leaves,
-							userects, rainbooms, coinblockanimations, itemanimations}
-							
+	local updatetable = {
+		emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers,
+		miniblocks, blockdebristable,
+		userects, rainbooms, coinblockanimations, itemanimations
+	}
+	local noupdateobjects = {"tile", "portalwall", "screenboundary"}
 	for i, v in pairs(objects) do
-		if i ~= "tile" and i ~= "portalwall" and i ~= "screenboundary" then
+		if not table.contains(noupdateobjects, i) then
 			table.insert(updatetable, v)
 		end
 	end
@@ -338,7 +341,6 @@ function game_update(dt)
 			
 			for j, w in pairs(delete) do
 				table.remove(v, w)
-				
 			end
 		end
 	end
@@ -1029,12 +1031,6 @@ function drawlevel()
 			end
 		end
 	end
-	
-	love.graphics.setColor(255, 255, 255)
-	--textentities
-	for j, w in pairs(textentities) do
-		w:draw()
-	end
 end
 
 function drawui(hidetime)
@@ -1282,13 +1278,6 @@ function game_draw()
 		end
 		
 		-- We're going to buck draw depth for now.
-		--[[
-			for some reason, the following objects were excluded from the giant generic draw handler below: 
-			
-			"vine", "platform", "scaffold", "seesawplatform", "spring", "panel", "button",
-			"pushbutton", "lightbridgebody", "lightbridge", "laser", "laserdetector", 
-			"groundlight", "faithplate", 
-		]]
 		for _, entname in pairs(saneents) do
 			love.graphics.setColor(255, 255, 255)
 			for k,v in pairs(objects[entname]) do
@@ -1303,12 +1292,6 @@ function game_draw()
 			for i, v in pairs(warpzonenumbers) do
 				properprint(v[3], math.floor((v[1]-xscroll-1-9/16)*16*scale), (v[2]-3-yscroll)*16*scale)
 			end
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--seesaws
-		for j, w in pairs(seesaws) do
-			w:draw()
 		end
 		
 		love.graphics.setColor(255, 255, 255)
@@ -1366,24 +1349,6 @@ function game_draw()
 		end
 		
 		love.graphics.setColor(255, 255, 255)
-		--Fireworks
-		for j, w in pairs(fireworks) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--Bubbles
-		for j, w in pairs(bubbles) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--Leafs
-		for j, w in pairs(leaves) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
 		--miniblocks
 		for i, v in pairs(miniblocks) do
 			v:draw()
@@ -1396,11 +1361,6 @@ function game_draw()
 		
 		--emancipationfizzles
 		for i, v in pairs(emancipationfizzles) do
-			v:draw()
-		end
-		
-		--pedestals
-		for i, v in pairs(pedestals) do
 			v:draw()
 		end
 		
@@ -1638,13 +1598,6 @@ function game_draw()
 		end
 		
 		love.graphics.setColor(255, 255, 255)
-
-		
-		--Emancipationgrills
-		for j, w in pairs(emancipationgrills) do
-			w:draw()
-		end
-		
 		--particles
 		for j, w in pairs(portalparticles) do
 			w:draw()
@@ -2650,20 +2603,12 @@ function loadlevel(level)
 	scrollingtexts = {}
 	portalparticles = {}
 	portalprojectiles = {}
-	emancipationgrills = {}
-	platformspawners = {}
 	rocketlaunchers = {}
 	userects = {}
 	blockdebristable = {}
-	fireworks = {}
-	seesaws = {}
-	bubbles = {}
-	leaves = {}
 	rainbooms = {}
 	emancipateanimations = {}
 	emancipationfizzles = {}
-	textentities = {}
-	pedestals = {}
 	dialogboxes = {}
 	miniblocks = {}
 	inventory = {}
@@ -2679,7 +2624,6 @@ function loadlevel(level)
 	blockbouncecontent = {}
 	blockbouncecontent2 = {}
 	warpzonenumbers = {}
-	textentities = {}
 	
 	portals = {}
 	
@@ -3087,8 +3031,7 @@ function loadmap(filename, createobjects)
 			if #r > 1 then 
 				if entitylist[r[2]] then
 					local t = entitylist[r[2]].t
-					
-					
+					print(t)
 					
 					if t == "spawn" then
 						local r2 = {unpack(r)}
@@ -3112,15 +3055,11 @@ function loadmap(filename, createobjects)
 								end
 							end
 						end
-						
-					elseif t == "textentity" and not editormode then
-						table.insert(textentities, textentity:new(x-1, y-1, r))
-						
 					elseif createobjects and not editormode then
 						-- All the sane entities get to play nicely here.
 						if table.contains(saneents, t) then
 							table.insert(objects[t], _G[t]:new(x, y, r))
-							
+							--table.insert(textentities, textentity:new(x-1, y-1, r))
 						elseif t == "warppipe" then
 							table.insert(warpzonenumbers, {x, y, r[3]})
 							
@@ -3187,36 +3126,6 @@ function loadmap(filename, createobjects)
 							if not table.contains(mazeends, x) then
 								table.insert(mazeends, x)
 							end
-							
-						elseif t == "emance" then
-							table.insert(emancipationgrills, emancipationgrill:new(x, y, r))
-							
-						elseif t == "groundlightver" then
-							table.insert(objects["groundlight"], groundlight:new(x, y, 1, r))
-						elseif t == "groundlighthor" then
-							table.insert(objects["groundlight"], groundlight:new(x, y, 2, r))
-						elseif t == "groundlightupright" then
-							table.insert(objects["groundlight"], groundlight:new(x, y, 3, r))
-						elseif t == "groundlightrightdown" then
-							table.insert(objects["groundlight"], groundlight:new(x, y, 4, r))
-						elseif t == "groundlightdownleft" then
-							table.insert(objects["groundlight"], groundlight:new(x, y, 5, r))
-						elseif t == "groundlightleftup" then
-							table.insert(objects["groundlight"], groundlight:new(x, y, 6, r))
-						elseif t == "platformspawner" then
-							table.insert(platformspawners, platformspawner:new(x, y, r))
-							
-						elseif t == "portal1" then
-							table.insert(objects["portalent"], portalent:new(x, y, 1, r))
-							
-						elseif t == "portal2" then
-							table.insert(objects["portalent"], portalent:new(x, y, 2, r))
-							
-						elseif t == "seesaw" then
-							table.insert(seesaws, seesaw:new(x, y, r))
-							
-						elseif t == "pedestal" then
-							table.insert(pedestals, pedestal:new(x, y, r))
 						end
 					end
 				end
@@ -3232,16 +3141,6 @@ function loadmap(filename, createobjects)
 					w:link()
 				end
 			end
-		end
-		
-		--emancipation links
-		for i, v in pairs(emancipationgrills) do
-			v:link()
-		end
-		
-		--textlinks
-		for i, v in pairs(textentities) do
-			v:link()
 		end
 	end
 	
@@ -4528,7 +4427,7 @@ function traceline(sourcex, sourcey, radians, reportal)
 	currentblock[2] = math.floor(y+1)
 		
 	local emancecollide = false
-	for i, v in pairs(emancipationgrills) do
+	for i, v in pairs(objects["emancipationgrill"]) do
 		if v:getTileInvolved(currentblock[1]+1, currentblock[2]) then
 			emancecollide = true
 		end
@@ -4603,7 +4502,7 @@ function traceline(sourcex, sourcey, radians, reportal)
 		
 		local collide, tileno = getTile(currentblock[1]+1, currentblock[2])
 		local emancecollide = false
-		for i, v in pairs(emancipationgrills) do
+		for i, v in pairs(objects["emancipationgrill"]) do
 			if v:getTileInvolved(currentblock[1]+1, currentblock[2]) then
 				emancecollide = true
 			end

@@ -1,13 +1,13 @@
-fireworkboom = class("fireworkboom")
+firework = class("firework")
 
-function fireworkboom:init(x, yoffset)
+function firework:init(x, yoffset)
 	self.x = x+(math.random(9)-5)
 	self.y = math.random(5)+2+yoffset
 	self.timer = 0
 	marioscore = marioscore + 200
 end
 
-function fireworkboom:update(dt)
+function firework:update(dt)
 	self.timer = self.timer + dt
 	
 	if self.timer >= fireworksoundtime and self.timer-dt < fireworksoundtime then
@@ -19,7 +19,7 @@ function fireworkboom:update(dt)
 	end
 end
 
-function fireworkboom:draw()
+function firework:draw()
 	local framelength = fireworkdelay/3
 	local frame = 5
 	if self.timer > framelength then

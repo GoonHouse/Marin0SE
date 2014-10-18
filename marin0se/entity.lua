@@ -26,7 +26,7 @@ entitylist = {
 	{t="mazestart", category="level markers", description="place anywhere - logical maze start", hidden=not DEBUG, iconauthor=""},
 	{t="mazeend", category="level markers", description="place anywhere - logical maze end", hidden=not DEBUG, iconauthor=""},
 	{t="mazegate", category="level markers", description="place on empty tile - maze gate", hidden=not DEBUG, iconauthor=""},
-	{t="emance", category="portal elements", description="place on empty tile - emancipation grill, stops portals and objects other than mario", iconauthor="Assasin-Kiashi"},
+	{t="emancipationgrill", category="portal elements", description="place on empty tile - emancipation grill, stops portals and objects other than mario", iconauthor="Assasin-Kiashi"},
 	{t="scaffold", category="portal elements", description="place on empty tile - platform with an input", iconauthor=""},
 	{t="door", category="portal elements", description="place on empty tile - it's a door. it opens, it closes, it doors.", iconauthor="idiot9.0"},
 	{t="pedestal", category="portal elements", description="place on empty tile - portal gun ready for pickup", iconauthor=""},
@@ -37,19 +37,19 @@ entitylist = {
 	{t="bulletbillend", category="level markers", description="place anywhere - end of bullet zone", iconauthor="Jackostar10000"},
 	{t="drain", category="level markers", description="place at the very bottom in an underwater level - drain, attracts mario down", iconauthor="Bobfan"},
 	{t="lightbridge", category="portal elements", description="place on empty tile - light bridge", iconauthor="ChrisGin"},
-	{t="portal1", category="misc", description="place on block - create a blue portal on input", iconauthor="Firaga"},
-	{t="portal2", category="misc", description="place on block - create a orange portal on input", iconauthor="Firaga"},
+	{t="portalent", category="misc", description="place on block - create a portal on input", iconauthor="Firaga"},
+	{t=""},
 	{t="actionblock", category="i/o objects", description="place on empty tile - will create a coinblock style toggle button", output=true, iconauthor=""},
 	{t="button", category="portal elements", description="place on empty tile - floor button", output=true, iconauthor=""},
 	{t="platformspawner", category="smb stuff", description="place on empty tile - platform spawner", iconauthor=""}, --40
 	{t="animationtrigger", category="i/o objects", description="place anywhere - will start an animation when getting an input signal", iconauthor=""},
-	{t="groundlightver", category="portal elements", description="place anywhere - use to show on/off state", iconauthor="idiot9.0"},
-	{t="groundlighthor", category="portal elements", description="place anywhere - use to show on/off state", iconauthor="idiot9.0"},
-	{t="groundlightupright", category="portal elements", description="place anywhere - use to show on/off state", iconauthor="idiot9.0"},
-	{t="groundlightrightdown", category="portal elements", description="place anywhere - use to show on/off state", iconauthor="idiot9.0"},
-	{t="groundlightdownleft", category="portal elements", description="place anywhere - use to show on/off state", iconauthor="idiot9.0"},
-	{t="groundlightleftup", category="portal elements", description="place anywhere - use to show on/off state", iconauthor="idiot9.0"},
-	{t="faithplate", category="portal elements", description="place on ground - f-f--fling yourself.", iconauthor="idiot9.0"},
+	{t="groundlight", category="portal elements", description="place anywhere - use to show on/off state", iconauthor="idiot9.0"},
+	{t=""},
+	{t=""},
+	{t=""},
+	{t=""},
+	{t=""},
+	{t=""},
 	{t=""},
 	{t=""}, --50
 	{t="laser", category="portal elements", description="place on empty tile - laser pew pew", iconauthor="Pixelworker"},
@@ -306,7 +306,7 @@ rightclickmenues.funnel = {
 	{t="linkbutton", value="link power", link="power"}
 }
 
-rightclickmenues.emance = {
+rightclickmenues.emancipationgrill = {
 	{t="text", value="direction:"}, 
 	{t="directionbuttons", hor=true, ver=true, default="ver"}, 
 	{}, 
@@ -504,19 +504,10 @@ rightclickmenues.checkpoint = {
 	{t="linkbutton", value="link trigger", link="trigger"}
 }
 
-rightclickmenues.portal1 = {
-	{t="text", value="direction:"}, 
-	{t="directionbuttons", left=true, right=true, down=true, up=true, default="up"}, 
+rightclickmenues.portalent = {
+	{t="text", value="type:"},
+	{t="submenu", entries={"blue", "orange"}, default=1, width=6},
 	{},
-	{t="text", value="portal id:"},
-	{t="submenu", entries={"1", "2", "3", "4", "5", "6", "7", "8"}, default=1, width=1},
-	{},
-	{t="checkbox", text="default on", default="false"},
-	{},
-	{t="linkbutton", value="link power", link="power"}
-}
-
-rightclickmenues.portal2 = {
 	{t="text", value="direction:"}, 
 	{t="directionbuttons", left=true, right=true, down=true, up=true, default="up"}, 
 	{},
@@ -539,15 +530,14 @@ rightclickmenues.spring = {
 	{t="submenu", entries={"regular", "high"}, default=1, width=7, actualvalue=true}
 }
 
-groundlighttable = {"groundlightver", "groundlighthor", "groundlightupright", "groundlightrightdown", "groundlightdownleft", "groundlightleftup"}
-
-for i = 1, #groundlighttable do
-	rightclickmenues[groundlighttable[i]] = {
-		{t="checkbox", text="default on", default="false"},
-		{},
-		{t="linkbutton", value="link power", link="power"}
-	}
-end
+rightclickmenues.groundlight = {
+	{t="text", value="type:"},
+	{t="submenu", entries={"vertical", "horizontal", "upright", "rightdown", "downleft", "leftup"}, default=2, width=10},
+	{},
+	{t="checkbox", text="default on", default="false"},
+	{},
+	{t="linkbutton", value="link power", link="power"}
+}
 
 function entity:init(img, x, y, width, height)
 	self.image = img

@@ -649,17 +649,17 @@ function mario:update(dt)
 			if castleflagy <= 0 then
 				castleflagy = 0
 				castleflagmove = false
-				firework = true
+				dofirework = true
 				castleflagtime = self.animationtimer
 			end
 		end
 		
-		if firework then
+		if dofirework then
 			local timedelta = self.animationtimer - castleflagtime
 			for i = 1, fireworkcount do
 				local fireworktime = i*fireworkdelay
 				if timedelta >= fireworktime and timedelta - dt < fireworktime then
-					table.insert(fireworks, fireworkboom:new(flagx+6, flagy-13))
+					table.insert(objects["firework"], firework:new(flagx+6, flagy-13))
 				end
 			end
 			
@@ -1715,7 +1715,7 @@ function mario:underwatermovement(dt)
 	while self.bubbletimer > self.bubbletime do
 		self.bubbletimer = self.bubbletimer - self.bubbletime
 		self.bubbletime = bubblestime[math.random(#bubblestime)]
-		table.insert(bubbles, bubble:new(self.x+8/12, self.y+2/12))
+		table.insert(objects["bubble"], bubble:new(self.x+8/12, self.y+2/12))
 	end
 	
 	--HORIZONTAL MOVEMENT	
@@ -3620,13 +3620,13 @@ function mario:dropbox()
 		end
 	end
 	
-	for h, u in pairs(emancipationgrills) do
+	for h, u in pairs(objects["emancipationgrill"]) do
 		if u.dir == "hor" then
-			if inrange(self.pickup.x+6/16, u.startx-1, u.endx, true) and inrange(u.y-14/16, boxy, self.pickup.y, true) then
+			if inrange(self.pickup.x+6/16, u.startx-1, u.endx, true) and inrange(u.coy-14/16, boxy, self.pickup.y, true) then
 				self.pickup:emancipate(h)
 			end
 		else
-			if inrange(self.pickup.y+6/16, u.starty-1, u.endy, true) and inrange(u.x-14/16, boxx, self.pickup.x, true) then
+			if inrange(self.pickup.y+6/16, u.starty-1, u.endy, true) and inrange(u.cox-14/16, boxx, self.pickup.x, true) then
 				self.pickup:emancipate(h)
 			end
 		end
@@ -3776,7 +3776,7 @@ function mario:flag()
 	levelfinished = true
 	levelfinishtype = "flag"
 	subtractscore = false
-	firework = false
+	dofirework = false
 	castleflagy = castleflagstarty
 	objects["screenboundary"]["flag"].active = false
 	

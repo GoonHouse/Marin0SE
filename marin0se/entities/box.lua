@@ -89,7 +89,7 @@ function box:update(dt)
 		self.y = self.parent.y-math.cos(-self.parent.pointingangle)*0.3
 		
 		if self.portaledframe == false then
-			for h, u in pairs(emancipationgrills) do
+			for h, u in pairs(objects["emancipationgrill"]) do
 				if u.active then
 					if u.dir == "hor" then
 						if inrange(self.x+6/16, u.startx-1, u.endx, true) and inrange(u.y-14/16, oldy, self.y, true) then

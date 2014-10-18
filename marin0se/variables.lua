@@ -12,6 +12,9 @@ gellifetime = 2
 bulletbilllifetime = 20
 playertypelist = {"portal", "gelcannon"}
 
+latetable = {"portalwall", "castlefirefire", "platform"}
+-- the above is used in physics.lua to calculate late physics entities
+
 newpoweruproutine=true --makes it so that if mario touches a "tier2" powerup he skips bigmario ala nsmb
 powerupstates = {
 	"death", --this bypasses the powerup chain processing and kills mario instantly

@@ -1,9 +1,18 @@
 groundlight = class("groundlight")
 
-function groundlight:init(x, y, dir, r)
+function groundlight:init(x, y, r)
 	self.x = x
 	self.y = y
-	self.dir = dir
+	self.dir = 2
+	
+	--[[@NOTE: In the event everything goes horribly wrong, refer to this.
+		1	=	ver
+		2	=	hor
+		3	=	upright
+		4	=	rightdown
+		5	=	downleft
+		6	=	leftup
+	]]
 	
 	self.timer = 0
 	
@@ -14,6 +23,13 @@ function groundlight:init(x, y, dir, r)
 	self.r = {unpack(r)}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
+	
+	--DIRECTION
+	if #self.r > 0 and self.r[1] ~= "link" then
+		self.dir = tonumber(self.r[1])
+		table.remove(self.r, 1)
+	end
+	
 	--POWER
 	if #self.r > 0 and self.r[1] ~= "link" then
 		self.lighted = (self.r[1] == "true")
@@ -38,6 +54,7 @@ function groundlight:link()
 end
 
 function groundlight:update(dt)
+	print("groundlight", self.dir, self.lighted)
 	if self.timer > 0 then
 		self.timer = self.timer - dt
 		if self.timer <= 0 then
@@ -53,8 +70,7 @@ function groundlight:draw()
 	else
 		love.graphics.setColor(60, 188, 252, 255)
 	end
-	
-	love.graphics.draw(entityquads[42+self.dir].image, entityquads[42+self.dir].quad, math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
+	love.graphics.draw(groundlightimg, groundlightquad[self.dir], math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
 end
 
 function groundlight:input(t, input)

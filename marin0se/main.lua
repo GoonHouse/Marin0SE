@@ -272,7 +272,7 @@ function love.load(args)
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
 	"excursionfunnel2end", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase",
 	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "musicentity", "smbtiles", "portaltiles",
-	"animatedtiletrigger", "delayer", "leaf"}
+	"animatedtiletrigger", "delayer", "leaf", "groundlight"}
 	
 	graphicspacki = 1
 	graphicspack = "DEFAULT"
@@ -366,33 +366,48 @@ function love.load(args)
 					"how do i programm", "making palette inaccurate..", "y cant mario crawl?"}
 	
 	--[[@DEV:
-		I'm getting really tired of nonstandard global containers for entities, so
+		I'm getting really tired of |nonstandard global containers| for entities, so
 		to reduce the number of crazy all-over-the-place codepoints I'm creating an
 		iterable whitelist of entities that adhere to a specific standard.
 		Those being:
-			* @TODO: write standards
-			
+			* **being located in** _"/entities/classname.lua"_
+			* **a classname that matches the filename, ex:** `classname = class:("classname")`
+			* **a function creation signature of** `classname:init(x, y, r)`
+				* if not placable in maps, then this isn't entirely necessary, but it helps
+			* **having instances stored in the array** `objects["classname"]`
 	]]
 	saneents = {
-		"player", "portalwall", "tile", "vine", "box", "door", "button",
+		"portalwall", "tile", "vine", "box", "door", "button",
 		"groundlight", "wallindicator", "animatedtiletrigger", "delayer",
 		"walltimer", "notgate", "rsflipflop", "orgate", "andgate",
 		"musicentity", "enemyspawner", "squarewave", "lightbridge",
-		"lightbridgebody", "faithplate", "laser", "noportal",
+		"faithplate", "laser", "noportal",
 		"laserdetector", "gel", "geldispenser", "fireball", "pushbutton",
 		"cubedispenser", "platform", "castlefire", "platformspawner",
-		"castlefirefire", "bowser", "spring", "seesawplatform", 
-		"ceilblocker", "funnel", "panel", "scaffold", 
-		"regiontrigger", "animationtrigger", "checkpoints",
-		"portalent", "actionblock", "leaf", "enemy",
+		"bowser", "spring", "seesawplatform", "checkpoint", "seesaw",
+		"ceilblocker", "funnel", "panel", "scaffold", "bubble",
+		"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
+		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody",
+		"pedestal", "textentity", "firework", "emancipationgrill"
 	}
 	--[[ here are a list of entities that have BROKEN THE LAW ]]
 	insaneents = {
-		"spawn", "textentity", "warppipe", "manycoins", "flag", "firestart", "fireend",
-		"flyingfishstart", "flyingfishend", "bulletbillstart", "bulletbillend", 
-		"windstart", "windend", "axe", "lakitoend", "pipespawn", "gel", "mazestart",
-		"mazeend", "emance", "groundlight*", "platformspawner", "portal1/2", "seesaw",
-		"pedestal"
+		"player", --discrepency in class names
+		"warppipe", --this doesn't have any code, it's just a marker
+		"spawn", --"  "
+		"manycoins", --"  "
+		"pipespawn", --"  "
+		"axe", --"  "
+		"flag", --"  "
+		
+		"mazestart", "mazeend", --doesn't have its own logic, is implicit and global
+		"firestart", "fireend", --"  "
+		"flyingfishstart", "flyingfishend", --"  "
+		"bulletbillstart", "bulletbillend", --"  "
+		"windstart", "windend", --"  "
+		"lakitoend", --"  ", except it doesn't even have a start?!
+		
+		"gel", --this alters the map when loaded, which is an extreme anomoly
 	}
 	
 	loadingtext = loadingtexts[math.random(#loadingtexts)]
@@ -469,9 +484,11 @@ function love.load(args)
 	require "camera"
 	
 	-- we don't use the saneents list here because entity name weirdness 
-	for _,v in pairs(love.filesystem.getDirectoryItems("entities")) do
+	--for _,v in pairs(love.filesystem.getDirectoryItems("entities")) do
+	for _,v in pairs(saneents) do
 		-- we're doing sub because I forgot how not to \o/
-		require("entities."..v:sub(0, -5))
+		--require("entities."..v:sub(0, -5))
+		require("entities."..v)
 	end
 	
 	require "animatedquad"
@@ -484,45 +501,39 @@ function love.load(args)
 	require "physics"
 	require "quad"
 	require "entity"
-	require "mario"
 	require "hatconfigs"
 	require "bighatconfigs"
 	require "customhats"
 	require "coinblockanimation"
+	require "screenboundary"
+	require "gui"
+	require "musicloader"
+	require "rightclickmenu"
+	require "animation"
+	require "animationsystem"
+	require "regiondrag"
+	require "animatedtimer"
+	require "entitylistitem"
+	require "entitytooltip"
+	require "imgurupload"
+	
+	require "mario"
 	require "scrollingscore"
 	require "scrollingtext"
 	require "portalparticle"
 	require "portalprojectile"
-	require "emancipationgrill"
-	require "screenboundary"
 	require "bulletbill"
-	require "gui"
 	require "blockdebris"
-	require "firework"
 	require "fire"
-	require "seesaw"
-	require "bubble"
 	require "rainboom"
 	require "miniblock"
-	require "musicloader"
-	require "magic"
-	require "rightclickmenu"
 	require "emancipateanimation"
 	require "emancipationfizzle"
-	require "textentity"
-	require "animation"
-	require "animationsystem"
-	require "regiondrag"
 	require "portal"
-	require "pedestal"
 	require "dialogbox"
 	require "itemanimation"
-	require "animatedtimer"
-	require "entitylistitem"
-	require "entitytooltip"
 	
 	require "enemies"
-	require "imgurupload"
 	add("Requires")
 	
 	http = require("socket.http")
@@ -862,6 +873,11 @@ function love.load(args)
 	walltimerquad = {}
 	for i = 1, 10 do
 		walltimerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 160, 16)
+	end
+	
+	groundlightquad = {}
+	for i = 1, 6 do
+		groundlightquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 96, 16)
 	end
 	
 	directionsquad = {}

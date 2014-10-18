@@ -2400,7 +2400,8 @@ function closerightclickmenu()
 			
 			for i = 1, #selectionlist do
 				local v = selectionlist[i]
-				if (map[v.x][v.y][2] == map[rightclickm.tx][rightclickm.ty][2] or (table.contains(groundlighttable, entitylist[map[rightclickm.tx][rightclickm.ty][2]].t) and table.contains(groundlighttable, entitylist[map[v.x][v.y][2]].t))) and (v.x ~= rightclickm.tx or v.y ~= rightclickm.ty) then
+				-- |@WARNING:| This code is probably broken because I removed the groundlighttable and made it an "r" value.
+				if (map[v.x][v.y][2] == map[rightclickm.tx][rightclickm.ty][2] or (table.contains("groundlight", entitylist[map[rightclickm.tx][rightclickm.ty][2]].t) and table.contains("groundlight", entitylist[map[v.x][v.y][2]].t))) and (v.x ~= rightclickm.tx or v.y ~= rightclickm.ty) then
 					table.insert(edittable, {x=v.x, y=v.y})
 				end
 			end
@@ -2539,7 +2540,8 @@ function removelink(x, y, t)
 		
 		for i = 1, #selectionlist do
 			local v = selectionlist[i]
-			if (map[v.x][v.y][2] == map[x][y][2] or (entitylist[map[v.x][v.y][2]] and table.contains(groundlighttable, entitylist[map[v.x][v.y][2]].t) and table.contains(groundlighttable, entitylist[map[x][y][2]].t))) and (v.x ~= x or v.y ~= y) then
+			-- |@WARNING:| This code is probably broken because I removed the groundlighttable and made it an "r" value.
+			if (map[v.x][v.y][2] == map[x][y][2] or (entitylist[map[v.x][v.y][2]] and table.contains("groundlight", entitylist[map[v.x][v.y][2]].t) and table.contains("groundlight", entitylist[map[x][y][2]].t))) and (v.x ~= x or v.y ~= y) then
 				table.insert(edittable, {x=v.x, y=v.y})
 			end
 		end
@@ -2577,7 +2579,8 @@ function finishlinking(x, y)
 			
 			for i = 1, #selectionlist do
 				local v = selectionlist[i]
-				if (map[v.x][v.y][2] == map[startx][starty][2] or (entitylist[map[v.x][v.y][2]] and table.contains(groundlighttable, entitylist[map[v.x][v.y][2]].t) and table.contains(groundlighttable, entitylist[map[startx][starty][2]].t))) and (v.x ~= startx or v.y ~= starty) then
+				-- |@WARNING:| This code is probably broken because I removed the groundlighttable and made it an "r" value.
+				if (map[v.x][v.y][2] == map[startx][starty][2] or (entitylist[map[v.x][v.y][2]] and table.contains("groundlight", entitylist[map[v.x][v.y][2]].t) and table.contains("groundlight", entitylist[map[startx][starty][2]].t))) and (v.x ~= startx or v.y ~= starty) then
 					table.insert(edittable, {x=v.x, y=v.y})
 				end
 			end

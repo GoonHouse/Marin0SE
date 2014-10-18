@@ -1,13 +1,13 @@
 portalent = class("portalent")
 
-function portalent:init(x, y, i, r)
+function portalent:init(x, y, r)
 	self.cox = x
 	self.coy = y
 	self.x = x
 	self.y = y
 	
 	self.dir = "up"
-	self.portal = i
+	self.portal = 1
 	self.id = 1
 	self.power = false
 
@@ -16,6 +16,12 @@ function portalent:init(x, y, i, r)
 	self.r = {unpack(r)}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
+	
+	--TYPE
+	if #self.r > 0 and self.r[1] ~= "link" then
+		self.portal = self.r[1]
+		table.remove(self.r, 1)
+	end
 	
 	--DIRECTION
 	if #self.r > 0 and self.r[1] ~= "link" then
