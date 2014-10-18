@@ -1,0 +1,58 @@
+{
+	"quadcount": 4,
+	"nospritesets": false,
+
+	"movement": "wiggle",
+	"wiggledistance": 1.5,
+	"_comment1": "The above was a product of mathing the 13 unit bridge dealio in half and hoping bowser will stay within range.",
+	"wigglespeed": 0.875,
+	"wigglespeedbackwards": 1.875,
+	"_comment2": "Unimplemented property, probably.",
+	
+	"facesplayer": true,
+	
+	"stompable": true,
+	"killsonsides": true,
+	"killsonbottom": true,
+	
+	"animationtype": "frames",
+	"animationframes": 2,
+	"animationstart": 1,
+	"animationspeed": 0.5,
+	
+	"quadno": 1,
+	
+	"width": 1.875,
+	"height": 1.75,
+	
+	"gravity": 10.9,
+	
+	"static": false,
+	"active": true,
+	
+	"category": 16,
+	
+	"mask": [	true,
+				false, false, false, false, true,
+				false, true, false, true, false,
+				false, false, true, true, false,
+				true, true, false, false, true,
+				false, true, true, false, false,
+				true, false, true, true, true],
+					
+	
+	"emancipatecheck": true,
+	"autodelete": false,
+	
+	"offsetX": 14,
+	"offsetY": -2,
+	"quadcenterX": 16,
+	"quadcenterY": 12,
+	
+	"jumps": true,
+	"jumptime": 3,
+	"jumpforce": 7,
+	"jumpforcedown": 8.25,
+	
+	"ignorefaithplates": true
+}

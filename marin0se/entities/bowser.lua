@@ -10,12 +10,12 @@ function bowser:init(x, y)
 	self.starty = y
 	self.speedy = 0
 	self.speedx = 0
-	self.width = 30/16
-	self.height = 28/16
-	self.static = false
-	self.active = true
-	self.emancipatecheck = true
-	self.category = 16
+	self.width = 30/16--v
+	self.height = 28/16--v
+	self.static = false--v
+	self.active = true--v
+	self.emancipatecheck = true--v
+	self.category = 16--v
 	
 	self.mask = {	true,
 					false, false, false, false, true,
@@ -23,19 +23,19 @@ function bowser:init(x, y)
 					false, false, true, true, false,
 					true, true, false, false, true,
 					false, true, true, false, false,
-					true, false, true, true, true}
+					true, false, true, true, true}--v
 	
-	self.gravity = bowsergravity
+	self.gravity = bowsergravity--v
 	
 	--IMAGE STUFF
 	self.drawable = true
 	self.graphic = bowserimg
 	self.quad = bowserquad[1][1]
 	self.walkframe = 1
-	self.offsetX = 14
-	self.offsetY = -2
-	self.quadcenterX = 16
-	self.quadcenterY = 12
+	self.offsetX = 14--v
+	self.offsetY = -2--v
+	self.quadcenterX = 16--v
+	self.quadcenterY = 12--v
 	
 	self.rotation = 0 --for portals
 	self.gravitydirection = math.pi/2

@@ -125,15 +125,15 @@ mariostarrunout = 1 --subtracts, doesn't add.
 bowseranimationspeed = 0.5
 bowserspeedbackwards = 1.875
 bowserspeedforwards = 0.875
-bowserjumpforce = 7
-bowsergravity = 10.9
+bowserjumpforce = 7--v
+bowsergravity = 10.9--v
 bowserjumpdelay = 1
-bowserfallspeed = 8.25 --for animation
+bowserfallspeed = 8.25--v said "for animation" but still limited bowser all the time
 
-bowserhammertable = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5, 1, 2, 1}
-bowserhammerdrawtime = 0.5
+bowserhammertable = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5, 1, 2, 1}--v
+bowserhammerdrawtime = 0.5--v as throwpreparetime?
 
-bowserhealth = 5
+bowserhealth = 5--v
 
 platformverdistance = 8.625
 platformhordistance = 3.3125

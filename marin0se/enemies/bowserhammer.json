@@ -1,0 +1,12 @@
+base=bowser
+{
+	"spawnsenemy": "hammer",
+	"spawnenemydelays": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5, 1, 2, 1],
+	"spawnenemyspeedy": -8,
+	"spawnenemyspeedx": -4,
+	"spawnenemyoffsety": -1,
+	"spawnenemyspeedxtowardsplayer": true,
+	
+	"throwquadoffset": 2,
+	"throwpreparetime": 0.5
+}
