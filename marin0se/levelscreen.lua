@@ -49,6 +49,11 @@ function levelscreen_load(reason, i)
 		blacktime = blacktime * 1.5
 	end
 	
+	if gameplaytype == 2 then
+		levelscore = 0
+		levelcoin = 0
+	end
+	
 	coinframe = 1
 	
 	love.graphics.setBackgroundColor(0, 0, 0)

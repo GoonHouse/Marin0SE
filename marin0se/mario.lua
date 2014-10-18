@@ -627,7 +627,11 @@ function mario:update(dt)
 				subtracttimer = subtracttimer - scoresubtractspeed
 				if mariotime > 0 then
 					mariotime = math.ceil(mariotime - 1)
+					if gameplaytype == 1 then
 					marioscore = marioscore + 50
+					elseif gameplaytype == 2 then
+					levelscore = levelscore + 50
+					end
 				end
 				
 				if mariotime <= 0 then
@@ -3200,7 +3204,11 @@ function hitblock(x, y, t, koopa)
 			end
 			if #r == 1 then
 				table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-				mariocoincount = mariocoincount + 1
+					if gameplaytype == 1 then
+						mariocoincount = mariocoincount + 1
+					elseif gameplaytype == 2 then
+						levelcoincount = levelcoincount + 1
+					end
 				
 				if mariocoincount == 100 then
 					if mariolivecount ~= false then
@@ -3219,7 +3227,11 @@ function hitblock(x, y, t, koopa)
 		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t == "manycoins" then --block with many coins inside! yay $_$
 			playsound("coin")
 			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-			mariocoincount = mariocoincount + 1
+				if gameplaytype == 1 then
+					mariocoincount = mariocoincount + 1
+				elseif gameplaytype == 2 then
+					levelcoincount = levelcoincount + 1
+				end
 			
 			if mariocoincount == 100 then
 				if mariolivecount ~= false then
@@ -3950,7 +3962,12 @@ function collectcoin(x, y, i)
 	end
 	addpoints(200)
 	playsound("coin")
-	mariocoincount = mariocoincount + (i or 1)
+	if gameplaytype == 1 then
+		mariocoincount = mariocoincount + (i or 1)
+	elseif gameplaytype == 2 then
+		levelcoincount = levelcoincount + (i or 1)
+	end
+	
 	
 	while mariocoincount >= 100 do
 		if mariolivecount ~= false then

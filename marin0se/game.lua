@@ -1039,38 +1039,51 @@ function drawui(hidetime)
 		printfunction = properprintbackground
 	end
 
-	---UI
+	---UI/HUD
 	love.graphics.setColor(255, 255, 255)
 	love.graphics.translate(0, -yoffset*scale)
 	if yoffset < 0 then
 		love.graphics.translate(0, yoffset*scale)
 	end
 	
-	printfunction(characters[mariocharacter[1]].name, uispace*.5 - 24*scale, 8*scale)
-	printfunction(addzeros(marioscore, 6), uispace*0.5-24*scale, 16*scale)
+	if gameplaytype ~= 0 then
+		printfunction(characters[mariocharacter[1]].name, uispace*.5 - 24*scale, 8*scale)
+		if gameplaytype == 1 then
+			printfunction(addzeros(marioscore, 6), uispace*0.5-24*scale, 16*scale)
+			printfunction("*", uispace*1.5-8*scale, 16*scale)
+		elseif gameplaytype == 2 then
+			printfunction(addzeros(levelscore, 6), uispace*0.5-24*scale, 16*scale)
+			printfunction("*", uispace*1.5-8*scale, 16*scale)
+		end
+
+		love.graphics.draw(coinanimationimg, coinanimationquads[spriteset][coinframe], uispace*1.5-16*scale, 16*scale, 0, scale, scale)
+		if gameplaytype == 1 then
+			printfunction(addzeros(mariocoincount, 2), uispace*1.5-0*scale, 16*scale)
+		elseif gameplaytype == 2 then
+			printfunction(addzeros(levelcoincount, 2), uispace*1.5-0*scale, 16*scale)
+		end
+		
+		if gameplaytype == 1 then
+			printfunction("world", uispace*2.5 - 20*scale, 8*scale)
+			printfunction(marioworld .. "-" .. mariolevel, uispace*2.5 - 12*scale, 16*scale)
+		elseif gameplaytype == 2 then
+			printfunction("test", uispace*2.5 - 20*scale, 8*scale)
+		end
 	
-	printfunction("*", uispace*1.5-8*scale, 16*scale)
-	
-	love.graphics.draw(coinanimationimg, coinanimationquads[spriteset][coinframe], uispace*1.5-16*scale, 16*scale, 0, scale, scale)
-	printfunction(addzeros(mariocoincount, 2), uispace*1.5-0*scale, 16*scale)
-	
-	printfunction("world", uispace*2.5 - 20*scale, 8*scale)
-	printfunction(marioworld .. "-" .. mariolevel, uispace*2.5 - 12*scale, 16*scale)
-	
-	
-	printfunction("time", uispace*3.5 - 16*scale, 8*scale)
-	if not hidetime then
-		if editormode then
-			if linktool then
-				printfunction("link", uispace*3.5 - 16*scale, 16*scale)
+		printfunction("time", uispace*3.5 - 16*scale, 8*scale)
+		if not hidetime then
+			if editormode then
+				if linktool then
+					printfunction("link", uispace*3.5 - 16*scale, 16*scale)
+				else
+					printfunction("edit", uispace*3.5 - 16*scale, 16*scale)
+				end
 			else
-				printfunction("edit", uispace*3.5 - 16*scale, 16*scale)
-			end
-		else
-			if type(mariotime) == "number" then
-				printfunction(addzeros(math.ceil(mariotime), 3), uispace*3.5-8*scale, 16*scale)
-			else
-				printfunction(mariotime, uispace*3.5-8*scale, 16*scale)
+				if type(mariotime) == "number" then
+					printfunction(addzeros(math.ceil(mariotime), 3), uispace*3.5-8*scale, 16*scale)
+				else
+					printfunction(mariotime, uispace*3.5-8*scale, 16*scale)
+				end
 			end
 		end
 	end
@@ -2544,7 +2557,10 @@ function loadlevel(level)
 		end
 	end
 	
-	--MISC VARS
+	--MISC VARS; Misc Global Variables
+	gameplaytype = 2 -- 0 Not Gameplay, 1 Default, 2 Score Attack
+	levelscore = 0
+	levelcoincount = 0
 	everyonedead = false
 	levelfinished = false
 	coinanimation = 1
@@ -4697,6 +4713,9 @@ end
 function addpoints(i, x, y)
 	if i > 0 then
 		marioscore = marioscore + i
+			if gameplaytype == 2 then
+				levelscore = levelscore + i
+			end
 		if x and y then
 			table.insert(scrollingscores, scrollingscore:new(i, x, y))
 		end
