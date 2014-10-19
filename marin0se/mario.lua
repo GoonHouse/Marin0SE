@@ -2859,6 +2859,25 @@ function mario:globalcollide(a, b, c, d, dir)
 		end
 		givetime(self.playernumber, b)
 		return true
+	elseif b.isredcoin then
+		if b.isredcoin == 1 then
+		redcoin1 = 1
+		elseif b.isredcoin == 2 then
+		redcoin2 = 1
+		elseif b.isredcoin == 3 then
+		redcoin3 = 1
+		elseif b.isredcoin == 4 then
+		redcoin4 = 1
+		elseif b.isredcoin == 5 then
+		redcoin5 = 1
+		end
+		redcoincount = redcoincount + 1
+		gotaredcoin(self.playernumber, b)
+		return true
+	elseif b.istrophy then
+		hastrophy = 1
+		gotatrophy(self.playernumber, b)
+		return true
 	elseif b.makesmariostar then
 		self:star()
 		return true

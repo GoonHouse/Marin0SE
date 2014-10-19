@@ -38,6 +38,37 @@ function enemy:init(x, y, t, a)
 		self.customtimertimer = 0
 		self.currentcustomtimerstage = 1
 	end
+
+	-- Gamemode: Decide whether it exists or not
+	if self.gamemodeexclusive == 2 then
+		if gameplaytype == 2 then
+			if self.isredcoin then
+				if self.isredcoin == 1 and redcoin1 == 0 then
+					self.active = true
+					self.drawable = true
+				elseif self.isredcoin == 2 and redcoin2 == 0 then
+					self.active = true
+					self.drawable = true
+				elseif self.isredcoin == 3 and redcoin3 == 0 then
+					self.active = true
+					self.drawable = true
+				elseif self.isredcoin == 4 and redcoin4 == 0 then
+					self.active = true
+					self.drawable = true
+				elseif self.isredcoin == 5 and redcoin5 == 0 then
+					self.active = true
+					self.drawable = true
+				end
+			elseif self.istrophy and hastrophy == 0 then
+			self.active = true
+			self.drawable = true
+			end
+		else
+			self.drawable = false
+			self.active = false
+		end
+	end
+	
 	
 	--Decide on a random movement if it's random..
 	if self.movementrandoms then

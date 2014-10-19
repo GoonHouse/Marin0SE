@@ -1067,7 +1067,36 @@ function drawui(hidetime)
 			printfunction("world", uispace*2.5 - 20*scale, 8*scale)
 			printfunction(marioworld .. "-" .. mariolevel, uispace*2.5 - 12*scale, 16*scale)
 		elseif gameplaytype == 2 then
-			printfunction("test", uispace*2.5 - 20*scale, 8*scale)
+			printfunction("oddjob test", uispace*2.5 - 20*scale, 8*scale)
+			if redcoin1 == 1 then
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[2], uispace*2.5 - 12*scale, 16*scale, 0, scale, scale)
+			else
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[1], uispace*2.5 - 12*scale, 16*scale, 0, scale, scale)
+			end
+			if redcoin2 == 1 then
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[2], (uispace*2.5 - 12*scale)+(8*scale), 16*scale, 0, scale, scale)
+			else
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[1], (uispace*2.5 - 12*scale)+(8*scale), 16*scale, 0, scale, scale)
+			end
+			if redcoin3 == 1 then
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[2], (uispace*2.5 - 12*scale)+(16*scale), 16*scale, 0, scale, scale)
+			else
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[1], (uispace*2.5 - 12*scale)+(16*scale), 16*scale, 0, scale, scale)
+			end
+			if redcoin4 == 1 then
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[2], (uispace*2.5 - 12*scale)+(24*scale), 16*scale, 0, scale, scale)
+			else
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[1], (uispace*2.5 - 12*scale)+(24*scale), 16*scale, 0, scale, scale)
+			end
+			if redcoin5 == 1 then
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[2], (uispace*2.5 - 12*scale)+(32*scale), 16*scale, 0, scale, scale)
+			else
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[1], (uispace*2.5 - 12*scale)+(32*scale), 16*scale, 0, scale, scale)
+			end
+			if hastrophy == 1 then
+			love.graphics.draw(oddjobhudimg, oddjobhudquads[3], (uispace*2.5 - 12*scale)+(40*scale), 16*scale, 0, scale, scale)
+			else
+			end
 		end
 	
 		printfunction("time", uispace*3.5 - 16*scale, 8*scale)
@@ -2558,9 +2587,7 @@ function loadlevel(level)
 	end
 	
 	--MISC VARS; Misc Global Variables
-	gameplaytype = 2 -- 0 Not Gameplay, 1 Default, 2 Score Attack
-	levelscore = 0
-	levelcoincount = 0
+	gameplaytype = 1 -- 0 Not Gameplay, 1 Default, 2 Score Attack
 	everyonedead = false
 	levelfinished = false
 	coinanimation = 1
@@ -2607,7 +2634,21 @@ function loadlevel(level)
 	givemelives = 0
 	givemetime = 0
 	givemecoinage = 0
-		
+	
+	-- Oddjob Variables
+	redcoin1 = 0
+	redcoin2 = 0
+	redcoin3 = 0
+	redcoin4 = 0
+	redcoin5 = 0
+	redcoincount = 0
+	levelscore = 0
+	scorequota = 0
+	levelcoincount = 0
+	coinquota = 0
+	hastrophy = 0
+	gotpoints = 0
+	
 	portaldelay = {}
 	for i = 1, players do
 		portaldelay[i] = 0
@@ -4687,6 +4728,25 @@ function givetime(id, t)
 	end
 playsound("addtime")
 end	
+
+function gotaredcoin(id, t)
+	if redcoincount == 1 then
+	playsound("redcoin1")
+	elseif redcoincount == 2 then
+	playsound("redcoin2")
+	elseif redcoincount == 3 then
+	playsound("redcoin3")
+	elseif redcoincount == 4 then
+	playsound("redcoin4")
+	elseif redcoincount == 5 then
+	playsound("redcoin5")
+	end
+end	
+
+function gotatrophy(id, t)
+	playsound("trophy")
+end	
+
 
 function addpoints(i, x, y)
 	if i > 0 then

@@ -1,0 +1,43 @@
+{
+	"quadcount": 4,
+
+	"movement": "none",
+	
+	"animationtype": "frames",
+	"animationframes": 4,
+	"animationstart": 1,
+	"animationspeed": 0.12,
+		
+	"removeonmariocontact": true,
+	"gamemodeexclusive": 2,
+	"istrophy": true,
+	
+	"notkilledfromblocksbelow": true,
+	
+	"quadno": 1,
+	
+	"width": 0.75,
+	"height": 0.75,
+	
+	"static": true,
+	"active": true,
+	
+	"category": 6,
+	
+	"mask": [	true,
+				false, false, true, true, true,
+				false, true, false, true, true,
+				false, true, true, false, true,
+				true, true, false, true, true,
+				false, true, true, false, false,
+				true, false, true, true, true],
+					
+	
+	"emancipatecheck": true,
+	"autodelete": true,
+	
+	"offsetX": 6,
+	"offsetY": 3,
+	"quadcenterX": 8,
+	"quadcenterY": 8
+}
