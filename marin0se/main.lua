@@ -1726,15 +1726,15 @@ function love.keypressed(key, isrepeat)
 end
 
 function getMousePos()
-	local x, y = love.mouse.getX(), love.mouse.getY()
+	--[[local x, y = love.mouse.getX(), love.mouse.getY()
 	if fullscreen then
 		if fullscreenmode == "full" then
 			x, y = x/(desktopsize.width/(width*16*scale)), y/(desktopsize.height/(height*16*scale))
 		else
 			x, y = x/(touchfrominsidescaling/scale), y/(touchfrominsidescaling/scale)-touchfrominsidemissing/2
 		end
-	end
-	return x, y
+	end]]
+	return mouse.getX(), mouse.getY()
 end
 
 function love.mousepressed(ox, oy, button)

@@ -45,6 +45,25 @@ function editor_load()
 	mapbuttonarea =  {4, 21, 381, 220}
 	animationlineinset = 14
 	
+	--get current description and shit
+	local mappackname = ""
+	local mappackauthor = ""
+	local mappackdescription = ""
+	if love.filesystem.exists("mappacks/" .. mappack .. "/settings.txt") then
+		local data = love.filesystem.read("mappacks/" .. mappack .. "/settings.txt")
+		local split1 = data:split("\n")
+		for i = 1, #split1 do
+			local split2 = split1[i]:split("=")
+			if split2[1] == "name" then
+				mappackname = split2[2]:lower()
+			elseif split2[1] == "author" then
+				mappackauthor = split2[2]:lower()
+			elseif split2[1] == "description" then
+				mappackdescription = split2[2]:lower()
+			end
+		end
+	end
+	
 	guielements["tabmain"] = guielement:new("button", 1, 1, "main", maintab, 3)
 	guielements["tabmain"].fillcolor = {63, 63, 63}
 	guielements["tabtiles"] = guielement:new("button", 43, 1, "tiles", tilestab, 3)
@@ -180,15 +199,45 @@ function editor_load()
 	guielements["tilesscrollbar"] = guielement:new("scrollbar", 381, 37, 167, 15, 40, 0, "ver", nil, nil, nil, nil, true)
 	
 	--TOOLS
-	guielements["selectionbutton"] = guielement:new("button", 5, 22, "selection tool|click and drag to select entities|rightclick to configure all at once|hit del to delete.", selectionbutton, 2, false, 4, 383)
+	livesanchorx = 340
+	guielements["selectionbutton"] = guielement:new("button", 5, 22, "select", selectionbutton, 2, false)
+	-- 4, 383)
+	--"selection tool|click and drag to select entities|rightclick to configure all at once|hit del to delete."
 	guielements["selectionbutton"].bordercolor = {0, 255, 0}
 	guielements["selectionbutton"].bordercolorhigh = {220, 255, 220}
-	guielements["lightdrawbutton"] = guielement:new("button", 5, 71, "power line draw|click and drag to draw power lines", lightdrawbutton, 2, false, 2, 383)
+	
+	guielements["lightdrawbutton"] = guielement:new("button", 5, 22+18, "ant line", lightdrawbutton, 2, false)
+	-- 2, 383)
+	-- "power line draw|click and drag to draw power lines"
 	guielements["lightdrawbutton"].bordercolor = {0, 0, 255}
 	guielements["lightdrawbutton"].bordercolorhigh = {127, 127, 255}
 	
-	guielements["livesdecrease"] = guielement:new("button", 198, 104, "{", livesdecrease, 0)
-	guielements["livesincrease"] = guielement:new("button", 194, 104, "}", livesincrease, 0)
+	guielements["liveslabel"] = guielement:new("text", livesanchorx-48, 205-18, "lives:")
+	guielements["livesdecrease"] = guielement:new("button", livesanchorx, 203-18, "{", livesdecrease, 0)
+	
+	local increasex = 0
+	local whattowrite = "???"
+	if mariolivecount == 0 then
+		mariolivecount = false
+		whattowrite = "inf"
+		increasex = livesanchorx + 14 + 24
+	elseif mariolivecount > 999 then
+		whattowrite = "why"
+		increasex = livesanchorx + 14 + 24
+	else
+		whattowrite = mariolivecount
+	end
+	increasex = livesanchorx + 14 + string.len(whattowrite)*8
+	guielements["livesnum"] = guielement:new("text", livesanchorx+12, 205-18, whattowrite)
+	guielements["livesincrease"] = guielement:new("button", increasex, 203-18, "}", livesincrease, 0)
+	
+	guielements["edittitle"] = guielement:new("input", 5, 205-20, 17, nil, mappackname, 17)
+	guielements["editauthorlabel"] = guielement:new("text", 5, 205+4, "by:", {128, 128, 128})
+	guielements["editauthor"] = guielement:new("input", 5+32, 205, 13, nil, mappackauthor, 13)
+	guielements["editdescription"] = guielement:new("input", 150, 203-18, 17, nil, mappackdescription, 51, 3)
+	guielements["savesettings"] = guielement:new("button", 294, 203, "save info", savesettings, 2)
+	guielements["savesettings"].bordercolor = {255, 0, 0}
+	guielements["savesettings"].bordercolorhigh = {255, 127, 127}
 	
 	--MAPS
 	--[[guielements["savebutton2"] = guielement:new("button", 10, 140, "save", savelevel, 2)
@@ -216,32 +265,6 @@ function editor_load()
 	
 	addanimationactionbutton = guielement:new("button", 0, 0, "+", addanimationaction, nil, nil, nil, 8)
 	addanimationactionbutton.textcolor = {0, 200, 0}
-	
-	--get current description and shit
-	local mappackname = ""
-	local mappackauthor = ""
-	local mappackdescription = ""
-	if love.filesystem.exists("mappacks/" .. mappack .. "/settings.txt") then
-		local data = love.filesystem.read("mappacks/" .. mappack .. "/settings.txt")
-		local split1 = data:split("\n")
-		for i = 1, #split1 do
-			local split2 = split1[i]:split("=")
-			if split2[1] == "name" then
-				mappackname = split2[2]:lower()
-			elseif split2[1] == "author" then
-				mappackauthor = split2[2]:lower()
-			elseif split2[1] == "description" then
-				mappackdescription = split2[2]:lower()
-			end
-		end
-	end
-	
-	guielements["edittitle"] = guielement:new("input", 5, 115, 17, nil, mappackname, 17)
-	guielements["editauthor"] = guielement:new("input", 5, 140, 13, nil, mappackauthor, 13)
-	guielements["editdescription"] = guielement:new("input", 5, 165, 17, nil, mappackdescription, 51, 3)
-	guielements["savesettings"] = guielement:new("button", 5, 203, "save settings", savesettings, 2)
-	guielements["savesettings"].bordercolor = {255, 0, 0}
-	guielements["savesettings"].bordercolorhigh = {255, 127, 127}
 	
 	-- these are here because the editor is highly state driven and adding shortcuts made things worse
 	generateentitylist()
@@ -796,18 +819,7 @@ function editor_draw()
 				end
 				love.graphics.setScissor()
 			elseif editorstate == "tools" then
-				love.graphics.setColor(255, 255, 255)
-				properprint("mappack title:", 5*scale, 106*scale)
-				properprint("author:", 5*scale, 131*scale)
-				properprint("description:", 5*scale, 156*scale)
-				
-				properprint("lives:", 150*scale, 106*scale)
-				if mariolivecount == false then
-					properprint("inf", 210*scale, 106*scale)
-				else
-					properprint(mariolivecount, 210*scale, 106*scale)
-				end
-			
+				--nothing here, we turned all the stray text into labels
 			elseif editorstate == "animations" then
 				if #animations > 0 then
 					love.graphics.setScissor(animationguiarea[1]*scale, animationguiarea[2]*scale, (animationguiarea[3]-animationguiarea[1])*scale, (animationguiarea[4]-animationguiarea[2])*scale)
@@ -1036,14 +1048,18 @@ function toolstab()
 	guielements["tabmaps"].active = true
 	guielements["tabanimations"].active = true
 	
+	-- hoo boy
 	guielements["selectionbutton"].active = true
 	guielements["lightdrawbutton"].active = true
 	guielements["edittitle"].active = true
+	guielements["editauthorlabel"].active = true
 	guielements["editauthor"].active = true
 	guielements["editdescription"].active = true
 	guielements["savesettings"].active = true
 	
 	guielements["livesdecrease"].active = true
+	guielements["liveslabel"].active = true
+	guielements["livesnum"].active = true
 	guielements["livesincrease"].active = true
 end
 
@@ -1109,6 +1125,7 @@ function fromanimationstab()
 end
 
 function frommapstab()
+	print("NOTICE: Properly unloaded mapbuttons.")
 	for i, v in pairs(mapbuttons) do
 		v.active = false
 	end
@@ -1651,10 +1668,10 @@ function editoropen()
 	finishregion()
 	editormenuopen = true
 	
-	if mariolivecount == false then
-		guielements["livesincrease"].x = 212 + 24
+	if mariolivecount == false or mariolivecount > 999 then
+		guielements["livesincrease"].x = livesanchorx + 14 + 24
 	else
-		guielements["livesincrease"].x = 212 + string.len(mariolivecount)*8
+		guielements["livesincrease"].x = livesanchorx + 14 + string.len(mariolivecount)*8
 	end
 	guirepeattimer = 0
 	getmaps()
@@ -1674,11 +1691,12 @@ function editoropen()
 	end
 end
 
---[[function mapnumberclick(i, j, k)
+function mapnumberclick(i, j, k)
 	if editormode then
+		print("NOTICE: Map changed because a map icon was clicked.")
 		marioworld = i
 		mariolevel = j
-		editorloadopen = true
+		editorloadopen = false
 		if k ~= 0 then
 			loadlevel(k)
 		else
@@ -1686,7 +1704,7 @@ end
 		end
 		startlevel()
 	end
-end]]
+end
 
 function getmaps()
 	existingmaps = {}
@@ -1737,25 +1755,20 @@ function editor_controlupdate(dt)
 	
 	-- one-press shortcuts
 	if controls.tap.editorTabMain then
-		editorstate = "main"
-		maintab()
 		editoropen()
+		maintab()
 	elseif controls.tap.editorTabTiles then
-		editorstate = "tiles"
 		tilestab()
 		editoropen()
 	elseif controls.tap.editorTabTools then
-		editorstate = "tools"
+		editoropen()
 		toolstab()
-		editoropen()
 	elseif controls.tap.editorTabMaps then
-		editorstate = "maps"
+		editoropen()
 		mapstab()
-		editoropen()
 	elseif controls.tap.editorTabAnimations then
-		editorstate = "animations"
-		animationstab()
 		editoropen()
+		animationstab()
 	end
 	
 	if controls.tap.editorQuickToggle then
@@ -1799,33 +1812,33 @@ function editor_controlupdate(dt)
 		end
 		
 		if controls.tap.editorTilesAll then
-			editorstate = "tiles"
-			editoropen()
 			tilesall()
+			editoropen()
+			tilestab()
 		elseif controls.tap.editorTilesSMB then
-			editorstate = "tiles"
-			editoropen()
 			tilessmb()
+			editoropen()
+			tilestab()
 		elseif controls.tap.editorTilesPortal then
-			editorstate = "tiles"
-			editoropen()
 			tilesportal()
+			editoropen()
+			tilestab()
 		elseif controls.tap.editorTilesCustom then
-			editorstate = "tiles"
-			editoropen()
 			tilescustom()
+			editoropen()
+			tilestab()
 		elseif controls.tap.editorTilesAnimated then
-			editorstate = "tiles"
-			editoropen()
 			tilesanimated()
+			editoropen()
+			tilestab()
 		elseif controls.tap.editorTilesEntities then
-			editorstate = "tiles"
-			editoropen()
 			tilesentities()
-		elseif controls.tap.editorTilesEnemies then
-			editorstate = "tiles"
 			editoropen()
+			tilestab()
+		elseif controls.tap.editorTilesEnemies then
 			tilesenemies()
+			editoropen()
+			tilestab()
 		end
 	end
 	
@@ -2385,12 +2398,19 @@ function livesdecrease()
 	end
 	
 	mariolivecount = mariolivecount - 1
+	
+	local whattowrite = "???"
 	if mariolivecount == 0 then
 		mariolivecount = false
-		guielements["livesincrease"].x = 212 + 24
+		whattowrite = "inf"
+	elseif mariolivecount > 999 then
+		whattowrite = "why"
 	else
-		guielements["livesincrease"].x = 212 + string.len(mariolivecount)*8
+		whattowrite = mariolivecount
 	end
+	
+	guielements["livesincrease"].x = livesanchorx + 14 + string.len(whattowrite)*8
+	guielements["livesnum"].value = whattowrite
 end
 
 function livesincrease()
@@ -2399,7 +2419,16 @@ function livesincrease()
 	else
 		mariolivecount = mariolivecount + 1
 	end
-	guielements["livesincrease"].x = 212 + string.len(mariolivecount)*8
+	
+	local whattowrite = "???"
+	if mariolivecount > 999 then
+		whattowrite = "why"
+	else
+		whattowrite = mariolivecount
+	end
+	
+	guielements["livesnum"].value = whattowrite
+	guielements["livesincrease"].x = livesanchorx + 14 + string.len(whattowrite)*8
 end
 
 function defaultbackground(i)
