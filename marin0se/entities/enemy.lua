@@ -43,23 +43,11 @@ function enemy:init(x, y, t, a)
 	if self.gamemodeexclusive == 2 then
 		if gameplaytype == 2 then
 			if self.isredcoin then
-				if self.isredcoin == 1 and redcoin1 == 0 then
-					self.active = true
-					self.drawable = true
-				elseif self.isredcoin == 2 and redcoin2 == 0 then
-					self.active = true
-					self.drawable = true
-				elseif self.isredcoin == 3 and redcoin3 == 0 then
-					self.active = true
-					self.drawable = true
-				elseif self.isredcoin == 4 and redcoin4 == 0 then
-					self.active = true
-					self.drawable = true
-				elseif self.isredcoin == 5 and redcoin5 == 0 then
+				if redcoin["self.isredcoin"] == 0 then
 					self.active = true
 					self.drawable = true
 				end
-			elseif self.istrophy and hastrophy == 0 then
+			elseif self.istrophy and oddjobquotas[2] == 0 then
 			self.active = true
 			self.drawable = true
 			end
