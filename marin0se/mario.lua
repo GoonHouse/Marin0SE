@@ -2807,7 +2807,7 @@ function mario:globalcollide(a, b, c, d, dir)
 	end
 	
 	if a == "redcoin" then
-		self:collectredcoin(x, y, i)
+		b:collected(self)
 		return true
 	end
 	
@@ -3963,17 +3963,6 @@ end
 
 function mario:fireballcallback()
 	self.fireballcount = self.fireballcount - 1
-end
-
-function collectredcoin(x, y, i)
-	redcoincollected[redcoin.value] = 1
-	redcoincount = redcoincount + 1
-	gotaredcoin(self.playernumber, b)
-	if redcoincount == oddjobquotas[1] then
-	playsound("redcoin5")
-	else
-	playsound("redcoin1")
-	end
 end
 
 function collectcoin(x, y, i)

@@ -1149,6 +1149,7 @@ function loadbackground(backgroundlevel)
 	starty = {13, 13, 13, 13, 13}
 	
 	coinframe = 1
+	redcoinframe = 1
 	
 	itemanimations = {}
 	

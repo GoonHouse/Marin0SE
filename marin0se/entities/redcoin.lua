@@ -17,33 +17,49 @@ function redcoin:init(x, y, r)
 	self.rotation = 0
 	self.timer = 0
 	self.falling = false
+	self.destroy = false
 	self.r = {unpack(r)}
 
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
-		if #self.r > 0 and self.r[1] ~= "link" then
-			self.value = self.r[1]
-			table.remove(self.r, 1)
-			self.size = self.r[1]
-			table.remove(self.r, 1)
-		end
-		
+	if #self.r > 0 and self.r[1] ~= "link" then
+		self.value = self.r[1]
+		table.remove(self.r, 1)
+	end
+	
+	if #self.r > 0 and self.r[1] ~= "link" then
+		self.size = self.r[1]
+		table.remove(self.r, 1)
+	end
+	
 	if self.size == "tallthin" then
-	self.height = 2
-	self.y = self.y-1
+		self.height = 2
+		self.y = self.y-1
 	elseif self.size == "large" then
-	self.width = 2
-	self.height = 2
-	self.x = self.x-1
-	self.y = self.y-1
+		self.width = 2
+		self.height = 2
+		self.x = self.x-1
+		self.y = self.y-1
 	end
 end
 
 function redcoin:update(dt)
-	if gameplaytype ~= 2 or redcoincollected[self.value] == 1 then
+	-- returning in the update method signals the object handler to destroy us
+	if self.destroy then return true end
+end
+
+function redcoin:collected(ply)
+	-- ply is a reference to the player that collected us, we can use that later
+	redcoincollected[self.value] = 1
+	redcoincount = redcoincount + 1
+	if redcoincount == oddjobquotas[1] then
+		playsound("redcoin5")
+	else
+		playsound("redcoin1")
+	end
 	self.active = false
 	self.drawable = false
-	end
+	self.destroy = true
 end
 
 function redcoin:draw()

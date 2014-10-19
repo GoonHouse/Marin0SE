@@ -2361,7 +2361,7 @@ function new_level(sub)
 	end
 	
 	if mariolevel > 4 then
-		mariolevel = 0
+		mariolevel = 1
 		marioworld = marioworld + 1
 	end
 	
