@@ -1698,7 +1698,7 @@ function editoropen()
 end
 
 function mapnumberclick(i, j, k)
-	if editormode then
+	if editormode and editorstate == "maps" then
 		print("NOTICE: Map changed because a map icon was clicked.")
 		marioworld = i
 		mariolevel = j
@@ -1709,6 +1709,8 @@ function mapnumberclick(i, j, k)
 			loadlevel(i .. "-" .. j)
 		end
 		startlevel()
+	else
+		print("WARNING: Map button tried to get clicked when it had NO business doing that.")
 	end
 end
 
@@ -2626,6 +2628,8 @@ end
 function finishregion()
 	if regiondragging then
 		previousTool()
+		editorignoretap = true
+		editorignorerelease = true
 		local t = regiontoolt
 		local x, y = regiontoolX, regiontoolY
 		

@@ -1,0 +1,4 @@
+name=marin0 test suite
+author=goonhouse
+description=does it work yet i gotta know     someone tell me
+lives=3
