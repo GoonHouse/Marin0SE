@@ -34,7 +34,7 @@ controlTable = {
 		x = "playerDebug",
 		w = {"playerUp", "menuUp", "editorNudgeUp"},
 		a = {"playerLeft", "menuLeft", "editorNudgeLeft"},
-		s = {"playerDown", "menuDown", "editorNudgeDown"},
+		s = {"playerDown", "menuDown", "editorNudgeDown", "editorQuickSave"},
 		d = {"playerRight", "menuRight", "editorNudgeRight"},
 		e = {"editorErase"},
 		up = {"menuUp", "editorScrollUp"},
@@ -42,20 +42,30 @@ controlTable = {
 		m = {"gameShortcutMappackFolder"},
 		down = {"menuDown", "editorScrollDown"},
 		right = {"menuRight", "editorScrollRight"},
-		k = {"editorQuickSave", "replaySave"},
+		k = {"replaySave"},
+		
 		--(key == "return" or key == "enter" or key == "kpenter" or key == " ")
 		["return"] = "menuSelect",
 		tab = "menuNextElement", --unimplemented
 		f = {"playerUse", "debugEmbiggen"},
 		escape = {"playerPause", "menuBack"},
 		--l = "playerSuicide",
-		t = {"editorToggle", "editorTestLevel"},
+		t = {"editorTestLevelToggle"},
 		lshift = {"playerRun", "debugModifier"},
 		lctrl = "editorShortcutModifier",
 		--lalt = "debugModifier", --Until love 0.9.2 or 0.10.0 we can't use alt on Windows-based machines. :(
 		r = "playerReload",
 		delete = "editorDelete",
 		[" "] = {"playerJump", "menuSelect"},
+		
+		tab = "editorQuickToggle",
+		
+		f1 = "editorTabMain",
+		--f2 = "editorTabTiles",
+		f2 = "editorTabTools",
+		f3 = "editorTabMaps",
+		f4 = "editorTabAnimations",
+		
 		f9 = "debugLua",
 		f10 = "debugCrash",
 		f11 = "gameScreenshot",

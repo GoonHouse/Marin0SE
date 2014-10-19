@@ -3471,6 +3471,7 @@ end
 function game_controlupdate(dt)
 	if controls.debugModifier then
 		if controls.tap.editorToggle then
+			-- does not engage full editor
 			editormode = not editormode
 		end
 		if controls.tap.debugEmbiggen then
@@ -3592,20 +3593,9 @@ function game_controlupdate(dt)
 		return
 	end]]
 	if controls.tap.playerPause then
-		if not editormode and testlevel then
-			checkpointsub = false
-			marioworld = testlevelworld
-			mariolevel = testlevellevel
-			testlevel = false
-			editormode = true
-			
-			if mariosublevel > 0 then
-				loadlevel(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
-			else
-				loadlevel(marioworld .. "-" .. mariolevel)
-			end
-			startlevel()
-		elseif not editormode and not everyonedead then
+		-- code to open the editor menu from here was moved
+		-- sorry folks
+		if not editormode and not everyonedead then
 			pausemenuopen = true
 			love.audio.pause()
 			playsound("pause")
@@ -3646,7 +3636,7 @@ function game_controlupdate(dt)
 		end
 	end
 	
-	if editormode then
+	if editormode or testlevel then
 		editor_controlupdate(dt)
 	end
 end
@@ -4992,6 +4982,7 @@ function getclosestplayer(x)
 end
 
 function endgame()
+	print("endgame called")
 	if testlevel then
 		marioworld = testlevelworld
 		mariolevel = testlevellevel

@@ -15,11 +15,15 @@ function entitylistitem:gethighlight(x, y)
 end
 
 function getentityhighlight(x, y)
-	for i, v in ipairs(entitylistitems) do
-		for j, k in ipairs(v.entries) do
-			if k:gethighlight(mouse.getX(), mouse.getY()) then
-				return k
+	if entitylistitems then
+		for i, v in ipairs(entitylistitems) do
+			for j, k in ipairs(v.entries) do
+				if k:gethighlight(mouse.getX(), mouse.getY()) then
+					return k
+				end
 			end
 		end
+	else
+		print("WARNING: Editor called entitylistitem.lua:getentityhighlight() but 'entitylistitems' was not defined.")
 	end
 end

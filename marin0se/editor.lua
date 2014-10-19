@@ -243,6 +243,10 @@ function editor_load()
 	guielements["savesettings"].bordercolor = {255, 0, 0}
 	guielements["savesettings"].bordercolorhigh = {255, 127, 127}
 	
+	-- these are here because the editor is highly state driven and adding shortcuts made things worse
+	generateentitylist()
+	generateanimationgui()
+	
 	tilesall()
 	if editorloadopen then
 		editoropen()
@@ -376,7 +380,9 @@ function editor_draw()
 			
 			if inmap(x, y+1) then
 				love.graphics.setColor(255, 255, 255, 200)
-				if editentities == false then
+				-- we do this because if we open the enemies tab and don't do anything we end up with a beetle
+				-- deep down, isn't that all we *really* want out of life?
+				if editentities == false and type(currenttile)=="number" then
 					local quad = tilequads[currenttile]:quad()
 					if currenttile > 10000 then
 						quad = tilequads[currenttile]:quad()
@@ -1729,6 +1735,37 @@ function editor_controlupdate(dt)
 	local x, y = getMousePos()
 	local button = "honk" --for the sake of Just Getting It To Work For Now(tm)
 	
+	-- one-press shortcuts
+	if controls.tap.editorTabMain then
+		editorstate = "main"
+		maintab()
+		editoropen()
+	elseif controls.tap.editorTabTiles then
+		editorstate = "tiles"
+		tilestab()
+		editoropen()
+	elseif controls.tap.editorTabTools then
+		editorstate = "tools"
+		toolstab()
+		editoropen()
+	elseif controls.tap.editorTabMaps then
+		editorstate = "maps"
+		mapstab()
+		editoropen()
+	elseif controls.tap.editorTabAnimations then
+		editorstate = "animations"
+		animationstab()
+		editoropen()
+	end
+	
+	if controls.tap.editorQuickToggle then
+		if editormenuopen then
+			editorclose()
+		else
+			editoropen()
+		end
+	end
+	
 	if controls.editorShortcutModifier then
 		if controls.tap.editorErase then
 			currenttile = 1
@@ -1740,8 +1777,25 @@ function editor_controlupdate(dt)
 			savelevel()
 		end
 		
-		if controls.tap.editorTestLevel then
-			test_level()
+		if controls.tap.editorTestLevelToggle then
+			if testlevel then
+				editorloadopen = false
+				checkpointsub = false
+				marioworld = testlevelworld
+				mariolevel = testlevellevel
+				testlevel = false
+				editormode = true
+				
+				if mariosublevel > 0 then
+					loadlevel(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
+				else
+					loadlevel(marioworld .. "-" .. mariolevel)
+				end
+				startlevel()
+				--editor_load()
+			else
+				test_level()
+			end
 		end
 		
 		if controls.tap.editorTilesAll then
@@ -1776,7 +1830,7 @@ function editor_controlupdate(dt)
 	end
 	
 	-- constants and paints
-	if controls.editorPaint then
+	if controls.editorPaint and not testlevel then
 		if editorstate == "lightdraw" and editormenuopen == false then
 			paintLight()
 		elseif editorstate == "main" then
@@ -1892,7 +1946,7 @@ function editor_controlupdate(dt)
 	elseif controls.release.editorSelect and editorignorerelease then
 		print("CONTROLS-RELEASE: Ignored editor input for a frame.")
 		editorignorerelease = false
-	elseif controls.tap.editorSelect then
+	elseif controls.tap.editorSelect and not testlevel then
 		if editormenuopen == false then
 			if editorstate == "lightdraw" then
 				lightdrawX, lightdrawY = getMouseTile(x, y+8*scale)
@@ -1955,7 +2009,7 @@ function editor_controlupdate(dt)
 				end
 			end
 		end
-	elseif controls.release.editorSelect then
+	elseif controls.release.editorSelect and not testlevel then
 		if selectiondragging then
 			selectionend()
 		end
@@ -1971,7 +2025,7 @@ function editor_controlupdate(dt)
 		allowdrag = true
 	end
 	
-	if controls.tap.editorContext then
+	if controls.tap.editorContext and not testlevel then
 		if editormenuopen == false then
 			local tileX, tileY = getMouseTile(x, y+8*scale)
 			if inmap(tileX, tileY) == false then
@@ -2088,6 +2142,7 @@ function editor_controlupdate(dt)
 	
 	if controls.tap.editorDropper then
 		local cox, coy = getMouseTile(x, y+8*scale)
+		--@TODO: copy entities from here
 		if inmap(cox, coy) then
 			editentities = false
 			tilesall()
@@ -2109,15 +2164,16 @@ function editor_controlupdate(dt)
 		end
 	end
 	
-	if controls.tap.menuBack then
+	if controls.tap.menuBack and not testlevel then
 		if rightclickm then
 			closerightclickmenu()
 		elseif changemapwidthmenu then
 			mapwidthcancel()
 		else
+			--@TODO: add a flag here so that doubletapping closes the program
 			if editormenuopen then
 				editorclose()
-			else
+			elseif not editormenuopen and not testlevel then
 				editoropen()
 			end
 		end
