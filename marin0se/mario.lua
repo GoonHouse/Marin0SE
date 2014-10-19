@@ -4031,7 +4031,7 @@ function mario:portaled(dir)
 			end
 		end
 		
-		self.hats = {33}
+		self.hats = {32}
 	end
 end
 
