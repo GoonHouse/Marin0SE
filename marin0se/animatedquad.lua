@@ -4,7 +4,7 @@ function animatedquad:init(imgpath, s, number)
 	self.number = number
 	self.image = love.graphics.newImage(imgpath)
 	self.imagedata = love.image.newImageData(imgpath)
-	self.quadlist = {}
+	self.quadlist = {} 
 	for x = 1, math.floor(self.image:getWidth()/17) do
 		table.insert(self.quadlist, love.graphics.newQuad((x-1)*17, 0, 16, 16, self.image:getWidth(), self.image:getHeight()))
 	end

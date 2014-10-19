@@ -9,4 +9,4 @@ function screenboundary:init(x)
 	self.active = true
 	self.category = 10
 	self.mask = {true}
-end
+end 

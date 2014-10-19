@@ -3,7 +3,7 @@ entitytooltip = class("entitytooltip")
 local theight = 64
 local twidth = 64
 local descwidth = 0
-twidth = twidth + descwidth*8
+twidth = twidth + descwidth*8 
 
 function entitytooltip:init(ent)
 	self.ent = ent

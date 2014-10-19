@@ -3,7 +3,7 @@ portalparticle = class("portalparticle")
 function portalparticle:init(x, y, color, direction)
 	self.x = x or 0
 	self.y = y or 0
-	self.timer = 0
+	self.timer = 0 
 	self.color = color or {255, 255, 255, 0}
 	self.direction = direction
 	

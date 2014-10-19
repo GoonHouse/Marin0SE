@@ -6,7 +6,7 @@ function coinblockanimation:init(x, y)
 	
 	self.timer = 0
 	self.frame = 1
-end
+end 
 
 function coinblockanimation:update(dt)
 	self.timer = self.timer + dt

@@ -5,7 +5,7 @@ function loadhat(path)
 	if not s then
 		return
 	end
-	
+	 
 	local s1 = s:split("|")
 	
 	if #s1 ~= 8 then

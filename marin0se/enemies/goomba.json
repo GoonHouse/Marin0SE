@@ -1,6 +1,6 @@
 {
 	"quadcount": 2,
-
+	
 	"movement": "truffleshuffle",
 	"stompable": true,
 	"killsonbottom": true,

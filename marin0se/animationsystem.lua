@@ -8,7 +8,7 @@ function animationsystem_load()
 		if string.sub(dir[i], -4) == "json" then
 			table.insert(animations, animation:new("mappacks/" .. mappack .. "/animations/" .. dir[i], dir[i]))
 		end
-	end
+	end 
 end
 
 function animationsystem_update(dt)

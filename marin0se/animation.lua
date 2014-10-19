@@ -8,7 +8,7 @@ playerxless:x						when a player's x is less than x
 playerygreater:x					when a player's y is greater than y
 playeryless:x						when a player's y is less than y
 animationtrigger:i					when animationtrigger with ID i is triggered
---]]
+--]] 
 
 --[[ CONDITIONS:
 noprevsublevel						doesn't if the level was changed from another sublevel (Mario goes through pipe, lands in 1-1_1, prevsublevel was _0, no trigger.)

@@ -1,6 +1,6 @@
 {
 	"quadcount": 4,
-
+	
 	"movement": "wiggle",
 	"wiggledistance": 1,
 	"wigglespeed": 1.5,

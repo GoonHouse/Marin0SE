@@ -6,7 +6,7 @@ function dialogbox:init(text, speaker)
 	self.timer = 0
 	self.curchar = 0
 	self.chartimer = 0
-	
+	 
 	self.lifetime = 5
 	self.chardelay = 0.05
 	

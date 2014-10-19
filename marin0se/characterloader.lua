@@ -7,7 +7,7 @@ function loadcharacter(charname)
 	local s = love.filesystem.read(folder .. "config.txt")
 	
 	--------------------
-	--VARIABLE LOADING--
+	--VARIABLE LOADING-- 
 	--------------------
 	
 	local char = JSON:decode(s)

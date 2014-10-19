@@ -4,7 +4,7 @@ function entitylistitem:init(t, i)
 	self.x = x
 	self.y = y
 	self.t = t
-	self.i = i
+	self.i = i 
 end
 
 function entitylistitem:gethighlight(x, y)

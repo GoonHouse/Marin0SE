@@ -1,4 +1,4 @@
-{
+{ 
 	"colorables": [
 		"hat",
 		"hair",

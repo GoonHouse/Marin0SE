@@ -8,7 +8,7 @@ rightclickelementslist = {"scrollbar", "input", "checkbox", "directionbuttons", 
 
 function rightclickmenu:init(x, y, elements, tx, ty)
 	self.elements = elements
-	self.x = x
+	self.x = x 
 	self.y = y
 	
 	self.tx = tx

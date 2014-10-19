@@ -1,4 +1,4 @@
-{
+{ 
 	"defaulthat": 0,
 
 	"smalloffsetX": 6,

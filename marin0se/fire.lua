@@ -5,7 +5,7 @@ function fire:init(x, y)
 	if objects["bowser"][1] then --make bowser fire this
 		self.y = objects["bowser"][1].y+0.25
 		self.x = objects["bowser"][1].x-0.750
-		
+		 
 		--get goal Y
 		self.targety = objects["bowser"][1].starty-math.random(3)+2/16
 	else

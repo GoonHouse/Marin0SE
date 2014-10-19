@@ -1,6 +1,6 @@
 {
 	"quadcount": 2,
-
+	
 	"movementrandoms": ["none", "verticalwiggle"],
 	
 	"verticalwiggledistance": 1,

@@ -3,7 +3,7 @@ animatedtimerlist = {}
 
 function animatedtimer:init(x, y, tileno)
 	self.x = x
-	self.y = y
+	self.y = y 
 	self.quadi = 1
 	self.timer = 0
 	self.quadobj = tilequads[tileno]

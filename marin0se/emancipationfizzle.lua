@@ -9,7 +9,7 @@ function emancipationfizzle:init(x, y, speedx, speedy)
 	self.speedy = speedy+(math.random()-.5)*1
 	
 	self.timer = 0
-end
+end 
 
 function emancipationfizzle:update(dt)
 	self.x = self.x + self.speedx*dt

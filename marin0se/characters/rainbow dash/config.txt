@@ -1,4 +1,4 @@
-{
+{ 
 	"nopointing": true,
 
 	"smalloffsetX": 0,

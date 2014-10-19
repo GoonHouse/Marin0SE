@@ -10,7 +10,7 @@ function notice.new(text, color, duration)
 	local text = text or ""
 	local color = color or notice.white
 	table.insert(notice.notices, {text=text:lower(), color=color, life=duration, duration=duration})
-end
+end 
 
 function notice.update(dt)
 	for i = #notice.notices, 1, -1 do

@@ -9,7 +9,7 @@ quad = class("quad")
 --LEFT SLANT?
 --RIGHT SLANT?
 --MIRROR?
---GRATE?
+--GRATE? 
 --PLATFORM TYPE?
 --WATER TILE?
 --BRIDGE?

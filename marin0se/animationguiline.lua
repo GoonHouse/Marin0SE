@@ -10,7 +10,7 @@ table.insert(toenter, {name = "mapload",
 		t="trigger",
 		nicename="on map load",
 		entries={
-			
+			 
 		}
 	}
 })
