@@ -121,6 +121,14 @@ function game_update(dt)
 	end	
 	
 	coinframe = math.floor(coinanimation)
+
+	--redcoinanimation
+	redcoinanimation = redcoinanimation + dt*6.75
+	while redcoinanimation >= 5 do
+		redcoinanimation = redcoinanimation - 4
+	end	
+	
+	redcoinframe = math.floor(redcoinanimation)
 	
 	--SCROLLING SCORES
 	local delete = {}
@@ -1046,32 +1054,32 @@ function drawui(hidetime)
 		love.graphics.translate(0, yoffset*scale)
 	end
 	
-	if gameplaytype ~= 0 then
+	if gameplaytype ~= "NA" then
 		printfunction(characters[mariocharacter[1]].name, uispace*.5 - 24*scale, 8*scale)
-		if gameplaytype == 1 then
+		if gameplaytype == "Regular" then
 			printfunction(addzeros(marioscore, 6), uispace*0.5-24*scale, 16*scale)
 			printfunction("*", uispace*1.5-8*scale, 16*scale)
-		elseif gameplaytype == 2 then
+		elseif gameplaytype == "Oddjob" then
 			printfunction(addzeros(levelscore, 6), uispace*0.5-24*scale, 16*scale)
 			printfunction("*", uispace*1.5-8*scale, 16*scale)
 		end
 
 		love.graphics.draw(coinanimationimg, coinanimationquads[spriteset][coinframe], uispace*1.5-16*scale, 16*scale, 0, scale, scale)
-		if gameplaytype == 1 then
+		if gameplaytype == "Regular" then
 			printfunction(addzeros(mariocoincount, 2), uispace*1.5-0*scale, 16*scale)
-		elseif gameplaytype == 2 then
+		elseif gameplaytype == "Oddjob" then
 			printfunction(addzeros(levelcoincount, 2), uispace*1.5-0*scale, 16*scale)
 		end
 		
-		if gameplaytype == 1 then
+		if gameplaytype == "Regular" then
 			printfunction("world", uispace*2.5 - 20*scale, 8*scale)
 			printfunction(marioworld .. "-" .. mariolevel, uispace*2.5 - 12*scale, 16*scale)
-		elseif gameplaytype == 2 then
+		elseif gameplaytype == "Oddjob" then
 			printfunction("oddjob test", uispace*2.5 - 20*scale, 8*scale)
 			for i = 1, oddjobquotas[1] do
-				if redcoin[i] == 0 then
+				if redcoincollected[i] == 0 then
 				love.graphics.draw(oddjobhudimg, oddjobhudquads[1], (uispace*2.5 - 12*scale)+((8*i)-8)*scale, 16*scale, 0, scale, scale)
-				elseif redcoin[i] == 1 then
+				elseif redcoincollected[i] == 1 then
 				love.graphics.draw(oddjobhudimg, oddjobhudquads[2], (uispace*2.5 - 12*scale)+((8*i)-8)*scale, 16*scale, 0, scale, scale)
 				end
 			end
@@ -2569,10 +2577,11 @@ function loadlevel(level)
 	end
 	
 	--MISC VARS; Misc Global Variables
-	gameplaytype = 2 -- 0 Not Gameplay, 1 Default, 2 Score Attack
+	gameplaytype = "Oddjob" -- "NA", "Regular", "Oddjob"
 	everyonedead = false
 	levelfinished = false
 	coinanimation = 1
+	redcoinanimation = 1
 	flagx = false
 	levelfinishtype = nil
 	firestartx = false
@@ -2628,9 +2637,9 @@ function loadlevel(level)
 	end	
 	oddjobquotas[1] = 5
 	
-	redcoin = {}
+	redcoincollected = {}
 	for i = 1, oddjobquotas[1] do
-			redcoin[i] = 0
+			redcoincollected[i] = 0
 	end	
 	
 	portaldelay = {}
@@ -4703,23 +4712,14 @@ function givetime(id, t)
 playsound("addtime")
 end	
 
-function gotaredcoin(id, t)
-	if redcoincount == oddjobquotas[1] then
-	playsound("redcoin5")
-	else
-	playsound("redcoin1")
-	end
-end	
-
 function gotatrophy(id, t)
 	playsound("trophy")
 end	
 
-
 function addpoints(i, x, y)
 	if i > 0 then
 		marioscore = marioscore + i
-			if gameplaytype == 2 then
+			if gameplaytype == "Oddjob" then
 				levelscore = levelscore + i
 			end
 		if x and y then

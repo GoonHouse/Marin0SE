@@ -627,9 +627,9 @@ function mario:update(dt)
 				subtracttimer = subtracttimer - scoresubtractspeed
 				if mariotime > 0 then
 					mariotime = math.ceil(mariotime - 1)
-					if gameplaytype == 1 then
+					if gameplaytype == "Regular" then
 					marioscore = marioscore + 50
-					elseif gameplaytype == 2 then
+					elseif gameplaytype == "Oddjob" then
 					levelscore = levelscore + 50
 					end
 				end
@@ -2806,6 +2806,11 @@ function mario:globalcollide(a, b, c, d, dir)
 		end
 	end
 	
+	if a == "redcoin" then
+		self:collectredcoin(x, y, i)
+		return true
+	end
+	
 	if a == "screenboundary" then
 		if self.x+self.width/2 > b.x then
 			self.x = b.x
@@ -2858,11 +2863,6 @@ function mario:globalcollide(a, b, c, d, dir)
 			givemetime = b.timeamount
 		end
 		givetime(self.playernumber, b)
-		return true
-	elseif b.isredcoin then
-		redcoin[b.isredcoin] = 1
-		redcoincount = redcoincount + 1
-		gotaredcoin(self.playernumber, b)
 		return true
 	elseif b.istrophy then
 		oddjobquotas[2] = 1
@@ -3213,9 +3213,9 @@ function hitblock(x, y, t, koopa)
 			end
 			if #r == 1 then
 				table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-					if gameplaytype == 1 then
+					if gameplaytype == "Regular" then
 						mariocoincount = mariocoincount + 1
-					elseif gameplaytype == 2 then
+					elseif gameplaytype == "Oddjob" then
 						levelcoincount = levelcoincount + 1
 					end
 				
@@ -3236,9 +3236,9 @@ function hitblock(x, y, t, koopa)
 		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t == "manycoins" then --block with many coins inside! yay $_$
 			playsound("coin")
 			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-				if gameplaytype == 1 then
+				if gameplaytype == "Regular" then
 					mariocoincount = mariocoincount + 1
-				elseif gameplaytype == 2 then
+				elseif gameplaytype == "Oddjob" then
 					levelcoincount = levelcoincount + 1
 				end
 			
@@ -3965,15 +3965,26 @@ function mario:fireballcallback()
 	self.fireballcount = self.fireballcount - 1
 end
 
+function collectredcoin(x, y, i)
+	redcoincollected[redcoin.value] = 1
+	redcoincount = redcoincount + 1
+	gotaredcoin(self.playernumber, b)
+	if redcoincount == oddjobquotas[1] then
+	playsound("redcoin5")
+	else
+	playsound("redcoin1")
+	end
+end
+
 function collectcoin(x, y, i)
 	if x and y then
 		coinmap[x][y] = false
 	end
 	addpoints(200)
 	playsound("coin")
-	if gameplaytype == 1 then
+	if gameplaytype == "Regular" then
 		mariocoincount = mariocoincount + (i or 1)
-	elseif gameplaytype == 2 then
+	elseif gameplaytype == "Oddjob" then
 		levelcoincount = levelcoincount + (i or 1)
 	end
 	

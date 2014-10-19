@@ -41,13 +41,8 @@ function enemy:init(x, y, t, a)
 
 	-- Gamemode: Decide whether it exists or not
 	if self.gamemodeexclusive == 2 then
-		if gameplaytype == 2 then
-			if self.isredcoin then
-				if redcoin["self.isredcoin"] == 0 then
-					self.active = true
-					self.drawable = true
-				end
-			elseif self.istrophy and oddjobquotas[2] == 0 then
+		if gameplaytype == "Oddjob" then
+			if self.istrophy and oddjobquotas[2] == 0 then
 			self.active = true
 			self.drawable = true
 			end
