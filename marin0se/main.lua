@@ -267,7 +267,7 @@ function love.load(args)
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	
 	overwrittenimages = {}
-	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", "oddjobhud",
+	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", "oddjobhud", "redcoin", "redcointall", "redcoinbig",
 	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", 
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
 	"excursionfunnel2end", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase",
@@ -388,7 +388,7 @@ function love.load(args)
 		"ceilblocker", "funnel", "panel", "scaffold", "bubble",
 		"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody",
-		"pedestal", "textentity", "firework", "emancipationgrill"
+		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin"
 	}
 	--[[ here are a list of entities that have BROKEN THE LAW ]]
 	insaneents = {
@@ -694,6 +694,23 @@ function love.load(args)
 			coinquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 80, 64)
 		end
 	end
+
+	--redcoin
+	redcoinquads = {}
+	for i = 1, 4 do
+		redcoinquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
+	end	
+	
+	redcointallquads = {}
+	for i = 1, 4 do
+		redcointallquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 32, 64, 32)
+	end	
+	
+	redcoinbigquads = {}
+	for i = 1, 4 do
+		redcoinbigquads[i] = love.graphics.newQuad((i-1)*32, 0, 32, 32, 128, 32)
+	end	
+	
 	
 	--leaf
 	leafquad = {}

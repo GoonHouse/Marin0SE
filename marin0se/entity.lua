@@ -543,8 +543,8 @@ rightclickmenues.redcoin = {
 	{t="text", value="value:"},
 	{t="scrollbar", min=1, max=5, step=1, default=1},
 	{},
-	{t="text", value="else:"},
-	{t="submenu", entries={"nothing", "coin", "multicoin"}, default=1, width=8},
+	{t="text", value="size:"},
+	{t="submenu", entries={"small", "tallthin", "large"}, default=1, width=8, actualvalue=true},
 }
 
 function entity:init(img, x, y, width, height)
