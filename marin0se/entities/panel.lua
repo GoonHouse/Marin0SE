@@ -1,8 +1,8 @@
 panel = class("panel")
 
 function panel:init(x, y, t)
-	self.cox = x+1
-	self.coy = y+1
+	self.cox = x
+	self.coy = y
 	
 	self.dir = "right"
 	self.out = false

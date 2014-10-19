@@ -1,13 +1,14 @@
 bowser = class("bowser")
 
 function bowser:init(x, y)
+	-- one of the signatures said that bowser starts with (x, y-1/16) but that puts 'em in the floor
 	--PHYSICS STUFF
 	self.x = x+4
-	self.y = y-27/16
+	self.y = y-27/16-1/16
 	self.level = --[[i or]] marioworld
 	-- removed for now for sanity rasins
 	self.startx = x+12
-	self.starty = y
+	self.starty = y-1/16
 	self.speedy = 0
 	self.speedx = 0
 	self.width = 30/16--v

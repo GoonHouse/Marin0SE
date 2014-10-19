@@ -309,7 +309,7 @@ function game_update(dt)
 	--UPDATE STUFFFFF
 	
 	local updatetable = {
-		emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers,
+		emancipationfizzles, emancipateanimations, dialogboxes,
 		miniblocks, blockdebristable,
 		userects, rainbooms, coinblockanimations, itemanimations
 	}
@@ -2619,7 +2619,6 @@ function loadlevel(level)
 	scrollingtexts = {}
 	portalparticles = {}
 	portalprojectiles = {}
-	rocketlaunchers = {}
 	userects = {}
 	blockdebristable = {}
 	rainbooms = {}
@@ -4621,27 +4620,12 @@ function spawnenemy(x, y)
 					table.insert(objects["enemy"], enemy:new(x, y, "cheepcheepred", r))
 				end
 				wasenemy = true
-			
-			elseif t == "bowser" then
-				objects["bowser"][1] = bowser:new(x, y-1/16)
-				
-			elseif t == "castlefire" then
-				table.insert(objects["castlefire"], castlefire:new(x, y, r))
-				
-			elseif t == "platform" then
-				table.insert(objects["platform"], platform:new(x, y, r)) --Platform
 				
 			elseif t == "platformfall" then
 				table.insert(objects["platform"], platform:new(x, y, {0, 0, r[3]}, "fall")) --Platform fall
 				
 			elseif t == "platformbonus" then
 				table.insert(objects["platform"], platform:new(x, y, {0, 0, 3}, "justright"))
-			
-			elseif t == "bulletbill" then
-				table.insert(rocketlaunchers, rocketlauncher:new(x, y))
-				
-			elseif t == "panel" then
-				table.insert(objects["panel"], panel:new(x-1, y-1, r))
 			end
 		end
 		

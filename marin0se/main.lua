@@ -381,7 +381,7 @@ function love.load(args)
 		"groundlight", "wallindicator", "animatedtiletrigger", "delayer",
 		"walltimer", "notgate", "rsflipflop", "orgate", "andgate",
 		"musicentity", "enemyspawner", "squarewave", "lightbridge",
-		"faithplate", "laser", "noportal",
+		"faithplate", "laser", "noportal", "bulletbill", 
 		"laserdetector", "gel", "geldispenser", "fireball", "pushbutton",
 		"cubedispenser", "platform", "castlefire", "platformspawner",
 		"bowser", "spring", "seesawplatform", "checkpoint", "seesaw",
@@ -522,7 +522,6 @@ function love.load(args)
 	require "scrollingtext"
 	require "portalparticle"
 	require "portalprojectile"
-	require "bulletbill"
 	require "blockdebris"
 	require "fire"
 	require "rainboom"
