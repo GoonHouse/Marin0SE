@@ -88,7 +88,7 @@ entitylist = {
 	{t="gel", category="portal elements", description="place on tile - creates gel on this block", iconauthor="MissingWorld"},
 	{t="orgate", category="gates", description="place anywhere - or gate", output=true, iconauthor=""},
 	{t="andgate", category="gates", description="place anywhere - and gate", output=true, iconauthor="Turtle95"},
-	{t=""},
+	{t="redcoin", category="smb stuff", description="place in air or in a prize block - a red coin to collect", iconauthor="sorrynothing"},
 	{t="firestart", category="level markers", description="place anywhere - fire start - bowser firethings will regularly cross the screen", iconauthor="HammerGuy"},
 	{t="bowser", category="level markers", description="place on empty tile preferably on the first block on a bridge with an axe - bowser", iconauthor="renhoek"},
 	{t="axe", category="level markers", description="place on empty tile preferably behind a bridge - axe, end of level", iconauthor="alesan99"}, --90
@@ -537,6 +537,14 @@ rightclickmenues.groundlight = {
 	{t="checkbox", text="default on", default="false"},
 	{},
 	{t="linkbutton", value="link power", link="power"}
+}
+
+rightclickmenues.redcoin = {
+	{t="text", value="value:"},
+	{t="scrollbar", min=1, max=5, step=1, default=1},
+	{},
+	{t="text", value="else:"},
+	{t="submenu", entries={"nothing", "coin", "multicoin"}, default=1, width=8},
 }
 
 function entity:init(img, x, y, width, height)
