@@ -125,9 +125,12 @@ function editor_load()
 	
 	--bottom
 	guielements["savebutton"] = guielement:new("button", 10, 200, "save", savelevel, 2)
-	guielements["menubutton"] = guielement:new("button", 54, 200, "return to menu", menu_load, 2)
-	guielements["testbutton"] = guielement:new("button", 204, 200, "test level", test_level, 2)
-	guielements["widthbutton"] = guielement:new("button", 296, 200, "change size", openchangewidth, 2)
+	guielements["menubutton"] = guielement:new("button", 54, 200, "menu", menu_load, 2)
+	guielements["newlevellabel"] = guielement:new("text", 98, 204, "new:", {128,128,128})
+	guielements["newsublevelbutton"] = guielement:new("button", 128, 200, "sub", new_level, 2, {true})
+	guielements["newlevelbutton"] = guielement:new("button", 162, 200, "level", new_level, 2)
+	guielements["testbutton"] = guielement:new("button", 252, 200, "test", test_level, 2)
+	guielements["widthbutton"] = guielement:new("button", 296, 200, "size", openchangewidth, 2)
 	
 	guielements["savebutton"].bordercolor = {255, 0, 0}
 	guielements["savebutton"].bordercolorhigh = {255, 127, 127}
@@ -979,6 +982,9 @@ function maintab()
 	guielements["portalgundropdown"].active = true
 	guielements["savebutton"].active = true
 	guielements["menubutton"].active = true
+	guielements["newlevellabel"].active = true
+	guielements["newsublevelbutton"].active = true
+	guielements["newlevelbutton"].active = true
 	guielements["testbutton"].active = true
 	guielements["widthbutton"].active = true
 	guielements["intermissioncheckbox"].active = true
@@ -2332,6 +2338,32 @@ function increasetimelimit()
 	mariotimelimit = mariotimelimit + 10
 	mariotime = mariotimelimit
 	guielements["timelimitincrease"].x = 31 + string.len(mariotimelimit)*8
+end
+
+function new_level(sub)
+	if marioworld >= 8 and mariolevel >= 8 then
+		if (sub and mariosublevel >= 5) or not sub then
+			notice.add("level limit")
+			return false
+		end
+	end
+	
+	if sub then
+		mariosublevel = mariosublevel + 1
+		if mariosublevel > 5 then
+			mariosublevel = 0
+			mariolevel = mariolevel + 1
+		end
+	else
+		mariolevel = mariolevel + 1
+	end
+	
+	if mariolevel > 4 then
+		mariolevel = 0
+		marioworld = marioworld + 1
+	end
+	
+	savelevel()
 end
 
 function test_level()
