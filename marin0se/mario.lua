@@ -2334,7 +2334,9 @@ function mario:floorcollide(a, b, c, d)
 	self.jumping = false
 	
 	--Make mario snap to runspeed if at walkspeed.
-	if self.binds.control.playerRun then
+	--Without the ducking check, this would cause mario to slide indefinitely.
+	--So if mario isn't slowing down, this might be why.
+	if self.binds.control.playerRun and not self.ducking then
 		if self.binds.control.playerLeft and self.speedx <= -maxwalkspeed then
 			self.speedx = -maxrunspeed
 			self.animationdirection = "left"
