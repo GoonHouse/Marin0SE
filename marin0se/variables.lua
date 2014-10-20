@@ -11,6 +11,7 @@ portalgundelay = 0.2
 gellifetime = 2
 bulletbilllifetime = 20
 playertypelist = {"portal", "gelcannon"}
+gameplaytypelist = {"na", "vanilla", "oddjob"}
 
 latetable = {"portalwall", "castlefirefire", "platform"}
 -- the above is used in physics.lua to calculate late physics entities

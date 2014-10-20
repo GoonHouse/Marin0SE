@@ -205,5 +205,3 @@ table.insert(hat, {x = 7, y = 1, height = 2, graphic = love.graphics.newImage("s
 table.insert(hat, {x = 6, y = 4, height = 4, graphic = love.graphics.newImage("standardhats/goodnewseverybody.png")})
 
 table.insert(hat, {x = 5, y = 1, height = 4, graphic = love.graphics.newImage("standardhats/jetset.png")})
-
-table.insert(hat, {x = 6, y = 1, height = 4, graphic = love.graphics.newImage("standardhats/bestpony.png")})

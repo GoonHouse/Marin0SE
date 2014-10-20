@@ -753,7 +753,7 @@ function game_update(dt)
 		windtimer = windtimer + dt
 		while windtimer > 0.05 do
 			windtimer = windtimer - 0.05
-			table.insert(leaves, leaf:new(xscroll, math.random(1, mapheight)))
+			table.insert(objects["leaf"], leaf:new(xscroll, math.random(1, mapheight)))
 		end
 	end
 	
@@ -1037,25 +1037,25 @@ function drawui(hidetime)
 	
 	if gameplaytype ~= "NA" then
 		printfunction(characters[mariocharacter[1]].name, uispace*.5 - 24*scale, 8*scale)
-		if gameplaytype == "Regular" then
+		if gameplaytype == "vanilla" then
 			printfunction(addzeros(marioscore, 6), uispace*0.5-24*scale, 16*scale)
 			printfunction("*", uispace*1.5-8*scale, 16*scale)
-		elseif gameplaytype == "Oddjob" then
+		elseif gameplaytype == "oddjob" then
 			printfunction(addzeros(levelscore, 6), uispace*0.5-24*scale, 16*scale)
 			printfunction("*", uispace*1.5-8*scale, 16*scale)
 		end
 
 		love.graphics.draw(coinanimationimg, coinanimationquads[spriteset][coinframe], uispace*1.5-16*scale, 16*scale, 0, scale, scale)
-		if gameplaytype == "Regular" then
+		if gameplaytype == "vanilla" then
 			printfunction(addzeros(mariocoincount, 2), uispace*1.5-0*scale, 16*scale)
-		elseif gameplaytype == "Oddjob" then
+		elseif gameplaytype == "oddjob" then
 			printfunction(addzeros(levelcoincount, 2), uispace*1.5-0*scale, 16*scale)
 		end
 		
-		if gameplaytype == "Regular" then
+		if gameplaytype == "vanilla" then
 			printfunction("world", uispace*2.5 - 20*scale, 8*scale)
 			printfunction(marioworld .. "-" .. mariolevel, uispace*2.5 - 12*scale, 16*scale)
-		elseif gameplaytype == "Oddjob" then
+		elseif gameplaytype == "oddjob" then
 			printfunction("oddjob test", uispace*2.5 - 20*scale, 8*scale)
 			for i = 1, oddjobquotas[1] do
 				if redcoincollected[i] == 0 then
@@ -2558,27 +2558,20 @@ function loadlevel(level)
 	end
 	
 	--MISC VARS; Misc Global Variables
-	gameplaytype = "Oddjob" -- "NA", "Regular", "Oddjob"
+	gameplaytype = "oddjob" --List over in variables.lua
 	everyonedead = false
 	levelfinished = false
 	coinanimation = 1
 	redcoinanimation = 1
 	flagx = false
 	levelfinishtype = nil
-	firestartx = false
-	firestarted = false
 	firedelay = math.random(4)
 	flyingfishdelay = 1
-	flyingfishstarted = false
-	flyingfishstartx = false
-	flyingfishendx = false
 	bulletbilldelay = 1
+	firestarted = false
+	flyingfishstarted = false
 	bulletbillstarted = false
-	bulletbillstartx = false
-	bulletbillendx = false
 	windstarted = false
-	windstartx = false
-	windendx = false
 	windtimer = 0.1
 	firetimer = firedelay
 	flyingfishtimer = flyingfishdelay
@@ -4701,7 +4694,7 @@ end
 function addpoints(i, x, y)
 	if i > 0 then
 		marioscore = marioscore + i
-			if gameplaytype == "Oddjob" then
+			if gameplaytype == "oddjob" then
 				levelscore = levelscore + i
 			end
 		if x and y then
