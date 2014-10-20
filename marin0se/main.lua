@@ -481,6 +481,7 @@ function love.load(args)
 	require "variables"
 	require("libs.sha1")
 	class = require("libs.middleclass")
+	require "magic"
 	require "camera"
 	
 	-- we don't use the saneents list here because entity name weirdness 

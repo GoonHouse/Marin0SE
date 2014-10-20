@@ -69,13 +69,13 @@ function onlinemenu_update(dt)
 		end
 	end
 	
-	--[[magictimer = magictimer + dt
+	magictimer = magictimer + dt
 	while magictimer > magicdelay do
 		magictimer = magictimer - magicdelay
 		if checkmagic(guielements.ipentry.value) then
 			table.insert(magics, magic:new())
 		end
-	end--]]
+	end
 	
 	local delete = {}
 	
