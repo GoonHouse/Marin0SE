@@ -29,6 +29,14 @@ function enemy:init(x, y, t, a)
 	self.speedx = 0
 	self.speedy = 0
 	
+	--Gameplaytype exclusivity
+	if gameplaytype ~= "oddjob" then
+		self.active = false
+		self.drawable = false
+		self.destroy = true
+		return true
+	end
+	
 	--Get our enemy's properties from the property table
 	for i, v in pairs(enemiesdata[self.t]) do
 		self[i] = v
@@ -39,20 +47,6 @@ function enemy:init(x, y, t, a)
 		self.currentcustomtimerstage = 1
 	end
 
-	-- Gamemode: Decide whether it exists or not
-	if self.gamemodeexclusive == 2 then
-		if gameplaytype == "Oddjob" then
-			if self.istrophy and oddjobquotas[2] == 0 then
-			self.active = true
-			self.drawable = true
-			end
-		else
-			self.drawable = false
-			self.active = false
-		end
-	end
-	
-	
 	--Decide on a random movement if it's random..
 	if self.movementrandoms then
 		self.movement = self.movementrandoms[math.random(#self.movementrandoms)]
@@ -192,6 +186,14 @@ function enemy:init(x, y, t, a)
 end
 
 function enemy:update(dt)
+	-- Gameplaytype: Dupe Checker
+	--[[if oddjobquotas[2] >= 1 then
+		self.active = false
+		self.drawable = false
+		self.destroy = true
+		return true
+	end]]
+	
 	--Funnels and fuck
 	if self.funnel and not self.infunnel then
 		self:enteredfunnel(true)

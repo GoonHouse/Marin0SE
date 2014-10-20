@@ -41,11 +41,20 @@ function redcoin:init(x, y, r)
 		self.x = self.x-1
 		self.y = self.y-1
 	end
+	if gameplaytype ~= "oddjob" then -- Make it not exist outside gameplaytype.
+	self.destroy = true
+	end
 end
 
 function redcoin:update(dt)
 	-- returning in the update method signals the object handler to destroy us
-	if self.destroy then return true end
+	--[[if redcoincollected[self.value] >= 1 then  -- The why do you have dupes checker.
+	self.destroy = true
+	return true
+	end]]
+	if self.destroy then
+	return true
+	end
 end
 
 function redcoin:collected(ply)

@@ -627,9 +627,9 @@ function mario:update(dt)
 				subtracttimer = subtracttimer - scoresubtractspeed
 				if mariotime > 0 then
 					mariotime = math.ceil(mariotime - 1)
-					if gameplaytype == "Regular" then
+					if gameplaytype == "vanilla" then
 					marioscore = marioscore + 50
-					elseif gameplaytype == "Oddjob" then
+					elseif gameplaytype == "oddjob" then
 					levelscore = levelscore + 50
 					end
 				end
@@ -3013,7 +3013,7 @@ end
 function mario:leavespring()
 	self.y = self.springy - self.height-31/16
 	if self.springhigh then
-		if self.springb.type == "regular" then  -- Regular Springboard
+		if self.springb.type == "vanilla" then  -- Regular Springboard
 			self.speedy = -springhighforce
 		elseif self.springb.type == "high" then  -- High Springboard
 			self.speedy = -springhighhighforce
@@ -3213,9 +3213,9 @@ function hitblock(x, y, t, koopa)
 			end
 			if #r == 1 then
 				table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-					if gameplaytype == "Regular" then
+					if gameplaytype == "vanilla" then
 						mariocoincount = mariocoincount + 1
-					elseif gameplaytype == "Oddjob" then
+					elseif gameplaytype == "oddjob" then
 						levelcoincount = levelcoincount + 1
 					end
 				
@@ -3236,9 +3236,9 @@ function hitblock(x, y, t, koopa)
 		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t == "manycoins" then --block with many coins inside! yay $_$
 			playsound("coin")
 			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-				if gameplaytype == "Regular" then
+				if gameplaytype == "vanilla" then
 					mariocoincount = mariocoincount + 1
-				elseif gameplaytype == "Oddjob" then
+				elseif gameplaytype == "oddjob" then
 					levelcoincount = levelcoincount + 1
 				end
 			
@@ -3971,9 +3971,9 @@ function collectcoin(x, y, i)
 	end
 	addpoints(200)
 	playsound("coin")
-	if gameplaytype == "Regular" then
+	if gameplaytype == "vanilla" then
 		mariocoincount = mariocoincount + (i or 1)
-	elseif gameplaytype == "Oddjob" then
+	elseif gameplaytype == "oddjob" then
 		levelcoincount = levelcoincount + (i or 1)
 	end
 	
