@@ -3,17 +3,15 @@ leaf = class("leaf")
 function leaf:init(x, y)
 	self.x = x
 	self.y = y
+	self.speedx = 0
 	self.speedy = 0
-	self.speedx = 50
-	self.width = 1
-	self.height = 1
 	self.static = false
 	self.active = true
-	self.category = 29
-	self.portalable = false
+	self.category = 1
+	self.mask = {false}
+	self.height = 1
+	self.width = 1
 	self.gravity = 0
-	
-	self.mask = {true}
 	
 	--IMAGE STUFF
 	self.drawable = true
@@ -22,18 +20,16 @@ function leaf:init(x, y)
 	self.offsetX = 6
 	self.offsetY = 2
 	self.quadcenterX = 3
-	self.quadcenterY = 3
-	
+	self.quadcenterY = 3	
 	self.rotation = 0 --for portals
-	
 	self.direction = "left"
 	
-	self.falling = false
 end
 
 function leaf:update(dt)
-	self.x = self.x + 0.75
+	self.x = self.x + .50
 	if self.x > width or self.y > mapheight then
+		self.destroy = true
 		return true
 	end
 	return false

@@ -1226,7 +1226,7 @@ function mario:update(dt)
 			self:flag()
 		end
 		
-		if firestartx then
+--[[		if firestartx then
 			if self.x >= firestartx - 1 then
 				firestarted = true
 			else
@@ -1270,7 +1270,7 @@ function mario:update(dt)
 		if windendx and self.x >= windendx - 1 then
 			windstarted = false
 		end
-		
+]]		
 		if lakitoendx and self.x >= lakitoendx then
 			lakitoend = true
 		end

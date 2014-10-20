@@ -33,7 +33,7 @@ entitylist = {
 	{t="wallindicator", category="i/o objects", description="place anywhere - shows on or off state", iconauthor=""},
 	{t="pipespawn", category="level markers", description="place on block - spawn for when coming from a sublevel", iconauthor="TripleXero"}, --30
 	{t="platformfall", category="smb stuff", description="place on empty tile - falling platforms", iconauthor=""},
-	{t="bulletbillstart", category="level markers", description="place anywhere - beginning of bullet zone", iconauthor="Jackostar10000"},
+	{t="generators", category="level markers", description="place anywhere - will start generation of whatever it has when active", iconauthor="Jackostar10000"},
 	{t="bulletbillend", category="level markers", description="place anywhere - end of bullet zone", iconauthor="Jackostar10000"},
 	{t="drain", category="level markers", description="place at the very bottom in an underwater level - drain, attracts mario down", iconauthor="Bobfan"},
 	{t="lightbridge", category="portal elements", description="place on empty tile - light bridge", iconauthor="ChrisGin"},
@@ -545,6 +545,13 @@ rightclickmenues.redcoin = {
 	{},
 	{t="text", value="size:"},
 	{t="submenu", entries={"small", "tallthin", "large"}, default=1, width=8, actualvalue=true},
+}
+
+rightclickmenues.generators = {
+	{t="text", value="contents:"},
+	{t="submenu", entries={"bulletbill", "flyingcheeps", "bowserflames", "highwindright"}, default=1, width=13, actualvalue=true},
+	{},
+	{t="linkbutton", value="link trigger", link="trigger"}
 }
 
 function entity:init(img, x, y, width, height)

@@ -772,7 +772,7 @@ function game_update(dt)
 		windtimer = windtimer + dt
 		while windtimer > 0.05 do
 			windtimer = windtimer - 0.05
-			table.insert(leaves, leaf:new(xscroll, math.random(1, mapheight)))
+			table.insert(objects["leaf"], leaf:new(xscroll, math.random(1, mapheight)))
 		end
 	end
 	
@@ -2584,20 +2584,13 @@ function loadlevel(level)
 	redcoinanimation = 1
 	flagx = false
 	levelfinishtype = nil
-	firestartx = false
-	firestarted = false
 	firedelay = math.random(4)
 	flyingfishdelay = 1
-	flyingfishstarted = false
-	flyingfishstartx = false
-	flyingfishendx = false
 	bulletbilldelay = 1
+	firestarted = false
+	flyingfishstarted = false
 	bulletbillstarted = false
-	bulletbillstartx = false
-	bulletbillendx = false
 	windstarted = false
-	windstartx = false
-	windendx = false
 	windtimer = 0.1
 	firetimer = firedelay
 	flyingfishtimer = flyingfishdelay

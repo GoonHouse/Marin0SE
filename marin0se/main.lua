@@ -388,7 +388,7 @@ function love.load(args)
 		"ceilblocker", "funnel", "panel", "scaffold", "bubble",
 		"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody",
-		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin"
+		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin", "generators"
 	}
 	--[[ here are a list of entities that have BROKEN THE LAW ]]
 	insaneents = {
