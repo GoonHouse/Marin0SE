@@ -295,25 +295,6 @@ function game_update(dt)
 		end
 	end
 	
-	--gelcannon
-	if objects["player"][mouseowner] and playertype == "gelcannon" and objects["player"][mouseowner].controlsenabled then
-		if gelcannontimer > 0 then
-			gelcannontimer = gelcannontimer - dt
-			if gelcannontimer < 0 then
-				gelcannontimer = 0
-			end
-		else
-			if love.mouse.isDown("l") then
-				gelcannontimer = gelcannondelay
-				objects["player"][mouseowner]:shootgel(1)
-			elseif love.mouse.isDown("r") then
-				gelcannontimer = gelcannondelay
-				objects["player"][mouseowner]:shootgel(2)
-			end
-		end
-	end
-	
-	
 	--UPDATE STUFFFFF
 	
 	local updatetable = {
@@ -3665,24 +3646,18 @@ function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 	if not mirrored then
 		objects["player"][plnumber].lastportal = i
 	end
-	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
 	local mirror = false
-	local gelstat = false
+	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
 	if cox then
+		mirror = tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy)
 		if map[cox][coy]["gels"] and map[cox][coy]["gels"][side] then
-			gelstat = map[cox][coy]["gels"][side]
-		end
-		local ismirror = tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy)
-		--[[if gelstat and gelstat == 6 or (ismirror and (gelstat==1 or gelstat==2 or gelstat==4)) then
-			return
-		end]]
-		
-		if ismirror then
-			if gelstat and gelstat~=5 then
+			local gelstat = map[cox][coy]["gels"][side]
+			if mirror and table.contains(gelsthattarnishmirrors, enum_gels[gelstat]) then
 				mirror = false
-			else
-				mirror = true
 			end
+		--	elseif mirror and enum_gels[gelstat] == "white" then
+		--		mirror = false
+		--	end
 		end
 	end
 	
@@ -4011,6 +3986,27 @@ function getTile(x, y, portalable, portalcheck, facing, ignoregrates, dir) --ret
 		elseif facing == "left" then
 			side = "left"
 		end
+		local conditions = {
+			not_mirror = not tilequads[map[x][y][1]]:getproperty("mirror", x, y),
+			collision = tilequads[map[x][y][1]]:getproperty("collision", x, y),
+			portalable = tilequads[map[x][y][1]]:getproperty("portalable", x, y),
+			not_grate = not tilequads[map[x][y][1]]:getproperty("grate", x, y), --not a fan of grates either
+		}
+		-- this is used for named condition checks so there's no ambiguity
+		if map[x][y]["gels"] and map[x][y]["gels"][side] then
+			local gelstat = map[x][y]["gels"][side]
+			if enum_gels[gelstat] == "black" then
+				conditions["portalable"] = false
+			end
+			if not conditions["not_mirror"] and table.contains(gelsthattarnishmirrors, enum_gels[gelstat]) then
+				conditions["portalable"] = false
+			end
+			if not conditions["portalable"] and enum_gels[gelstat] == "white" then
+				conditions["portalable"] = true
+				conditions["not_mirror"] = true
+			end
+		end
+		
 		
 		--To stop people from portalling under the vine, which caused problems, but was fixed elsewhere (and betterer)
 		--[[for i, v in pairs(objects["vine"]) do
@@ -4022,23 +4018,9 @@ function getTile(x, y, portalable, portalcheck, facing, ignoregrates, dir) --ret
 		if map[x][y]["portaloverride"][side] then
 			return true, map[x][y][1]
 		end
-		local gelstat = false
-		if map[x][y]["gels"] and map[x][y]["gels"][side] then
-			gelstat = map[x][y]["gels"][side]
-		end
-		local ismirror = tilequads[map[x][y][1]]:getproperty("mirror", x, y)
-		if gelstat then
-			--[[@WARNING:
-				This bypasses all the other checks, so, we might be causing a mess.
-			]]
-			if gelstat and gelstat == 6 or (ismirror and (gelstat==1 or gelstat==2 or gelstat==4)) then
-				return false, map[x][y][1]
-			else
-				return true, map[x][y][1]
-			end
-		else
-			return tilequads[map[x][y][1]]:getproperty("collision", x, y) and tilequads[map[x][y][1]]:getproperty("portalable", x, y) and tilequads[map[x][y][1]]:getproperty("grate", x, y) == false --[[ismirror == false]], map[x][y][1]
-		end
+		
+		-- if anything in the conditions table is false, then it's a no-go and we give a false
+		return (not table.contains(conditions, false)) or conditions["not_mirror"], map[x][y][1]
 	else
 		if ignoregrates then
 			return tilequads[map[x][y][1]]:getproperty("collision", x, y) and tilequads[map[x][y][1]]:getproperty("grate", x, y) == false, map[x][y][1]

@@ -42,7 +42,7 @@ controlTable = {
 		m = {"gameShortcutMappackFolder"},
 		down = {"menuDown", "editorScrollDown"},
 		right = {"menuRight", "editorScrollRight"},
-		k = {"replaySave"},
+		--k = {"replaySave"},
 		
 		--(key == "return" or key == "enter" or key == "kpenter" or key == " ")
 		["return"] = "menuSelect",
@@ -58,6 +58,7 @@ controlTable = {
 		delete = "editorDelete",
 		[" "] = {"playerJump", "menuSelect"},
 		
+		h = "editorCameraFollowToggle",
 		tab = "editorQuickToggle",
 		
 		f1 = "editorTabMain",
@@ -70,7 +71,7 @@ controlTable = {
 		f10 = "debugCrash",
 		f11 = "gameScreenshot",
 		f12 = "gameGrabMouseToggle",
-		y = "recordToggle",
+		--y = "recordToggle",
 		
 		["1"] = "editorTilesAll",
 		--["2"] = "editorTilesSMB",

@@ -1137,6 +1137,86 @@ function frommapstab()
 	end
 end
 
+function fromtoolstab()
+	guielements["tabmain"].active = false
+	guielements["tabtiles"].active = false
+	guielements["tabtools"].active = false
+	guielements["tabmaps"].active = false
+	guielements["tabanimations"].active = false
+	
+	-- hoo boy
+	guielements["selectionbutton"].active = false
+	guielements["lightdrawbutton"].active = false
+	guielements["edittitle"].active = false
+	guielements["editauthorlabel"].active = false
+	guielements["editauthor"].active = false
+	guielements["editdescription"].active = false
+	guielements["savesettings"].active = false
+	
+	guielements["livesdecrease"].active = false
+	guielements["liveslabel"].active = false
+	guielements["livesnum"].active = false
+	guielements["livesincrease"].active = false
+end
+
+function fromtilestab()
+	guielements["tabmain"].active = false
+	guielements["tabtiles"].active = false
+	guielements["tabtools"].active = false
+	guielements["tabmaps"].active = false
+	guielements["tabanimations"].active = false
+	
+	guielements["tilesscrollbar"].active = false
+	
+	guielements["tilesall"].active = false
+	guielements["tilessmb"].active = false
+	guielements["tilesportal"].active = false
+	guielements["tilescustom"].active = false
+	guielements["tilesanimated"].active = false
+	guielements["tilesentities"].active = false
+	guielements["tilesenemies"].active = false
+end
+
+function frommaintab()
+	guielements["tabmain"].active = false
+	guielements["tabtiles"].active = false
+	guielements["tabtools"].active = false
+	guielements["tabmaps"].active = false
+	guielements["tabanimations"].active = false
+	
+	guielements["colorsliderr"].active = false
+	guielements["colorsliderg"].active = false
+	guielements["colorsliderb"].active = false
+	for i = 1, #backgroundcolor do
+		guielements["defaultcolor" .. i].active = false
+	end
+	
+	guielements["autoscrollcheckbox"].active = false
+	guielements["musicdropdown"].active = false
+	guielements["spritesetdropdown"].active = false
+	guielements["timelimitdecrease"].active = false
+	guielements["timelimitincrease"].active = false
+	guielements["portalgundropdown"].active = false
+	guielements["savebutton"].active = false
+	guielements["menubutton"].active = false
+	guielements["newlevellabel"].active = false
+	guielements["newsublevelbutton"].active = false
+	guielements["newlevelbutton"].active = false
+	guielements["testbutton"].active = false
+	guielements["widthbutton"].active = false
+	guielements["intermissioncheckbox"].active = false
+	guielements["warpzonecheckbox"].active = false
+	guielements["underwatercheckbox"].active = false
+	guielements["bonusstagecheckbox"].active = false
+	guielements["custombackgroundcheckbox"].active = false
+	guielements["customforegroundcheckbox"].active = false
+	guielements["scrollfactorscrollbar"].active = false
+	guielements["fscrollfactorscrollbar"].active = false
+	guielements["backgrounddropdown"].active = false
+	guielements["foregrounddropdown"].active = false
+	guielements["levelscreendropdown"].active = false
+end
+
 function generateentitylist()
 	entitylistitems = {}
 	for i, v in ipairs(entitylist) do
@@ -1657,9 +1737,17 @@ function editorclose()
 	for i, v in pairs(guielements) do
 		v.active = false
 	end
-	
-	if editorstate == "animations" then
+	if editorstate == "main" then
+		frommaintab()
+	elseif editorstate == "tiles" then
+		fromtilestab()
+	elseif editorstate == "tools" then
+		fromtoolstab()
+	elseif editorstate == "maps" then
+		frommapstab()
+	elseif editorstate == "animations" then
 		saveanimation()
+		fromanimationstab()
 	end
 end
 
@@ -1788,6 +1876,10 @@ function editor_controlupdate(dt)
 	end
 	
 	if controls.editorShortcutModifier then
+		if controls.tap.editorCameraFollowToggle then
+			toggleautoscroll()
+		end
+		
 		if controls.tap.editorErase then
 			currenttile = 1
 			editenemies = false
@@ -1854,7 +1946,7 @@ function editor_controlupdate(dt)
 	if controls.editorPaint and not testlevel then
 		if editorstate == "lightdraw" and editormenuopen == false then
 			paintLight()
-		elseif editorstate == "main" then
+		elseif editorstate == "main" and editoropen then
 			local mousex, mousey = mouse.getPosition()
 			if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
 				if mousex >= minimapx*scale and mousex < (minimapx+394)*scale then
@@ -1989,6 +2081,13 @@ function editor_controlupdate(dt)
 				if inmap(cox, coy) then
 					placetile(x, y)
 				end
+			--[[elseif editorstate == "main" then
+				if y >= minimapy*scale and y < (minimapy+34)*scale then
+					if x >= minimapx*scale and x < (minimapx+394)*scale then
+						minimapdragging = true
+						toggleautoscroll(false)
+					end
+				end]]
 			end
 		else
 			if editorstate == "tiles" then
@@ -2019,13 +2118,6 @@ function editor_controlupdate(dt)
 							editorclose()
 							allowdrag = false
 						end
-					end
-				end
-			elseif editorstate == "main" then
-				if y >= minimapy*scale and y < (minimapy+34)*scale then
-					if x >= minimapx*scale and x < (minimapx+394)*scale then
-						minimapdragging = true
-						toggleautoscroll(false)
 					end
 				end
 			end

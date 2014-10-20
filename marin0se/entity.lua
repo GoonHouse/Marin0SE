@@ -396,7 +396,7 @@ rightclickmenues.door = {
 
 rightclickmenues.gel = {
 	{t="text", value="type:"},
-	{t="submenu", entries={"blue", "orange", "white", "purple", "water", "black"}, default=1, width=6},
+	{t="submenu", entries=enum_gels, default=1, width=6},
 	{},
 	{t="text", value="direction:"}, 
 	{t="checkbox", text="left", default="false"},
@@ -410,7 +410,7 @@ rightclickmenues.geldispenser = {
 	{t="directionbuttons", left=true, right=true, down=true, up=true, default="down"}, 
 	{},
 	{t="text", value="type:"},
-	{t="submenu", entries={"blue", "orange", "white", "purple", "water", "black"}, default=1, width=6},
+	{t="submenu", entries=enum_gels, default=1, width=6},
 	{},
 	{t="checkbox", text="default off", default="false"},
 	{},

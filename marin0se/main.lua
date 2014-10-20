@@ -1664,7 +1664,8 @@ function controlsUpdate(dt)
 	end
 	
 	if controls.tap.editorGetMousePosition then
-		print("mouse position", mouse.getX(), mouse.getY())
+		local x, y = getMouseTile(mouse.getX(), mouse.getY())
+		print("mouse position", x, y)
 	end
 	
 	if controls.debugModifier then

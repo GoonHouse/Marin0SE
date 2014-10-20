@@ -53,6 +53,8 @@ function mario:init(x, y, i, animation, size, t)
 		--print("wrap control release")
 		self:controlRelease(control, false)
 	end
+	self.playertype = "portal" --
+	self.gelcannontimer = 0
 	
 	--PHYSICS STUFF
 	self.speedx = 0
@@ -309,9 +311,17 @@ function mario:controlPress(control, fromnetwork)
 	elseif control=="playerRight" then
 		self:rightkey()
 	elseif control=="playerPrimaryFire" then
-		self:shootportal(1)
+		if self.playertype == "portal" then
+			self:shootportal(1)
+		elseif self.playertype == "gelcannon" then
+			self:shootgel(1)
+		end
 	elseif control=="playerSecondaryFire" then
-		self:shootportal(2)
+		if self.playertype == "portal" then
+			self:shootportal(2)
+		elseif self.playertype == "gelcannon" then
+			self:shootgel(2)
+		end
 	end
 end
 function mario:controlRelease(control, fromnetwork)
@@ -386,6 +396,13 @@ function mario:update(dt)
 	if self.binds.update and self.controls and self.playernumber == 1 then
 		self.binds:update()
 	end
+	if gelcannontimer > 0 then
+		gelcannontimer = gelcannontimer - dt
+		if gelcannontimer < 0 then
+			gelcannontimer = 0
+		end
+	end
+	
 	if replaysystem then
 		livereplaydelay[self.playernumber] = livereplaydelay[self.playernumber] + dt
 		while livereplaydelay[self.playernumber] >= 1/60 do
@@ -4085,13 +4102,16 @@ function mario:shootportal(i, mirrored)
 end
 
 function mario:shootgel(i)
-	table.insert(objects["gel"], gel:new(self.x+self.width/2+8/16, self.y+self.height/2+6/16, i))
-	
-	local xspeed = math.cos(-self.pointingangle-math.pi/2)*gelcannonspeed
-	local yspeed = math.sin(-self.pointingangle-math.pi/2)*gelcannonspeed
-	
-	objects["gel"][#objects["gel"]].speedy = yspeed
-	objects["gel"][#objects["gel"]].speedx = xspeed
+	if not (self.gelcannontimer > 0) then
+		self.gelcannontimer = gelcannondelay
+		table.insert(objects["gel"], gel:new(self.x+self.width/2+8/16, self.y+self.height/2+6/16, i))
+		
+		local xspeed = math.cos(-self.pointingangle-math.pi/2)*gelcannonspeed
+		local yspeed = math.sin(-self.pointingangle-math.pi/2)*gelcannonspeed
+		
+		objects["gel"][#objects["gel"]].speedy = yspeed
+		objects["gel"][#objects["gel"]].speedx = xspeed
+	end
 end
 
 function mario:respawn()

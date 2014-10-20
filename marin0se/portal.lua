@@ -18,6 +18,7 @@ function portal:createportal(i, cox, coy, side, tendency)
 			otheri = 2
 		end
 		
+		--@NOTE: Wonder what would happen if we *didn't* do this. Try it out some time.
 		moveoutportal(i)
 	
 		--remove the portal temporarily so that it doesn't obstruct itself

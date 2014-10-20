@@ -25,6 +25,8 @@ powerupstates = {
 }
 
 numgeltypes=6
+enum_gels = {"blue", "orange", "white", "purple", "water", "black"}
+gelsthattarnishmirrors = {"blue", "orange", "white", "purple", "black"}
 
 spawnarea = {1, 1, 1, 1}
 
