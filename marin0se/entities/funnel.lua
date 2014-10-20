@@ -141,12 +141,25 @@ function funnel:update(dt)
 				local w = objects[rectcol[i]][rectcol[i+1]]
 				w.speedx = 0
 				w.speedy = 0
+				if not w.funneloffset then
+					--these numbers are magic, I'm sorry
+					if rectcol[i] ~= "gel" then
+						w.funneloffset = 0
+					else
+						w.funneloffset = math.random()*5-2.5
+					end
+				end
+				
+				-- update the lifetime of gels
+				if rectcol[i]=="gel" then
+					w.timer = 0
+				end
 				
 				if v.dir == "right" then
 					w.speedx = self.speed*self.reverse
 					
 					local diff = (w.y+w.height/2)-y-1
-					w.speedy = -diff*funnelforce
+					w.speedy = -diff*funnelforce-w.funneloffset+(math.sin(self.cox-w.x)*0.5)
 					
 					if rectcol[i] == "player" then
 						if w.binds.control.playerDown then
@@ -160,7 +173,7 @@ function funnel:update(dt)
 					w.speedx = -self.speed*self.reverse
 					
 					local diff = (w.y+w.height/2)-y-1
-					w.speedy = -diff*funnelforce
+					w.speedy = -diff*funnelforce-w.funneloffset+(math.sin(self.cox-w.x)*0.5)
 					
 					if rectcol[i] == "player" then
 						if w.binds.control.playerDown then
@@ -174,7 +187,7 @@ function funnel:update(dt)
 					w.speedy = -self.speed*self.reverse
 					
 					local diff = (w.x+w.width/2)-x-1
-					w.speedx = -diff*funnelforce
+					w.speedx = -diff*funnelforce-w.funneloffset+(math.sin(self.coy-w.y)*0.5)
 					
 					if rectcol[i] == "player" then
 						if w.binds.control.playerLeft then
@@ -188,7 +201,7 @@ function funnel:update(dt)
 					w.speedy = self.speed*self.reverse
 					
 					local diff = (w.x+w.width/2)-x-1
-					w.speedx = -diff*funnelforce
+					w.speedx = -diff*funnelforce-w.funneloffset+(math.sin(self.coy-w.y)*0.5)
 					
 					if rectcol[i] == "player" then
 						if w.binds.control.playerLeft then
@@ -200,6 +213,7 @@ function funnel:update(dt)
 				end
 				
 				w.funnel = true
+				
 				w.gravity = 0
 				w.gravitydirection = math.pi/2
 			end
