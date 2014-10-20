@@ -86,7 +86,7 @@ controlTable = {
 		r = {"playerSecondaryFire", "editorContext"},
 		wu = {"playerPrevWeapon", "editorPrevBlock", "gameFrameSkipDecrease", "gameBulletTimeDecrease", "debugSpeedDecrease"},
 		wd = {"playerNextWeapon", "editorNextBlock", "gameFrameSkipIncrease", "gameBulletTimeIncrease", "debugSpeedIncrease"},
-		x1 = "", --mouse4
+		x1 = "editorGetMousePosition", --mouse4
 		x2 = "", --mouse5
 	},
 	joyBtns = {

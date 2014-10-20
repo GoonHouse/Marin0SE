@@ -1663,7 +1663,12 @@ function controlsUpdate(dt)
 		screenshotUploadWrap("screenshot.png", love.graphics.newScreenshot())
 	end
 	
+	if controls.tap.editorGetMousePosition then
+		print("mouse position", mouse.getX(), mouse.getY())
+	end
+	
 	if controls.debugModifier then
+		
 		if controls.tap.recordToggle then
 			recording = not recording
 		end
@@ -2104,13 +2109,14 @@ function loadcustombackgrounds()
 				custombackgroundheight[name] = {}
 					
 				while love.filesystem.exists(bg .. i .. ".png") do
+					print("background", bg, "index", i)
 					custombackgroundimg[name][i] = love.graphics.newImage(bg .. i .. ".png")
 					custombackgroundwidth[name][i] = custombackgroundimg[name][i]:getWidth()/16
 					custombackgroundheight[name][i] = custombackgroundimg[name][i]:getHeight()/16
 					i = i + 1
 				end
 				table.insert(custombackgrounds, name)
-			else
+			--[[else
 				local name = string.sub(fl[i], 1, -5)
 				local bg = string.sub(v, 1, -5)
 				
@@ -2118,7 +2124,7 @@ function loadcustombackgrounds()
 				custombackgroundwidth[name] = {custombackgroundimg[name][1]:getWidth()/16}
 				custombackgroundheight[name] = {custombackgroundimg[name][1]:getHeight()/16}
 				
-				table.insert(custombackgrounds, name)
+				table.insert(custombackgrounds, name)]]
 			end
 		end
 	end
