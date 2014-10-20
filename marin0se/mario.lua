@@ -2868,6 +2868,9 @@ function mario:globalcollide(a, b, c, d, dir)
 		oddjobquotas[2] = 1
 		gotatrophy(self.playernumber, b)
 		return true
+	elseif b.givecoinoncollect then
+		collectcoin(x, y, (b.givecoinoncollect))
+		return true
 	elseif b.makesmariostar then
 		self:star()
 		return true
