@@ -10,7 +10,7 @@ EQUALSIGN = "¨"
 portalgundelay = 0.2
 gellifetime = 2
 bulletbilllifetime = 20
-playertypelist = {"portal", "gelcannon"}
+playertypelist = {"portalgun", "gelcannon"}
 gameplaytypelist = {"na", "vanilla", "oddjob"}
 
 latetable = {"portalwall", "castlefirefire", "platform"}

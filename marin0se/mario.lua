@@ -32,7 +32,16 @@ function mario:init(x, y, i, animation, size, t)
 		self.powerdowntargetstate = "super"
 	end
 	self.prefermouse = true
-	self.t = t or "portal"
+	self.t = t or "portalgun"
+	self.activeweapon = nil
+	self.weapons = {}
+	--[[ { weaponname = reference } ]]
+	if _G[self.t] and _G[self.t].isWeapon then
+		self.weapons[self.t] = _G[self.t]:new(self)
+		self.activeweapon = self.weapons[self.t]
+		self.activeweapon.isActiveWeapon = true
+	end
+	
 	self.portalsavailable = {unpack(portalsavailable)}
 	local bindtable 
 	if self.playernumber == 1 then
@@ -53,8 +62,6 @@ function mario:init(x, y, i, animation, size, t)
 		--print("wrap control release")
 		self:controlRelease(control, false)
 	end
-	self.playertype = "portal" --
-	self.gelcannontimer = 0
 	
 	--PHYSICS STUFF
 	self.speedx = 0
@@ -311,16 +318,12 @@ function mario:controlPress(control, fromnetwork)
 	elseif control=="playerRight" then
 		self:rightkey()
 	elseif control=="playerPrimaryFire" then
-		if self.playertype == "portal" then
-			self:shootportal(1)
-		elseif self.playertype == "gelcannon" then
-			self:shootgel(1)
+		if self.activeweapon then 
+			self.activeweapon:primaryFire()
 		end
 	elseif control=="playerSecondaryFire" then
-		if self.playertype == "portal" then
-			self:shootportal(2)
-		elseif self.playertype == "gelcannon" then
-			self:shootgel(2)
+		if self.activeweapon then 
+			self.activeweapon:secondaryFire()
 		end
 	end
 end
@@ -396,12 +399,11 @@ function mario:update(dt)
 	if self.binds.update and self.controls and self.playernumber == 1 then
 		self.binds:update()
 	end
-	if gelcannontimer > 0 then
-		gelcannontimer = gelcannontimer - dt
-		if gelcannontimer < 0 then
-			gelcannontimer = 0
-		end
-	end
+	
+	-- this is handled in the giant objects iterable
+	--[[if self.activeweapon then
+		self.activeweapon:update(dt)
+	end]]
 	
 	if replaysystem then
 		livereplaydelay[self.playernumber] = livereplaydelay[self.playernumber] + dt
@@ -3988,68 +3990,6 @@ function mario:portaled(dir)
 		end
 		
 		self.hats = {32}
-	end
-end
-
-function mario:shootportal(i, mirrored)
-	if not editormode then
-		shootportal(self.playernumber, i, self.x+6/16, self.y+6/16, self.pointingangle, mirrored)
-	end
-	-- I can't make this local to the player just yet but I can leave the foundation by wrapping it.
-	--[[if self.portalgundisabled then
-		return
-	end
-	
-	--check if available
-	if not self.portalsavailable[i] then
-		return
-	end
-	
-	--box
-	if self.pickup then
-		return
-	end
-	--portalgun delay
-	if portaldelay[self.playernumber] > 0 then
-		return
-	else
-		portaldelay[self.playernumber] = portalgundelay
-	end
-	
-	local otheri = 1
-	local color = self.portal2color
-	if i == 1 then
-		otheri = 2
-		color = self.portal1color
-	end
-	if not mirrored then
-		self.lastportal = i
-	end
-	local sourcex = self.x+6/16
-	local sourcey = self.y+6/16
-	local direction = self.pointingangle
-	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
-	
-	local mirror = false
-	if cox and tilequads[map[cox][coy][1]]--[[:getproperty("mirror", cox, coy) then
-		mirror = true
-	end
-	
-	self.lastportal = i
-	
-	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {self.portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))]]
-end
-
-function mario:shootgel(i)
-	if not (self.gelcannontimer > 0) then
-		self.gelcannontimer = gelcannondelay
-		table.insert(objects["gel"], gel:new(self.x+self.width/2+8/16, self.y+self.height/2+6/16, i))
-		
-		local xspeed = math.cos(-self.pointingangle-math.pi/2)*gelcannonspeed
-		local yspeed = math.sin(-self.pointingangle-math.pi/2)*gelcannonspeed
-		
-		objects["gel"][#objects["gel"]].speedy = yspeed
-		objects["gel"][#objects["gel"]].speedx = xspeed
 	end
 end
 
