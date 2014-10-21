@@ -271,7 +271,7 @@ function love.load(args)
 	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", 
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
 	"excursionfunnel2end", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase",
-	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "musicentity", "smbtiles", "portaltiles",
+	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "sfxentity", "animationtarget", "musicentity", "smbtiles", "portaltiles",
 	"animatedtiletrigger", "delayer", "leaf", "groundlight"}
 	
 	graphicspacki = 1
@@ -377,15 +377,15 @@ function love.load(args)
 			* **having instances stored in the array** `objects["classname"]`
 	]]
 	saneents = {
-		"portalwall", "tile", "vine", "box", "door", "button",
+		"sfxentity", "portalwall", "tile", "vine", "box", "door", "button",
 		"groundlight", "wallindicator", "animatedtiletrigger", "delayer",
 		"walltimer", "notgate", "rsflipflop", "orgate", "andgate",
 		"musicentity", "enemyspawner", "squarewave", "lightbridge",
-		"faithplate", "laser", "noportal", "bulletbill", 
+		"faithplate", "laser", "noportal", "bulletbill", "animationtarget",
 		"laserdetector", "gel", "geldispenser", "fireball", "pushbutton",
 		"cubedispenser", "platform", "castlefire", "platformspawner",
 		"bowser", "spring", "seesawplatform", "checkpoint", "seesaw",
-		"ceilblocker", "funnel", "panel", "scaffold", "bubble",
+		"ceilblocker", "funnel", "panel", "scaffold", "bubble", "axe",
 		"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody",
 		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin", "generators"
@@ -2275,7 +2275,7 @@ function reloadGraphics()
 end
 
 function reloadSounds() -- mastersfx, master list of sounds current being looked at.
-	soundstoload = {"jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball", "redcoin1", "redcoin2", "redcoin3", "redcoin4", "redcoin5",
+	soundstoload = {"none", "jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball", "redcoin1", "redcoin2", "redcoin3", "redcoin4", "redcoin5",
 					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill", "addtime", "throw", "trophy",
 					"lowtime", "tailwag", "planemode", "stab", "spring", "portal1open", "portal2open", "portalenter", "portalfizzle"}
 				

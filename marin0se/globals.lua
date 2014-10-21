@@ -61,6 +61,10 @@ controlTable = {
 		h = "editorCameraFollowToggle",
 		tab = "editorQuickToggle",
 		
+		kp4 = "editorPreviousLevel",
+		kp6 = "editorNextLevel",
+		
+		
 		f1 = "editorTabMain",
 		--f2 = "editorTabTiles",
 		f2 = "editorTabTools",

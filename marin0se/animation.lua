@@ -205,6 +205,13 @@ function animation:update(dt)
 				end
 			elseif v[1] == "sleep" then
 				self.sleep = tonumber(v[2])
+			elseif v[1] == "animationtarget" then
+				print(" we do animaiton ", #objects["animationtarget"], v[1], v[2])
+				for h,j in pairs(objects["animationtarget"]) do
+					if j.id == v[2] then
+						j:out("on")
+					end
+				end
 			elseif v[1] == "setcamerax" then
 				xscroll = tonumber(v[2])
 			elseif v[1] == "pancameratox" then

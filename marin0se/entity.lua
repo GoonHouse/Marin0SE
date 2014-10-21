@@ -12,8 +12,8 @@ entitylist = {
 	{t="delayer", category="gates", description="place anywhere - will delay an input", output=true, iconauthor=""},
 	{t="rsflipflop", category="gates", description="place anywhere - can be toggled on and off", output=true, iconauthor=""},
 	{t="flag", category="level markers", description="place on block - bottom of the flag, end of level", iconauthor="TripleXero"}, --10
-	{t=""},
-	{t=""},
+	{t="sfxentity", category="misc", description="place anywhere - takes an input and will play specified sound effect", iconauthor="EntranceJew"},
+	{t="animationtarget", category="i/o objects", description="place anywhere - sends output when called by animation trigger", output=true, iconauthor="EntranceJew"},
 	{t="vine", category="smb stuff", description="place on block - vine - right click to choose destination", iconauthor="Superjustinbros"},
 	{t="vinestop", category="smb stuff", description="place anywhere - will stop a vine's growth at this point", iconauthor="alesan99"},
 	{t=""},
@@ -91,7 +91,7 @@ entitylist = {
 	{t="redcoin", category="smb stuff", description="place in air - a red coin to collect", iconauthor="sorrynothing"},
 	{t="firestart", category="level markers", description="place anywhere - fire start - bowser firethings will regularly cross the screen", iconauthor="HammerGuy"},
 	{t="bowser", category="level markers", description="place on empty tile preferably on the first block on a bridge with an axe - bowser", iconauthor="renhoek"},
-	{t="axe", category="level markers", description="place on empty tile preferably behind a bridge - axe, end of level", iconauthor="alesan99"}, --90
+	{t="axe", category="level markers", description="place on empty tile preferably behind a bridge - axe, end of level", output=true, iconauthor="alesan99"}, --90
 	{t="platformbonus", category="smb stuff", description="place on empty tile - platform in coin worlds", iconauthor=""},
 	{t="spring", category="smb stuff", description="place on empty tile - spring", iconauthor="Firaga"},
 	{t=""},
@@ -219,6 +219,15 @@ rightclickmenues.musicentity = {
 	{t="checkbox", text="single use", default="true"},
 	{},
 	{t="submenu", entries=function() local t = {} for i, v in pairs(musiclist) do table.insert(t, v) end return t end, actualvalue=true, default=1, width=15},
+	{},
+	{t="linkbutton", value="link trigger", link="trigger"}
+}
+
+rightclickmenues.sfxentity = {
+	{t="checkbox", text="visible", default="true"},
+	{t="checkbox", text="single use", default="true"},
+	{},
+	{t="submenu", entries=function() local t = {} for i, v in pairs(soundstoload) do table.insert(t, v) end return t end, actualvalue=true, default=1, width=15},
 	{},
 	{t="linkbutton", value="link trigger", link="trigger"}
 }
@@ -443,7 +452,12 @@ rightclickmenues.textentity = {
 	{t="text", value="blue:"},
 	{t="scrollbar", min=0, max=255, step=1, default=255},
 	{},
-	{t="linkbutton", value="link power", link="power"}
+	{t="text", value="x offset:"},
+	{t="scrollbar", min=0, max=16, step=1, default=0},
+	{t="text", value="y offset:"},
+	{t="scrollbar", min=0, max=16, step=1, default=0},
+	{},
+	{t="linkbutton", value="link power", link="power"},
 }
 
 rightclickmenues.squarewave = {
@@ -478,6 +492,11 @@ rightclickmenues.animationtrigger = {
 	{t="input", default="myanim", max=12},
 	{},
 	{t="linkbutton", value="link in", link="in"}
+}
+
+rightclickmenues.animationtarget = {
+	{t="text", value="target name"},
+	{t="input", default="mytarget", max=12},
 }
 
 rightclickmenues.animatedtiletrigger = {
@@ -540,6 +559,14 @@ rightclickmenues.groundlight = {
 }
 
 rightclickmenues.redcoin = {
+	{t="text", value="value:"},
+	{t="scrollbar", min=1, max=5, step=1, default=1},
+	{},
+	{t="text", value="size:"},
+	{t="submenu", entries={"small", "tallthin", "large"}, default=1, width=8, actualvalue=true},
+}
+
+rightclickmenues.axe = {
 	{t="text", value="value:"},
 	{t="scrollbar", min=1, max=5, step=1, default=1},
 	{},

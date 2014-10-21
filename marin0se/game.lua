@@ -431,11 +431,11 @@ function game_update(dt)
 			if xscroll < 0 then
 				xscroll = 0
 			end
-				
-			if (axex and xscroll > axex-width and axex >= width) then
+			
+			--[[if (axex and xscroll > axex-width and axex >= width) then
 				xscroll = axex-width
 				hitrightside()
-			end
+			end]]
 		end
 	
 		--VERTICAL SCROLLING
@@ -1317,46 +1317,41 @@ function game_draw()
 		end
 		
 		love.graphics.setColor(255, 255, 255)
-		--axe
-		if axex then
-			love.graphics.draw(axeimg, axequads[coinframe], math.floor((axex-1-xscroll)*16*scale), (axey-1.5-yscroll)*16*scale, 0, scale, scale)
-		end
-		
-		love.graphics.setColor(255, 255, 255)
 		--levelfinish text and toad
+		local lastaxe = objects["axe"][#objects["axe"]]
 		if levelfinished and levelfinishtype == "castle" then
 			if marioworld ~= 8 then
-				love.graphics.draw(toadimg, math.floor((mapwidth-7-xscroll)*16*scale), (axey+2.0625-yscroll)*16*scale, 0, scale, scale)
+				love.graphics.draw(toadimg, math.floor((mapwidth-7-xscroll)*16*scale), (lastaxe.coy+2.0625-yscroll)*16*scale, 0, scale, scale)
 			else
-				print(math.floor((mapwidth-7-xscroll)*16*scale), (axey+2.0625-yscroll)*16*scale)
-				love.graphics.draw(peachimg, math.floor((mapwidth-7-xscroll)*16*scale), (axey+2.0625-yscroll)*16*scale, 0, scale, scale)
+				print(math.floor((mapwidth-7-xscroll)*16*scale), (lastaxe.y+2.0625-yscroll)*16*scale)
+				love.graphics.draw(peachimg, math.floor((mapwidth-7-xscroll)*16*scale), (lastaxe.coy+2.0625-yscroll)*16*scale, 0, scale, scale)
 			end
 		
 			if levelfinishedmisc2 == 1 then
 				if levelfinishedmisc >= 1 then
-					properprint("thank you " .. characters[mariocharacter[1]].name .. "!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (axey-4.5-yscroll)*16*scale)
+					properprint("thank you " .. characters[mariocharacter[1]].name .. "!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (lastaxe.coy-4.5-yscroll)*16*scale)
 				end
 				if levelfinishedmisc == 2 then
-					properprint("but our princess is in", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (axey-2.5-yscroll)*16*scale) --say what
-					properprint("another castle!", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (axey-1.5-yscroll)*16*scale) --bummer.
+					properprint("but our princess is in", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (lastaxe.coy-2.5-yscroll)*16*scale) --say what
+					properprint("another castle!", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (lastaxe.coy-1.5-yscroll)*16*scale) --bummer.
 				end
 			else
 				if levelfinishedmisc >= 1 then	
-					properprint("thank you mario!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (axey-4.5-yscroll)*16*scale)
+					properprint("thank you mario!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (lastaxe.coy-4.5-yscroll)*16*scale)
 				end
 				if levelfinishedmisc >= 2 then
-					properprint("your quest is over.", math.floor(((mapwidth-12.5-xscroll)*16-1)*scale), (axey-3-yscroll)*16*scale)
+					properprint("your quest is over.", math.floor(((mapwidth-12.5-xscroll)*16-1)*scale), (lastaxe.coy-3-yscroll)*16*scale)
 				end
 				
 				--todo
 				if levelfinishedmisc >= 3 then
-					properprint("we present you a new quest.", math.floor(((mapwidth-14.5-xscroll)*16-1)*scale), (axey-2-yscroll)*16*scale)
+					properprint("we present you a new quest.", math.floor(((mapwidth-14.5-xscroll)*16-1)*scale), (lastaxe.coy-2-yscroll)*16*scale)
 				end
 				if levelfinishedmisc >= 4 then
-					properprint("push button b", math.floor(((mapwidth-11-xscroll)*16-1)*scale), (axey-.5-yscroll)*16*scale)
+					properprint("push button b", math.floor(((mapwidth-11-xscroll)*16-1)*scale), (lastaxe.coy-.5-yscroll)*16*scale)
 				end
 				if levelfinishedmisc == 5 then
-					properprint("to play as steve", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (axey+.5-yscroll)*16*scale)
+					properprint("to play as steve", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (lastaxe.coy+.5-yscroll)*16*scale)
 				end
 			end
 		end
@@ -2446,9 +2441,10 @@ function reachedx(currentx)
 			objects["screenboundary"]["flag"].x = objects["screenboundary"]["flag"].x + 1
 		end
 		
-		if axex then
-			axex = axex + 1
-			objects["screenboundary"]["axe"].x = objects["screenboundary"]["axe"].x + 1
+		-- I'm not sure what this does exactly, so, here we are.
+		for k,v in pairs(objects["axe"]) do
+			--v.x = v.x + 1
+			--objects["screenboundary"]["axe"].x = objects["screenboundary"]["axe"].x + 1
 		end
 		
 		if firestartx then
@@ -2576,8 +2572,6 @@ function loadlevel(level)
 	firetimer = firedelay
 	flyingfishtimer = flyingfishdelay
 	bulletbilltimer = bulletbilldelay
-	axex = false
-	axey = false
 	lakitoendx = false
 	lakitoend = false
 	noupdate = false
@@ -2728,8 +2722,8 @@ function loadlevel(level)
 		objects["screenboundary"]["flag"] = screenboundary:new(flagx+6/16)
 	end
 	
-	if axex then
-		objects["screenboundary"]["axe"] = screenboundary:new(axex)
+	if objects["axe"] and objects["axe"][#objects["axe"]] then
+		objects["screenboundary"]["axe"] = screenboundary:new(objects["axe"][#objects["axe"]].cox)
 	end
 	
 	if intermission then
@@ -3113,10 +3107,6 @@ function loadmap(filename, createobjects)
 						elseif t == "windend" then
 							windendx = x
 							
-						elseif t == "axe" then
-							axex = x
-							axey = y
-						
 						elseif t == "lakitoend" then
 							lakitoendx = x
 							
@@ -4465,8 +4455,14 @@ function traceline(sourcex, sourcey, radians, reportal)
 	end
 	
 	local side
-	
-	while currentblock[1]+1 > 0 and currentblock[1]+1 <= mapwidth and (flagx == false or currentblock[1]+1 <= flagx or radians > 0) and (axex == false or currentblock[1]+1 <= axex) and (currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5)) and currentblock[2] < mapheight+1 do --while in map range
+	local lastaxe = objects["axe"][#objects["axe"]]
+	while currentblock[1]+1 > 0 and
+	currentblock[1]+1 <= mapwidth and
+	-- we'll just get rid of this and see what happens
+	(flagx == false or currentblock[1]+1 <= flagx or radians > 0) and
+	(not lastaxe or currentblock[1]+1 <= lastaxe.cox) and 
+	(currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5)) and 
+	currentblock[2] < mapheight+1 do --while in map range
 		local oldy = y
 		local oldx = x
 		

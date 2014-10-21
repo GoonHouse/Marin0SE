@@ -210,6 +210,23 @@ table.insert(toenter, {name = "sleep",
 	}
 })
 
+table.insert(toenter, {name = "animationtarget", 
+	t = {
+		t="action",
+		nicename="trigger animation target",
+		entries={
+			{
+				t="text",
+				value="with id",
+			},
+			{
+				t="input",
+				default="mytarget",
+			},
+		}
+	}
+})
+
 table.insert(toenter, {name = "setcamerax", 
 	t = {
 		t="action",

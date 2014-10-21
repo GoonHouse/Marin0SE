@@ -714,18 +714,18 @@ function mario:update(dt)
 			self.animationtimer2 = self.animationtimer2 + dt
 			while self.animationtimer2 > castleanimationbridgedisappeardelay and self.animationbridgex > 0 do
 				self.animationtimer2 = self.animationtimer2 - castleanimationbridgedisappeardelay
-				local removedtile = false
-				for y = 1, mapheight do
-					if tilequads[map[self.animationbridgex][y][1]]:getproperty("bridge", self.animationbridgex, y) then
-						removedtile = true
-						map[self.animationbridgex][y][1] = 1
-						objects["tile"][self.animationbridgex .. "-" .. y] = nil
-					end
-				end
+				local removedtile = true
+			--	for y = 1, mapheight do
+			--		if tilequads[map[self.animationbridgex][y][1]]:getproperty("bridge", self.animationbridgex, y) then
+			--			removedtile = true
+			--			map[self.animationbridgex][y][1] = 1
+			--			objects["tile"][self.animationbridgex .. "-" .. y] = nil
+			--		end
+			--	end
 				
 				if removedtile then
 					generatespritebatch()
-					playsound("bridgebreak")
+			--		playsound("bridgebreak")
 					self.animationbridgex = self.animationbridgex - 1
 				else
 					bowserfall = true
@@ -1128,10 +1128,6 @@ function mario:update(dt)
 	--axe
 	local x = math.floor(self.x+self.width/2)+1
 	local y = math.floor(self.y+self.height/2)+1
-	
-	if axex and x == axex and y == axey then
-		self:axe()
-	end
 	
 	if self.controlsenabled then
 		--check for pipe pipe pipe
@@ -2825,8 +2821,8 @@ function mario:globalcollide(a, b, c, d, dir)
 		end
 	end
 	
-	if a == "redcoin" then
-		b:collected(self)
+	if b.collect then
+		b:collect(self)
 		return true
 	end
 	
@@ -3849,68 +3845,6 @@ function mario:flag()
 	
 	
 	playsound("levelend")
-end
-
-function mario:axe()
-	if levelfinished then
-		return
-	end
-	self.ducking = false
-	for i = 1, players do
-		objects["player"][i]:removeportals()
-	end
-	
-	for i, v in pairs(objects["platform"]) do
-		objects["platform"][i] = nil
-	end
-
-	self.raccoontimer = 0
-	self.animation = "axe"
-	self.invincible = false
-	self.drawable = true
-	self.animationx = axex
-	self.animationy = axey
-	self.animationbridgex = axex-1
-	self.controlsenabled = false
-	self.animationtimer = 0
-	self.speedx = 0
-	self.speedy = 0
-	self.gravity = 0
-	self.active = false
-	self.infunnel = false
-	levelfinished = true
-	levelfinishtype = "castle"
-	levelfinishedmisc = 0
-	levelfinishedmisc2 = 1
-	if marioworld == 8 then
-		levelfinishedmisc2 = 2
-	end
-	bridgedisappear = false
-	self.animationtimer2 = castleanimationbridgedisappeardelay
-	bowserfall = false
-	objects["screenboundary"]["axe"] = nil
-	
-	if objects["bowser"][1] and not objects["bowser"][1].shot then
-		local v = objects["bowser"][1]
-		v.speedx = 0
-		v.speedy = 0
-		v.active = false
-		v.gravity = 0
-		v.category = 1
-	else
-		self.animationtimer = castleanimationmariomove
-		self.active = true
-		self.gravity = mariogravity
-		self.animationstate = "running"
-		self.speedx = 4.27
-		self.pointingangle = -math.pi/2
-		self.animationdirection = "right"
-		
-		love.audio.stop()
-		playsound("castleend")
-	end
-	
-	axex = false
 end
 
 function mario:vineanimation()

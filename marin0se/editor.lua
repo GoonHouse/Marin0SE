@@ -1785,8 +1785,8 @@ function editoropen()
 	end
 end
 
-function mapnumberclick(i, j, k)
-	if editormode and editorstate == "maps" then
+function mapnumberclick(i, j, k, force)
+	if editormode and editorstate == "maps" or force then
 		print("NOTICE: Map changed because a map icon was clicked.")
 		marioworld = i
 		mariolevel = j
@@ -1873,6 +1873,12 @@ function editor_controlupdate(dt)
 		else
 			editoropen()
 		end
+	end
+	
+	if controls.tap.editorNextLevel then
+		mapnumberclick(marioworld, mariolevel+1, mariosublevel, true)
+	elseif controls.tap.editorPreviousLevel then
+		mapnumberclick(marioworld, mariolevel-1, mariosublevel, true)
 	end
 	
 	if controls.editorShortcutModifier then

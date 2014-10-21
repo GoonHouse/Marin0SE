@@ -57,7 +57,7 @@ function redcoin:update(dt)
 	end
 end
 
-function redcoin:collected(ply)
+function redcoin:collect(ply)
 	-- ply is a reference to the player that collected us, we can use that later
 	redcoincollected[self.value] = 1
 	redcoincount = redcoincount + 1
