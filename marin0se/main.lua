@@ -353,7 +353,7 @@ function love.load(args)
 	fontglyphs = "0123456789abcdefghijklmnopqrstuvwxyz.:/,\"C-_A* !{}?'()+=><#%"
 	fontquads = {}
 	for i = 1, string.len(fontglyphs) do
-		fontquads[string.sub(fontglyphs, i, i)] = love.graphics.newQuad((i-1)*8, 0, 7, 8, fontimage:getWidth(), fontimage:getHeight())
+		fontquads[string.sub(fontglyphs, i, i)] = love.graphics.newQuad((i-1)*8, 0, 8, 8, fontimage:getWidth(), fontimage:getHeight())
 	end
 	fontquadsback = {}
 	for i = 1, string.len(fontglyphs) do
