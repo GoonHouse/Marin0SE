@@ -36,23 +36,23 @@ end
 function generators:input(t, input)
 	if t ~= "off" then
 		if self.contents == "bulletbill" then
-			gensrunning[1] = true
+			gensrunning["bulletbill"] = true
 			return true
 		elseif self.contents == "flyingcheeps" then
-			gensrunning[2] = true
+			gensrunning["flyingcheeps"] = true
 			return true
 		elseif self.contents == "bowserflames" then
-			gensrunning[3] = true
+			gensrunning["bowserflames"] = true
 			return true
 		elseif self.contents == "highwindright" then
-			gensrunning[4] = true
+			gensrunning["highwind"] = true
 			return true
 		end
 	else
-	gensrunning[1] = false
-	gensrunning[2] = false
-	gensrunning[3] = false
-	gensrunning[4] = false
+	gensrunning["bulletbill"] = false
+	gensrunning["flyingcheeps"] = false
+	gensrunning["bowserflames"] = false
+	gensrunning["highwind"] = false
 	return false
 	end
 end

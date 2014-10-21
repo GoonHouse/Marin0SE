@@ -707,7 +707,7 @@ function game_update(dt)
 	end
 	
 	--FIRE SPAWNING
-	if not levelfinished and gensrunning[3] and (not objects["bowser"][1] or (objects["bowser"][1].backwards == false and objects["bowser"][1].shot == false and objects["bowser"][1].fall == false)) then
+	if not levelfinished and gensrunning["bowserflames"] and (not objects["bowser"][1] or (objects["bowser"][1].backwards == false and objects["bowser"][1].shot == false and objects["bowser"][1].fall == false)) then
 		firetimer = firetimer + dt
 		while firetimer > firedelay do
 			firetimer = firetimer - firedelay
@@ -729,7 +729,7 @@ function game_update(dt)
 	end
 	
 	-- High Wind
-	if not levelfinished and gensrunning[4] then
+	if not levelfinished and gensrunning["highwind"] then
 		--[[if windsound:isStopped() then
 			playsound(windsound)
 		end]]
@@ -758,7 +758,7 @@ function game_update(dt)
 	end
 	
 	--FLYING FISH
-	if not levelfinished and gensrunning[2] then
+	if not levelfinished and gensrunning["flyingcheeps"] then
 		flyingfishtimer = flyingfishtimer + dt
 		while flyingfishtimer > flyingfishdelay do
 			flyingfishtimer = flyingfishtimer - flyingfishdelay
@@ -783,7 +783,7 @@ function game_update(dt)
 	end
 	
 	--BULLET BILL
-	if not levelfinished and gensrunning[1] then
+	if not levelfinished and gensrunning["bulletbill"] then
 		bulletbilltimer = bulletbilltimer + dt
 		while bulletbilltimer > bulletbilldelay do
 			bulletbilltimer = bulletbilltimer - bulletbilldelay
@@ -2595,10 +2595,7 @@ function loadlevel(level)
 	levelscore = 0
 	levelcoincount = 0
 	
-	gensrunning = {} -- The obstacle generators: bulletbill, flyingcheeps, bowserflames, highwind
-	for i = 1, 4 do
-			gensrunning[i] = false
-	end	
+	gensrunning = {cheepcheep = false, bulletbill = false, bowserflames = false, highwind = false}
 	
 	oddjobquotas = {} -- Red coin quota, if trophy was found, score quota, coin count quota, if the run was successfully ascetic.
 	for i = 1, 5 do
