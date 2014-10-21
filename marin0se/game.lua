@@ -1633,12 +1633,9 @@ function game_draw()
 				love.graphics.draw(popupfontimage, popupfontquads[1], math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
 			elseif scrollingscores[i].i == "3up" then
 				love.graphics.draw(popupfontimage, popupfontquads[3], math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
-			elseif scrollingscores[i].i == "timeupten" then
+			elseif scrollingscores[i].i == "timeincrease" then
 				love.graphics.draw(popupfontimage, popupfontquads[6], math.floor((scrollingscores[i].x)*16*scale)-32, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
-				properprint2(10, math.floor((scrollingscores[i].x-0.4)*16*scale)+8, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale))
-			elseif scrollingscores[i].i == "timeuphundred" then
-				love.graphics.draw(popupfontimage, popupfontquads[6], math.floor((scrollingscores[i].x)*16*scale)-32, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
-				properprint2(100, math.floor((scrollingscores[i].x-0.4)*16*scale)+12, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale))
+				properprint2(givemetemp["time"], math.floor((scrollingscores[i].x-0.4)*16*scale)+8, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale))
 			end
 		end
 		
@@ -2595,6 +2592,8 @@ function loadlevel(level)
 	levelscore = 0
 	levelcoincount = 0
 	
+	givemestuff = {lives = 0, times = 0, coinage = 0}
+	givemetemp = {lives = 0, times = 0, coinage = 0}
 	gensrunning = {cheepcheep = false, bulletbill = false, bowserflames = false, highwind = false}
 	
 	oddjobquotas = {} -- Red coin quota, if trophy was found, score quota, coin count quota, if the run was successfully ascetic.
@@ -4649,16 +4648,16 @@ function item(i, x, y, size)
 end
 
 function givelive(id, t)
-	if givemelives == 3 then
+	if givemestuff["lives"] == 3 then
 		table.insert(scrollingscores, scrollingscore:new("3up", t.x, t.y))
 	else 
 		table.insert(scrollingscores, scrollingscore:new("1up", t.x, t.y))
 	end
 	if mariolivecount ~= false then
 		for i = 1, players do
-			while givemelives ~= 0 do
-			mariolives[i] = mariolives[i]+1
-			givemelives = givemelives-1
+			while givemestuff["lives"] ~= 0 do
+			mariolives[i] = mariolives[i] + 1
+			givemestuff["lives"] = givemestuff["lives"] - 1
 			end
 			respawnplayers()
 		end
@@ -4669,14 +4668,10 @@ function givelive(id, t)
 end	
 
 function givetime(id, t)
-	if givemetime == 10 then
-		table.insert(scrollingscores, scrollingscore:new("timeupten", t.x, t.y))
-	elseif givemetime == 100 then
-		table.insert(scrollingscores, scrollingscore:new("timeuphundred", t.x, t.y))
-	end
-	while givemetime ~= 0 do
+	table.insert(scrollingscores, scrollingscore:new("timeincrease", t.x, t.y))
+	while givemestuff["time"] ~= 0 do
 	mariotime = mariotime+1
-	givemetime = givemetime-1
+	givemestuff["time"] = givemestuff["time"] - 1
 	end
 playsound("addtime")
 end	
