@@ -707,7 +707,7 @@ function game_update(dt)
 	end
 	
 	--FIRE SPAWNING
-	if not levelfinished and firestarted and (not objects["bowser"][1] or (objects["bowser"][1].backwards == false and objects["bowser"][1].shot == false and objects["bowser"][1].fall == false)) then
+	if not levelfinished and gensrunning[3] and (not objects["bowser"][1] or (objects["bowser"][1].backwards == false and objects["bowser"][1].shot == false and objects["bowser"][1].fall == false)) then
 		firetimer = firetimer + dt
 		while firetimer > firedelay do
 			firetimer = firetimer - firedelay
@@ -729,7 +729,7 @@ function game_update(dt)
 	end
 	
 	-- High Wind
-	if not levelfinished and windstarted then
+	if not levelfinished and gensrunning[4] then
 		--[[if windsound:isStopped() then
 			playsound(windsound)
 		end]]
@@ -758,7 +758,7 @@ function game_update(dt)
 	end
 	
 	--FLYING FISH
-	if not levelfinished and flyingfishstarted then
+	if not levelfinished and gensrunning[2] then
 		flyingfishtimer = flyingfishtimer + dt
 		while flyingfishtimer > flyingfishdelay do
 			flyingfishtimer = flyingfishtimer - flyingfishdelay
@@ -783,7 +783,7 @@ function game_update(dt)
 	end
 	
 	--BULLET BILL
-	if not levelfinished and bulletbillstarted then
+	if not levelfinished and gensrunning[1] then
 		bulletbilltimer = bulletbilltimer + dt
 		while bulletbilltimer > bulletbilldelay do
 			bulletbilltimer = bulletbilltimer - bulletbilldelay
@@ -2564,10 +2564,6 @@ function loadlevel(level)
 	firedelay = math.random(4)
 	flyingfishdelay = 1
 	bulletbilldelay = 1
-	firestarted = false
-	flyingfishstarted = false
-	bulletbillstarted = false
-	windstarted = false
 	windtimer = 0.1
 	firetimer = firedelay
 	flyingfishtimer = flyingfishdelay
@@ -2598,6 +2594,11 @@ function loadlevel(level)
 	redcoincount = 0
 	levelscore = 0
 	levelcoincount = 0
+	
+	gensrunning = {} -- The obstacle generators: bulletbill, flyingcheeps, bowserflames, highwind
+	for i = 1, 4 do
+			gensrunning[i] = false
+	end	
 	
 	oddjobquotas = {} -- Red coin quota, if trophy was found, score quota, coin count quota, if the run was successfully ascetic.
 	for i = 1, 5 do
