@@ -404,10 +404,10 @@ function editor_draw()
 		elseif not rightclickactive and not rightclickm and editorstate ~= "lightdraw" and not regiondragging then
 			local x, y = getMouseTile(mouse.getX(), mouse.getY()-8*scale)
 			love.graphics.draw(cursorareaimg, cursorareaquads[redcoinframe], math.floor((x-xscroll-1-(1/16))*16*scale), math.floor(((y-yscroll-1-(1/16))*16+8)*scale), 0, scale, scale)
-			local posstr = "x"..x.."|x"..y
+			local posstr = x..",|"..y
 			local xcenteroffset = (2/16) --((string.len(posstr)*4)/16)
 			-- the above is the closest I got to centered when using the format "(x,y)"
-			properprint(posstr, math.floor((x-xscroll-1-(3/16)+xcenteroffset)*16*scale), math.floor(((y-yscroll+(2/16))*16+8)*scale))
+			properprintbackground(posstr, math.floor((x-xscroll-1-(3/16)+xcenteroffset)*16*scale), math.floor(((y-yscroll+(2/16))*16+8)*scale), true)
 			if inmap(x, y+1) then
 				love.graphics.setColor(255, 255, 255, 200)
 				-- we do this because if we open the enemies tab and don't do anything we end up with a beetle

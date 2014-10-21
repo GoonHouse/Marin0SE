@@ -2076,10 +2076,15 @@ function properprint(s, x, y, sc)
 	end
 end
 
-function properprintbackground(s, x, y, include, color, sc)
+function properprintbackground(s, ox, oy, include, dcolor, sc)
 	local scale = sc or scale
+	local x = ox
+	local y = oy
 	local startx = x
+	local dcolor = dcolor or {255,255,255}
 	local skip = 0
+	local precolor = {love.graphics.getColor()}
+	love.graphics.setColor(unpack(dcolor))
 	for i = 1, string.len(tostring(s)) do
 		if skip > 0 then
 			skip = skip - 1
@@ -2093,9 +2098,9 @@ function properprintbackground(s, x, y, include, color, sc)
 			end
 		end
 	end
-	
+	love.graphics.setColor(unpack(precolor))
 	if include ~= false then
-		properprint(s, x, y, scale)
+		properprint(s, ox, oy, scale)
 	end
 end
 
