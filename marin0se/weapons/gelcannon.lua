@@ -21,7 +21,7 @@ function gelcannon:shootGel(i)
 end
 
 function gelcannon:primaryFire()
-	if self.parent and self.parent.t == self.name and weapon.primaryFire(self) then
+	if self.parent and weapon.primaryFire(self) then
 		self:shootGel(1)
 	else
 		print("DEBUG: Tried to shoot gel1 with orphaned weapon?!")
@@ -29,7 +29,7 @@ function gelcannon:primaryFire()
 end
 
 function gelcannon:secondaryFire()
-	if self.parent and self.parent.t == self.name and weapon.secondaryFire(self) then
+	if self.parent and weapon.secondaryFire(self) then
 		self:shootGel(2)
 	else
 		print("DEBUG: Tried to shoot gel2 with orphaned weapon?!")

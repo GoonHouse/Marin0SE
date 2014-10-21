@@ -39,7 +39,6 @@ function mario:init(x, y, i, animation, size, t)
 	if _G[self.t] and _G[self.t].isWeapon then
 		self.weapons[self.t] = _G[self.t]:new(self)
 		self.activeweapon = self.weapons[self.t]
-		self.activeweapon.isActiveWeapon = true
 	end
 	
 	self.portalsavailable = {unpack(portalsavailable)}

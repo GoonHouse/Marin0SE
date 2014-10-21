@@ -8,7 +8,6 @@ function weapon:init(parent)
 	self.secondaryAttackDelay = 0
 	self.secondaryAttackTimer = 0
 	self.secondaryAmmo = nil
-	self.isActiveWeapon = false
 	table.insert(objects["weapon"], self)
 end
 
