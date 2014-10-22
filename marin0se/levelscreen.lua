@@ -49,11 +49,6 @@ function levelscreen_load(reason, i)
 		blacktime = blacktime * 1.5
 	end
 	
-	if gameplaytype == "Oddjob" then
-		levelscore = 0
-		levelcoin = 0
-	end
-	
 	coinframe = 1
 	redcoinframe = 1
 	

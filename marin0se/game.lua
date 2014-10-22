@@ -2583,29 +2583,10 @@ function loadlevel(level)
 	gelcannontimer = 0
 	pausemenuselected = 1
 	coinblocktimers = {}
-	givemelives = 0
-	givemetime = 0
-	givemecoinage = 0
-	
-	-- Oddjob Variables
-	redcoincount = 0
-	levelscore = 0
-	levelcoincount = 0
-	
+
 	givemestuff = {lives = 0, times = 0, coinage = 0}
 	givemetemp = {lives = 0, times = 0, coinage = 0}
 	gensrunning = {cheepcheep = false, bulletbill = false, bowserflames = false, highwind = false}
-	
-	oddjobquotas = {} -- Red coin quota, if trophy was found, score quota, coin count quota, if the run was successfully ascetic.
-	for i = 1, 5 do
-			oddjobquotas[i] = 0
-	end	
-	oddjobquotas[1] = 5
-	
-	redcoincollected = {}
-	for i = 1, oddjobquotas[1] do
-			redcoincollected[i] = 0
-	end	
 	
 	portaldelay = {}
 	for i = 1, players do
@@ -2877,6 +2858,24 @@ function startlevel(levelstart)
 	
 	--background
 	love.graphics.setBackgroundColor(unpack(background))
+	
+	if levelstart then
+	-- Oddjob Variables
+		redcoincount = 0
+		levelscore = 0
+		levelcoincount = 0
+	
+		oddjobquotas = {} -- Red coin quota, if trophy was found, score quota, coin count quota, if the run was successfully ascetic.
+		for i = 1, 5 do
+				oddjobquotas[i] = 0
+		end	
+		oddjobquotas[1] = 5
+		
+		redcoincollected = {}
+		for i = 1, oddjobquotas[1] do
+				redcoincollected[i] = 0
+		end	
+	end
 	
 	--PLAY BGM
 	if intermission == false then
