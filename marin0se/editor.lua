@@ -10,12 +10,33 @@ editor_undohistory = {}
 	},
 	}
 ]]
+require "editortool"
+local editortoollist = love.filesystem.getDirectoryItems("tools")
+local editortools = {}
+for k,v in pairs(editortoollist) do
+	editortoollist[k] = v:sub(0,-5)
+	require("tools."..editortoollist[k])
+	editortools[editortoollist[k]] = _G[editortoollist[k]]:new()
+	editortools[editortoollist[k]].name = editortoollist[k]
+end
+
+function changeTool(toolname)
+	previouseditortool = activeeditortool
+	activeeditortool = editortools[toolname]
+end
+
+function previousTool()
+	local temp = activeeditortool
+	activeeditortool = previouseditortool
+	previouseditortool = temp
+	-- Will this even work? Who knows.
+end
 
 function editor_load()
 	print("Editor loaded!")
 	editorstate = "main"
-	editortool = "tile" --tile, linker, region, select
-	editorlasttool = "tile"
+	previouseditortool = editortools["notool"]
+	activeeditortool = editortools["paintdraw"]
 	editorignorerelease = false --this is an ugly hack until we figure out how to wrangle our inputs
 	editorignoretap = false
 	mapbuttons={}
@@ -287,7 +308,7 @@ end
 function editor_start()
 	editormode = true
 	players = 1
-	playertype = "portal"
+	playertype = "portalgun"
 	playertypei = 1
 	bullettime = false
 	portalknockback = false
@@ -301,6 +322,9 @@ function editor_start()
 end
 
 function editor_update(dt)
+	if activeeditortool then
+		activeeditortool:update(dt)
+	end
 	----------
 	--EDITOR--
 	----------
@@ -2906,17 +2930,6 @@ function selectiongettiles(x, y, width, height)
 	end
 	
 	return out
-end
-
-function changeTool(toolname)
-	editorlasttool = editortool
-	editortool = toolname
-end
-
-function previousTool()
-	local temp = editortool
-	editortool = editorlasttool
-	editorlasttool = temp
 end
 
 function paintLight()

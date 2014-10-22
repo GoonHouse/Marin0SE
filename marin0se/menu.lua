@@ -1833,7 +1833,7 @@ function menu_controlupdate(dt)
 					goombaattack = not goombaattack
 				elseif optionsselection == 7 then
 					sonicrainboom = not sonicrainboom
-					playertype = "portal"
+					playertype = "portalgun"
 					playertypei = 1
 				elseif optionsselection == 8 then
 					playercollisions = not playercollisions
@@ -1934,7 +1934,7 @@ function menu_controlupdate(dt)
 					goombaattack = not goombaattack
 				elseif optionsselection == 7 then
 					sonicrainboom = not sonicrainboom
-					playertype = "portal"
+					playertype = "portalgun"
 					playertypei = 1
 				elseif optionsselection == 8 then
 					playercollisions = not playercollisions

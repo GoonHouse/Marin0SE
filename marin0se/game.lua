@@ -1035,56 +1035,65 @@ function drawui(hidetime)
 		love.graphics.translate(0, yoffset*scale)
 	end
 	
-	if gameplaytype ~= "NA" then
-		printfunction(characters[mariocharacter[1]].name, uispace*.5 - 24*scale, 8*scale)
-		if gameplaytype == "vanilla" then
-			printfunction(addzeros(marioscore, 6), uispace*0.5-24*scale, 16*scale)
-			printfunction("*", uispace*1.5-8*scale, 16*scale)
-		elseif gameplaytype == "oddjob" then
-			printfunction(addzeros(levelscore, 6), uispace*0.5-24*scale, 16*scale)
-			printfunction("*", uispace*1.5-8*scale, 16*scale)
+	if gameplaytype ~= "na" then
+		--player name
+		local texttodraw = characters[mariocharacter[1]].name 
+		if editormode and activeeditortool then
+			texttodraw = activeeditortool.name
 		end
+		printfunction(texttodraw, uispace*.5 - 24*scale, 8*scale)
+		
+		--player score
+		local texttodraw=addzeros(marioscore, 6)
+		if editormode and activeeditortool then
+			texttodraw = activeeditortool.status
+		end
+		printfunction(texttodraw, uispace*0.5-24*scale, 16*scale)
 
+		--coin count
 		love.graphics.draw(coinanimationimg, coinanimationquads[spriteset][coinframe], uispace*1.5-16*scale, 16*scale, 0, scale, scale)
 		if gameplaytype == "vanilla" then
+			printfunction("*", uispace*1.5-8*scale, 16*scale)
 			printfunction(addzeros(mariocoincount, 2), uispace*1.5-0*scale, 16*scale)
 		elseif gameplaytype == "oddjob" then
+			printfunction("*", uispace*1.5-8*scale, 16*scale)
 			printfunction(addzeros(levelcoincount, 2), uispace*1.5-0*scale, 16*scale)
 		end
 		
-		if gameplaytype == "vanilla" then
-			printfunction("world", uispace*2.5 - 20*scale, 8*scale)
-			printfunction(marioworld .. "-" .. mariolevel, uispace*2.5 - 12*scale, 16*scale)
-		elseif gameplaytype == "oddjob" then
-			printfunction("oddjob test", uispace*2.5 - 20*scale, 8*scale)
+		--world indicator
+		local texttodraw = "world"
+		local texttodraw2 = marioworld .. "-" .. mariolevel
+		if gameplaytype == "oddjob" then
+			texttodraw = "oddjob"
+			texttodraw2 = nil
 			for i = 1, oddjobquotas[1] do
 				if redcoincollected[i] == 0 then
-				love.graphics.draw(oddjobhudimg, oddjobhudquads[1], (uispace*2.5 - 12*scale)+((8*i)-8)*scale, 16*scale, 0, scale, scale)
+					love.graphics.draw(oddjobhudimg, oddjobhudquads[1], (uispace*2.5 - 12*scale)+((8*i)-8)*scale, 16*scale, 0, scale, scale)
 				elseif redcoincollected[i] == 1 then
-				love.graphics.draw(oddjobhudimg, oddjobhudquads[2], (uispace*2.5 - 12*scale)+((8*i)-8)*scale, 16*scale, 0, scale, scale)
+					love.graphics.draw(oddjobhudimg, oddjobhudquads[2], (uispace*2.5 - 12*scale)+((8*i)-8)*scale, 16*scale, 0, scale, scale)
 				end
 			end
 			if oddjobquotas[2] == 1 then
-			love.graphics.draw(oddjobhudimg, oddjobhudquads[3], (uispace*2.5 - 12*scale)-(8*scale), 16*scale, 0, scale, scale)
-			else
+				love.graphics.draw(oddjobhudimg, oddjobhudquads[3], (uispace*2.5 - 12*scale)-(8*scale), 16*scale, 0, scale, scale)
 			end
 		end
-	
-		printfunction("time", uispace*3.5 - 16*scale, 8*scale)
+		printfunction(texttodraw, uispace*2.5 - 20*scale, 8*scale)
+		if texttodraw2 then printfunction(texttodraw2, uispace*2.5 - 12*scale, 16*scale) end
+		
+		--time area
+		local texttodraw = "time"
+		local texttodraw2
+		if type(mariotime) == "number" then
+			texttodraw2=addzeros(math.ceil(mariotime), 3)
+		else
+			texttodraw2=mariotime
+		end
+		if editormode then
+			texttodraw2 = "edit"
+		end
+		printfunction(texttodraw, uispace*3.5 - 16*scale, 8*scale)
 		if not hidetime then
-			if editormode then
-				if linktool then
-					printfunction("link", uispace*3.5 - 16*scale, 16*scale)
-				else
-					printfunction("edit", uispace*3.5 - 16*scale, 16*scale)
-				end
-			else
-				if type(mariotime) == "number" then
-					printfunction(addzeros(math.ceil(mariotime), 3), uispace*3.5-8*scale, 16*scale)
-				else
-					printfunction(mariotime, uispace*3.5-8*scale, 16*scale)
-				end
-			end
+			printfunction(texttodraw2, uispace*3.5*scale, 16*scale)
 		end
 	end
 	
@@ -1657,7 +1666,7 @@ function game_draw()
 		--PORTAL UI STUFF
 		if levelfinished == false then
 			for pl = 1, players do
-				if objects["player"][pl].controlsenabled and objects["player"][pl].t == "portal" and objects["player"][pl].vine == false and (objects["player"][pl].portalsavailable[1] or objects["player"][pl].portalsavailable[2]) then
+				if objects["player"][pl].controlsenabled and objects["player"][pl].t == "portalgun" and objects["player"][pl].vine == false and (objects["player"][pl].portalsavailable[1] or objects["player"][pl].portalsavailable[2]) then
 					local sourcex, sourcey = objects["player"][pl].x+6/16, objects["player"][pl].y+6/16
 					local cox, coy, side, tend, x, y = traceline(sourcex, sourcey, objects["player"][pl].pointingangle)
 					
@@ -2554,7 +2563,7 @@ function loadlevel(level)
 	end
 	
 	--MISC VARS; Misc Global Variables
-	gameplaytype = "oddjob" --List over in variables.lua
+	gameplaytype = "vanilla" --List over in variables.lua
 	everyonedead = false
 	levelfinished = false
 	coinanimation = 1

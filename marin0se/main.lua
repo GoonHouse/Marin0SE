@@ -384,7 +384,7 @@ function love.load(args)
 	saneents = {
 		"sfxentity", "portalwall", "tile", "vine", "box", "door", "button",
 		"groundlight", "wallindicator", "animatedtiletrigger", "delayer",
-		"walltimer", "notgate", "rsflipflop", "orgate", "andgate", "baseentity",
+		"walltimer", "notgate", "rsflipflop", "orgate", "andgate",
 		"musicentity", "enemyspawner", "squarewave", "lightbridge",
 		"faithplate", "laser", "noportal", "bulletbill", "animationtarget",
 		"laserdetector", "gel", "geldispenser", "fireball", "pushbutton",
