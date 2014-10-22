@@ -2074,7 +2074,7 @@ function properprint(s, x, y, sc)
 				x = startx-((i)*8)*scale
 				y = y + 10*scale
 			elseif fontquads[char] then
-				love.graphics.draw(fontimage, fontquads[char], x+((i-1)*8+1)*scale, y, 0, scale, scale)
+				love.graphics.draw(fontimage, fontquads[char], x+((i-1)*8)*scale, y, 0, scale, scale)
 			end
 		end
 	end

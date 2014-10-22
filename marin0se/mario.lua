@@ -2870,13 +2870,15 @@ function mario:globalcollide(a, b, c, d, dir)
 		return true
 	elseif b.givesalife then
 		if b.lifeamount then
-			givemelives = b.lifeamount
+			givemestuff["lives"] = b.lifeamount
+			givemestuff["lives"] = b.lifeamount
 		end
 		givelive(self.playernumber, b)
 		return true
 	elseif b.givestime then
 		if b.timeamount then
-			givemetime = b.timeamount
+			givemestuff["time"] = b.timeamount
+			givemetemp["time"] = b.timeamount
 		end
 		givetime(self.playernumber, b)
 		return true
