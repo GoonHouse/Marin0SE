@@ -78,7 +78,7 @@ entitylist = {
 	{t=""},
 	{t=""},
 	{t=""},
-	{t=""},
+	{t="generatorwind", category="smb stuff", description="place anywhere - generates wind", iconauthor="sorrynothing"},
 	{t="castlefire", category="smb stuff", description="place anywhere - rotating fire stick", iconauthor="Assasin-Kiashi"},
 	{t="seesaw", category="smb stuff", description="place on empty tile - see-saw", iconauthor="Firaga"},
 	{t="warppipe", category="level markers", description="place on block - warp pipe", iconauthor="BobTheLawyer"}, --80
@@ -579,6 +579,16 @@ rightclickmenues.generators = {
 	{t="submenu", entries={"bulletbill", "flyingcheeps", "bowserflames", "highwindright"}, default=1, width=13, actualvalue=true},
 	{},
 	{t="linkbutton", value="link trigger", link="trigger"}
+}
+
+rightclickmenues.generatorwind = {
+	{t="text", value="direction:"},
+	{t="submenu", entries={"right", "left"}, default=1, width=5, actualvalue=true},
+	{},
+	{t="text", value="intensity:"},
+	{t="scrollbar", min=1, max=10, step=1, default=6},
+	{},
+	{t="regionselect", value="select region", region="region", default="region:0:0:1:1"}
 }
 
 function entity:init(img, x, y, width, height)
