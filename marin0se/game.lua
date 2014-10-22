@@ -736,28 +736,28 @@ function game_update(dt)
 		local player1 = objects["player"][1]
 		if player1.animationdirection == "left" and player1.animationstate ~= "idle" then
 			if not player1.spring and not player1.springhigh then
-				if windtable[1] == "left" then
-					player1.speedx = player1.speedx - ((windtable[2]/100)/2)
-					elseif windtable[1] == "right" then
-					player1.speedx = player1.speedx + (windtable[2]/100)
+				if windgentable[1] == "left" then
+					player1.speedx = player1.speedx - ((windgentable[2]/100)/2)
+					elseif windgentable[1] == "right" then
+					player1.speedx = player1.speedx + (windgentable[2]/100)
 				end
 			else
 				
 			end
 		elseif player1.animationstate ~= "idle" then
 			if not player1.spring and not player1.springhigh then
-				if windtable[1] == "left" then
-					player1.speedx = player1.speedx - (windtable[2]/100)
-					elseif windtable[1] == "right" then
-					player1.speedx = player1.speedx + ((windtable[2]/100)/2)
+				if windgentable[1] == "left" then
+					player1.speedx = player1.speedx - (windgentable[2]/100)
+					elseif windgentable[1] == "right" then
+					player1.speedx = player1.speedx + ((windgentable[2]/100)/2)
 				end
 			else
 				
 			end
 		elseif player1.animationstate == "idle" then
-			if windtable[2] == "left" then
+			if windgentable[2] == "left" then
 				player1.speedx = player1.speedx - 1
-				elseif windtable[1] == "right" then
+				elseif windgentable[1] == "right" then
 				player1.speedx = player1.speedx + 1
 			end
 		end
@@ -765,9 +765,9 @@ function game_update(dt)
 		windtimer = windtimer + dt
 		while windtimer > 0.05 do
 			windtimer = windtimer - 0.05
-			if windtable[1] == "right" then
+			if windgentable[1] == "right" then
 			table.insert(objects["leaf"], leaf:new(xscroll, math.random(1, mapheight)))
-			elseif windtable[1] == "left" then
+			elseif windgentable[1] == "left" then
 			table.insert(objects["leaf"], leaf:new(xscroll+25, math.random(1, mapheight)))
 			end
 		end

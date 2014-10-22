@@ -1,11 +1,11 @@
-generatorwind = class("generatorwind")
+generatorcheeps = class("generatorcheeps")
 
-function generatorwind:init(x, y, r)
+function generatorcheeps:init(x, y, r)
 	self.x = x
 	self.y = y
 	self.cox = x
 	self.coy = y
-	windgentable = {"right", 0}
+	cheepgentable = {"right", 0}
 	
 	self.checktable = {}
 	table.insert(self.checktable, "player")
@@ -16,17 +16,17 @@ function generatorwind:init(x, y, r)
 	table.remove(self.r, 1)
 	
 	
-	--Wind Direction
-	if #self.r > 0 and self.r[1] ~= "link" then
-		windgentable[1] = self.r[1]
+	--Stuff to come sometime
+	--[[if #self.r > 0 and self.r[1] ~= "link" then
+		bulletgentable[1] = self.r[1]
 		table.remove(self.r, 1)
 	end
 	
 	--Wind Intensity
 	if #self.r > 0 and self.r[1] ~= "link" then
-		windgentable[2] = self.r[1]		
+		bulletgentable[2] = self.r[1]		
 		table.remove(self.r, 1)
-	end
+	end]]
 	
 	--Region
 	if #self.r > 0 then
@@ -45,17 +45,17 @@ function generatorwind:init(x, y, r)
 	end
 end
 
-function generatorwind:update(dt)
+function generatorcheeps:update(dt)
 	local col = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, self.checktable)
 	if #col > 0 then
-			gensrunning["highwind"] = true
+			gensrunning["flyingcheeps"] = true
 			return true
 	elseif #col == 0 then
-			gensrunning["highwind"] = false
+			gensrunning["flyingcheeps"] = false
 			return false
 	end
 end
 
-function generatorwind:draw()
+function generatorcheeps:draw()
 	
 end

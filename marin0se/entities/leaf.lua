@@ -8,9 +8,9 @@ function leaf:init(x, y)
 end
 
 function leaf:update(dt)
-	if windtable[1] == "left" then
+	if windgentable[1] == "left" then
 		self.x = self.x - .50
-		elseif windtable[1] == "right" then
+		elseif windgentable[1] == "right" then
 		self.x = self.x + .50
 	end
 	if self.x > width or self.y > mapheight then

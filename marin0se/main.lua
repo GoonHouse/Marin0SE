@@ -393,7 +393,8 @@ function love.load(args)
 		"ceilblocker", "funnel", "panel", "scaffold", "bubble", "axe",
 		"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody", "weapon",
-		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin", "generatorwind"
+		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
+		"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames"
 	}
 	-- we made weapon a saneent because tracing mario's draw is REALLY TOUGH
 	
