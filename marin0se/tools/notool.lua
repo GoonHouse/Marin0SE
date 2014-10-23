@@ -6,6 +6,3 @@ function thisclass:init()
 	editortool.init(self, classname)
 	
 end
-
-local info = debug.getinfo(1,'S')
-print(info.source)

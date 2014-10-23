@@ -2560,7 +2560,7 @@ function loadlevel(level)
 	end
 	
 	--MISC VARS; Misc Global Variables
-	gameplaytype = "vanilla" --List over in variables.lua
+	gameplaytype = "oddjob" --List over in variables.lua
 	everyonedead = false
 	levelfinished = false
 	coinanimation = 1

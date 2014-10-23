@@ -39,13 +39,13 @@ function rightclickmenu:init(x, y, elements, tx, ty)
 			table.insert(self.variables, v)
 			
 		elseif v.t == "linkbutton" then
-			table.insert(self.t, guielement:new("button", self.x, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), v.value, rightclickmenu.linkcallback, nil, {nil, self, v.link, false}, nil, rightclickwidth-14))
-			table.insert(self.t, guielement:new("button", self.x+rightclickwidth-11, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), "x", rightclickmenu.linkcallback, nil, {nil, self, v.link, true}, nil, 8))
+			table.insert(self.t, guielement:new("button", self.x, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), v.value, nop, nil, {nil, self, v.link, false}, nil, rightclickwidth-14, false, rightclickmenu.linkcallback))
+			table.insert(self.t, guielement:new("button", self.x+rightclickwidth-11, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), "x", nop, nil, {nil, self, v.link, true}, nil, 8, false, rightclickmenu.linkcallback))
 			self.t[#self.t].textcolor = {200, 0, 0}
 			table.insert(self.variables, v)
 			
 		elseif v.t == "regionselect" then
-			table.insert(self.t, guielement:new("button", self.x, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), v.value, rightclickmenu.regioncallback, nil, {nil, self, v.region}, nil, rightclickwidth-3))
+			table.insert(self.t, guielement:new("button", self.x, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), v.value, nop, nil, {nil, self, v.region}, nil, rightclickwidth-3, false, rightclickmenu.regioncallback))
 			table.insert(self.variables, v)
 			
 		elseif v.t == "scrollbar" then

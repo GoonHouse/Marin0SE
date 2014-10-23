@@ -12,6 +12,16 @@ function table.contains(t, entry)
 	return false
 end
 
+function table.print(t)
+	--print(Tserial.pack(t, true, true))
+	-- the above causes a stack overflow, so we are doing this the dumb way
+	if t~=nil then
+		for k,v in pairs(t) do print(k, "=", v) end
+	else
+		print("nothing, got a nil")
+	end
+end
+
 function string:split(delimiter) --Not by me
 	local result = {}
 	local from  = 1
@@ -32,3 +42,7 @@ local function interp(s, tab)
 end
 getmetatable("").__mod = interp
 -- refer to: https://docs.python.org/2/library/stdtypes.html#string-formatting if confused
+
+function nop()
+	
+end

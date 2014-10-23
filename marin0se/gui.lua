@@ -74,6 +74,7 @@ function guielement:init(...)
 		if arg[10] == true then
 			self.repeatdelay = 0.05
 		end
+		self.releasefunc = arg[11]
 		
 		self.repeatwaittimer = self.repeatwait
 		self.repeatdelaytimer = self.repeatdelay
@@ -721,7 +722,15 @@ function guielement:unclick(x, y, button)
 		if self.type == "scrollbar" then
 			self.dragging = false
 		elseif self.type == "button" then
-			self.holding = false
+			if button == "l" and self:inhighlight(x, y) then
+				if self.releasefunc then
+					self.releasefunc(unpack(self.arguments))
+				end
+				self.holding = false
+				return true
+			else
+				self.holding = false
+			end
 		elseif self.type == "dropdown" then
 			if self.scrollbar then
 				self.scrollbar:unclick(x, y, button)

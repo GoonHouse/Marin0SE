@@ -20,23 +20,31 @@ for k,v in pairs(editortoollist) do
 	editortools[editortoollist[k]].name = editortoollist[k]
 end
 
-function changeTool(toolname)
+function changeTool(toolname, ...)
+	local arg={...}
+	print("changeTool for "..toolname.." called with:")
+	table.print(arg)
 	previouseditortool = activeeditortool
+	previouseditortool.active = false
 	activeeditortool = editortools[toolname]
+	activeeditortool:change(unpack(arg))
+	activeeditortool.active = true
 end
 
 function previousTool()
 	local temp = activeeditortool
 	activeeditortool = previouseditortool
 	previouseditortool = temp
+	previouseditortool.active = false
+	activeeditortool.active = true
 	-- Will this even work? Who knows.
 end
 
 function editor_load()
 	print("Editor loaded!")
 	editorstate = "main"
-	previouseditortool = editortools["notool"]
-	activeeditortool = editortools["paintdraw"]
+	activeeditortool = editortools["notool"]
+	changeTool("paintdraw")
 	editorignorerelease = false --this is an ugly hack until we figure out how to wrangle our inputs
 	editorignoretap = false
 	mapbuttons={}
@@ -322,35 +330,25 @@ function editor_start()
 end
 
 function editor_update(dt)
-	if activeeditortool then
-		activeeditortool:update(dt)
-	end
 	----------
 	--EDITOR--
 	----------
 	if rightclickm then
 		rightclickm:update(dt)
 		if rightclicka < 1 then
-			rightclicka = math.min(1, rightclicka + dt/linktoolfadeouttime)
+			rightclicka = math.min(1, rightclicka + dt/linktoolfadeouttimefast)
 		end
 	elseif not rightclickactive then
 		if rightclicka > 0 then
-			rightclicka = math.max(0, rightclicka - dt/linktoolfadeouttime)
+			rightclicka = math.max(0, rightclicka - dt/linktoolfadeouttimefast)
 		end
-	end
-	
-	if regiondragging then
-		if regiondragging:update(dt) then
-			regiondragging = nil
-		end
-		return
 	end
 	
 	if changemapwidthmenu then
 		return
 	end
 	
-	if editorstate == "tiles" then
+	if editorstate == "tiles" and editormenuopen then
 		tilesoffset = guielements["tilesscrollbar"].value * tilescrollbarheight * scale
 		if editentities and not editenemies then
 			local x, y = mouse.getPosition()
@@ -390,69 +388,12 @@ function editor_draw()
 	
 	--EDITOR
 	if editormenuopen == false then
-		if editorstate == "selection" then
-			if selectiondragging or selectionwidth then
-				local x, y, width, height
-				
-				x, y = selectionx, selectiony
-				if selectiondragging then
-					width, height = mousex-selectionx, mousey-selectiony
-				else
-					width, height = selectionwidth, selectionheight
-				end
-				
-				if width < 0 then
-					x = x + width
-					width = -width
-				end
-				if height < 0 then
-					y = y + height
-					height = -height
-				end
-				
-				if selectiondragging then
-					drawrectangle(x/scale, y/scale, width/scale, height/scale)
-				end
-				
-				local selectionlist = selectiongettiles(x, y, width, height)
-				
-				love.graphics.setColor(255, 255, 255, 100)
-				for i = 1, #selectionlist do
-					local v = selectionlist[i]
-					if map[v.x][v.y][2] and entitylist[map[v.x][v.y][2]] and rightclickmenues[entitylist[map[v.x][v.y][2]].t] then
-						love.graphics.rectangle("fill", (v.x-xscroll-1)*16*scale, (v.y-yscroll-1.5)*16*scale, 16*scale, 16*scale)
-					end
-				end
-			end
-			
-		elseif not rightclickactive and not rightclickm and editorstate ~= "lightdraw" and not regiondragging then
-			local x, y = getMouseTile(mouse.getX(), mouse.getY()-8*scale)
-			love.graphics.draw(cursorareaimg, cursorareaquads[redcoinframe], math.floor((x-xscroll-1-(1/16))*16*scale), math.floor(((y-yscroll-1-(1/16))*16+8)*scale), 0, scale, scale)
-			local posstr = x..",|"..y
-			local xcenteroffset = (2/16) --((string.len(posstr)*4)/16)
-			-- the above is the closest I got to centered when using the format "(x,y)"
-			properprintbackground(posstr, math.floor((x-xscroll-1-(3/16)+xcenteroffset)*16*scale), math.floor(((y-yscroll+(2/16))*16+8)*scale), true)
-			if inmap(x, y+1) then
-				love.graphics.setColor(255, 255, 255, 200)
-				-- we do this because if we open the enemies tab and don't do anything we end up with a beetle
-				-- deep down, isn't that all we *really* want out of life?
-				if editentities == false and type(currenttile)=="number" then
-					local quad = tilequads[currenttile]:quad()
-					if currenttile > 10000 then
-						quad = tilequads[currenttile]:quad()
-					end
-					love.graphics.draw(tilequads[currenttile].image, quad, math.floor((x-xscroll-1)*16*scale), math.floor(((y-yscroll-1)*16+8)*scale), 0, scale, scale)
-				elseif editenemies == false then
-					love.graphics.draw(entityquads[currenttile].image, entityquads[currenttile].quad, math.floor((x-xscroll-1)*16*scale), math.floor(((y-yscroll-1)*16+8)*scale), 0, scale, scale)
-				else
-					local v = enemiesdata[currenttile]
-					local xoff, yoff = (((v.spawnoffsetx or 0)+v.width/2-.5)*16 - v.offsetX + v.quadcenterX)*scale, (((v.spawnoffsety or 0)-v.height+1)*16-v.offsetY - v.quadcenterY)*scale
-					love.graphics.draw(v.graphic, v.quad, math.floor((x-xscroll-1)*16*scale+xoff), math.floor(((y-yscroll)*16)*scale+yoff), 0, scale, scale)
-				end
-			end
+		if activeeditortool then
+			activeeditortool:draw()
 		end
 		
-		if rightclickactive and not regiondragging then
+		-- draw all entities that have outputs
+		if rightclickactive then
 			local cox, coy = getMouseTile(mousex, mousey+8*scale)
 			
 			local table1 = {}
@@ -479,7 +420,8 @@ function editor_draw()
 			end
 		end
 		
-		if drawalllinks then
+		-- draw all the links, ever
+		if drawalllinks or true then
 			local added = 0
 			for x = 1, mapwidth do
 				for y = 1, mapheight do
@@ -520,6 +462,7 @@ function editor_draw()
 			end
 		end
 		
+		
 		if (rightclickactive or rightclickm) and editorstate ~= "lightdraw" or rightclicka > 0 then
 			local tx, ty
 			local x1, y1
@@ -529,52 +472,14 @@ function editor_draw()
 				tx = rightclickm.tx
 				ty = rightclickm.ty
 				x1, y1 = math.floor((tx-xscroll-.5)*16*scale), math.floor((ty-yscroll-1)*16*scale)
+			-- i have no idea what this does, but it WILL break things
 			else
-				tx = linktoolX
-				ty = linktoolY
+				tx = rightclickoldX
+				ty = rightclickoldY
 				x1, y1 = math.floor((tx-xscroll-.5)*16*scale), math.floor((ty-yscroll-1)*16*scale)
 			end
 			
 			local drawtable = {}
-			
-			for i = 1, #map[tx][ty] do
-				if map[tx][ty][i] == "link" then
-					x2, y2 = math.floor((map[tx][ty][i+2]-xscroll-.5)*16*scale), math.floor((map[tx][ty][i+3]-yscroll-1)*16*scale)
-					
-					local t = map[tx][ty][i+1]
-					table.insert(drawtable, {x1, y1, x2, y2, t})
-				end
-			end
-			
-			table.sort(drawtable, function(a,b) return math.abs(a[3]-a[1])>math.abs(b[3]-b[1]) end)
-			
-			for i = 1, #drawtable do
-				local x1, y1, x2, y2, t = unpack(drawtable[i])
-				love.graphics.setColor(127, 127, 255*(i/#drawtable), 255*rightclicka)
-				
-				if math.mod(i, 2) == 0 then
-					drawlinkline2(x1, y1, x2, y2)
-				else
-					drawlinkline(x1, y1, x2, y2)
-				end
-				
-				properprintbackground(t, math.floor(x2-string.len(t)*4*scale), y2+10*scale, true, {0, 0, 0, 255*rightclicka})
-			end
-			
-			if linktoolt then
-				local x1, y1 = math.floor((linktoolX-xscroll-.5)*16*scale), math.floor((linktoolY-yscroll-1)*16*scale)
-				local x2, y2 = mousex, mousey
-				
-				love.graphics.setColor(255, 172, 47, 255)
-				
-				drawlinkline(x1, y1, x2, y2)
-				
-				love.graphics.setColor(200, 140, 30, 255)
-				
-				love.graphics.draw(linktoolpointerimg, x2-math.ceil(scale/2), y2, 0, scale, scale, 3, 3)
-				
-				properprintbackground(linktoolt, math.floor(x2+4*scale), y2-4*scale, true)
-			end
 			
 			--faithplate paths
 			if entitylist[map[tx][ty][2]].t == "faithplate" then
@@ -963,10 +868,6 @@ function editor_draw()
 				end
 			end
 		end
-	end
-	
-	if regiondragging then
-		regiondragging:draw()
 	end
 	
 	if editentities and not editenemies and editorstate == "tiles" and editormenuopen and entitytooltipobject then
@@ -1976,11 +1877,11 @@ function editor_controlupdate(dt)
 		end
 	end
 	
+	
+	
 	-- constants and paints
-	if controls.editorPaint and not testlevel then
-		if editorstate == "lightdraw" and editormenuopen == false then
-			paintLight()
-		elseif editorstate == "main" and editoropen then
+	if controls.editorPaint and not testlevel and not editormenuopen then
+		if editorstate == "main" and editormenuopen then
 			local mousex, mousey = mouse.getPosition()
 			if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
 				if mousex >= minimapx*scale and mousex < (minimapx+394)*scale then
@@ -2044,13 +1945,11 @@ function editor_controlupdate(dt)
 			updatescrollfactor()
 			updatefscrollfactor()
 			updatebackground()
-		elseif allowdrag and editormenuopen == false and editortool == "tile" then
-			local x, y = mouse.getPosition()
-			placetile(x, y)
 		end
 	end
 	
-	if controls.editorScrollLeft and editormenuopen == false then
+	-- scroll, bias: up & left
+	if controls.editorScrollLeft and not editormenuopen then
 		autoscroll = false
 		guielements["autoscrollcheckbox"].var = autoscroll
 		xscroll = xscroll - 30*gdt
@@ -2058,7 +1957,7 @@ function editor_controlupdate(dt)
 			xscroll = 0
 		end
 		generatespritebatch()
-	elseif controls.editorScrollRight and editormenuopen == false then
+	elseif controls.editorScrollRight and not editormenuopen then
 		autoscroll = false
 		guielements["autoscrollcheckbox"].var = autoscroll
 		xscroll = xscroll + 30*gdt
@@ -2067,7 +1966,7 @@ function editor_controlupdate(dt)
 		end
 		generatespritebatch()
 	end
-	if controls.editorScrollUp and editormenuopen == false then
+	if controls.editorScrollUp and not editormenuopen then
 		autoscroll = false
 		guielements["autoscrollcheckbox"].var = autoscroll
 		yscroll = yscroll - 30*gdt
@@ -2075,7 +1974,7 @@ function editor_controlupdate(dt)
 			yscroll = 0
 		end
 		generatespritebatch()
-	elseif controls.editorScrollDown and editormenuopen == false then
+	elseif controls.editorScrollDown and not editormenuopen then
 		autoscroll = false
 		guielements["autoscrollcheckbox"].var = autoscroll
 		yscroll = yscroll + 30*gdt
@@ -2085,60 +1984,37 @@ function editor_controlupdate(dt)
 		generatespritebatch()
 	end
 	
-	
 	-- taps and releases
-	if controls.tap.editorSelect and editorignoretap then
-		print("CONTROLS-TAP: Ignored editor input for a frame.")
-		editorignoretap = false
-	elseif controls.release.editorSelect and editorignorerelease then
-		print("CONTROLS-RELEASE: Ignored editor input for a frame.")
-		editorignorerelease = false
-	elseif controls.tap.editorSelect and not testlevel then
+	if controls.tap.editorSelect and not testlevel then
 		if editormenuopen == false then
-			if editorstate == "lightdraw" then
-				lightdrawX, lightdrawY = getMouseTile(x, y+8*scale)
-				lightdrawtable = {{x=lightdrawX, y=lightdrawY}}
-			elseif rightclickactive and editortool == "linker" then
-				print("CONTROLS: Conditions met to finish linking.")
-				finishlinking(x, y)
-			elseif editorstate == "selection" then
-				selectionstart()
-			elseif editortool == "region" then
-				if regiondragging then
-					if regiondragging:checkGrab(x, y) then
-						finishregion()
-					end
-				end
-			-- this is covered in painting elsewhere, but if it's not here, it makes a mess ???
-			elseif not rightclickm then
-				local cox, coy = getMouseTile(x, y+8*scale)
-				if inmap(cox, coy) then
-					placetile(x, y)
-				end
+			-- ode for the "with-preview" minimap drag
 			--[[elseif editorstate == "main" then
 				if y >= minimapy*scale and y < (minimapy+34)*scale then
 					if x >= minimapx*scale and x < (minimapx+394)*scale then
 						minimapdragging = true
 						toggleautoscroll(false)
 					end
-				end]]
-			end
+				end
+			end]]
 		else
 			if editorstate == "tiles" then
 				local tile = gettilelistpos(x, y)
 				if editentities == false then
 					if tile and tile <= tilelistcount+1 then
-						changeTool("tile")
 						if animatedtilelist then
 							currenttile = tile + tileliststart-1+10000
 						else
 							currenttile = tile + tileliststart-1
 						end
 						
+						changeTool("paintdraw", currenttile)
+						activeeditortool.allowdrag = false
+						
 						editorclose()
 						allowdrag = false
 					end
 				else
+					-- ENEMY BULLSHIP
 					if editenemies then
 						if tile and tile <= #enemies then
 							currenttile = enemies[tile]
@@ -2146,6 +2022,7 @@ function editor_controlupdate(dt)
 							allowdrag = false
 						end
 					else
+						-- ENTITY DILDOS
 						tile = getentityhighlight(x, y)
 						if tile then
 							currenttile = tile.i
@@ -2157,50 +2034,13 @@ function editor_controlupdate(dt)
 			end
 		end
 	elseif controls.release.editorSelect and not testlevel then
-		if selectiondragging then
-			selectionend()
-		end
-		
-		if editortool == "region" then
-			if regiondragging then
-				regiondragging:releaseGrab()
-			end
-		end
-		
-		guirepeattimer = 0
-		minimapdragging = false
-		allowdrag = true
+		--guirepeattimer = 0
+		--minimapdragging = false
+		--allowdrag = true
 	end
 	
 	if controls.tap.editorContext and not testlevel then
-		if editormenuopen == false then
-			local tileX, tileY = getMouseTile(x, y+8*scale)
-			if inmap(tileX, tileY) == false then
-				return
-			end
-			
-			if editorstate ~= "lightdraw" then
-				local r = map[tileX][tileY]
-				if #r > 1 then
-					local tile = r[2]
-					if entitylist[tile] and rightclickmenues[entitylist[tile].t] then
-						local tileX, tileY = getMouseTile(x, y+8*scale)
-						rightclickm = rightclickmenu:new(x/scale, y/scale, rightclickmenues[entitylist[r[2]].t], tileX, tileY)
-						rightclickactive = false
-						linktoolfadeouttime = linktoolfadeouttimefast
-						linktoolX, linktoolY = tileX, tileY
-					end
-				else
-					local cox, coy = getMouseTile(x, y+8*scale)
-					
-					if objects["player"][1] and not objects["player"][1].vine then
-						objects["player"][1].x = cox-1+2/16
-						objects["player"][1].y = coy-objects["player"][1].height
-						objects["player"][1].vine = false
-					end
-				end
-			end
-		else
+		if editormenuopen then
 			if editorstate == "main" then
 				-- this code transportates the player to the cursor position
 				--@TODO: Make this player-specific and use a different keyboard shortcut
@@ -2216,10 +2056,29 @@ function editor_controlupdate(dt)
 					end
 				end
 			end
+		else
+			local tileX, tileY = getMouseTile(x, y+8*scale)
+			if inmap(tileX, tileY) == false then
+				return
+			end
+			local r = map[tileX][tileY]
+			if #r > 1 then
+				local tile = r[2]
+				if entitylist[tile] and rightclickmenues[entitylist[tile].t] then
+					print("ANGRY AT THE WORLD!")
+					local tileX, tileY = getMouseTile(x, y+8*scale)
+					rightclickm = rightclickmenu:new(x/scale, y/scale, rightclickmenues[entitylist[r[2]].t], tileX, tileY)
+					rightclickactive = false
+					changeTool("notool")
+					rightclickoldX, rightclickoldY = tileX, tileY
+				end
+			end
 		end
 	end
 	
+	-- change tile used, bias: previous
 	if controls.tap.editorPrevBlock then
+		-- this shouldn't work for now, I'm sorry
 		if not editormenuopen then
 			if editentities then
 				if editenemies then
@@ -2251,9 +2110,8 @@ function editor_controlupdate(dt)
 				end
 			end
 		end
-	end
-	
-	if controls.tap.editorNextBlock then
+	elseif controls.tap.editorNextBlock then
+		-- same as above
 		if not editormenuopen then
 			if editentities then
 				if editenemies then
@@ -2288,27 +2146,13 @@ function editor_controlupdate(dt)
 	end
 	
 	if controls.tap.editorDropper then
-		local cox, coy = getMouseTile(x, y+8*scale)
-		--@TODO: copy entities from here
-		if inmap(cox, coy) then
-			editentities = false
-			tilesall()
-			currenttile = map[cox][coy][1]
-		end
+		changeTool("dropper")
+		activeeditortool:update(dt)
 	end
 	
 
-	if controls.tap.editorDelete and selectionwidth then
-		local x, y = round(selectionx/scale), round(selectiony/scale)
-		local width, height = round(selectionwidth/scale), round(selectionheight/scale)
-		
-		local selectionlist = selectiongettiles(selectionx, selectiony, selectionwidth, selectionheight)
-		
-		for i = 1, #selectionlist do
-			for j = 2, #map[selectionlist[i].x][selectionlist[i].y] do
-				map[selectionlist[i].x][selectionlist[i].y][j] = nil
-			end
-		end
+	if controls.tap.editorDelete and activeeditortool and activeeditortool.name=="selection" then
+		activeeditortool:clear()
 	end
 	
 	if controls.tap.menuBack and not testlevel then
@@ -2324,6 +2168,10 @@ function editor_controlupdate(dt)
 				editoropen()
 			end
 		end
+	end
+	
+	if activeeditortool then
+		activeeditortool:update(dt)
 	end
 end
 
@@ -2699,91 +2547,26 @@ function closerightclickmenu()
 end
 
 function startlinking(x, y, t)
-	changeTool("linker")
-	editorignoretap = true
+	changeTool("linker", x, y, t, true)
+	closerightclickmenu()
+	
+	
+	--[[editorignoretap = true
 	rightclickactive = true
 	linktoolX = x
 	linktoolY = y
 	linktoolt = t
-	rightclicka = 1
+	rightclicka = 1]]
 	
-	closerightclickmenu()
 end
 
 function startregion(x, y, t)
-	changeTool("region")
-	editorignoretap = true
-	editorignorerelease = true
-	rightclickactive = true
-	regiontoolX = x
-	regiontoolY = y
-	regiontoolt = t
-	rightclicka = 1
-	
-	--get width n shit
-	
-	local j
-	
-	for i = 3, #map[x][y] do
-		local s = tostring(map[x][y][i]):split(":")
-		if s[1] == t then
-			j = i
-			break
-		end
-	end
-	
-	if j then
-		local s = map[x][y][j]:split(":")
-		
-		local rx, ry = s[2], s[3]
-		
-		if string.sub(rx, 1, 1) == "m" then
-			rx = -tonumber(string.sub(rx, 2))
-		end
-		if string.sub(ry, 1, 1) == "m" then
-			ry = -tonumber(string.sub(ry, 2))
-		end
-		regiondragging = regiondrag:new(x+rx, y+ry, s[4], s[5])
-	else
-		print("Error! Unknown t :(")
-	end
-	
+	changeTool("region", x, y, t, true)
 	closerightclickmenu()
 end
 
 function finishregion()
-	if regiondragging then
-		previousTool()
-		editorignoretap = true
-		editorignorerelease = true
-		local t = regiontoolt
-		local x, y = regiontoolX, regiontoolY
-		
-		local j
-		
-		for i = 3, #map[x][y] do
-			local s = tostring(map[x][y][i]):split(":")
-			if s[1] == t then
-				j = i
-				break
-			end
-		end
-		
-		local rx, ry = regiondragging.x-x+1, regiondragging.y-y+1
-		
-		if rx < 0 then
-			rx = "m" .. -rx
-		end
-		
-		if ry < 0 then
-			ry = "m" .. -ry
-		end
-		
-		map[x][y][j] = t .. ":" .. rx .. ":" .. ry .. ":" .. regiondragging.width .. ":" .. regiondragging.height
-		
-		regiondragging = nil
-		rightclickactive = false
-	end
+	--dummy code, honk honk
 end
 
 function removelink(x, y, t)
@@ -2820,70 +2603,8 @@ function removelink(x, y, t)
 	end
 end
 
-function finishlinking(x, y)
-	if rightclickactive then
-		previousTool()
-		local startx, starty = linktoolX, linktoolY
-		local endx, endy = getMouseTile(x, y+8*scale)
-		
-		local edittable = {{x=startx, y=starty}}
-		
-		if selectionwidth then
-			local selectionlist = selectiongettiles(selectionx, selectiony, selectionwidth, selectionheight)
-			
-			for i = 1, #selectionlist do
-				local v = selectionlist[i]
-				-- |@WARNING:| This code is probably broken because I removed the groundlighttable and made it an "r" value.
-				if (map[v.x][v.y][2] == map[startx][starty][2] or (entitylist[map[v.x][v.y][2]] and table.contains("groundlight", entitylist[map[v.x][v.y][2]].t) and table.contains("groundlight", entitylist[map[startx][starty][2]].t))) and (v.x ~= startx or v.y ~= starty) then
-					table.insert(edittable, {x=v.x, y=v.y})
-				end
-			end
-		end
-		
-		
-		for i = 1, #edittable do
-			local x, y = edittable[i].x, edittable[i].y
-			if x ~= endx or y ~= endy then
-				local r = map[endx][endy]
-				
-				--LIST OF NUMBERS THAT ARE ACCEPTED AS INPUTS (buttons, laserdetectors)
-				if #r > 1 and table.contains( outputsi, r[2] ) then
-					r = map[x][y]
-					
-					local i = 1
-					while (r[i] ~= "link" or r[i+1] ~= linktoolt) and i <= #r do
-						i = i + 1
-					end
-					
-					map[x][y][i] = "link"
-					map[x][y][i+1] = linktoolt
-					map[x][y][i+2] = endx
-					map[x][y][i+3] = endy
-					linktoolfadeouttime = linktoolfadeouttimeslow
-				end
-				
-				rightclickactive = false
-				
-				allowdrag = false
-			end
-		end
-		linktoolt = false
-	end
-end
-
-function drawlinkline(x1, y1, x2, y2)
-	love.graphics.rectangle("fill", x1, y1-math.ceil(scale/2), x2-x1, scale)
-	love.graphics.rectangle("fill", x2-math.ceil(scale/2), y1, scale, y2-y1)
-end
-
-function drawlinkline2(x1, y1, x2, y2)
-	love.graphics.rectangle("fill", x1-math.ceil(scale/2), y1, scale, y2-y1)
-	love.graphics.rectangle("fill", x2, y2-math.ceil(scale/2), x1-x2, scale)
-end
-
 function selectionbutton()
-	changeTool("select")
-	editorstate = "selection"
+	changeTool("selection")
 	editorclose()
 end
 
@@ -3013,4 +2734,14 @@ function paintLight()
 		lightdrawX = currentx
 		lightdrawY = currenty
 	end
+end
+
+function drawlinkline2(x1, y1, x2, y2)
+	love.graphics.rectangle("fill", x1-math.ceil(scale/2), y1, scale, y2-y1)
+	love.graphics.rectangle("fill", x2, y2-math.ceil(scale/2), x1-x2, scale)
+end
+
+function drawlinkline(x1, y1, x2, y2)
+	love.graphics.rectangle("fill", x1, y1-math.ceil(scale/2), x2-x1, scale)
+	love.graphics.rectangle("fill", x2-math.ceil(scale/2), y1, scale, y2-y1)
 end

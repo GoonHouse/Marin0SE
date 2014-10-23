@@ -1,4 +1,5 @@
 require("hook")
+require("libs.tserial")
 require("utils")
 require("globals")
 require("libs.cupid")
@@ -439,7 +440,6 @@ function love.load(args)
 	
 	--require ALL the files!
 	require("libs.lube")
-	require("libs.tserial")
 	TLbind = require("libs.TLbind")
 	binds, controls = TLbind.giveInstance(controlTable)
 	require("libs.monocle")
@@ -468,10 +468,11 @@ function love.load(args)
 				t[i] = "false "..t[i]
 			end
 		end]]
-		if controls then
+		if activeeditortool then
 			--controls.tap = {}
 			--controls.release = {}
-			--str = Tserial.pack(controls,true,true)
+			for k,v in pairs(activeeditortool) do str=str..tostring(k).."="..tostring(v).."\n" end
+			--str = Tserial.pack(activeeditortool,true,true)
 		end
 		return str
 	end
@@ -2081,6 +2082,10 @@ function properprint(s, x, y, sc)
 end
 
 function properprintbackground(s, ox, oy, include, dcolor, sc)
+	--[[if type(s)~="string" then
+		print("WARNING: Tried to properprint a non-string.")
+		return
+	end]]
 	local scale = sc or scale
 	local x = ox
 	local y = oy
