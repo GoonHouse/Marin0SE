@@ -394,7 +394,8 @@ function love.load(args)
 		"ceilblocker", "funnel", "panel", "scaffold", "bubble", "axe",
 		"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody", "weapon",
-		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin", "generators"
+		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
+		"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames"
 	}
 	-- we made weapon a saneent because tracing mario's draw is REALLY TOUGH
 	
@@ -733,7 +734,7 @@ function love.load(args)
 	for y = 1, 4 do
 		leafquad[y] = {}
 		for x = 1, 2 do
-			leafquad[y][x] = love.graphics.newQuad((x-1)*6, (y-1)*6, 6, 6, 12, 24)
+			leafquad[y][x] = love.graphics.newQuad((x-1)*8, (y-1)*8, 8, 8, 16, 32)
 		end
 	end
 	

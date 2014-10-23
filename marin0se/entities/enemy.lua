@@ -31,10 +31,12 @@ function enemy:init(x, y, t, a)
 	
 	--Gameplaytype exclusivity
 	if gameplaytype ~= "oddjob" then
-		self.active = false
-		self.drawable = false
-		self.destroy = true
-		return true
+		if self.istrophy then
+			self.active = false
+			self.drawable = false
+			self.destroy = true
+			return true
+		end
 	end
 	
 	--Get our enemy's properties from the property table

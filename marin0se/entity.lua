@@ -33,8 +33,8 @@ entitylist = {
 	{t="wallindicator", category="i/o objects", description="place anywhere - shows on or off state", iconauthor=""},
 	{t="pipespawn", category="level markers", description="place on block - spawn for when coming from a sublevel", iconauthor="TripleXero"}, --30
 	{t="platformfall", category="smb stuff", description="place on empty tile - falling platforms", iconauthor=""},
-	{t="generators", category="level markers", description="place anywhere - will start generation of whatever it has when active", iconauthor="Jackostar10000"},
-	{t="bulletbillend", category="level markers", description="place anywhere - end of bullet zone", iconauthor="Jackostar10000"},
+	{t=""},
+	{t=""},
 	{t="drain", category="level markers", description="place at the very bottom in an underwater level - drain, attracts mario down", iconauthor="Bobfan"},
 	{t="lightbridge", category="portal elements", description="place on empty tile - light bridge", iconauthor="ChrisGin"},
 	{t="portalent", category="misc", description="place on block - create a portal on input", iconauthor="Firaga"},
@@ -75,10 +75,10 @@ entitylist = {
 	{t=""},
 	{t=""},
 	{t="walltimer", category="i/o objects", description="place anywhere - will send on signal for a duration", output=true, iconauthor=""},
-	{t=""},
-	{t=""},
-	{t=""},
-	{t=""},
+	{t="generatorbullet", category="smb stuff", description="place anywhere - generates bullet bills", iconauthor="sorrynothing"},
+	{t="generatorcheeps", category="smb stuff", description="place anywhere - generates flying cheep cheeps", iconauthor="sorrynothing"},
+	{t="generatorflames", category="smb stuff", description="place anywhere - generates bowser's flames", iconauthor="sorrynothing"},
+	{t="generatorwind", category="smb stuff", description="place anywhere - generates wind", iconauthor="sorrynothing"},
 	{t="castlefire", category="smb stuff", description="place anywhere - rotating fire stick", iconauthor="Assasin-Kiashi"},
 	{t="seesaw", category="smb stuff", description="place on empty tile - see-saw", iconauthor="Firaga"},
 	{t="warppipe", category="level markers", description="place on block - warp pipe", iconauthor="BobTheLawyer"}, --80
@@ -89,17 +89,17 @@ entitylist = {
 	{t="orgate", category="gates", description="place anywhere - or gate", output=true, iconauthor=""},
 	{t="andgate", category="gates", description="place anywhere - and gate", output=true, iconauthor="Turtle95"},
 	{t="redcoin", category="smb stuff", description="place in air - a red coin to collect", iconauthor="sorrynothing"},
-	{t="firestart", category="level markers", description="place anywhere - fire start - bowser firethings will regularly cross the screen", iconauthor="HammerGuy"},
+	{t=""},
 	{t="bowser", category="level markers", description="place on empty tile preferably on the first block on a bridge with an axe - bowser", iconauthor="renhoek"},
 	{t="axe", category="level markers", description="place on empty tile preferably behind a bridge - axe, end of level", output=true, iconauthor="alesan99"}, --90
 	{t="platformbonus", category="smb stuff", description="place on empty tile - platform in coin worlds", iconauthor=""},
 	{t="spring", category="smb stuff", description="place on empty tile - spring", iconauthor="Firaga"},
 	{t=""},
-	{t="flyingfishstart", category="level markers", description="place anywhere - defines the start of a flying cheep cheep zone", iconauthor=""},
-	{t="flyingfishend", category="level markers", description="place anywhere - defines the end of a flying cheep cheep zone", iconauthor=""},
-	{t="windstart", category="level markers", description="place anywhere - defines the start of a wind zone", iconauthor="HammerGuy"},
-	{t="windend", category="level markers", description="place anywhere - defines the end of a wind zone", iconauthor="HammerGuy"},
-	{t="fireend", category="level markers", description="place anywhere - fire start - bowser firethings will stop", iconauthor="HammerGuy"},
+	{t=""},
+	{t=""},
+	{t=""},
+	{t=""},
+	{t=""},
 	{t="checkpoint", category="level markers", description="place on empty tile - checkpoint - mario will spawn there if he dies after reaching it", iconauthor="TripleXero"},
 	{t="ceilblocker", category="level markers", description="place an	ywhere - makes it impossible to jump over the top row of blocks", iconauthor="alesan99"},
 	{t=""},
@@ -574,11 +574,26 @@ rightclickmenues.axe = {
 	{t="submenu", entries={"small", "tallthin", "large"}, default=1, width=8, actualvalue=true},
 }
 
-rightclickmenues.generators = {
-	{t="text", value="contents:"},
-	{t="submenu", entries={"bulletbill", "flyingcheeps", "bowserflames", "highwindright"}, default=1, width=13, actualvalue=true},
+rightclickmenues.generatorwind = {
+	{t="text", value="direction:"},
+	{t="submenu", entries={"right", "left"}, default=1, width=5, actualvalue=true},
 	{},
-	{t="linkbutton", value="link trigger", link="trigger"}
+	{t="text", value="intensity:"},
+	{t="scrollbar", min=1, max=10, step=1, default=6},
+	{},
+	{t="regionselect", value="select region", region="region", default="region:0:0:1:1"}
+}
+
+rightclickmenues.generatorbullet = {
+	{t="regionselect", value="select region", region="region", default="region:0:0:1:1"}
+}
+
+rightclickmenues.generatorcheeps = {
+	{t="regionselect", value="select region", region="region", default="region:0:0:1:1"}
+}
+
+rightclickmenues.generatorflames = {
+	{t="regionselect", value="select region", region="region", default="region:0:0:1:1"}
 }
 
 function entity:init(img, x, y, width, height)
