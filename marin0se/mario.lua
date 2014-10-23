@@ -317,11 +317,11 @@ function mario:controlPress(control, fromnetwork)
 	elseif control=="playerRight" then
 		self:rightkey()
 	elseif control=="playerPrimaryFire" then
-		if self.activeweapon and not editormode then 
+		if self.activeweapon and (not editormode or testlevel) then 
 			self.activeweapon:primaryFire()
 		end
 	elseif control=="playerSecondaryFire" then
-		if self.activeweapon and not editormode then 
+		if self.activeweapon and (not editormode or testlevel) then 
 			self.activeweapon:secondaryFire()
 		end
 	end

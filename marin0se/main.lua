@@ -451,33 +451,33 @@ function love.load(args)
 		debugToggle = 'f1',
 		filesToWatch = {}
 	})
-	oldsize = nil
-	oldself = nil
-	watchfunction = function()
-		local str = "jack shit"
-		--[[if editortool and editorlasttool then
-			str = "\ntool: "..editortool.."\nlast: "..editorlasttool
-		end]]
-		--[[local joy = love.joystick.getJoysticks()
-		joy = joy[1]
-		local t = {}
-		for i=1,joy:getButtonCount() do
-			t[i] = tostring(i)
-			if joy:isDown(i) then
-				t[i] = "true  "..t[i]
-			else
-				t[i] = "false "..t[i]
-			end
-		end]]
-		if activeeditortool then
+	--oldsize = nil
+	--oldself = nil
+	--watchfunction = function()
+		--local str = "jack shit"]]
+		--if editortool and editorlasttool then
+		--	str = "\ntool: "..editortool.."\nlast: "..editorlasttool
+		--end
+		--local joy = love.joystick.getJoysticks()
+		--joy = joy[1]
+		--local t = {}
+		--for i=1,joy:getButtonCount() do
+		--	t[i] = tostring(i)
+		--	if joy:isDown(i) then
+		--		t[i] = "true  "..t[i]
+		--	else
+		--		t[i] = "false "..t[i]
+		--	end
+		--end
+		--if activeeditortool then
 			--controls.tap = {}
 			--controls.release = {}
-			for k,v in pairs(activeeditortool) do str=str..tostring(k).."="..tostring(v).."\n" end
+			--for k,v in pairs(activeeditortool) do str=str..tostring(k).."="..tostring(v).."\n" end
 			--str = Tserial.pack(activeeditortool,true,true)
-		end
-		return str
-	end
-	Monocle.watch("misc", watchfunction)
+		--end
+		--return str
+	--end
+	--Monocle.watch("misc", watchfunction)]]
 	require("libs.von")
 	--require "netplay2"
 	require "netplay"
