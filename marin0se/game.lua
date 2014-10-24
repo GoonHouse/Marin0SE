@@ -1079,7 +1079,7 @@ function drawui(hidetime)
 		--world indicator
 		local texttodraw = "world"
 		local texttodraw2 = marioworld .. "-" .. mariolevel
-		if gameplaytype == "oddjob" and oddjobquotas then
+		if gameplaytype == "oddjob" and oddjobquotas and oddjobquotas[1] then
 			texttodraw = "oddjob"
 			texttodraw2 = nil
 			for i = 1, oddjobquotas[1] do
