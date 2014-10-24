@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="17" height="15" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="smbtiles" tilewidth="16" tileheight="16" spacing="1">
+  <image source="../../graphics/DEFAULT/smbtiles.png" width="374" height="119"/>
+  <tile id="1">
+   <properties>
+    <property name="solid" value="true, true, true, true"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="background" value="true"/>
+   </properties>
+  </tile>
+  <tile id="23">
+   <properties>
+    <property name="background" value="true"/>
+   </properties>
+  </tile>
+  <tile id="24">
+   <properties>
+    <property name="background" value="true"/>
+   </properties>
+  </tile>
+  <tile id="25">
+   <properties>
+    <property name="background" value="true"/>
+   </properties>
+  </tile>
+  <tile id="69">
+   <properties>
+    <property name="solid" value="true, true, true, true"/>
+   </properties>
+  </tile>
+  <tile id="70">
+   <properties>
+    <property name="solid" value="true, true, true, true"/>
+   </properties>
+  </tile>
+  <tile id="71">
+   <properties>
+    <property name="solid" value="true, true, true, true"/>
+   </properties>
+  </tile>
+  <tile id="92">
+   <properties>
+    <property name="background" value="true"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="tiles" width="17" height="15">
+  <data encoding="base64">
+   AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADEAAAAAAAAAAAAAAAAAAAAxAAAAMQAAADEAAAAxAAAAMQAAADEAAAAxAAAAAAAAAAAAAAAAAAAAAAAAACYAAAAnAAAAMQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJgAAACcAAAAxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmAAAAJwAAADEAAAAAAAAAAAAAAAAAAAAAAAAAdAAAAHQAAAB0AAAAdAAAAHQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACYAAAAnAAAAMQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJgAAACcAAAAxAAAAAAAAAAAAAAAAAAAAdAAAAHQAAAB0AAAAdAAAAHQAAAB0AAAAdAAAAAAAAAAAAAAAAAAAAAAAAAAmAAAAJwAAADEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACYAAAAnAAAAMQAAAAAAAAAAAAAAAAAAAHQAAAB0AAAAdAAAAHQAAAB0AAAAdAAAAHQAAAAAAAAAAAAAAAAAAAAAAAAAJgAAACcAAAAxAAAAAAAAAAAAAAAAAAAAMQAAADEAAAAxAAAAMQAAADEAAAAxAAAAMQAAAAAAAAAAAAAAAAAAAAAAAAAmAAAAJwAAADEAAAAAAAAAAAAAAAAAAAAxAAAAMQAAADEAAAAxAAAAMQAAADEAAAAxAAAAAAAAAAAAAAA6AAAAOwAAADwAAAAnAAAAMQAAAAAAAAAAAAAAAAAAADEAAAAxAAAAMQAAADEAAAAxAAAAMQAAADEAAAAAAAAAAAAAAFAAAABRAAAAUgAAACcAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAA
+  </data>
+ </layer>
+ <objectgroup name="ents">
+  <object type="mariospawn" x="16" y="32" width="32" height="16"/>
+  <object type="warparea" x="208" y="176" width="16" height="32">
+   <properties>
+    <property name="dest" value="1-1"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
