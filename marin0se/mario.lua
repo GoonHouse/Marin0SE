@@ -2343,6 +2343,17 @@ function mario:floorcollide(a, b, c, d)
 		end
 	end
 	
+	if b.rideable then -- Enemy Riding: Very basic at the moment; Mario is stiff, stops on a dime from a run.
+		self.y = b.y - self.height
+		if not self.binds.control.playerLeft and self.speedx < b.speedx then
+			self.speedx = b.speedx
+			self.animationstate = "idle"
+		elseif not self.binds.control.playerRight and self.speedx > b.speedx then
+			self.speedx = b.speedx
+			self.animationstate = "idle"
+		end
+	end
+	
 	if b.stompable then
 		self:stompenemy(a, b, c, d)
 		return false
