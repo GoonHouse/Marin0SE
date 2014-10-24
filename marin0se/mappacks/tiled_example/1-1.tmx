@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="224" height="15" tilewidth="16" tileheight="16">
  <tileset firstgid="1" name="smbtiles" tilewidth="16" tileheight="16" spacing="1">
-  <image source="../../git/Marin0_SE/marin0se/graphics/DEFAULT/smbtiles.png" width="374" height="119"/>
+  <image source="../../graphics/DEFAULT/smbtiles.png" width="374" height="119"/>
   <tile id="1">
    <properties>
     <property name="solid" value="true, true, true, true"/>
