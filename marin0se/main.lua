@@ -445,39 +445,22 @@ function love.load(args)
 	binds, controls = TLbind.giveInstance(controlTable)
 	require("libs.monocle")
 	Monocle.new({
-		isActive=true,
+		isActive=false,
 		customPrinter=false,
 		customColor = {0, 128, 0, 255},
 		debugToggle = 'f1',
 		filesToWatch = {}
 	})
-	--oldsize = nil
-	--oldself = nil
-	--watchfunction = function()
-		--local str = "jack shit"]]
-		--if editortool and editorlasttool then
-		--	str = "\ntool: "..editortool.."\nlast: "..editorlasttool
-		--end
-		--local joy = love.joystick.getJoysticks()
-		--joy = joy[1]
-		--local t = {}
-		--for i=1,joy:getButtonCount() do
-		--	t[i] = tostring(i)
-		--	if joy:isDown(i) then
-		--		t[i] = "true  "..t[i]
-		--	else
-		--		t[i] = "false "..t[i]
-		--	end
-		--end
-		--if activeeditortool then
-			--controls.tap = {}
-			--controls.release = {}
-			--for k,v in pairs(activeeditortool) do str=str..tostring(k).."="..tostring(v).."\n" end
-			--str = Tserial.pack(activeeditortool,true,true)
-		--end
-		--return str
-	--end
-	--Monocle.watch("misc", watchfunction)]]
+	--[[watchfunction = function()
+		local str = "jack shit"
+		if activeeditortool then
+			str=  ""
+			for k,v in pairs(activeeditortool) do str=str..tostring(k).."="..tostring(v).."\n" end
+		end
+		return str
+	end
+	Monocle.watch("misc", watchfunction)]]
+	
 	require("libs.von")
 	--require "netplay2"
 	require "netplay"

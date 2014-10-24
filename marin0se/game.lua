@@ -1079,7 +1079,7 @@ function drawui(hidetime)
 		--world indicator
 		local texttodraw = "world"
 		local texttodraw2 = marioworld .. "-" .. mariolevel
-		if gameplaytype == "oddjob" then
+		if gameplaytype == "oddjob" and oddjobquotas then
 			texttodraw = "oddjob"
 			texttodraw2 = nil
 			for i = 1, oddjobquotas[1] do
@@ -1098,19 +1098,18 @@ function drawui(hidetime)
 		
 		--time area
 		local texttodraw = "time"
+		if editormode then
+			texttodraw = "edit"
+		end
 		local texttodraw2
 		if type(mariotime) == "number" then
 			texttodraw2=addzeros(math.ceil(mariotime), 3)
 		else
 			texttodraw2=mariotime
 		end
-		if editormode then
-			texttodraw2 = "edit"
-		end
+		
 		printfunction(texttodraw, uispace*3.5 - 16*scale, 8*scale)
-		if not hidetime then
-			printfunction(texttodraw2, uispace*3.5*scale, 16*scale)
-		end
+		printfunction(texttodraw2, uispace*3.5 - 8*scale, 16*scale)
 	end
 	
 	if players > 1 and gamestate ~= "menu" then
@@ -2883,14 +2882,13 @@ function startlevel(levelstart)
 	
 	--background
 	love.graphics.setBackgroundColor(unpack(background))
-	
+	oddjobquotas = {} -- Red coin quota, if trophy was found, score quota, coin count quota, if the run was successfully ascetic.
 	if levelstart then
 	-- Oddjob Variables
 		redcoincount = 0
 		levelscore = 0
 		levelcoincount = 0
 	
-		oddjobquotas = {} -- Red coin quota, if trophy was found, score quota, coin count quota, if the run was successfully ascetic.
 		for i = 1, 5 do
 				oddjobquotas[i] = 0
 		end	
@@ -4719,6 +4717,7 @@ function addpoints(i, x, y)
 end
 
 function addzeros(s, i)
+	s=s or ""
 	for j = string.len(s)+1, i do
 		s = "0" .. s
 	end

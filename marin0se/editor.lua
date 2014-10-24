@@ -421,7 +421,10 @@ function editor_draw()
 		end
 		
 		-- draw all the links, ever
-		if drawalllinks or true then
+		
+		-- WARNING: This branch of code is so unperformant it can slay the framerate.
+		-- I'm talking 450fps down to 200fps, yowza.
+		if drawalllinks then
 			local added = 0
 			for x = 1, mapwidth do
 				for y = 1, mapheight do
@@ -512,7 +515,7 @@ function editor_draw()
 					local w = pointstable[i+1]
 					love.graphics.line((v.x-xscroll)*16*scale, (v.y-yscroll-.5)*16*scale, (w.x-xscroll)*16*scale, (w.y-yscroll-.5)*16*scale)
 				end
-			end
+			end 
 		end
 		if rightclickm then
 			rightclickm:draw()
