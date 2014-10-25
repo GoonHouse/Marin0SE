@@ -1008,7 +1008,19 @@ function drawlevel()
 							love.graphics.setColor(255, 255, 255, alpha)
 							love.graphics.draw(v.graphic, v.quad, math.floor((x-1-math.mod(xscroll, 1))*16*scale+xoff), math.floor(((y-1-math.mod(yscroll, 1))*16)*scale+yoff), 0, scale, scale)
 						else
-							love.graphics.draw(entityquads[tilenumber].image, entityquads[tilenumber].quad, math.floor((x-1-math.mod(xscroll, 1))*16*scale), math.floor(((y-1-math.mod(yscroll, 1))*16-8)*scale), 0, scale, scale)
+							if entityquads[tilenumber] and entityquads[tilenumber].image and entityquads[tilenumber].quad then
+								love.graphics.draw(
+									entityquads[tilenumber].image,
+									entityquads[tilenumber].quad,
+									math.floor((x-1-math.mod(xscroll, 1))*16*scale),
+									math.floor(((y-1-math.mod(yscroll, 1))*16-8)*scale),
+									0,
+									scale,
+									scale
+								)
+							else
+								print("WARNING: Told to draw image/quad of tilenumber=", tilenumber, "and I couldn't do it.")
+							end
 						end
 						love.graphics.setColor(255, 255, 255, 255)
 					end
@@ -2524,6 +2536,679 @@ function reachedx(currentx)
 			end
 		end
 	end--]]
+end
+
+function loadmap2(filename, createobjects)
+	--print("**************************" .. string.rep("*", #(mappack .. filename)))
+	print("LOADING: mappacks/" .. mappack .. "/" .. filename .. ".txt")
+	if love.filesystem.exists("mappacks/" .. mappack .. "/" .. filename .. ".txt") == false then
+		print("mappacks/" .. mappack .. "/" .. filename .. ".txt not found!")
+		return false
+	end
+	local s = love.filesystem.read( "mappacks/" .. mappack .. "/" .. filename .. ".txt" )
+	local s2 = s:split(CATEGORYDELIMITER)
+	
+	local t
+	if string.find(s2[1], BLOCKDELIMITER) then
+		mapheight = 15
+		t = s2[1]:split(BLOCKDELIMITER)
+	else
+		mapheight = tonumber(s2[1])
+		t = s2[2]:split(BLOCKDELIMITER)
+	end
+	
+	map = {}
+	unstatics = {}
+	
+	smbspritebatch = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
+	smbspritebatchfront = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
+	portalspritebatch = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
+	portalspritebatchfront = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
+	if customtiles then
+		customspritebatch = love.graphics.newSpriteBatch( customtilesimg, 10000 )
+		customspritebatchfront = love.graphics.newSpriteBatch( customtilesimg, 10000 )
+	end
+	spritebatchX = {}
+	spritebatchY = {}
+	
+	--get mapwidth
+	local entries = 0
+	for i = 1, #t do
+		local s = t[i]:split(MULTIPLYDELIMITER)
+		if s[2] then
+			entries = entries + tonumber(s[2])
+		else
+			entries = entries + 1
+		end
+	end
+	
+	if math.mod(entries, mapheight) ~= 0 then
+		print("Incorrect number of entries: " .. #t)
+		return false
+	end
+	
+	mapwidth = entries/mapheight
+	coinmap = {}
+	
+	for x = 1, mapwidth do
+		map[x] = {}
+		coinmap[x] = {}
+		for y = 1, mapheight do
+			map[x][y] = {}
+			map[x][y]["gels"] = {}
+			map[x][y]["portaloverride"] = {}
+		end
+	end
+	
+	local x, y = 1, 1
+	for i = 1, #t do
+		if string.find(t[i], MULTIPLYDELIMITER) then --new stuff!
+			local r = tostring(t[i]):split(MULTIPLYDELIMITER)
+			
+			local coin = false
+			if string.sub(r[1], -1) == "c" then
+				r[1] = string.sub(r[1], 1, -2)
+				coin = true
+			end
+			
+			for j = 1, tonumber(r[2]) do
+				if coin then
+					coinmap[x][y] = true
+				end
+			
+				if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
+					r[1] = 1
+				end
+				
+				map[x][y][1] = tonumber(r[1])
+				
+			
+				--create object for block
+				if createobjects and tilequads[tonumber(r[1])]:getproperty("collision", x, y) == true then
+					objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1)
+				end
+				
+				x = x + 1
+				if x > mapwidth then
+					x = 1
+					y = y + 1
+				end
+			end
+			
+		else --Old stuff.
+			local r = tostring(t[i]):split(LAYERDELIMITER)
+			
+			if string.sub(r[1], -1) == "c" then
+				r[1] = string.sub(r[1], 1, -2)
+				coinmap[x][y] = true
+			end
+			
+			if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
+				r[1] = 1
+			end
+			
+			for i = 1, #r do
+				if tonumber(r[i]) then
+					map[x][y][i] = tonumber(r[i])
+				else
+					map[x][y][i] = r[i]
+				end
+			end
+			
+			--create object for block
+			if createobjects and tilequads[tonumber(r[1])]:getproperty("collision", x, y) == true then
+				objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1)
+			end
+			
+			x = x + 1
+			if x > mapwidth then
+				x = 1
+				y = y + 1
+			end
+		end
+	end
+	
+	--ANIMATED TIMERS
+	animatedtimers = {}
+	for x = 1, mapwidth do
+		animatedtimers[x] = {}
+	end
+	
+	for y = 1, mapheight do
+		for x = 1, mapwidth do
+			local r = map[x][y]
+			
+			if r[1] > 10000 then
+				if tilequads[r[1]].triggered then
+					animatedtimers[x][y] = animatedtimer:new(x, y, r[1])
+				end
+			end
+			
+			if tilequads[r[1] ]:getproperty("coin", x, y) then
+				coinmap[x][y] = true
+			end
+			
+			if #r > 1 then 
+				if entitylist[r[2]] then
+					local t = entitylist[r[2]].t
+					print(t)
+					
+					if t == "spawn" then
+						local r2 = {unpack(r)}
+						table.remove(r2, 1)
+						table.remove(r2, 1)
+						
+						--compatibility for Mari0
+						if #r2 == 0 then
+							startx = {x, x, x, x, x}
+							starty = {y, y, y, y, y}
+						else
+							if r2[1] == "true" then --all
+								startx = {x, x, x, x, x}
+								starty = {y, y, y, y, y}
+							else
+								for i = 1, 5 do
+									if r2[i+1] == "true" then
+										startx[i] = x
+										starty[i] = y
+									end
+								end
+							end
+						end
+					elseif createobjects and not editormode then
+						-- All the sane entities get to play nicely here.
+						if table.contains(saneents, t) then
+							table.insert(objects[t], _G[t]:new(x, y, r))
+							--table.insert(textentities, textentity:new(x-1, y-1, r))
+						elseif t == "warppipe" then
+							table.insert(warpzonenumbers, {x, y, r[3]})
+							
+						elseif t == "manycoins" then
+							map[x][y][3] = 7
+							
+						elseif t == "flag" then
+							flagx = x-1
+							flagy = y
+							
+						elseif t == "firestart" then
+							firestartx = x
+						elseif t == "fireend" then
+							fireendx = x
+							
+						elseif t == "flyingfishstart" then
+							flyingfishstartx = x
+						elseif t == "flyingfishend" then
+							flyingfishendx = x
+							
+						elseif t == "bulletbillstart" then
+							bulletbillstartx = x
+						elseif t == "bulletbillend" then
+							bulletbillendx = x
+
+						elseif t == "windstart" then
+							windstartx = x
+						elseif t == "windend" then
+							windendx = x
+							
+						elseif t == "lakitoend" then
+							lakitoendx = x
+							
+						elseif t == "pipespawn" and (prevsublevel == r[3]-1 or (mariosublevel == r[3]-1 and blacktime == sublevelscreentime)) then
+							pipestartx = x
+							pipestarty = y
+							
+						elseif t == "gel" then
+							if tilequads[map[x][y][1]]:getproperty("collision", x, y) then
+								if r[4] == "true" then
+									map[x][y]["gels"]["left"] = r[3]
+								end
+								if r[5] == "true" then
+									map[x][y]["gels"]["top"] = r[3]
+								end
+								if r[6] == "true" then
+									map[x][y]["gels"]["right"] = r[3]
+								end
+								if r[7] == "true" then
+									map[x][y]["gels"]["bottom"] = r[3]
+								end
+							end
+							
+						elseif t == "mazestart" then
+							if not table.contains(mazestarts, x) then
+								table.insert(mazestarts, x)
+							end
+							
+						elseif t == "mazeend" then
+							if not table.contains(mazeends, x) then
+								table.insert(mazeends, x)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	if createobjects then
+		--Add links
+		for i, v in pairs(objects) do
+			for j, w in pairs(v) do
+				if w.link then
+					w:link()
+				end
+			end
+		end
+	end
+	
+	if flagx then
+		flagimgx = flagx+8/16
+		flagimgy = flagy-10+1/16
+	end
+	
+	for x = 0, -30, -1 do
+		map[x] = {}
+		for y = 1, mapheight-2 do
+			map[x][y] = {1}
+		end
+		
+		for y = mapheight-1, mapheight do
+			map[x][y] = {2}
+			if createobjects then
+				objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1)
+			end
+		end
+	end
+	
+	--background
+	background = {unpack(backgroundcolor[1])}
+	custombackground = false
+	
+	--portalgun
+	portalsavailable = {true, true}
+	
+	levelscreenback = nil
+	levelscreenbackname = nil
+	
+	--MORE STUFF
+	for i = 3, #s2 do
+		s3 = s2[i]:split(EQUALSIGN)
+		if s3[1] == "backgroundr" then
+			background[1] = tonumber(s3[2])
+		elseif s3[1] == "backgroundg" then
+			background[2] = tonumber(s3[2])
+		elseif s3[1] == "backgroundb" then
+			background[3] = tonumber(s3[2])
+		elseif s3[1] == "background" then
+			background = {unpack(backgroundcolor[tonumber(s3[2])])}
+		elseif s3[1] == "spriteset" then
+			spriteset = tonumber(s3[2])
+		elseif s3[1] == "intermission" then
+			intermission = true
+		elseif s3[1] == "haswarpzone" then
+			haswarpzone = true
+		elseif s3[1] == "underwater" then
+			underwater = true
+		elseif s3[1] == "music" then
+			if tonumber(s3[2]) then
+				local i = tonumber(s3[2])
+				musicname = musiclist[i]
+			else
+				musicname = s3[2]
+			end
+		elseif s3[1] == "bonusstage" then
+			bonusstage = true
+		elseif s3[1] == "custombackground" or s3[1] == "portalbackground" then
+			custombackground = true
+			if s3[2] and custombackgroundimg[s3[2]] then
+				custombackground = s3[2]
+			end
+		elseif s3[1] == "customforeground" then
+			customforeground = true
+			if s3[2] and custombackgroundimg[s3[2]] then
+				customforeground = s3[2]
+			end
+		elseif s3[1] == "timelimit" then
+			mariotimelimit = tonumber(s3[2])
+		elseif s3[1] == "scrollfactor" then
+			scrollfactor = tonumber(s3[2])
+		elseif s3[1] == "fscrollfactor" then
+			fscrollfactor = tonumber(s3[2])
+		elseif s3[1] == "portalgun" then
+			if s3[2] == "none" then
+				portalsavailable = {false, false}
+			elseif s3[2] == "blue" then
+				portalsavailable = {true, false}
+			elseif s3[2] == "orange" then
+				portalsavailable = {false, true}
+			end
+		elseif s3[1] == "levelscreenback" then
+			if love.filesystem.exists("mappacks/" .. mappack .. "/levelscreens/" .. s3[2] .. ".png") then
+				levelscreenbackname = s3[2]
+				levelscreenback = {}
+				levelscreenback = love.graphics.newImage("mappacks/" .. mappack .. "/levelscreens/" .. s3[2] .. ".png")
+			end
+		end
+	end
+	
+	--print("* DONE!" .. string.rep(" ", #(mappack .. filename)+17) .. " *")
+	--print("**************************" .. string.rep("*", #(mappack .. filename)))
+	return true
+end
+
+function loadlevel2(level)
+	collectgarbage("collect")
+	love.audio.stop()
+	animationsystem_load()
+	
+	if replaysystem then
+		for i = 1, #replaydata do
+			replaytimer[i] = 0
+			replayi[i] = 1
+			replaychar[i] = characters.mario
+		end
+	end
+	
+	sublevel = false
+	prevsublevel = false
+	mariosublevel = 0
+	mariotime = 400
+	
+	gameplaytype = "oddjob" --List over in variables.lua
+	everyonedead = false
+	levelfinished = false
+	coinanimation = 1
+	redcoinanimation = 1
+	flagx = false
+	levelfinishtype = nil
+	firedelay = math.random(4)
+	flyingfishdelay = 1
+	bulletbilldelay = 1
+	windtimer = 0.1
+	firetimer = firedelay
+	flyingfishtimer = flyingfishdelay
+	bulletbilltimer = bulletbilldelay
+	lakitoendx = false
+	lakitoend = false
+	noupdate = false
+	xscroll = 0
+	repeatX = 0
+	lastrepeat = 0
+	ylookmodifier = 0
+	displaywarpzonetext = false
+	mazestarts = {}
+	mazeends = {}
+	mazesolved = {}
+	mazesolved[0] = true
+	mazeinprogress = false
+	earthquake = 0
+	sunrot = 0
+	gelcannontimer = 0
+	pausemenuselected = 1
+	coinblocktimers = {}
+
+	givemestuff = {lives = 0, times = 0, coinage = 0}
+	givemetemp = {lives = 0, times = 0, coinage = 0}
+	gensrunning = {cheepcheep = false, bulletbill = false, bowserflames = false, highwind = false}
+	
+	portaldelay = {}
+	for i = 1, players do
+		portaldelay[i] = 0
+	end
+	
+	--class tables
+	coinblockanimations = {}
+	scrollingscores = {}
+	scrollingtexts = {}
+	portalparticles = {}
+	portalprojectiles = {}
+	userects = {}
+	blockdebristable = {}
+	rainbooms = {}
+	emancipateanimations = {}
+	emancipationfizzles = {}
+	dialogboxes = {}
+	miniblocks = {}
+	inventory = {}
+	for i = 1, 9 do
+		inventory[i] = {}
+	end
+	mccurrentblock = 1
+	itemanimations = {}
+	
+	blockbouncetimer = {}
+	blockbouncex = {}
+	blockbouncey = {}
+	blockbouncecontent = {}
+	blockbouncecontent2 = {}
+	warpzonenumbers = {}
+	
+	portals = {}
+	
+	objects = {}
+	-- Initialize all registered object arrays.
+	for _,v in pairs(saneents) do
+		objects[v]={}
+	end
+	
+	xscroll = 0
+	yscroll = 0
+	ylookmodifier = 0
+	
+	startx = {3, 3, 3, 3, 3}
+	starty = {13, 13, 13, 13, 13}
+	pipestartx = nil
+	pipestarty = nil
+	local animation = nil
+	
+	enemiesspawned = {}
+	
+	intermission = false
+	haswarpzone = false
+	underwater = false
+	bonusstage = false
+	custombackground = false
+	customforeground = false
+	mariotimelimit = 400
+	spriteset = 1
+	
+	if not loadmap2(level, true) then --make one up
+		mapwidth = width
+		background = {unpack(backgroundcolor[1])}
+		mapheight = 15
+		portalsavailable = {true, true}
+		musicname = "overworld.ogg"
+		map = {}
+		coinmap = {}
+		for x = 1, width do
+			map[x] = {}
+			coinmap[x] = {}
+			for y = 1, mapheight do
+				if y > 13 then
+					map[x][y] = {2}
+					objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1)
+					map[x][y]["gels"] = {}
+					map[x][y]["portaloverride"] = {}
+				else
+					map[x][y] = {1}
+					map[x][y]["gels"] = {}
+					map[x][y]["portaloverride"] = {}
+				end
+			end
+		end
+		
+		smbspritebatch = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
+		smbspritebatchfront = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
+		portalspritebatch = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
+		portalspritebatchfront = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
+		if customtiles then
+			customspritebatch = love.graphics.newSpriteBatch( customtilesimg, 10000 )
+			customspritebatchfront = love.graphics.newSpriteBatch( customtilesimg, 10000 )
+		end
+		spritebatchX = {}
+		spritebatchY = {}
+	end
+	
+	enemies_load()
+	
+	objects["screenboundary"] = {}
+	objects["screenboundary"]["left"] = screenboundary:new(0)
+	
+	objects["screenboundary"]["right"] = screenboundary:new(mapwidth)
+	
+	if flagx then
+		objects["screenboundary"]["flag"] = screenboundary:new(flagx+6/16)
+	end
+	
+	if objects["axe"] and objects["axe"][#objects["axe"]] then
+		objects["screenboundary"]["axe"] = screenboundary:new(objects["axe"][#objects["axe"]].cox)
+	end
+	
+	if intermission then
+		animation = "intermission"
+	end
+	
+	if not sublevel then
+		mariotime = mariotimelimit
+	end
+	
+	--Maze setup
+	--check every block between every start/end pair to see how many gates it contains
+	if #mazestarts == #mazeends then
+		mazegates = {}
+		for i = 1, #mazestarts do
+			local maxgate = 1
+			for x = mazestarts[i], mazeends[i] do
+				for y = 1, mapheight do
+					if map[x][y][2] and entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "mazegate" then
+						if tonumber(map[x][y][3]) > maxgate then
+							maxgate = tonumber(map[x][y][3])
+						end
+					end
+				end
+			end
+			mazegates[i] = maxgate
+		end
+	else
+		print("Mazenumber doesn't fit!")
+	end
+	
+	--check if it's a bonusstage (boooooooonus!)
+	if bonusstage then
+		animation = "vinestart"
+	end
+		
+	--set startx to pipestart
+	if pipestartx then
+		startx = {pipestartx-1, pipestartx-1, pipestartx-1, pipestartx-1, pipestartx-1}
+		starty = {pipestarty, pipestarty, pipestarty, pipestarty, pipestarty}
+		--check if startpos is a colliding block
+		if tilequads[map[startx[1]][starty[1]][1]]:getproperty("collision", startx[1], starty[1]) then
+			animation = "pipeup"
+		end
+	end
+	
+	--set starts to checkpoint
+	if not sublevel and checkpointsub then
+		for i = 1, 5 do
+			if checkpointx[i] then
+				startx[i] = checkpointx[i]
+			end
+			if checkpointy[i] then
+				starty[i] = checkpointy[i]
+			end
+		end
+	end
+	
+	--Adjust start X scroll
+	xscroll = startx[1]-scrollingleftcomplete-2
+	if xscroll > mapwidth - width then
+		xscroll = mapwidth - width
+	end
+	
+	if xscroll < 0 then
+		xscroll = 0
+	end
+	
+	--and Y too
+	yscroll = starty[1]-height+downscrollborder
+	if yscroll > mapheight - height - 1 then
+		yscroll = mapheight - height - 1
+	end
+	
+	if yscroll < 0 then
+		yscroll = 0
+	end
+	
+	spawnrestrictions = {}
+	
+	--Clear spawn area from enemies
+	for i = 1, #startx do
+		if startx[i] == checkpointx[i] and starty[i] == checkpointy[i] then
+			table.insert(spawnrestrictions, {startx[i], starty[i]})
+		end
+	end
+	
+	--add the players
+	local mul = 0.5
+	if mariosublevel ~= 0 or prevsublevel ~= false then
+		mul = 2/16
+	end
+	
+	objects["player"] = {}
+	local spawns = {}
+	for i = 1, players do
+		local animation = animation
+		
+		local astartx, astarty
+		if i > 4 then
+			astartx = startx[5]
+			astarty = starty[5]
+		else
+			astartx = startx[i]
+			astarty = starty[i]
+		end
+		
+		if astartx then
+			local add = -6/16
+			for j, v in pairs(spawns) do
+				if v.x == astartx and v.y == astarty then
+					add = add + mul
+				end
+			end
+			
+			table.insert(spawns, {x=astartx, y=astarty})
+			
+			objects["player"][i] = mario:new(astartx+add, astarty-1, i, animation, mariosizes[i], playertype)
+		else
+			objects["player"][i] = mario:new(1.5 + (i-1)*mul-6/16+1.5, 13, i, animation, mariosizes[i], playertype)
+		end
+	end
+	
+	--ADD ENEMIES ON START SCREEN
+	if editormode == false then
+		local xtodo = width+1
+		if mapwidth < width+1 then
+			xtodo = mapwidth
+		end
+		
+		local ytodo = height+1
+		if mapheight < height+1 then
+			ytodo = mapheight
+		end
+			
+		for x = math.floor(xscroll), math.floor(xscroll)+xtodo do
+			for y = math.floor(yscroll), math.floor(yscroll)+ytodo do
+				spawnenemy(x, y)
+			end
+		end
+	end
+	
+	--load editor
+	editor_load()
+	
+	updateranges()
+	
+	generatespritebatch()
 end
 
 function loadlevel(level)

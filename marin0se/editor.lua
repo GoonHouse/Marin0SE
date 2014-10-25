@@ -11,6 +11,7 @@ editor_undohistory = {}
 	}
 ]]
 require "nodetree"
+require "maptree"
 testbed = {}
 
 require "editortool"
@@ -51,7 +52,6 @@ function editor_load()
 	changeTool("paintdraw")
 	editorignorerelease = false --this is an ugly hack until we figure out how to wrangle our inputs
 	editorignoretap = false
-	mapbuttons={}
 	currentanimation = 1
 	tilecount1 = 168
 	tilecount2 = 74
@@ -73,8 +73,6 @@ function editor_load()
 	minimapdragging = false
 	
 	allowdrag = true
-	
-	mapbuttonarea =  {4, 21, 381, 220}
 	
 	--get current description and shit
 	local mappackname = ""
@@ -274,13 +272,10 @@ function editor_load()
 	guielements["savesettings"].bordercolorhigh = {255, 127, 127}
 	
 	--MAPS
-	--[[guielements["savebutton2"] = guielement:new("button", 10, 140, "save", savelevel, 2)
-	guielements["savebutton2"].bordercolor = {255, 0, 0}
-	guielements["savebutton2"].bordercolorhigh = {255, 127, 127}--]]
-	guielements["mapscrollbar"] = guielement:new("scrollbar", 381, 21, 199, 15, 40, 0, "ver", nil, nil, nil, nil, true)
 	
 	--animationS
 	testbed.animations = nodetree:new(animations, animationlist)
+	testbed.maps = maptree:new()
 	
 	tilesall()
 	if editorloadopen then
@@ -351,8 +346,10 @@ function editor_update(dt)
 		end
 	end
 	
-	if testbed.animations.active then
-		testbed.animations:update(dt)
+	for k,v in pairs(testbed) do
+		if v.active then
+			v:update(dt)
+		end
 	end
 end
 
@@ -718,24 +715,13 @@ function editor_draw()
 					properprint("levelscreen:", 198*scale, 187*scale)
 				end
 			elseif editorstate == "maps" then
-				--[[love.graphics.setColor(255, 255, 255)
-				for i = 1, 8 do
-					properprint("w" .. i, ((i-1)*49 + 19)*scale, 23*scale)
+				if testbed.maps and testbed.maps.active then
+					testbed.maps:draw()
 				end
-				properprint("do not forget to save your current map before|changing!", 5*scale, 120*scale)--]]
-				
-				local scroll = guielements["mapscrollbar"].value * mapsymissing
-				love.graphics.setScissor(mapbuttonarea[1]*scale, mapbuttonarea[2]*scale, (mapbuttonarea[3]-mapbuttonarea[1])*scale, (mapbuttonarea[4]-mapbuttonarea[2])*scale)
-				
-				for i, v in pairs(mapbuttons) do
-					v.y = v.starty - scroll
-					v:draw()
-				end
-				love.graphics.setScissor()
 			elseif editorstate == "tools" then
 				--nothing here, we turned all the stray text into labels
 			elseif editorstate == "animations" then
-				if testbed.animations then
+				if testbed.animations and testbed.animations.active then
 					testbed.animations:draw()
 				end
 			end
@@ -757,7 +743,7 @@ function editor_draw()
 			end
 		end
 	else
-		for i, v in pairs({"tabmain", "tabtiles", "tabtools", "tabmaps", "autoscrollcheckbox"}) do
+		for i, v in pairs({"tabmain", "tabtiles", "tabtools", "autoscrollcheckbox"}) do
 			guielements[v]:draw()
 		end
 	end
@@ -910,11 +896,8 @@ function mapstab()
 	guielements["tabtools"].active = true
 	guielements["tabmaps"].active = true
 	guielements["tabanimations"].active = true
-	guielements["mapscrollbar"].active = true
 	
-	for i, v in pairs(mapbuttons) do
-		v.active = true
-	end
+	testbed.maps:activate()
 end
 
 function animationstab()
@@ -940,7 +923,6 @@ function animationstab()
 	guielements["tabanimations"].active = true
 	
 	--@NODETREE
-	testbed.animations.active = true
 	testbed.animations:activate()
 end
 
@@ -950,10 +932,7 @@ function fromanimationstab()
 end
 
 function frommapstab()
-	print("NOTICE: Properly unloaded mapbuttons.")
-	for i, v in pairs(mapbuttons) do
-		v.active = false
-	end
+	testbed.maps:deactivate()
 end
 
 function fromtoolstab()
@@ -1426,7 +1405,6 @@ function editorclose()
 	elseif editorstate == "maps" then
 		frommapstab()
 	elseif editorstate == "animations" then
-		saveanimation()
 		fromanimationstab()
 	end
 end
@@ -1448,7 +1426,7 @@ function editoropen()
 		guielements["livesincrease"].x = livesanchorx + 14 + string.len(mariolivecount)*8
 	end
 	guirepeattimer = 0
-	getmaps()
+	--getmaps()
 	
 	selectionx, selectiony, selectionwidth, selectionheight = nil, nil, nil, nil
 	
@@ -1463,66 +1441,6 @@ function editoropen()
 	elseif editorstate == "animations" then
 		animationstab()
 	end
-end
-
-function mapnumberclick(i, j, k, force)
-	if editormode and editorstate == "maps" or force then
-		print("NOTICE: Map changed because a map icon was clicked.")
-		marioworld = i
-		mariolevel = j
-		editorloadopen = false
-		if k ~= 0 then
-			loadlevel(k)
-		else
-			loadlevel(i .. "-" .. j)
-		end
-		startlevel()
-	else
-		print("WARNING: Map button tried to get clicked when it had NO business doing that.")
-	end
-end
-
-function getmaps()
-	existingmaps = {}
-	mapbuttons = {}
-	local yadd = 0 
-	for i = 1, 8 do --world
-		existingmaps[i] = {}
-		for j = 1, 4 do --level
-			mapbuttons["text" .. i .. "-" .. j] = guielement:new("text", 4, yadd+21, "world " .. i .. "-" .. j)
-			mapbuttons["text" .. i .. "-" .. j].starty = yadd+21
-			
-			yadd = yadd + 10
-			existingmaps[i][j] = {}
-			for k = 0, 5 do --sublevel
-				local s = i .. "-" .. j
-				
-				local xadd = 0
-				
-				if k ~= 0 then
-					s = s .. "_" .. k
-				end
-				
-				if love.filesystem.exists("mappacks/" .. mappack .. "/" .. s .. ".txt") then
-					if k ~= 0 then
-						mapbuttons["text" .. i .. "-" .. j .. "_" .. k] = guielement:new("text", 4, yadd+26, "sub " .. k, {127, 127, 127})
-						mapbuttons["text" .. i .. "-" .. j .. "_" .. k].starty = yadd+26
-						xadd = 50
-					end
-					
-					if love.filesystem.exists("mappacks/" .. mappack .. "/" .. s .. ".png") then
-						mapbuttons[i .. "-" .. j .. "_" .. k] = guielement:new("button", 4+xadd, yadd+21, love.graphics.newImage("mappacks/" .. mappack .. "/" .. s .. ".png"), mapnumberclick, 0, {i, j, k})
-					else
-						mapbuttons[i .. "-" .. j .. "_" .. k] = guielement:new("button", 4+xadd, yadd+21, "no preview", mapnumberclick, 0, {i, j, k})
-					end
-					mapbuttons[i .. "-" .. j .. "_" .. k].starty = yadd+21
-					yadd = yadd + 20
-				end
-			end
-		end
-	end
-	
-	mapsymissing = math.max(0, yadd-200)
 end
 
 function editor_controlupdate(dt)

@@ -151,6 +151,8 @@ function guielement:init(...)
 		self.y = arg[3]
 		self.value = arg[4] or ""
 		self.color = arg[5] or {255, 255, 255}
+		self.height = 10 --@MAGIC: Font height + 1px padding on top and bottom
+		self.width = string.len(self.value)*8 --@MAGIC: Font expected width of 8px per character
 	elseif arg[1] == "submenu" then
 		self.type = arg[1]
 		self.x = arg[2]

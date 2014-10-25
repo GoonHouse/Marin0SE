@@ -1767,11 +1767,6 @@ function love.mousepressed(ox, oy, button)
 	end
 	
 	--editor transplant because I guess the editor doesn't use the standard guielements array
-	if mapbuttons then
-		for i, v in pairs(mapbuttons) do
-			v:click(x, y, button)
-		end
-	end
 	
 	--editor transplant because ???
 	if rightclickm then
