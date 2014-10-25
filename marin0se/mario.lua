@@ -196,6 +196,7 @@ function mario:init(x, y, i, animation, size, t)
 	self.tailwagframe = 1
 	self.tailwagtimer = 0
 	
+	
 	self.gravitydirection = math.pi/2
 	
 	self.animation = animation or false --pipedown, piperight, pipeup, flag, vine, intermission
@@ -205,6 +206,8 @@ function mario:init(x, y, i, animation, size, t)
 	
 	self.falling = false
 	self.jumping = false
+	self.running = false
+	self.walking = false
 	self.starred = false
 	self.dead = false
 	self.vine = false
@@ -397,6 +400,23 @@ end
 function mario:update(dt)
 	if self.binds.update and self.controls and self.playernumber == 1 then
 		self.binds:update()
+	end
+	
+	if self.animationdirection == "right" and self.speedx > maxwalkspeed then --Checks for running movement
+		self.running = true
+		self.walking = true
+	elseif self.animationdirection == "left" and self.speedx < -maxwalkspeed then
+		self.running = true
+		self.walking = true
+	elseif self.animationdirection == "right" and self.speedx > maxwalkspeed/3 then 
+		self.running = false
+		self.walking = true
+	elseif self.animationdirection == "left" and self.speedx < -maxwalkspeed/3 then
+		self.running = false
+		self.walking = true
+	else
+		self.running = false
+		self.walking = false
 	end
 	
 	-- this is handled in the giant objects iterable
@@ -2343,12 +2363,16 @@ function mario:floorcollide(a, b, c, d)
 		end
 	end
 	
-	if b.rideable then -- Enemy Riding: Very basic at the moment; Mario is stiff, stops on a dime from a run.
+	if b.rideable then -- Enemy Riding
 		self.y = b.y - self.height
-		if not self.binds.control.playerLeft and self.speedx < b.speedx then
+		if not self.binds.control.playerLeft and self.speedx <= b.speedx and
+		self.animationstate ~= "sliding" and self.jumping == false and self.falling == false and
+		self.running == false and self.walking == false	then
 			self.speedx = b.speedx
 			self.animationstate = "idle"
-		elseif not self.binds.control.playerRight and self.speedx > b.speedx then
+		elseif not self.binds.control.playerRight and self.speedx >= b.speedx and 
+		self.animationstate ~= "sliding" and self.jumping == false and self.falling == false and
+		self.running == false and self.walking == false	then
 			self.speedx = b.speedx
 			self.animationstate = "idle"
 		end
