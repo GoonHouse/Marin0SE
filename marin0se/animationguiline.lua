@@ -799,9 +799,10 @@ for i, v in pairs(toenter) do
 	table.insert(animationstrings[v.t.t], v.t.nicename)
 end
 
-function animationguiline:init(tabl, t2)
+function animationguiline:init(tabl, t2, parent)
 	self.t = tabl
 	self.type = t2
+	self.parent = parent
 	
 	local x = 0
 	self.elements = {}
@@ -994,15 +995,15 @@ function animationguiline:unclick(x, y, button)
 end
 
 function animationguiline:delete()
-	deleteanimationguiline(self.type, self)
+	self.parent:deleteline(self.type, self)
 end
 
 function animationguiline:moveup()
-	moveupanimationguiline(self.type, self)
+	self.parent:moveupline(self.type, self)
 end
 
 function animationguiline:movedown()
-	movedownanimationguiline(self.type, self)
+	self.parent:movedownline(self.type, self)
 end
 
 function animationguiline:keypressed(key)
@@ -1020,7 +1021,7 @@ function animationguiline:changemainthing(value)
 			name = i
 		end
 	end
-	self:init({name}, self.type)
+	self:init({name}, self.type, self.parent)
 end
 
 function animationguiline:submenuchange(value, id)

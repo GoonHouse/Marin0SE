@@ -10,9 +10,13 @@ editor_undohistory = {}
 	},
 	}
 ]]
+require "nodetree"
+testbed = {}
+
 require "editortool"
 local editortoollist = love.filesystem.getDirectoryItems("tools")
 local editortools = {}
+
 for k,v in pairs(editortoollist) do
 	editortoollist[k] = v:sub(0,-5)
 	require("tools."..editortoollist[k])
@@ -70,9 +74,7 @@ function editor_load()
 	
 	allowdrag = true
 	
-	animationguiarea =  {12, 33, 399, 212}
 	mapbuttonarea =  {4, 21, 381, 220}
-	animationlineinset = 14
 	
 	--get current description and shit
 	local mappackname = ""
@@ -278,29 +280,7 @@ function editor_load()
 	guielements["mapscrollbar"] = guielement:new("scrollbar", 381, 21, 199, 15, 40, 0, "ver", nil, nil, nil, nil, true)
 	
 	--animationS
-	guielements["animationsscrollbarver"] = guielement:new("scrollbar", animationguiarea[1]-10, animationguiarea[2], animationguiarea[4]-animationguiarea[2], 10, 40, 0, "ver", nil, nil, nil, nil, true)
-	guielements["animationsscrollbarhor"] = guielement:new("scrollbar", animationguiarea[1], animationguiarea[4], animationguiarea[3]-animationguiarea[1], 40, 10, 0, "hor", nil, nil, nil, nil, false)
-	
-	local args = {}
-	for i, v in ipairs(animations) do
-		table.insert(args, string.sub(v.name, 1, -6))
-	end
-	guielements["animationselectdrop"] = guielement:new("dropdown", 15, 20, 15, selectanimation, 1, unpack(args))
-	guielements["animationnewbutton"] = guielement:new("button", 3, 20, "+", createnewanimation, nil)
-	guielements["animationsavebutton"] = guielement:new("button", 150, 19, "save", saveanimation, 1)
-	
-	addanimationtriggerbutton = guielement:new("button", 0, 0, "+", addanimationtrigger, nil, nil, nil, 8)
-	addanimationtriggerbutton.textcolor = {0, 200, 0}
-	
-	addanimationconditionbutton = guielement:new("button", 0, 0, "+", addanimationcondition, nil, nil, nil, 8)
-	addanimationconditionbutton.textcolor = {0, 200, 0}
-	
-	addanimationactionbutton = guielement:new("button", 0, 0, "+", addanimationaction, nil, nil, nil, 8)
-	addanimationactionbutton.textcolor = {0, 200, 0}
-	
-	-- these are here because the editor is highly state driven and adding shortcuts made things worse
-	generateentitylist()
-	generateanimationgui()
+	testbed.animations = nodetree:new(animations, animationlist)
 	
 	tilesall()
 	if editorloadopen then
@@ -371,13 +351,8 @@ function editor_update(dt)
 		end
 	end
 	
-	
-	if animationguilines then
-		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v) do
-				w:update(dt)
-			end
-		end
+	if testbed.animations.active then
+		testbed.animations:update(dt)
 	end
 end
 
@@ -760,82 +735,8 @@ function editor_draw()
 			elseif editorstate == "tools" then
 				--nothing here, we turned all the stray text into labels
 			elseif editorstate == "animations" then
-				if #animations > 0 then
-					love.graphics.setScissor(animationguiarea[1]*scale, animationguiarea[2]*scale, (animationguiarea[3]-animationguiarea[1])*scale, (animationguiarea[4]-animationguiarea[2])*scale)
-					local completeheight = 14+#animationguilines.triggers*13+12+#animationguilines.conditions*13+12+#animationguilines.actions*13
-					local offy = math.max(0, guielements["animationsscrollbarver"].value/1*(completeheight-(animationguiarea[4]-animationguiarea[2])))
-					local completewidth = 0
-					for i, v in pairs(animationguilines) do
-						for k, w in pairs(v) do
-							local width = 32+animationlineinset
-							for j, z in pairs(w.elements) do
-								width = width + w.elements[j].width
-							end
-							if width > completewidth then
-								completewidth = width
-							end
-						end
-					end
-					
-					local offx = -math.max(0, guielements["animationsscrollbarhor"].value/1*(completewidth-(animationguiarea[3]-animationguiarea[1])))
-					
-					love.graphics.setColor(255, 255, 255)
-					
-					local y = animationguiarea[2]+1-offy
-					y = y + 2
-					
-					addanimationtriggerbutton.x = animationguiarea[1]+2+offx
-					addanimationtriggerbutton.y = y-2
-					addanimationtriggerbutton:draw()
-					
-					properprint("triggers:", (animationguiarea[1]+13+offx)*scale, y*scale)
-					y = y + 10
-					
-					for i, v in pairs(animationguilines.triggers) do
-						v:draw((animationguiarea[1]+animationlineinset+offx), y)
-						y = y + 13
-					end
-					y = y + 2
-					
-					addanimationconditionbutton.x = animationguiarea[1]+2+offx
-					addanimationconditionbutton.y = y-2
-					addanimationconditionbutton:draw()
-					
-					properprint("conditions:", (animationguiarea[1]+13+offx)*scale, y*scale)
-					y = y + 10
-					
-					for i, v in pairs(animationguilines.conditions) do
-						v:draw((animationguiarea[1]+animationlineinset+offx), y)
-						y = y + 13
-					end
-					y = y + 2
-					
-					addanimationactionbutton.x = animationguiarea[1]+2+offx
-					addanimationactionbutton.y = y-2
-					addanimationactionbutton:draw()
-					
-					properprint("actions:", (animationguiarea[1]+13+offx)*scale, y*scale)
-					y = y + 10
-					
-					for i, v in pairs(animationguilines.actions) do
-						v:draw((animationguiarea[1]+animationlineinset+offx), y)
-						y = y + 13
-					end
-					
-					for i, v in pairs(animationguilines) do
-						for k, w in pairs(v) do
-							for anotherletter, fuck in pairs(w.elements) do
-								if fuck.gui and not fuck.gui.priority then
-									fuck.gui:draw()
-								end
-							end
-						end
-					end
-					
-					love.graphics.setScissor()
-					
-					love.graphics.setColor(90, 90, 90)
-					drawrectangle(animationguiarea[1]-10, animationguiarea[4], 10, 10)
+				if testbed.animations then
+					testbed.animations:draw()
 				end
 			end
 		end
@@ -856,20 +757,8 @@ function editor_draw()
 			end
 		end
 	else
-		for i, v in pairs({"tabmain", "tabtiles", "tabtools", "tabmaps", "tabanimations", "autoscrollcheckbox"}) do
+		for i, v in pairs({"tabmain", "tabtiles", "tabtools", "tabmaps", "autoscrollcheckbox"}) do
 			guielements[v]:draw()
-		end
-	end
-	
-	if editorstate == "animations" and editormenuopen and not changemapwidthmenu then
-		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v) do
-				for anotherletter, fuck in pairs(w.elements) do
-					if fuck.gui and fuck.gui.priority then
-						fuck.gui:draw()
-					end
-				end
-			end
 		end
 	end
 	
@@ -1032,8 +921,9 @@ function animationstab()
 	if _G["from" .. editorstate .. "tab"] then
 		_G["from" .. editorstate .. "tab"]()
 	end
-
+	
 	editorstate = "animations"
+	
 	for i, v in pairs(guielements) do
 		v.active = false
 	end
@@ -1049,17 +939,14 @@ function animationstab()
 	guielements["tabmaps"].active = true
 	guielements["tabanimations"].active = true
 	
-	guielements["animationsscrollbarver"].active = true
-	guielements["animationsscrollbarhor"].active = true
-	guielements["animationsavebutton"].active = true
-	guielements["animationselectdrop"].active = true
-	guielements["animationnewbutton"].active = true
-	
-	generateanimationgui()
+	--@NODETREE
+	testbed.animations.active = true
+	testbed.animations:activate()
 end
 
 function fromanimationstab()
-	saveanimation()
+	testbed.animations:deactivate()
+	testbed.animations:save()
 end
 
 function frommapstab()
@@ -1195,145 +1082,6 @@ function generateentitylist()
 	yadd = yadd + 2
 	
 	tilescrollbarheight = math.max(0, yadd - 1 - (17*9) - 12)
-end
-
-function generateanimationgui()
-	if not animations[currentanimation] then
-		createnewanimation()
-	end
-
-	animationguilines = {}
-	animationguilines.triggers = {}
-	for i, v in pairs(animations[currentanimation].triggers) do
-		table.insert(animationguilines.triggers, animationguiline:new(v, "trigger"))
-	end
-	animationguilines.conditions = {}
-	for i, v in pairs(animations[currentanimation].conditions) do
-		table.insert(animationguilines.conditions, animationguiline:new(v, "condition"))
-	end
-	animationguilines.actions = {}
-	for i, v in pairs(animations[currentanimation].actions) do
-		table.insert(animationguilines.actions, animationguiline:new(v, "action"))
-	end
-end
-
-function createnewanimation()
-	local s = {}
-	s.triggers = {}
-	s.conditions = {}
-	s.actions = {}
-	
-	local i = 1
-	while love.filesystem.exists("mappacks/" .. mappack .. "/animations/animation" .. i .. ".json") do
-		i = i + 1
-	end
-	love.filesystem.createDirectory("mappacks/" .. mappack .. "/animations/")
-	love.filesystem.write("mappacks/" .. mappack .. "/animations/animation" .. i .. ".json", JSON:encode_pretty(s))
-	
-	table.insert(animations, animation:new("mappacks/" .. mappack .. "/animations/animation" .. i .. ".json", "animation" .. i .. ".json"))
-	
-	currentanimation = #animations
-	
-	updateanimationdropdown()
-end
-
-function updateanimationdropdown()	
-	local args = {}
-	for i, v in ipairs(animations) do
-		table.insert(args, string.sub(v.name, 1, -6))
-	end
-	
-	guielements["animationselectdrop"] = guielement:new("dropdown", 15, 20, 15, selectanimation, currentanimation, unpack(args))
-end
-	
-function deleteanimationguiline(t, tabl)
-	for i, v in ipairs(animationguilines[t .. "s"]) do
-		if v == tabl then
-			table.remove(animationguilines[t .. "s"], i)
-		end
-	end
-end
-
-function movedownanimationguiline(t, tabl)
-	for i, v in ipairs(animationguilines[t .. "s"]) do
-		if v == tabl then
-			if i ~= #animationguilines[t .. "s"] then
-				animationguilines[t .. "s"][i], animationguilines[t .. "s"][i+1] = animationguilines[t .. "s"][i+1], animationguilines[t .. "s"][i]
-				break
-			end
-		end
-	end
-end
-
-function moveupanimationguiline(t, tabl)
-	for i, v in ipairs(animationguilines[t .. "s"]) do
-		if v == tabl then
-			if i ~= 1 then
-				animationguilines[t .. "s"][i], animationguilines[t .. "s"][i-1] = animationguilines[t .. "s"][i-1], animationguilines[t .. "s"][i]
-				break
-			end
-		end
-	end
-end
-
-function selectanimation(i)
-	guielements["animationselectdrop"].var = i
-	saveanimation()
-	currentanimation = i
-	generateanimationgui()
-end
-
-function saveanimation()
-	local out = {}
-	
-	local typelist = {"triggers", "conditions", "actions"}
-	for h, w in ipairs(typelist) do
-		out[w] = {}
-		for i, v in ipairs(animationguilines[w]) do
-			out[w][i] = {}
-			for j, k in ipairs(v.elements) do
-				if k.gui then
-					local val = ""
-					if k.gui.type == "dropdown" then
-						if j == 1 then
-							--find normal name
-							for l, m in pairs(animationlist) do
-								if m.nicename == k.gui.entries[k.gui.var] then
-									val = l
-									break
-								end
-							end
-						else
-							val = k.gui.entries[k.gui.var]
-						end
-					elseif k.gui.type == "input" then
-						val = k.gui.value
-					end
-					
-					table.insert(out[w][i], val)
-				end
-			end
-		end
-	end
-	
-	animations[currentanimation].triggers = out.triggers
-	animations[currentanimation].conditions = out.conditions
-	animations[currentanimation].actions = out.actions
-	
-	local json = JSON:encode_pretty(out)
-	love.filesystem.write(animations[currentanimation].filepath, json)
-end
-
-function addanimationtrigger()
-	table.insert(animationguilines.triggers, animationguiline:new({}, "trigger"))
-end
-
-function addanimationcondition()
-	table.insert(animationguilines.conditions, animationguiline:new({}, "condition"))
-end
-
-function addanimationaction()
-	table.insert(animationguilines.actions, animationguiline:new({}, "action"))
 end
 
 function openchangewidth()

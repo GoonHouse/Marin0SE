@@ -1713,18 +1713,18 @@ function love.keypressed(key, isrepeat)
 	--@WARNING: This is the sample of code that causes the online lobby to edit all textboxes at once.
 	for i, v in pairs(guielements) do
 		if v:keypress(string.lower(key)) then
-			return
+			--return
 		end
 	end
 	
-	-- this code snippet was transplanted from the editor because a similar stack was here in the mousepress methods
-	if animationguilines then
-		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v) do
-				w:keypressed(key)
+	if testbed then
+		for k,v in pairs(testbed) do
+			if v.active then
+				v:keypressed(key)
 			end
 		end
 	end
+	
 	
 	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" then
 		table.insert(konamitable, key)
@@ -1784,28 +1784,10 @@ function love.mousepressed(ox, oy, button)
 		end
 	end
 	
-	if animationguilines and editormenuopen and not changemapwidthmenu and not guielements["animationselectdrop"].extended then
-		local b = false
-		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v) do
-				if w:haspriority() then
-					w:click(x, y, button)
-					return
-				end
-			end
-		end
-		
-		if x >= animationguiarea[1]*scale and y >= animationguiarea[2]*scale and x < animationguiarea[3]*scale and y < animationguiarea[4]*scale then
-			addanimationtriggerbutton:click(x, y, button)
-			addanimationconditionbutton:click(x, y, button)
-			addanimationactionbutton:click(x, y, button)
-			
-			for i, v in pairs(animationguilines) do
-				for k, w in pairs(v) do						
-					if w:click(x, y, button) then
-						return
-					end
-				end
+	if testbed then
+		for k,v in pairs(testbed) do
+			if v.active then
+				v:mousepressed(x, y, button)
 			end
 		end
 	end
@@ -1835,11 +1817,10 @@ function love.mousereleased(ox, oy, button)
 		v:unclick(x, y, button)
 	end
 	
-	--transplanted from the editor to match the mousepressed dealio
-	if animationguilines and editormenuopen and not changemapwidthmenu then
-		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v) do					
-				w:unclick(x, y, button)
+	if testbed then
+		for k,v in pairs(testbed) do
+			if v.active then
+				v:mousereleased(x, y, button)
 			end
 		end
 	end
