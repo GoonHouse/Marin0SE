@@ -272,7 +272,7 @@ function love.load(args)
 	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", 
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
 	"excursionfunnel2end", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase", "cursorarea", 
-	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "sfxentity", "animationtarget", "musicentity", "smbtiles", "portaltiles",
+	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "sfxentity", "animationtarget", "musicentity", "smbtiles", "portaltiles", "transparency",
 	"animatedtiletrigger", "delayer", "leaf", "groundlight"}
 	
 	graphicspacki = 1
@@ -452,14 +452,14 @@ function love.load(args)
 		filesToWatch = {}
 	})
 	--[[watchfunction = function()
-		local str = "jack shit"
+		local str = "n/a"
 		if activeeditortool then
 			str=  ""
 			for k,v in pairs(activeeditortool) do str=str..tostring(k).."="..tostring(v).."\n" end
 		end
 		return str
-	end
-	Monocle.watch("misc", watchfunction)]]
+	end]]
+	--Monocle.watch("misc", watchfunction)
 	
 	require("libs.von")
 	--require "netplay2"
@@ -802,6 +802,10 @@ function love.load(args)
 			koopaquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*24, 16, 24, 80, 96)
 		end
 	end
+	
+	singlequad = love.graphics.newQuad(0, 0, 16, 16, 16, 16)
+	
+	editortransparencyquad = love.graphics.newQuad(0, 0, (thearea[3])*scale, (thearea[4])*scale, 16, 16)
 	cheepcheepquad = {}
 	
 	cheepcheepquad[1] = {}
@@ -2212,6 +2216,8 @@ function reloadGraphics()
 	for _, v in pairs(imagelist) do
 		_G[v .. "img"] = love.graphics.newImage( v .. ".png")
 	end
+	
+	transparencyimg:setWrap("repeat", "repeat")
 	
 	menuselection = love.graphics.newImage("menuselect.png")
 	mappackback = love.graphics.newImage("mappackback.png")

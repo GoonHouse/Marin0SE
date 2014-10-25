@@ -559,7 +559,9 @@ function editor_draw()
 				--TILES
 				love.graphics.setColor(255, 255, 255)
 				
-				drawrectangle(4, 37, 375, 167)
+				-- draw an obnoxious checkerboard to illustrate transparency
+				love.graphics.draw(transparencyimg, editortransparencyquad, thearea[1]*scale, thearea[2]*scale, 0)
+				--drawrectangle(4, 37, 375, 167)
 				
 				love.graphics.setScissor(5*scale, 38*scale, 373*scale, 165*scale)
 				
