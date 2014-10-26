@@ -1142,7 +1142,6 @@ function loadbackground(backgroundlevel)
 	mariocoincount = 0
 	marioworld = 1
 	mariolevel = 1
-	currentmap = "1-1"
 	mariotime = ""
 	levelfinished = false
 	

@@ -58,7 +58,7 @@ function game_load(suspended)
 	
 	jumpitems = { "mushroom", "oneup" }
 	
-	currentmap = "1-1"
+	--currentmap = "1-1"
 	marioworld = 1
 	mariolevel = 1
 	mariosublevel = 0
