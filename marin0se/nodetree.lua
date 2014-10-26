@@ -142,6 +142,7 @@ function nodetree:selectview(i)
 end
 
 function nodetree:save()
+	notice.new("animations saved!")
 	local out = {}
 	
 	local typelist = {"triggers", "conditions", "actions"}
