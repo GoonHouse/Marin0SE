@@ -1174,7 +1174,7 @@ function editor_controlupdate(dt)
 		end
 		
 		if controls.tap.editorQuickSave then
-			savelevel()
+			savemap(currentmap)
 		end
 		
 		if controls.tap.editorTestLevelToggle then

@@ -29,6 +29,7 @@ function maptree:init(maps)
 	end]]
 	--self.elements["selectdrop"] = guielement:new("dropdown", 15, 20, 15, function(i) self:selectview(i) end, 1, unpack(args))
 	self.elements["newbutton"] = guielement:new("button", 3, 20, "+", self.newmap, nil, {self})
+	self.elements["mapname"] = guielement:new("input", 15, 20, 15, nil, currentmap, 0)
 	--self.elements["savebutton"] = guielement:new("button", 150, 19, "save", self.save, 1, {self})
 	
 	--self.elements["addtriggerbutton"] = guielement:new("button", 0, 0, "+", self.addtrigger, nil, {self}, nil, 8)
@@ -62,10 +63,12 @@ end
 function maptree:changemap(mapname)
 	print("WHOA: I was told to change to ", mapname)
 	--print("NOTICE: Map changed because a map icon was clicked.")
+	currentmap = mapname
 	marioworld = 1
 	mariolevel = 1
 	mariosublevel = 0
 	editorloadopen = false
+	self.elements["mapname"].value = mapname
 	loadlevel(mapname)
 	startlevel()
 end
@@ -103,147 +106,10 @@ function maptree:generate()
 	self.mapsymissing = math.max(0, yadd-200)
 end
 
-function maptree:oldgenerate() --unused
-	-- from the original nodetree
-	if not self.buildfrom[self.viewtype] then
-		self:newanimation()
-	end
-	print("absurd")
-	table.print(self.buildfrom[self.viewtype])
-	local holder = self.buildfrom[self.viewtype]
-
-	self.lines = {}
-	self.lines.triggers = {}
-	for i, v in pairs(holder.triggers) do
-		table.insert(self.lines.triggers, animationguiline:new(v, "trigger", self))
-	end
-	self.lines.conditions = {}
-	for i, v in pairs(holder.conditions) do
-		table.insert(self.lines.conditions, animationguiline:new(v, "condition", self))
-	end
-	self.lines.actions = {}
-	for i, v in pairs(holder.actions) do
-		table.insert(self.lines.actions, animationguiline:new(v, "action", self))
-	end
-end
-
-function maptree:newanimation() --unused
-	local s = {}
-	s.triggers = {}
-	s.conditions = {}
-	s.actions = {}
-	
-	local i = 1
-	while love.filesystem.exists("mappacks/" .. mappack .. "/animations/animation" .. i .. ".json") do
-		i = i + 1
-	end
-	love.filesystem.createDirectory("mappacks/" .. mappack .. "/animations/")
-	love.filesystem.write("mappacks/" .. mappack .. "/animations/animation" .. i .. ".json", JSON:encode_pretty(s))
-	
-	table.insert(self.buildfrom, animation:new("mappacks/" .. mappack .. "/animations/animation" .. i .. ".json", "animation" .. i .. ".json"))
-	self.viewtype = #self.buildfrom
-	
-	self:updatedropdown()
-end
-
-function maptree:updatedropdown() --unused
-	local args = {}
-	--table.insert(args, self)
-	for i, v in ipairs(self.buildfrom) do
-		table.insert(args, string.sub(v.name, 1, -6))
-	end
-	
-	self.elements["selectdrop"] = guielement:new("dropdown", 15, 20, 15, function(i) self:selectview(i) end, self.viewtype, unpack(args))
-end
-
-function maptree:deleteline(t, tabl) --unused
-	for i, v in ipairs(self.lines[t .. "s"]) do
-		if v == tabl then
-			table.remove(self.lines[t .. "s"], i)
-		end
-	end
-end
-
-function maptree:movedownline(t, tabl) --unused
-	for i, v in ipairs(self.lines[t .. "s"]) do
-		if v == tabl then
-			if i ~= #self.lines[t .. "s"] then
-				self.lines[t .. "s"][i], self.lines[t .. "s"][i+1] = self.lines[t .. "s"][i+1], self.lines[t .. "s"][i]
-				break
-			end
-		end
-	end
-end
-
-function maptree:moveupline(t, tabl) --unused
-	for i, v in ipairs(self.lines[t .. "s"]) do
-		if v == tabl then
-			if i ~= 1 then
-				self.lines[t .. "s"][i], self.lines[t .. "s"][i-1] = self.lines[t .. "s"][i-1], self.lines[t .. "s"][i]
-				break
-			end
-		end
-	end
-end
-
-function maptree:selectview(i) --unused
-	print("selectview", self, i)
-	self.elements["selectdrop"].var = i
-	self:save()
-	self.viewtype = i
-	self:generate()
-end
-
-function maptree:save() --unused
-	local out = {}
-	
-	local typelist = {"triggers", "conditions", "actions"}
-	for h, w in ipairs(typelist) do
-		out[w] = {}
-		for i, v in ipairs(self.lines[w]) do
-			out[w][i] = {}
-			for j, k in ipairs(v.elements) do
-				if k.gui then
-					local val = ""
-					if k.gui.type == "dropdown" then
-						if j == 1 then
-							--find normal name
-							for l, m in pairs(self.itemlist) do
-								if m.nicename == k.gui.entries[k.gui.var] then
-									val = l
-									break
-								end
-							end
-						else
-							val = k.gui.entries[k.gui.var]
-						end
-					elseif k.gui.type == "input" then
-						val = k.gui.value
-					end
-					table.insert(out[w][i], val)
-				end
-			end
-		end
-	end
-	
-	self.buildfrom[self.viewtype].triggers = out.triggers
-	self.buildfrom[self.viewtype].conditions = out.conditions
-	self.buildfrom[self.viewtype].actions = out.actions
-	
-	local json = JSON:encode_pretty(out)
-	love.filesystem.write(self.buildfrom[self.viewtype].filepath, json)
-end
-
-function maptree:addtrigger() --unused
-	table.insert(self.lines.triggers, animationguiline:new({}, "trigger", self))
-end
-
-function maptree:addcondition() --unused
-	table.insert(self.lines.conditions, animationguiline:new({}, "condition", self))
-end
-
-function maptree:addaction() --unused
-	table.insert(self.lines.actions, animationguiline:new({}, "action", self))
+function maptree:newmap()
+	savemap(currentmap)
+	savemap(self.elements["mapname"].value)
+	self:changemap(self.elements["mapname"].value)
 end
 
 function maptree:draw()

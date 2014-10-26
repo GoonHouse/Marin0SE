@@ -554,15 +554,24 @@ function mario:update(dt)
 			
 			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
 				updatesizes()
-				if type(self.animationmisc) == "number" then --sublevel
-					levelscreen_load("sublevel", self.animationmisc)
-				else --warpzone
-					warpzone(self.animationmisc2, self.animationmisc3)
-				end
+				seek_level(self.animationmisc[3], self.animationmisc[4], self.animationmisc[5], self.animationmisc[7], self.animationmisc[9])
 			end
 		end
 		return
 	elseif self.animation == "pipeup" and self.animationy and self.animationx then
+		self.animationtimer = self.animationtimer + dt
+		if self.animationtimer < pipeanimationtime then
+			self.y = self.animationy + 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistancedown
+		else
+			self.y = self.animationy + 28/16 + pipeanimationdistancedown
+			
+			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
+				updatesizes()
+				seek_level(self.animationmisc[3], self.animationmisc[4], self.animationmisc[5], self.animationmisc[7], self.animationmisc[9])
+			end
+		end
+		return
+	elseif self.animation == "pipeup2" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeupdelay then
 		
@@ -594,11 +603,26 @@ function mario:update(dt)
 			
 			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
 				updatesizes()
-				if type(self.animationmisc) == "number" then --sublevel
-					levelscreen_load("sublevel", self.animationmisc)
-				else --warpzone
-					warpzone(self.animationmisc2, self.animationmisc3)
-				end
+				seek_level(self.animationmisc[3], self.animationmisc[4], self.animationmisc[5], self.animationmisc[7], self.animationmisc[9])
+			end
+		end
+		return
+	elseif self.animation == "pipeleft" and self.animationy and self.animationx then
+		self.animationtimer = self.animationtimer + dt
+		if self.animationtimer < pipeanimationtime then
+			self.x = self.animationx + 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistanceright
+			
+			--Run animation
+			if self.animationstate == "running" then
+				self:runanimation(dt)
+			end
+			self:setquad()
+		else
+			self.x = self.animationx + 28/16 + pipeanimationdistanceright
+			
+			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
+				updatesizes()
+				seek_level(self.animationmisc[3], self.animationmisc[4], self.animationmisc[5], self.animationmisc[7], self.animationmisc[9])
 			end
 		end
 		return
@@ -1151,20 +1175,35 @@ function mario:update(dt)
 	local y = math.floor(self.y+self.height/2)+1
 	
 	if self.controlsenabled then
-		--check for pipe pipe pipe
-		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and self.binds.control.playerDown and self.falling == false and self.jumping == false then
-			local t2 = map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][2]
-			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
-				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]-1))
+		--check for pipe pipe pipe
+		local px, py = math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)
+		if inmap(px, py) and self.binds.control.playerDown and not self.falling and not self.jumping then
+			local t2 = map[px][py][2]
+			if t2 and entitylist[t2] and entitylist[t2].t == "warppipe" and map[px][py][8] then
+				--self.animationmisc2 = tonumber(map[px][py][3]) or 1
+				--self.animationmisc3 = tonumber(map[px][py][4]) or 1
+				--"pipe"
+				--self:pipe(px, py, "down", tonumber(map[px][py][3]-1))
+				--"warppipe"
+				self:pipe(px, py, "down", map[px][py])
 				return
-			elseif t2 and entitylist[t2] and entitylist[t2].t == "warppipe" then
-				self.animationmisc2 = tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]) or 1
-				self.animationmisc3 = tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][4]) or 1
-				
-				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", "pipe" .. map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3])
-				return
-			end				
+			end
 		end
+		
+		local px2, py2 = math.floor(self.x+30/16), math.floor(self.y-20/16)
+		if inmap(px2, py2) and self.binds.control.playerUp then
+			local t2 = map[px2][py2][2]
+			if t2 and entitylist[t2] and entitylist[t2].t == "warppipe" and map[px2][pxy][8] then
+				--self.animationmisc2 = tonumber(map[px][py][3]) or 1
+				--self.animationmisc3 = tonumber(map[px][py][4]) or 1
+				--"pipe"
+				--self:pipe(px, py, "down", tonumber(map[px][py][3]-1))
+				--"warppipe"
+				self:pipe(px2, py2, "up", map[px2][py2])
+				return
+			end
+		end
+		
 		
 		if self.falling == false and self.jumping == false and self.size > 1 then
 			if self.binds.control.playerDown then
@@ -2589,14 +2628,14 @@ function mario:rightcollide(a, b, c, d)
 		--Check if it's a pipe with pipe pipe.
 		if self.falling == false and self.jumping == false and (self.binds.control.playerRight or intermission) then --but only on ground and rightkey
 			local t2 = map[x][y][2]
-			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
-				self:pipe(x, y, "right", tonumber(map[x][y][3])-1)
+			if t2 and entitylist[t2] and entitylist[t2].t == "warppipe" and map[x][y][8] then
+				self:pipe(x, y, "right", map[x][y])
 				return
 			else
 				if inmap(x, y+1) then
 					t2 = map[x][y+1][2]
-					if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
-						self:pipe(x, y+1, "right", tonumber(map[x][y+1][3])-1)
+					if t2 and entitylist[t2] and entitylist[t2].t == "warppipe" and map[x][y][8] then
+						self:pipe(x, y+1, "right", map[x][y+1])
 						return
 					end
 				end
@@ -2708,6 +2747,24 @@ function mario:leftcollide(a, b, c, d)
 		--check for invisible block
 		if tilequads[map[x][y][1]]:getproperty("invisible", x, y) then
 			return false
+		end
+		
+		--Check if it's a pipe with pipe pipe.
+		--@WARNING: If anything breaks in an intermission, it's because we did put this here.
+		if not self.falling and not self.jumping and (self.binds.control.playerLeft or intermission) then --but only on ground and leftkey
+			local t2 = map[x][y][2]
+			if t2 and entitylist[t2] and entitylist[t2].t == "warppipe" and map[x][y][8] then
+				self:pipe(x, y, "left", map[x][y])
+				return
+			else
+				if inmap(x, y+1) then
+					t2 = map[x][y+1][2]
+					if t2 and entitylist[t2] and entitylist[t2].t == "warppipe" and map[x][y+1][8] then
+						self:pipe(x, y+1, "left", map[x][y+1])
+						return
+					end
+				end
+			end
 		end
 		
 		if allowskip and inmap(x, y-1) and tilequads[map[x][y-1][1]]:getproperty("collision", x, y-1) == false and self.speedy > 0 and self.y+1+self.height < y+spacerunroom then
@@ -3737,11 +3794,12 @@ function mario:duck(ducking) --goose
 	end
 end
 
-function mario:pipe(x, y, dir, i)
+function mario:pipe(x, y, dir, ex)
 	if editormode then
 		return
 	end
 
+	-- ex == the pipe data
 	self.active = false
 	self.infunnel = false
 	self.animation = "pipe" .. dir
@@ -3750,7 +3808,9 @@ function mario:pipe(x, y, dir, i)
 	self.animationx = x
 	self.animationy = y
 	self.animationtimer = 0
-	self.animationmisc = i
+	if ex then
+		self.animationmisc = ex
+	end
 	self.controlsenabled = false
 	playsound("pipe")
 	
@@ -3780,14 +3840,14 @@ function mario:pipe(x, y, dir, i)
 			self.y = self.animationy-1/16 - self.height
 		end
 		self.animationstate = "running"
-		self.customscissor = {x-2, y-5, 1, 6}
+		self.customscissor = {x+2, y-5, 1, 6}
 	elseif dir == "up" then
 		--this is wrong
 		if self.size > 1 then
 			self.animationy = y - self.height + 12/16
 		end
 		self.animationstate = "idle"
-		self.customscissor = {x-4, y-3, 6, 2}
+		self.customscissor = {x-4, y+3, 6, 2}
 	end
 	
 	self:setquad()

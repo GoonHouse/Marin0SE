@@ -445,7 +445,7 @@ function tiletree:control_update(dt)
 				allowdrag = false
 			end
 		elseif id=="entities" then
-			tile = self:getentityhighlight(x, y)
+			local tile = self:getentityhighlight(x, y)
 			if tile then
 				currenttile = tile.i
 				editorclose()

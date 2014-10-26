@@ -48,7 +48,7 @@ function menu_load()
 	if love.filesystem.exists("suspend.txt") then
 		continueavailable = true
 	end
-	
+	currentmap = "1-1"
 	mariolevel = 1
 	marioworld = 1
 	mariosublevel = 0
@@ -1142,6 +1142,7 @@ function loadbackground(backgroundlevel)
 	mariocoincount = 0
 	marioworld = 1
 	mariolevel = 1
+	currentmap = "1-1"
 	mariotime = ""
 	levelfinished = false
 	

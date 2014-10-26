@@ -21,7 +21,7 @@ entitylist = {
 	{t="platform", category="smb stuff", description="place on empty tile - oscillating platform", iconauthor="Assasin-Kiashi"},
 	{t="regiontrigger", category="i/o objects", description="place anywhere - will output when there's an object in a region", output=true, iconauthor="alesan99"},
 	{t="box", category="portal elements", description="place on empty tile - weighted storage cube", output=true, iconauthor="alesan99"},
-	{t="pipe", category="level markers", description="place on pipe tile - pipe - right click for destination sublevel", iconauthor="automatik"}, --20
+	{t=""}, --20
 	{t=""},
 	{t="mazestart", category="level markers", description="place anywhere - logical maze start", hidden=not DEBUG, iconauthor=""},
 	{t="mazeend", category="level markers", description="place anywhere - logical maze end", hidden=not DEBUG, iconauthor=""},
@@ -31,7 +31,7 @@ entitylist = {
 	{t="door", category="portal elements", description="place on empty tile - it's a door. it opens, it closes, it doors.", iconauthor="idiot9.0"},
 	{t="pedestal", category="portal elements", description="place on empty tile - portal gun ready for pickup", iconauthor=""},
 	{t="wallindicator", category="i/o objects", description="place anywhere - shows on or off state", iconauthor=""},
-	{t="pipespawn", category="level markers", description="place on block - spawn for when coming from a sublevel", iconauthor="TripleXero"}, --30
+	{t=""}, --30
 	{t="platformfall", category="smb stuff", description="place on empty tile - falling platforms", iconauthor=""},
 	{t=""},
 	{t=""},
@@ -81,7 +81,7 @@ entitylist = {
 	{t="generatorwind", category="smb stuff", description="place anywhere - generates wind", iconauthor="sorrynothing"},
 	{t="castlefire", category="smb stuff", description="place anywhere - rotating fire stick", iconauthor="Assasin-Kiashi"},
 	{t="seesaw", category="smb stuff", description="place on empty tile - see-saw", iconauthor="Firaga"},
-	{t="warppipe", category="level markers", description="place on block - warp pipe", iconauthor="BobTheLawyer"}, --80
+	{t="warppipe", category="level markers", description="place on block - level warp", iconauthor="BobTheLawyer"}, --80
 	{t="squarewave", category="gates", description="place anywhere - sends on signal for x seconds and off signal for y seconds", output=true, iconauthor="crazyal02"},
 	{t="lakitoend", category="level markers", description="place anywhere - defines a right border for lakito", iconauthor=""},
 	{t="notgate", category="gates", description="place anywhere - turns in input around", output=true, iconauthor="Pixelworker"},
@@ -289,16 +289,22 @@ rightclickmenues.mazegate = {
 	{t="submenu", entries={"main", "gate 1", "gate 2", "gate 3", "gate 4", "gate 5"}, default=1, width=6},
 }
 
-rightclickmenues.pipespawn = {
-	{t="text", value="source:"},
-	{t="submenu", entries={"main", "sub-1", "sub-2", "sub-3", "sub-4", "sub-5"}, default=1, width=5},
-}
-
 rightclickmenues.warppipe = {
-	{t="text", value="world:"},
-	{t="submenu", entries={"1", "2", "3", "4", "5", "6", "7", "8"}, default=1, width=1},
-	{t="text", value="level:"},
-	{t="submenu", entries={"1", "2", "3", "4", "5", "6", "7", "8"}, default=1, width=1},
+	{t="text", value="this id:"},
+	{t="input", default="1"},
+	{},
+	{t="text", value="dest map:"},
+	{t="input", default="1-1-1"},
+	{t="text", value="dest id:"},
+	{t="input", default="1"},
+	{},
+	{t="text", value="enter dir:"},
+	{t="directionbuttons", left=true, right=true, up=true, down=true, default="down"},
+	{t="text", value="exit dir:"},
+	{t="directionbuttons", left=true, right=true, up=true, down=true, default="up"},
+	{},
+	{t="checkbox", text="is usable", default="true"}, 
+	{t="checkbox", text="is sublevel", default="true"}, 
 }
 
 rightclickmenues.funnel = {

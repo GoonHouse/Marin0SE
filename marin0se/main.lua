@@ -1562,6 +1562,7 @@ function continuegame()
 	mariolives = {}
 	
 	local split = s:split("|")
+	--@TODO: Gotta make room for currentmap = "1-1" in the save.
 	for i = 1, #split do
 		local split2 = split[i]:split("/")
 		if split2[1] == "a" then
