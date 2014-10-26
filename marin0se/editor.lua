@@ -12,6 +12,7 @@ editor_undohistory = {}
 ]]
 require "nodetree"
 require "maptree"
+require "tiletree"
 testbed = {}
 
 require "editortool"
@@ -219,17 +220,6 @@ function editor_load()
 	
 	guielements["levelscreendropdown"] = guielement:new("dropdown", 298, 185, 10, changelevelscreen, i, unpack(args))
 	
-	--TILES
-	guielements["tilesall"] = guielement:new("button", 4, 20, "all", tilesall, 2) --72
-	guielements["tilessmb"] = guielement:new("button", 37, 20, "smb", tilessmb, 2)
-	guielements["tilesportal"] = guielement:new("button", 70, 20, "portal", tilesportal, 2)
-	guielements["tilescustom"] = guielement:new("button", 127, 20, "custom", tilescustom, 2)
-	guielements["tilesanimated"] = guielement:new("button", 184, 20, "animated", tilesanimated, 2)
-	guielements["tilesentities"] = guielement:new("button", 257, 20, "entities", tilesentities, 2)
-	guielements["tilesenemies"] = guielement:new("button", 330, 20, "enemies", tilesenemies, 2)
-	
-	guielements["tilesscrollbar"] = guielement:new("scrollbar", 381, 37, 167, 15, 40, 0, "ver", nil, nil, nil, nil, true)
-	
 	--TOOLS
 	livesanchorx = 340
 	guielements["selectionbutton"] = guielement:new("button", 5, 22, "select", selectionbutton, 2, false)
@@ -276,8 +266,8 @@ function editor_load()
 	--animationS
 	testbed.animations = nodetree:new(animations, animationlist)
 	testbed.maps = maptree:new()
+	testbed.tiles = tiletree:new()
 	
-	tilesall()
 	if editorloadopen then
 		editoropen()
 		editorloadopen = false
@@ -323,33 +313,16 @@ function editor_update(dt)
 		return
 	end
 	
-	if editorstate == "tiles" and editormenuopen then
-		tilesoffset = guielements["tilesscrollbar"].value * tilescrollbarheight * scale
-		if editentities and not editenemies then
-			local x, y = mouse.getPosition()
-			local tile = getentityhighlight(x, y)
-			
-			if tile ~= prevtile then
-				if tile and tooltipimages[tile.i] then
-					entitytooltipobject = entitytooltip:new(tile)
-				end
-			end
-			
-			if tile and tooltipimages[tile.i] then
-				entitytooltipobject:update(dt)
-				tooltipa = math.min(255, tooltipa + dt*4000)
-			else
-				tooltipa = math.max(-1000, tooltipa - dt*4000)
-			end
-			
-			prevtile = tile
-		end
-	end
-	
 	for k,v in pairs(testbed) do
 		if v.active then
 			v:update(dt)
 		end
+	end
+end
+
+function switch_tileset(tileset)
+	if testbed.tiles then
+		testbed.tiles:selectview(table.find(testbed.tiles.buildfrom, tileset))
 	end
 end
 
@@ -555,109 +528,24 @@ function editor_draw()
 				love.graphics.rectangle("fill", 1*scale, 18*scale, 398*scale, (18+minimapheight*2)*scale)
 			end
 			
-			if editorstate == "tiles" then			
-				--TILES
-				love.graphics.setColor(255, 255, 255)
-				
-				-- draw an obnoxious checkerboard to illustrate transparency
-				love.graphics.draw(transparencyimg, editortransparencyquad, thearea[1]*scale, thearea[2]*scale, 0)
-				--drawrectangle(4, 37, 375, 167)
-				
-				love.graphics.setScissor(5*scale, 38*scale, 373*scale, 165*scale)
-				
-				if editentities then
-					if editenemies then
-						for i = 1, #enemies do
-							local v = enemiesdata[enemies[i]]
-							love.graphics.setScissor(math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 16*scale, 16*scale)
-							love.graphics.draw(v.graphic, v.quad, math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
-							love.graphics.setScissor()
-						end	
-					else
-						--ENTITIES
-						for i, v in ipairs(entitylistitems) do
-							properprint(v.t, (5)*scale, (v.entries[1].y+30)*scale-tilesoffset)
-							for j, k in ipairs(v.entries) do
-								love.graphics.draw(entityquads[k.i].image, entityquads[k.i].quad, (k.x+5)*scale, (k.y+38)*scale-tilesoffset, 0, scale, scale)
-								if k:gethighlight(mouse.getX(), mouse.getY()) then
-									love.graphics.setColor(255, 255, 255, 127)
-									love.graphics.rectangle("fill", (k.x+5)*scale, (k.y+38)*scale-tilesoffset, 16*scale, 16*scale)
-									love.graphics.setColor(255, 255, 255, 255)
-								end
-							end
-						end
-					end
-				else
-					if animatedtilelist then
-						for i = 1, tilelistcount+1 do
-							love.graphics.draw(tilequads[i+tileliststart-1+10000].image, tilequads[i+tileliststart-1+10000]:quad(), math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
-						end
-					else
-						for i = 1, tilelistcount+1 do
-							love.graphics.draw(tilequads[i+tileliststart-1].image, tilequads[i+tileliststart-1]:quad(), math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
-						end
-					end
+			--GUI not priority
+			for i, v in pairs(guielements) do
+				if not v.priority and v.active then
+					v:draw()
 				end
-				
-				local tile = gettilelistpos(mouse.getX(), mouse.getY())
-				if editentities == false then
-					if tile and tile <= tilelistcount+1 then
-						love.graphics.setColor(255, 255, 255, 127)
-						love.graphics.rectangle("fill", (5+math.mod((tile-1), 22)*17)*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
-					end
-				elseif editenemies == false then
-					
-				else
-					if tile and tile <= #enemies then
-						love.graphics.setColor(255, 255, 255, 127)
-						love.graphics.rectangle("fill", (5+math.mod((tile-1), 22)*17)*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
-					end
+			end
+
+			--GUI priority
+			for i, v in pairs(guielements) do
+				if v.priority and v.active then
+					v:draw()
 				end
-				
-				love.graphics.setScissor()
-				
-				love.graphics.setColor(255, 255, 255)
-				if editentities then
-					if editenemies then
-						if enemies[tile] then
-							properprint(enemies[tile], 3*scale, 205*scale)
-						end
-					else
-						local ent = getentityhighlight(mouse.getX(), mouse.getY())
-						if ent then
-							local newstring = entitylist[ent.i].description or ""
-							if string.len(newstring) > 49 then
-								newstring = string.sub(newstring, 1, 49) .. "|" .. string.sub(newstring, 50, 98)
-							end
-							properprint(newstring, 3*scale, 205*scale)
-						end
-					end
-				elseif animatedtilelist then
-					if tile and animatedtiles[tile] then
-						properprint("frames: " .. #animatedtiles[tile].delays, 3*scale, 205*scale)
-						local t = 0
-						for i = 1, #animatedtiles[tile].delays do
-							t = t + animatedtiles[tile].delays[i]
-						end
-						properprint("total time: " .. t, 3*scale, 215*scale)
-					end
-				else
-					if tile and tilequads[tile+tileliststart-1] then
-						if tilequads[tile+tileliststart-1]:getproperty("collision") then
-							properprint("collision: true", 3*scale, 205*scale)
-						else
-							properprint("collision: false", 3*scale, 205*scale)
-						end
-						
-						if tilequads[tile+tileliststart-1]:getproperty("collision") and tilequads[tile+tileliststart-1]:getproperty("portalable") then
-							properprint("portalable: true", 3*scale, 215*scale)
-						else
-							properprint("portalable: false", 3*scale, 215*scale)
-						end
-					end
+			end
+			
+			if editorstate == "tiles" then
+				if testbed.tiles and testbed.tiles.active then
+					testbed.tiles:draw()
 				end
-				
-				love.graphics.setColor(255, 255, 255)
 			elseif editorstate == "main" then		
 				--MINIMAP
 				love.graphics.setColor(255, 255, 255)
@@ -730,28 +618,10 @@ function editor_draw()
 		end
 	end
 	
-	if minimapdragging == false then
-		--GUI not priority
-		for i, v in pairs(guielements) do
-			if not v.priority and v.active then
-				v:draw()
-			end
-		end
-
-		--GUI priority
-		for i, v in pairs(guielements) do
-			if v.priority and v.active then
-				v:draw()
-			end
-		end
-	else
-		for i, v in pairs({"tabmain", "tabtiles", "tabtools", "autoscrollcheckbox"}) do
+	if minimapdragging then
+		for i, v in pairs({"tabmain", "tabtiles", "tabtools", "tabmaps", "tabanimations", "autoscrollcheckbox"}) do
 			guielements[v]:draw()
 		end
-	end
-	
-	if editentities and not editenemies and editorstate == "tiles" and editormenuopen and entitytooltipobject then
-		entitytooltipobject:draw(math.max(0, tooltipa))
 	end
 end
 
@@ -830,16 +700,7 @@ function tilestab()
 	guielements["tabmaps"].active = true
 	guielements["tabanimations"].active = true
 	
-	guielements["tilesscrollbar"].active = true
-	
-	guielements["tilesall"].active = true
-	guielements["tilessmb"].active = true
-	guielements["tilesportal"].active = true
-	guielements["tilescustom"].active = true
-	guielements["tilesanimated"].active = true
-	guielements["tilesentities"].active = true
-	guielements["tilesenemies"].active = true
-	
+	testbed.tiles:activate()
 end
 
 function toolstab()
@@ -966,15 +827,7 @@ function fromtilestab()
 	guielements["tabmaps"].active = false
 	guielements["tabanimations"].active = false
 	
-	guielements["tilesscrollbar"].active = false
-	
-	guielements["tilesall"].active = false
-	guielements["tilessmb"].active = false
-	guielements["tilesportal"].active = false
-	guielements["tilescustom"].active = false
-	guielements["tilesanimated"].active = false
-	guielements["tilesentities"].active = false
-	guielements["tilesenemies"].active = false
+	testbed.tiles:deactivate()
 end
 
 function frommaintab()
@@ -1015,54 +868,6 @@ function frommaintab()
 	guielements["backgrounddropdown"].active = false
 	guielements["foregrounddropdown"].active = false
 	guielements["levelscreendropdown"].active = false
-end
-
-function generateentitylist()
-	entitylistitems = {}
-	for i, v in ipairs(entitylist) do
-		if v.t ~= "" and not v.hidden then
-			local cat = v.category or "misc"
-			
-			local cati = 0
-			for j = 1, #entitylistitems do
-				if entitylistitems[j].t == cat then
-					cati = j
-					break
-				end
-			end
-			
-			if cati == 0 then
-				table.insert(entitylistitems, {t=cat, entries={}})
-				cati = #entitylistitems
-			end
-			
-			table.insert(entitylistitems[cati].entries, entitylistitem:new(v.t, i))
-		end
-	end
-	
-	--sort categories
-	table.sort(entitylistitems, function(a, b) return a.t > b.t end)
-	
-	--calculate X and Y positions..
-	local yadd = -3
-	for i, v in ipairs(entitylistitems) do
-		table.sort(v.entries, function(a, b) return a.t < b.t end)
-		
-		--Category name space
-		yadd = yadd + 14
-		
-		for j, k in ipairs(v.entries) do
-			local x, y = math.mod(j-1, 22)+1, math.ceil(j/22)
-			k.x = (x-1)*17
-			k.y = (y-1)*17+yadd
-		end
-		
-		yadd = yadd + math.ceil(#v.entries/22)*17
-	end
-	
-	yadd = yadd + 2
-	
-	tilescrollbarheight = math.max(0, yadd - 1 - (17*9) - 12)
 end
 
 function openchangewidth()
@@ -1206,130 +1011,6 @@ function changenewmapsize(side, dir)
 	end
 end
 
-function tilesall()
-	guielements["tilesall"].textcolor = {255, 255, 255}
-	guielements["tilessmb"].textcolor = {127, 127, 127}
-	guielements["tilesportal"].textcolor = {127, 127, 127}
-	guielements["tilescustom"].textcolor = {127, 127, 127}
-	guielements["tilesanimated"].textcolor = {127, 127, 127}
-	guielements["tilesentities"].textcolor = {127, 127, 127}
-	guielements["tilesenemies"].textcolor = {127, 127, 127}
-	
-	animatedtilelist = false
-	tileliststart = 1
-	tilelistcount = smbtilecount + portaltilecount + customtilecount -1
-	
-	tilescrollbarheight = math.max(0, math.ceil((smbtilecount + portaltilecount + customtilecount)/22)*17 - 1 - (17*9) - 12)
-	editentities = false
-	editenemies = false
-end
-
-function tilessmb()
-	guielements["tilesall"].textcolor = {127, 127, 127}
-	guielements["tilessmb"].textcolor = {255, 255, 255}
-	guielements["tilesportal"].textcolor = {127, 127, 127}
-	guielements["tilescustom"].textcolor = {127, 127, 127}
-	guielements["tilesanimated"].textcolor = {127, 127, 127}
-	guielements["tilesentities"].textcolor = {127, 127, 127}
-	guielements["tilesenemies"].textcolor = {127, 127, 127}
-	
-	animatedtilelist = false
-	tileliststart = 1
-	tilelistcount = smbtilecount-1
-	
-	tilescrollbarheight = math.max(0, math.ceil((smbtilecount)/22)*17 - 1 - (17*9) - 12)
-	editentities = false
-	editenemies = false
-end
-
-function tilesportal()
-	guielements["tilesall"].textcolor = {127, 127, 127}
-	guielements["tilessmb"].textcolor = {127, 127, 127}
-	guielements["tilesportal"].textcolor = {255, 255, 255}
-	guielements["tilescustom"].textcolor = {127, 127, 127}
-	guielements["tilesanimated"].textcolor = {127, 127, 127}
-	guielements["tilesentities"].textcolor = {127, 127, 127}
-	guielements["tilesenemies"].textcolor = {127, 127, 127}
-	
-	animatedtilelist = false
-	tileliststart = smbtilecount + 1
-	tilelistcount = portaltilecount - 1
-	
-	tilescrollbarheight = math.max(0, math.ceil((portaltilecount)/22)*17 - 1 - (17*9) - 12)
-	editentities = false
-	editenemies = false
-end
-
-function tilescustom()
-	guielements["tilesall"].textcolor = {127, 127, 127}
-	guielements["tilessmb"].textcolor = {127, 127, 127}
-	guielements["tilesportal"].textcolor = {127, 127, 127}
-	guielements["tilescustom"].textcolor = {255, 255, 255}
-	guielements["tilesanimated"].textcolor = {127, 127, 127}
-	guielements["tilesentities"].textcolor = {127, 127, 127}
-	guielements["tilesenemies"].textcolor = {127, 127, 127}
-	
-	animatedtilelist = false
-	tileliststart = smbtilecount + portaltilecount + 1
-	tilelistcount = customtilecount - 1
-	
-	tilescrollbarheight = math.max(0, math.ceil((customtilecount)/22)*17 - 1 - (17*9) - 12)
-	editentities = false
-	editenemies = false
-end
-
-function tilesanimated()
-	guielements["tilesall"].textcolor = {127, 127, 127}
-	guielements["tilessmb"].textcolor = {127, 127, 127}
-	guielements["tilesportal"].textcolor = {127, 127, 127}
-	guielements["tilescustom"].textcolor = {127, 127, 127}
-	guielements["tilesanimated"].textcolor = {255, 255, 255}
-	guielements["tilesentities"].textcolor = {127, 127, 127}
-	guielements["tilesenemies"].textcolor = {127, 127, 127}
-	
-	animatedtilelist = true
-	tileliststart = 1
-	tilelistcount = animatedtilecount - 1
-	
-	tilescrollbarheight = math.max(0, math.ceil((customtilecount)/22)*17 - 1 - (17*9) - 12)
-	editentities = false
-	editenemies = false
-end
-
-function tilesentities()
-	guielements["tilesall"].textcolor = {127, 127, 127}
-	guielements["tilessmb"].textcolor = {127, 127, 127}
-	guielements["tilesportal"].textcolor = {127, 127, 127}
-	guielements["tilescustom"].textcolor = {127, 127, 127}
-	guielements["tilesanimated"].textcolor = {127, 127, 127}
-	guielements["tilesentities"].textcolor = {255, 255, 255}
-	guielements["tilesenemies"].textcolor = {127, 127, 127}
-	
-	animatedtilelist = false
-	editentities = true
-	editenemies = false
-	
-	currenttile = 1
-	
-	generateentitylist()
-end
-
-function tilesenemies()
-	guielements["tilesall"].textcolor = {127, 127, 127}
-	guielements["tilessmb"].textcolor = {127, 127, 127}
-	guielements["tilesportal"].textcolor = {127, 127, 127}
-	guielements["tilescustom"].textcolor = {127, 127, 127}
-	guielements["tilesanimated"].textcolor = {127, 127, 127}
-	guielements["tilesentities"].textcolor = {127, 127, 127}
-	guielements["tilesenemies"].textcolor = {255, 255, 255}
-	
-	animatedtilelist = false
-	tilescrollbarheight = math.max(0, math.ceil((#enemiesdata)/22)*17 - 1 - (17*9) - 12)
-	editentities = true
-	editenemies = true
-	
-	currenttile = enemies[1]
-end
 
 function placetile(x, y, t, ent)
 	local editentities = ent or editentities
@@ -1518,31 +1199,31 @@ function editor_controlupdate(dt)
 		end
 		
 		if controls.tap.editorTilesAll then
-			tilesall()
+			switch_tileset("all")
 			editoropen()
 			tilestab()
 		elseif controls.tap.editorTilesSMB then
-			tilessmb()
+			switch_tileset("smb")
 			editoropen()
 			tilestab()
 		elseif controls.tap.editorTilesPortal then
-			tilesportal()
+			switch_tileset("portal")
 			editoropen()
 			tilestab()
 		elseif controls.tap.editorTilesCustom then
-			tilescustom()
+			switch_tileset("custom")
 			editoropen()
 			tilestab()
 		elseif controls.tap.editorTilesAnimated then
-			tilesanimated()
+			switch_tileset("animated")
 			editoropen()
 			tilestab()
 		elseif controls.tap.editorTilesEntities then
-			tilesentities()
+			switch_tileset("entities")
 			editoropen()
 			tilestab()
 		elseif controls.tap.editorTilesEnemies then
-			tilesenemies()
+			switch_tileset("enemies")
 			editoropen()
 			tilestab()
 		end
@@ -1669,38 +1350,8 @@ function editor_controlupdate(dt)
 			end]]
 		else
 			if editorstate == "tiles" then
-				local tile = gettilelistpos(x, y)
-				if editentities == false then
-					if tile and tile <= tilelistcount+1 then
-						if animatedtilelist then
-							currenttile = tile + tileliststart-1+10000
-						else
-							currenttile = tile + tileliststart-1
-						end
-						
-						changeTool("paintdraw", currenttile)
-						activeeditortool.allowdrag = false
-						
-						editorclose()
-						allowdrag = false
-					end
-				else
-					-- ENEMY BULLSHIP
-					if editenemies then
-						if tile and tile <= #enemies then
-							currenttile = enemies[tile]
-							editorclose()
-							allowdrag = false
-						end
-					else
-						-- ENTITY DILDOS
-						tile = getentityhighlight(x, y)
-						if tile then
-							currenttile = tile.i
-							editorclose()
-							allowdrag = false
-						end
-					end
+				if testbed.tiles then
+					testbed.tiles:control_update(dt)
 				end
 			end
 		end
@@ -2036,22 +1687,6 @@ function lightdrawbutton()
 	lightdrawX = nil
 	lightdrawY = nil
 	editorclose()
-end
-
-function gettilelistpos(x, y)
-	if x >= 5*scale and y >= 38*scale and x < 378*scale and y < 203*scale then
-		x = (x - 5*scale)/scale
-		y = y + tilesoffset
-		y = (y - 38*scale)/scale
-		
-		
-		out = math.floor(x/17)+1
-		out = out + math.floor(y/17)*22
-		
-		return out
-	end
-	
-	return false
 end
 
 function savesettings()

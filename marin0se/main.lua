@@ -805,7 +805,6 @@ function love.load(args)
 	
 	singlequad = love.graphics.newQuad(0, 0, 16, 16, 16, 16)
 	
-	editortransparencyquad = love.graphics.newQuad(0, 0, (thearea[3])*scale, (thearea[4])*scale, 16, 16)
 	cheepcheepquad = {}
 	
 	cheepcheepquad[1] = {}

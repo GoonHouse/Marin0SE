@@ -267,7 +267,7 @@ function maptree:draw()
 	-- nodetree compliant draw
 	if self.active then
 		love.graphics.setScissor(self.area[1]*scale, self.area[2]*scale, (self.area[3]-self.area[1])*scale, (self.area[4]-self.area[2])*scale)
-		local completeheight = (self.area[3]-self.area[1])*scale
+		local completeheight = self.area[4]-self.area[2] --(self.area[3]-self.area[1])*scale
 		local completewidth = 0
 		for k,v in pairs(self.elements) do
 			if k:sub(0,4) == "map_" then
@@ -278,9 +278,10 @@ function maptree:draw()
 			end
 		end
 		
-		local offy = math.max(0, self.elements["scrollbarver"].value/1*(completeheight-(self.area[4]-self.area[2])))-14
+		--local offy = math.max(0, self.elements["scrollbarver"].value/1*(completeheight-(self.area[4]-self.area[2])))-14
+		local offy = self.elements["scrollbarver"].value*completeheight*scale
 		
-		local offx = -math.max(0, self.elements["scrollbarhor"].value/1*(completewidth-(self.area[3]-self.area[1])))
+		local offx = math.max(0, self.elements["scrollbarhor"].value/1*(completewidth-(self.area[3]-self.area[1])))
 		
 		love.graphics.setColor(255, 255, 255)
 		local y = self.area[2]+1-offy
@@ -289,7 +290,7 @@ function maptree:draw()
 		for k,v in pairs(self.elements) do
 			if k:sub(0,4) == "map_" then
 				v.x = self.area[1]+self.lineinset+offx
-				v.y = v.starty - offy
+				v.y = self.area[2] + v.starty - (offy/scale) - 16
 				--y = y + v.height
 				--v.y = v.starty - scroll
 				v:draw()

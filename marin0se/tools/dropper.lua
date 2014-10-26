@@ -22,7 +22,8 @@ function thisclass:update(dt)
 	if self:canFire() then
 		if inmap(tilex, tiley) then
 			editentities = false
-			tilesall()
+			editenemies = false
+			switch_tileset("all")
 			currenttile = map[tilex][tiley][1]
 			changeTool("paintdraw", currenttile)
 		end

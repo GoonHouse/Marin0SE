@@ -11,11 +11,11 @@ end
 
 function entitytooltip:update(dt)
 	self.x = math.min(mouse.getX(), width*16*scale-(twidth+4)*scale)
-	self.y = math.max(0, mouse.getY()-(theight+4)*scale)
+	self.y = math.max(0, mouse.getY()-(theight+4)*scale-(8*scale))
 end
 
 function entitytooltip:draw(a)
-	if tooltipimages[self.ent.i] then
+	if tooltipimages[self.ent.i] and a>0 then
 		love.graphics.setColor(255, 255, 255, a)
 		properprintbackground(self.ent.t, self.x, self.y, true)
 		love.graphics.setColor(0, 0, 0, a)

@@ -12,6 +12,15 @@ function table.contains(t, entry)
 	return false
 end
 
+function table.find(t, k)
+	for _,v in pairs(t) do
+		if v == k then
+			return _
+		end
+	end
+	return nil
+end
+
 function table.print(t)
 	--print(Tserial.pack(t, true, true))
 	-- the above causes a stack overflow, so we are doing this the dumb way

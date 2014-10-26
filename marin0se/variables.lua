@@ -7,7 +7,6 @@ EQUALSIGN = "¨"
 
 --SETABLE VARS--	
 --almost all vars are in "blocks", "blocks per second" or just "seconds". Should be obvious enough what's what.
-thearea = {4, 37, 375, 167}
 portalgundelay = 0.2
 gellifetime = 2
 bulletbilllifetime = 20
