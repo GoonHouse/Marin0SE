@@ -269,10 +269,10 @@ function love.load(args)
 	
 	overwrittenimages = {}
 	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", "oddjobhud", "redcoin", "redcointall", "redcoinbig", "firework",
-	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", 
+	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", "pswitch",
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
 	"excursionfunnel2end", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase", "cursorarea", 
-	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "sfxentity", "animationtarget", "musicentity", "smbtiles", "portaltiles", "transparency",
+	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "sfxentity", "animationtarget", "musicentity", "smbtiles", "portaltiles", "transparency", "smokepuff",
 	"animatedtiletrigger", "delayer", "leaf", "groundlight"}
 	
 	graphicspacki = 1
@@ -395,7 +395,8 @@ function love.load(args)
 		"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody", "weapon",
 		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
-		"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames"
+		"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames",
+		"pswitch", "smokepuff"
 	}
 	-- we made weapon a saneent because tracing mario's draw is REALLY TOUGH
 	
@@ -711,6 +712,11 @@ function love.load(args)
 		redcoinbigquads[i] = love.graphics.newQuad((i-1)*32, 0, 32, 32, 128, 32)
 	end	
 	
+	--smoke puff
+	smokepuffquads = {}
+	for i = 1, 4 do
+		smokepuffquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
+	end	
 	
 	--leaf
 	leafquad = {}
@@ -734,6 +740,15 @@ function love.load(args)
 		for j = 1, 3 do
 			springquads[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*32, 16, 32, 48, 128)
 		end
+	end
+	
+	-- pswitch
+	pswitchquads = {}
+	for i = 1, 2 do
+		pswitchquads[i] = {}
+		for j = 1, 4 do
+			pswitchquads[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*16, 16, 16, 64, 32)
+		end	
 	end
 	
 	seesawquad = {}
@@ -2266,7 +2281,7 @@ end
 
 function reloadSounds() -- mastersfx, master list of sounds current being looked at.
 	soundstoload = {"none", "jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball", "redcoin1", "redcoin2", "redcoin3", "redcoin4", "redcoin5",
-					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill", "addtime", "throw", "trophy",
+					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill", "addtime", "throw", "trophy", "switch",
 					"lowtime", "tailwag", "planemode", "stab", "spring", "portal1open", "portal2open", "portalenter", "portalfizzle"}
 				
 	soundlist = {}

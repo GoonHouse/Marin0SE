@@ -337,6 +337,10 @@ fireworkdelay = 0.55
 fireworksoundtime = 0.2
 endtime = 2
 
+--smokepuff
+smokepuffdelay = 0.55
+smokepuffoundtime = 0.2
+
 --spring
 springtime = 0.2
 springhighforce = 41 --Regular Springboard
@@ -487,3 +491,5 @@ upscrollborder = 4
 downscrollborder = 4
 superscroll = 100
 portaldotstimer = 0
+
+pswitchtime = 20

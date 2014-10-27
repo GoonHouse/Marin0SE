@@ -33,7 +33,7 @@ entitylist = {
 	{t="wallindicator", category="i/o objects", description="place anywhere - shows on or off state", iconauthor=""},
 	{t=""}, --30
 	{t="platformfall", category="smb stuff", description="place on empty tile - falling platforms", iconauthor=""},
-	{t=""},
+	{t="pswitch", category="smb stuff", description="place on empty tile or in block", iconauthor=""},
 	{t=""},
 	{t="drain", category="level markers", description="place at the very bottom in an underwater level - drain, attracts mario down", iconauthor="Bobfan"},
 	{t="lightbridge", category="portal elements", description="place on empty tile - light bridge", iconauthor="ChrisGin"},
@@ -578,6 +578,14 @@ rightclickmenues.axe = {
 	{},
 	{t="text", value="size:"},
 	{t="submenu", entries={"small", "tallthin", "large"}, default=1, width=8, actualvalue=true},
+}
+
+rightclickmenues.pswitch = {
+	{t="text", value="type:"},
+	{t="submenu", entries={"blue", "grey"}, default=1, width=4, actualvalue=true},
+	{},
+	{t="checkbox", text="reuse:", default="false"},
+	{t="checkbox", text="carry:", default="false"}
 }
 
 rightclickmenues.generatorwind = {

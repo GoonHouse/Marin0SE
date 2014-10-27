@@ -2348,6 +2348,11 @@ function mario:floorcollide(a, b, c, d)
 		self:hitspring(b)
 		return false
 	end
+
+	if a == "pswitch" then
+		self:hitpswitch(b)
+		return false
+	end
 	
 	if self.speedx == 0 then
 		self.animationstate = "idle"
@@ -3121,6 +3126,10 @@ function mario:hitspring(b)
 	self.mask[19] = true
 	self.animationstate = "idle"
 	self:setquad()
+end
+
+function mario:hitpswitch(b)
+	b:hit()
 end
 
 function mario:leavespring()

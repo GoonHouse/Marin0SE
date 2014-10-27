@@ -2607,6 +2607,10 @@ function loadlevel(level, is_sublevel)
 	pausemenuselected = 1
 	coinblocktimers = {}
 
+	switchtimeout = false
+	pswitchactive = {blue = false, grey = false}
+	pswitchtimers = {blue = 0, grey = 0}
+		
 	givemestuff = {lives = 0, times = 0, coinage = 0}
 	givemetemp = {lives = 0, times = 0, coinage = 0}
 	gensrunning = {cheepcheep = false, bulletbill = false, bowserflames = false, highwind = false}
