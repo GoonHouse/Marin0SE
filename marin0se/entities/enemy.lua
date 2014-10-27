@@ -196,6 +196,16 @@ function enemy:update(dt)
 		return true
 	end]]
 	
+	if self.rideable then
+		if self.ridekiller then
+			if objects["player"][1].y <= self.y - .005 then
+				self.killsonsides = false
+			elseif objects["player"][1].y > self.y - .005 then
+				self.killsonsides = true
+			end
+		end
+	end
+	
 	--Funnels and fuck
 	if self.funnel and not self.infunnel then
 		self:enteredfunnel(true)

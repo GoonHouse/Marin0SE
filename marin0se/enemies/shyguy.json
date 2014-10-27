@@ -3,6 +3,7 @@
 	
 	"movement": "truffleshuffle",
 	"rideable": true,
+	"ridekiller": true,
 	"killsonbottom": true,
 	"killsonsides": true,
 	
