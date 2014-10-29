@@ -237,16 +237,18 @@ update = function(b)
 				else
 					t={o}
 				end
-				for k2,v2 in pairs(t) do
-					--print("tier3", k2, v2)
-					-- I think this is how maps?!
-					--if control[d[1]]--[[ then control[a]=-1 elseif control[d[2]]--[[ then control[a]=1 end
-					if h==1 and control[a]<-b.deadzone then
-						--print("valueneg", control[a], v2)
-						control[v2]=true 
-					elseif h==2 and control[a]>b.deadzone then
-						--print("valuepos", control[a], v2)
-						control[v2]=true
+				if control[a]~= nil then
+					for k2,v2 in pairs(t) do
+						--print("tier3", k2, v2)
+						-- I think this is how maps?!
+						--if control[d[1]]--[[ then control[a]=-1 elseif control[d[2]]--[[ then control[a]=1 end
+						if h==1 and control[a]<-b.deadzone then
+							--print("valueneg", control[a], v2)
+							control[v2]=true 
+						elseif h==2 and control[a]>b.deadzone then
+							--print("valuepos", control[a], v2)
+							control[v2]=true
+						end
 					end
 				end
 			--end
