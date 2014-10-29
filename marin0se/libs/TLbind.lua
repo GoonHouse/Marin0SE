@@ -105,7 +105,14 @@ update = function(b)
 					t={v}
 				end
 				for k2,v2 in pairs(t) do
-					control[v2] = control[v2] or js[j]:isDown(k)
+					if js[j] then
+						--[[@TODO: 
+							Refactor this later, we're doing this check so that when someone
+							launches the game without a joystick plugged in it doesn't crash
+							because controls are defined for a joystick.
+						]]
+						control[v2] = control[v2] or js[j]:isDown(k)
+					end
 				end
 			end
 		end
@@ -192,15 +199,18 @@ update = function(b)
 		for k,tpairs in pairs(index) do
 			-- k isn't important
 			-- tpairs is the data
-			local x, y = js[j]:getAxis(tpairs[1]), js[j]:getAxis(tpairs[2])
-			if x and y then
-				local l = (x*x+y*y)^.5
-				if l > 1 then x,y,l = x/l, y/l, 1 end
-				if l<b.deadzone then
-					control[b.deadzoneAxes[j][tpairs[1]]], control[b.deadzoneAxes[j][tpairs[2]]] = 0, 0
-				else
-					local n = ((l-b.deadzone)/(1-b.deadzone))
-					control[b.deadzoneAxes[j][tpairs[1]]], control[b.deadzoneAxes[j][tpairs[2]]] = x*n, y*n
+			if js[j] then
+				--@TODO: See above todo.
+				local x, y = js[j]:getAxis(tpairs[1]), js[j]:getAxis(tpairs[2])
+				if x and y then
+					local l = (x*x+y*y)^.5
+					if l > 1 then x,y,l = x/l, y/l, 1 end
+					if l<b.deadzone then
+						control[b.deadzoneAxes[j][tpairs[1]]], control[b.deadzoneAxes[j][tpairs[2]]] = 0, 0
+					else
+						local n = ((l-b.deadzone)/(1-b.deadzone))
+						control[b.deadzoneAxes[j][tpairs[1]]], control[b.deadzoneAxes[j][tpairs[2]]] = x*n, y*n
+					end
 				end
 			end
 		end
