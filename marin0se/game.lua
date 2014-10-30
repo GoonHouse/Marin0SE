@@ -2663,7 +2663,7 @@ function loadlevel(level, is_sublevel)
 	starty = {13, 13, 13, 13, 13}
 	pipestartx = nil
 	pipestarty = nil
-	local animation = nil
+	globalanimation = nil
 	
 	enemiesspawned = {}
 	
@@ -2734,7 +2734,7 @@ function loadlevel(level, is_sublevel)
 	end
 	
 	if intermission then
-		animation = "intermission"
+		globalanimation = "intermission"
 	end
 	
 	if not is_sublevel then
@@ -2764,19 +2764,57 @@ function loadlevel(level, is_sublevel)
 	
 	--check if it's a bonusstage (boooooooonus!)
 	if bonusstage then
-		animation = "vinestart"
+		globalanimation = "vinestart"
 	end
 		
 	--set startx to pipestart
 	
 	--@NOTE: Here's where we overload to set the position of pipers! Yee.
-	if pipestartx then
-		startx = {pipestartx-1, pipestartx-1, pipestartx-1, pipestartx-1, pipestartx-1}
-		starty = {pipestarty, pipestarty, pipestarty, pipestarty, pipestarty}
-		--check if startpos is a colliding block
-		if tilequads[map[startx[1]][starty[1]][1]]:getproperty("collision", startx[1], starty[1]) then
-			animation = "pipeup2"
+	if warpdestid then
+		local foundit=false
+		local thepipex, thepipey, thepipe
+		for lxi,lxa in pairs(map) do
+			for lyi,lya in pairs(lxa) do
+				if lya[3] == warpdestid then
+					foundit=true
+					pipestartx = lxi
+					pipestarty = lyi
+					thepipe = map[lxi][lyi]
+					break
+				end
+			end
+			if foundit then
+				break
+			end
 		end
+		
+		local pipeoffx, pipeoffy
+		if thepipe[7] == "up" then
+			pipeoffx = 1
+			pipeoffy = 0
+		elseif thepipe[7] == "down" then
+			pipeoffx = 1
+			pipeoffy = -1
+		elseif thepipe[7] == "left" then
+			pipeoffx = -1
+			pipeoffy = 0
+		elseif thepipe[7] == "right" then
+			pipeoffx = 0
+			pipeoffy = 0
+		end
+		
+		globalanimation = "pipe_"..thepipe[7].."_out"
+		
+		startx = {pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx}
+		starty = {pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy}
+		
+		--check if startpos is a colliding block
+		--if tilequads[map[startx[1]][starty[1]][1]]:getproperty("collision", startx[1], starty[1]) then
+		--	animation = "pipeup2"
+		--end
+		
+		--clear warpdestid because it would never get cleared otherwise
+		warpdestid = nil
 	end
 	
 	--set starts to checkpoint
@@ -2831,7 +2869,7 @@ function loadlevel(level, is_sublevel)
 	objects["player"] = {}
 	local spawns = {}
 	for i = 1, players do
-		local animation = animation
+		local lanimation = globalanimation
 		
 		local astartx, astarty
 		if i > 4 then
@@ -2852,9 +2890,9 @@ function loadlevel(level, is_sublevel)
 			
 			table.insert(spawns, {x=astartx, y=astarty})
 			
-			objects["player"][i] = mario:new(astartx+add, astarty-1, i, animation, mariosizes[i], playertype)
+			objects["player"][i] = mario:new(astartx+add, astarty-1, i, lanimation, mariosizes[i], playertype)
 		else
-			objects["player"][i] = mario:new(1.5 + (i-1)*mul-6/16+1.5, 13, i, animation, mariosizes[i], playertype)
+			objects["player"][i] = mario:new(1.5 + (i-1)*mul-6/16+1.5, 13, i, lanimation, mariosizes[i], playertype)
 		end
 	end
 	
@@ -4257,7 +4295,15 @@ function seek_level(from_warp_id, dest_map, dest_id, exit_dir, is_sublevel)
 	warpdestdir = exit_dir
 	warpissublevel = is_sublevel]]
 	
+	--[[@TODO: 
+		exit_dir actually does nothing because we're meant to use the exit_dir of
+		the pipe whose id we are seeking
+	]]
+	
+	warpdestid = dest_id
+	
 	if is_sublevel then --sublevel
+		print("seeked to a sublevel", dest_map)
 		levelscreen_load("sublevel", dest_map)
 	else --warpzone
 		warpzone(self.animationmisc2, self.animationmisc3)

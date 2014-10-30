@@ -199,7 +199,7 @@ function mario:init(x, y, i, animation, size, t)
 	
 	self.gravitydirection = math.pi/2
 	
-	self.animation = animation or false --pipedown, piperight, pipeup, flag, vine, intermission
+	self.animation = globalanimation or false --pipedown, piperight, pipeup, flag, vine, intermission
 	self.animationx = false
 	self.animationy = false
 	self.animationtimer = 0
@@ -241,7 +241,7 @@ function mario:init(x, y, i, animation, size, t)
 		self.animation = false
 	end
 	
-	if self.animation == "pipeup" then
+	if self.animation == "pipe_up_out" then
 		self.controlsenabled = false
 		self.active = false
 		self.animationx = x
@@ -260,6 +260,66 @@ function mario:init(x, y, i, animation, size, t)
 			self.y = self.animationy + 20/16 - pipeanimationdistancedown
 			self.animation = false
 		end
+	elseif self.animation == "pipe_down_out" then
+		self.controlsenabled = false
+		self.active = false
+		self.animationx = x
+		self.animationy = y
+		self.customscissor = {x-2.5, y-4, 6, 4}
+		self.y = self.animationy + 20/16
+		
+		self.animationstate = "idle"
+		self:setquad()
+		
+		if self.size > 1 then
+			self.animationy = y - 12/16
+		end
+		
+		if arcade and not arcadeplaying[self.playernumber] then
+			self.y = self.animationy + 20/16 - pipeanimationdistancedown
+			self.animation = false
+		end
+	elseif self.animation == "pipe_right_out" then
+		self.controlsenabled = false
+		self.active = false
+		self.animationx = x-2
+		self.animationy = y
+		self.customscissor = {x+(6/16), y-5, 2, 6}
+		--self.y = self.animationy + 20/16
+		self.x = self.animationx - 28/16 --+ pipeanimationdistanceright
+		--self.x = self.animationx
+		
+		self.animationstate = "running"
+		self:setquad()
+		
+		if self.size > 1 then
+			self.animationy = y - 12/16
+		end
+		
+		--[[if arcade and not arcadeplaying[self.playernumber] then
+			self.y = self.animationy + 20/16 - pipeanimationdistancedown
+			self.animation = false
+		end]]
+	elseif self.animation == "pipe_left_out" then
+		self.controlsenabled = false
+		self.active = false
+		self.animationx = x
+		self.animationy = y
+		self.customscissor = {x-2+(6/16), y-5, -2, 6}
+		--self.y = self.animationy + 20/16
+		--self.x = self.animationx + 28/16 --+ pipeanimationdistanceright
+		
+		self.animationstate = "running"
+		self:setquad()
+		
+		if self.size > 1 then
+			self.animationy = y - 12/16
+		end
+		
+		--[[if arcade and not arcadeplaying[self.playernumber] then
+			self.y = self.animationy + 20/16 - pipeanimationdistancedown
+			self.animation = false
+		end]]
 	elseif self.animation == "intermission" then
 		self.controlsenabled = false
 		self.active = true
@@ -545,7 +605,7 @@ function mario:update(dt)
 		self:runanimation(dt)
 		self:setquad()
 		return
-	elseif self.animation == "pipedown" and self.animationy and self.animationx then
+	elseif self.animation == "pipe_down_in" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeanimationtime then
 			self.y = self.animationy - 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistancedown
@@ -558,12 +618,29 @@ function mario:update(dt)
 			end
 		end
 		return
-	elseif self.animation == "pipeup" and self.animationy and self.animationx then
+	elseif self.animation == "pipe_down_out" and self.animationy and self.animationx then
+		self.animationtimer = self.animationtimer + dt
+		if self.animationtimer < pipeupdelay then
+		
+		elseif self.animationtimer < pipeanimationtime+pipeupdelay then
+			self.y = self.animationy - 20/16 + (self.animationtimer-pipeupdelay)/pipeanimationtime*pipeanimationdistancedown
+		else
+			self.y = self.animationy - 20/16 + pipeanimationdistancedown
+			
+			if self.animationtimer >= pipeanimationtime then
+				self.active = true
+				self.controlsenabled = true
+				self.animation = false
+				self.customscissor = false
+			end
+		end
+		return
+	elseif self.animation == "pipe_up_in" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeanimationtime then
-			self.y = self.animationy + 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistancedown
+			self.y = self.animationy + 20/16 - (self.animationtimer)/pipeanimationtime*pipeanimationdistancedown
 		else
-			self.y = self.animationy + 28/16 + pipeanimationdistancedown
+			self.y = self.animationy + 20/16 - pipeanimationdistancedown
 			
 			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
 				updatesizes()
@@ -571,7 +648,7 @@ function mario:update(dt)
 			end
 		end
 		return
-	elseif self.animation == "pipeup2" and self.animationy and self.animationx then
+	elseif self.animation == "pipe_up_out" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeupdelay then
 		
@@ -588,7 +665,7 @@ function mario:update(dt)
 			end
 		end
 		return
-	elseif self.animation == "piperight" and self.animationy and self.animationx then
+	elseif self.animation == "pipe_right_in" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeanimationtime then
 			self.x = self.animationx - 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistanceright
@@ -607,10 +684,34 @@ function mario:update(dt)
 			end
 		end
 		return
-	elseif self.animation == "pipeleft" and self.animationy and self.animationx then
+	elseif self.animation == "pipe_right_out" and self.animationy and self.animationx then
+		self.animationtimer = self.animationtimer + dt
+		if self.animationtimer < pipeupdelay then
+		
+	elseif self.animationtimer < pipeanimationtime+pipeupdelay then
+			self.x = self.animationx + self.animationtimer/pipeanimationtime*pipeanimationdistanceright
+			--self.x = self.animationx - self.animationtimer/pipeanimationtime*pipeanimationdistanceright
+			--Run animation
+			if self.animationstate == "running" then
+				self:runanimation(dt)
+			end
+			self:setquad()
+		else
+			--self.x = self.animationx + pipeanimationdistanceright
+			--the x at this point is at the mercy of the timer of previous iterations
+			
+			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
+				self.active = true
+				self.controlsenabled = true
+				self.animation = false
+				self.customscissor = false
+			end
+		end
+		return
+	elseif self.animation == "pipe_left_in" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeanimationtime then
-			self.x = self.animationx + 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistanceright
+			self.x = self.animationx - self.animationtimer/pipeanimationtime*pipeanimationdistanceright
 			
 			--Run animation
 			if self.animationstate == "running" then
@@ -618,11 +719,34 @@ function mario:update(dt)
 			end
 			self:setquad()
 		else
-			self.x = self.animationx + 28/16 + pipeanimationdistanceright
+			self.x = self.animationx - pipeanimationdistanceright
 			
 			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
 				updatesizes()
 				seek_level(self.animationmisc[3], self.animationmisc[4], self.animationmisc[5], self.animationmisc[7], self.animationmisc[9])
+			end
+		end
+		return
+	elseif self.animation == "pipe_left_out" and self.animationy and self.animationx then
+		self.animationtimer = self.animationtimer + dt
+		if self.animationtimer < pipeupdelay then
+		
+		elseif self.animationtimer < pipeanimationtime+pipeupdelay then
+			self.x = self.animationx - self.animationtimer/pipeanimationtime*pipeanimationdistanceright
+			
+			--Run animation
+			if self.animationstate == "running" then
+				self:runanimation(dt)
+			end
+			self:setquad()
+		else
+			--self.x = self.animationx - pipeanimationdistanceright
+			
+			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
+				self.active = true
+				self.controlsenabled = true
+				self.animation = false
+				self.customscissor = false
 			end
 		end
 		return
@@ -1190,17 +1314,28 @@ function mario:update(dt)
 			end
 		end
 		
-		local px2, py2 = math.floor(self.x+30/16), math.floor(self.y-20/16)
-		if inmap(px2, py2) and self.binds.control.playerUp then
-			local t2 = map[px2][py2][2]
-			if t2 and entitylist[t2] and entitylist[t2].t == "warppipe" and map[px2][pxy][8] then
-				--self.animationmisc2 = tonumber(map[px][py][3]) or 1
-				--self.animationmisc3 = tonumber(map[px][py][4]) or 1
-				--"pipe"
-				--self:pipe(px, py, "down", tonumber(map[px][py][3]-1))
-				--"warppipe"
-				self:pipe(px2, py2, "up", map[px2][py2])
-				return
+		--[[@DEV:
+			For this section we have to +1 py2 because apparently map is still offset crazily.
+			More specifically, inmap would fail with the correct py2 and the rest of the conditions
+			would be right or the inverse, referencing a block just above the correct one.
+		]]
+		local px2, py2 = math.floor(self.x+30/16), math.floor(self.y-self.height)
+		if inmap(px2, py2) then
+			local t2 = map[px2][py2+1][2]
+			if t2 
+			and entitylist[t2] 
+			and entitylist[t2].t == "warppipe" 
+			and map[px2][py2+1][8] then
+				print("warp up available", py2, self.y, self.height)
+				if self.binds.control.playerUp then
+					--self.animationmisc2 = tonumber(map[px][py][3]) or 1
+					--self.animationmisc3 = tonumber(map[px][py][4]) or 1
+					--"pipe"
+					--self:pipe(px, py, "down", tonumber(map[px][py][3]-1))
+					--"warppipe"
+					self:pipe(px2, py2+1, "up", map[px2][py2+1])
+					return
+				end
 			end
 		end
 		
@@ -3807,11 +3942,12 @@ function mario:pipe(x, y, dir, ex)
 	if editormode then
 		return
 	end
+	print("piped", x, y, dir, ex)
 
 	-- ex == the pipe data
 	self.active = false
 	self.infunnel = false
-	self.animation = "pipe" .. dir
+	self.animation = "pipe_" .. dir .."_in"
 	self.invincible = false
 	self.drawable = true
 	self.animationx = x
@@ -3834,29 +3970,17 @@ function mario:pipe(x, y, dir, ex)
 		self.animationstate = "idle"
 		self.customscissor = {x-4, y-3, 6, 2}
 	elseif dir == "right" then
-		if self.size == 1 then
-			self.y = self.animationy-1/16 - self.height
-		else
-			self.y = self.animationy-1/16 - self.height
-		end
+		self.y = self.animationy-1/16 - self.height
 		self.animationstate = "running"
 		self.customscissor = {x-2, y-5, 1, 6}
 	elseif dir == "left" then
-		--this is wrong
-		if self.size == 1 then
-			self.y = self.animationy-1/16 - self.height
-		else
-			self.y = self.animationy-1/16 - self.height
-		end
+		self.y = self.animationy-1/16 - self.height
 		self.animationstate = "running"
-		self.customscissor = {x+2, y-5, 1, 6}
+		self.customscissor = {x, y-5, 1, 6}
 	elseif dir == "up" then
-		--this is wrong
-		if self.size > 1 then
-			self.animationy = y - self.height + 12/16
-		end
+		self.animationy = y - 20/16
 		self.animationstate = "idle"
-		self.customscissor = {x-4, y+3, 6, 2}
+		self.customscissor = {x+2.5, y+4, -6, -4}
 	end
 	
 	self:setquad()
