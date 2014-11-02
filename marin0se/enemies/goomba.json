@@ -1,19 +1,17 @@
 {
-	"quadcount": 3,
+	"quadcount": 1,
 	
 	"movement": "truffleshuffle",
 	"stompable": true,
 	"killsonbottom": true,
 	"killsonsides": true,
 	
-	"animationtype": "frames",
-	"animationframes": 2,
-	"animationstart": 1,
+	"animationtype": "mirror",
 	"animationspeed": 0.2,
 	
 	"stompanimation": true,
 	"stompanimationtime": 0.5,
-	"stompedframe": 3,
+	"stompedframe": 2,
 	
 	"truffleshufflespeed": 2,
 	"truffleshuffleacceleration": 8,
