@@ -2741,10 +2741,19 @@ function mario:rightcollide(a, b, c, d)
 				addpoints(firepoints[b.t] or 100, self.x, self.y)
 				return false
 			end
+			
 			if b.shellanimal and b.small and b.speedx == 0 then
 				b:stomp(self.x, self)
 				playsound("shot")
 				addpoints(500, b.x, b.y)
+				return false
+			end
+			
+			--Check if Mario is walking off a ridable enemy, so that he can safely walk off.
+			if b.rideable and self.y <= b.y - .005 then 
+				self.y = b.y - self.height
+				self.speedy = 0
+				print("Giving leeway to Mario's Position (Right)")
 				return false
 			end
 			
@@ -2872,6 +2881,14 @@ function mario:leftcollide(a, b, c, d)
 				return false
 			end
 			
+			--Check if Mario is walking off a ridable enemy, so that he can safely walk off.
+			if b.rideable and self.y <= b.y - .005 then 
+				self.y = b.y - self.height
+				self.speedy = 0
+				print("Giving leeway to Mario's Position (Left)")
+				return false
+			end
+			
 			self:die("Enemy (leftcollide)")
 			return false
 		end
@@ -2907,6 +2924,7 @@ function mario:leftcollide(a, b, c, d)
 			end
 		end
 		
+		--Check if mario should run across a gap.
 		if allowskip and inmap(x, y-1) and tilequads[map[x][y-1][1]]:getproperty("collision", x, y-1) == false and self.speedy > 0 and self.y+1+self.height < y+spacerunroom then
 			self.y = b.y - self.height
 			self.speedy = 0
