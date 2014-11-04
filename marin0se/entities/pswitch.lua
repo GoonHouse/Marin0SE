@@ -79,35 +79,35 @@ function pswitch:update(dt)
 		--print("Grey P-Switch is Active: '"..pswitchtimers["grey"].."' seconds.")
 	end
 	
-	if pswitchtimers["blue"] >= pswitchtime then -- Out of Time
+	if pswitchtimers["blue"] >= pswitchtime and self.inuse == true then -- Out of Time
+		self.inuse = false
 		pswitchtimers["blue"] = 0
 		pswitchactive["blue"] = false
-		self.inuse = false
 		
-		if self.carryable == false and self.inuse == false then
+		if self.carryable == false then
 			self.frame = 1
 			print("Pop up the P-Switch.")
-		elseif self.carryable == true and self.inuse == false then
+		elseif self.carryable == true then
 			self.frame = 3
 			print("Pop up the carryable P-Switch.")
 		end
 		
-		print("You're good to go kid, hit the blue again!")
+		print("Time up on Blue P-Switches.")
 	end
-	if pswitchtimers["grey"] >= pswitchtime then
+	if pswitchtimers["grey"] >= pswitchtime and self.inuse == true then
+		self.inuse = false
 		pswitchtimers["grey"] = 0
 		pswitchactive["grey"] = false
-		self.inuse = false
 		
-		if self.carryable == false and self.inuse == false then
+		if self.carryable == false then
 			self.frame = 1
 			print("Pop up the P-Switch.")
-		elseif self.carryable == true and self.inuse == false then
+		elseif self.carryable == true then
 			self.frame = 3
 			print("Pop up the carryable P-Switch.")
 		end
 		
-		print("You're good to go kid, hit the grey again!")
+		print("Time up on Grey P-Switches.")
 	end
 
 	if pswitchactive["blue"] == false and pswitchactive["grey"] == false and switchtimeout == true then
