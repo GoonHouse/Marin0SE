@@ -34,7 +34,7 @@ function levelscreen_load(reason, i)
 	else
 		gamestate = "gameover"
 		blacktime = gameovertime
-		playsound("gameover")
+		playsound("gameover") --no players loaded at this point, allowed global
 	end
 	
 	if editormode then

@@ -46,6 +46,7 @@ function fireball:init(x, y, dir, v)
 	self.quadi = 1
 	
 	self.emancipatecheck = true
+	playsound("fireball", self.x, self.y, self.speedx, self.speedy)
 end
 
 function fireball:update(dt)
@@ -124,7 +125,7 @@ end
 function fireball:hitstuff(a, b)
 	if a == "tile" or a == "bulletbill" or a == "portalwall" or a == "spring" then
 		self:explode()
-		playsound("blockhit")
+		playsound("blockhit", self.x, self.y)
 		
 	elseif a == "enemy" or a == "bowser" then
 		if b:shotted("right", false, false, true) ~= false then

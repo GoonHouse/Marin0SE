@@ -181,7 +181,7 @@ function enemy:init(x, y, t, a)
 	end
 	
 	if self.spawnsound then
-		playsound(self.spawnsound)
+		playsound(self.spawnsound, self.x, self.y, self.speedx, self.speedy)
 	end
 	
 	self.outtable = {}
@@ -779,7 +779,7 @@ function enemy:shotted(dir, below, high, fireball, star)
 		return
 	end
 	
-	playsound("shot")
+	playsound("shot", self.x, self.y, self.speedx, self.speedy)
 	
 	self.speedy = -(self.shotjumpforce or shotjumpforce)
 	if high then
@@ -825,7 +825,7 @@ function enemy:customtimeraction(action, arg)
 	if action == "bounce" then
 		self.speedy = -(arg or 10)
 	elseif action == "playsound" then
-		playsound(arg)
+		playsound(arg, self.x, self.y, self.speedx, self.speedy)
 	elseif action == "setframe" then
 		self.quad = self.quadgroup[arg]
 	elseif string.sub(action, 0, 3) == "set" then
@@ -959,7 +959,7 @@ function enemy:leftcollide(a, b, c, d)
 			if a == "tile" then
 				hitblock(b.cox, b.coy, self, true)
 			else
-				playsound("blockhit")
+				playsound("blockhit", self.x, self.y, self.speedx, self.speedy)
 			end
 			return false
 		end
@@ -1004,7 +1004,7 @@ function enemy:rightcollide(a, b, c, d)
 			if a == "tile" then
 				hitblock(b.cox, b.coy, self, true)
 			else
-				playsound("blockhit")
+				playsound("blockhit", self.x, self.y, self.speedx, self.speedy)
 			end
 			return false
 		end
@@ -1105,7 +1105,9 @@ function enemy:stomp(x, b)
 				self.movement = self.smallmovement
 				self.speedx = 0
 				self.animationtype = "none"
+				--playsound("stomp", self.x, self.y, self.speedx, self.speedy)
 			elseif self.speedx == 0 then
+				--playsound("shot", self.x, self.y, self.speedx, self.speedy)
 				if self.x > x then
 					self.speedx = self.smallspeed
 					self.x = x+12/16+self.smallspeed*gdt
@@ -1126,6 +1128,7 @@ function enemy:stomp(x, b)
 					self.killsenemies = true
 				end
 			else
+				--playsound("shot", self.x, self.y, self.speedx, self.speedy)
 				self.speedx = 0
 				self.combo = 1
 			end

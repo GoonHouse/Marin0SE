@@ -62,9 +62,9 @@ function redcoin:collect(ply)
 	redcoincollected[self.value] = 1
 	redcoincount = redcoincount + 1
 	if redcoincount == oddjobquotas[1] then
-		playsound("redcoin5")
+		playsound("redcoin5", self.x, self.y)
 	else
-		playsound("redcoin1")
+		playsound("redcoin1", self.x, self.y)
 	end
 	self.active = false
 	self.drawable = false

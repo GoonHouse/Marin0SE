@@ -40,6 +40,9 @@ function vine:init(x, y, t)
 	
 	--IMAGE STUFF
 	self.drawable = false
+	
+	--@DEV: This won't work when vines can go sideways.
+	playsound("vine", self.x, self.y, 0, -vinespeed)
 end
 
 function vine:update(dt)

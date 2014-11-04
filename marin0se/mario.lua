@@ -341,9 +341,9 @@ function mario:init(x, y, i, animation, size, t)
 		self.vineanimationclimb = false
 		self.vineanimationdropoff = false
 		self.vinemovetimer = 0
-		playsound("vine")
 		
 		if #objects["vine"] == 0 then
+			--@DEV: Does this ever happen? Does this ever *not* happen?
 			table.insert(objects["vine"], vine:new(5, 16, "start"))
 		end
 	end
@@ -366,6 +366,7 @@ function mario:controlPress(control, fromnetwork)
 	if control=="playerJump" then
 		self:jump()
 	elseif control=="playerDebug" then
+		playsound("shrink", 1, 1)
 		print("oh boy I'm a test")
 	elseif control=="playerRun" then
 		self:fire()
@@ -499,7 +500,7 @@ function mario:update(dt)
 	if self.char.raccoon and (self.tailwag or self.tailwagtimer > 0) then
 		if self.tailwagtimer == 0 then
 			self.tailwag = false
-			playsound("tailwag")
+			playsound("tailwag", self.x, self.y, self.speedx, self.speedy)
 		end
 		self.tailwagtimer = self.tailwagtimer + dt
 		while self.tailwagtimer > raccoontailwagdelay do
@@ -515,7 +516,7 @@ function mario:update(dt)
 	--Spin!
 	if self.char.raccoon and self.raccoonspinframe then
 		if self.raccoonspintimer == 0 then
-			playsound("tailwag")
+			playsound("tailwag", self.x, self.y, self.speedx, self.speedy)
 		end
 		self.raccoonspintimer = self.raccoonspintimer + dt
 		while self.raccoonspintimer > raccoonspindelay and self.raccoonspinframe do
@@ -799,7 +800,7 @@ function mario:update(dt)
 			self.drawable = false
 			self.active = false
 			if mariotime > 0 then
-				playsound("scorering")
+				playsound("scorering", self.x, self.y, self.speedx, self.speedy)
 				subtractscore = true
 				subtracttimer = 0
 			else
@@ -911,7 +912,7 @@ function mario:update(dt)
 				v.speedy = 0
 				v.active = true
 				v.gravity = 27.5
-				playsound("bowserfall")
+				playsound("bowserfall", v.x, v.y, v.speedx, v.gravity) --gravity doesn't get factored into speedy, which is a problem
 				self.animationtimer = 0
 				return
 			end
@@ -926,7 +927,7 @@ function mario:update(dt)
 			self.animationdirection = "right"
 		
 			love.audio.stop()
-			playsound("castleend")
+			playsound("castleend", self.x, self.y) --technically not aligned to the axe, but, we don't care
 		end
 		
 		if self.speedx > 0 and self.x >= mapwidth - 8 then
@@ -1384,7 +1385,7 @@ function mario:update(dt)
 						if self.raccoonstarttimer >= raccoonstarttime then
 							self.raccoonstarttimer = raccoonstarttime
 							self.raccoonjump = true
-							playsound("planemode")
+							playsound("planemode", self.x, self.y, self.speedx, self.speedy)
 						end
 					end
 				else
@@ -1499,6 +1500,11 @@ function mario:update(dt)
 		end
 	end
 	
+	--@DEV: Experimental audio foolery.
+	if self.playernumber == 1 then
+		love.audio.setPosition(self.x, self.y, 0)
+		love.audio.setVelocity(self.speedx, self.speedy, 0)
+	end
 	self:setquad()
 end
 
@@ -2207,9 +2213,9 @@ function mario:jump(force)
 					
 					if self.animation ~= "grow1" and self.animation ~= "grow2" then
 						if self.size == 1 then
-							playsound("jump")
+							playsound("jump", self.x, self.y, self.speedx, self.speedy)
 						else
-							playsound("jumpbig")
+							playsound("jumpbig", self.x, self.y, self.speedx, self.speedy)
 						end
 					end
 					
@@ -2227,7 +2233,7 @@ function mario:jump(force)
 			if self.ducking then
 				self:duck(false)
 			end
-			playsound("swim")
+			playsound("swim", self.x, self.y, self.speedx, self.speedy)
 			
 			self.speedy = -uwjumpforce - (math.abs(self.speedx) / maxrunspeed)*uwjumpforceadd
 			self.jumping = true
@@ -2299,7 +2305,7 @@ end
 		return
 	end
 	addpoints(1000, self.x+self.width/2, self.y)
-	playsound("mushroomeat")
+	playsound("mushroomeat", self.x, self.y, self.speedx, self.speedy)
 	
 	if bigmario then
 		return
@@ -2336,7 +2342,7 @@ end]]
 	if self.ducking then
 		self:duck(false)
 	end
-	playsound("shrink")
+	playsound("shrink", self.x, self.y, self.speedx, self.speedy)
 	
 	self.size = 1
 	
@@ -2448,7 +2454,7 @@ function mario:getpowerup(poweruptype, powerdowntarget, reason)
 		addpoints(pointstoadd, self.x+self.width/2, self.y)
 	end
 	if soundtoplay~=false then
-		playsound(soundtoplay)
+		playsound(soundtoplay, self.x, self.y, self.speedx, self.speedy)
 	end
 	if makeinvincible then
 		self:goinvincible()
@@ -2627,13 +2633,14 @@ function mario:stompenemy(a, b, c, d, side)
 	local bounce = false
 	if b.shellanimal then
 		if b.small then	
-			playsound("shot")
+			playsound("shot", b.x, b.y, b.speedx, b.speedy)
 			if b.speedx == 0 then
+				playsound("shot", self.x, self.y, self.speedx, self.speedy)
 				addpoints(500, b.x, b.y)
 				self.combo = 1
 			end
 		else
-			playsound("stomp")
+			playsound("stomp", b.x, b.y, b.speedx, b.speedy)
 		end
 		
 		b:stomp(self.x, self)
@@ -2685,9 +2692,9 @@ function mario:stompenemy(a, b, c, d, side)
 				end
 			end
 			table.insert(scrollingscores, scrollingscore:new("1up", self.x, self.y))
-			playsound("oneup")
+			playsound("oneup", self.x, self.y)
 		end
-		playsound("stomp")
+		playsound("stomp", b.x, b.y, b.speedx, b.speedy)
 		bounce = true
 	end
 	
@@ -2731,7 +2738,7 @@ function mario:rightcollide(a, b, c, d)
 		if self.invincible then
 			if b.shellanimal and b.small and b.speedx == 0 then
 				b:stomp(self.x, self)
-				playsound("shot")
+				playsound("shot", self.x, self.y, self.speedx, self.speedy)
 				addpoints(500, b.x, b.y)
 			end
 			return false
@@ -2744,7 +2751,7 @@ function mario:rightcollide(a, b, c, d)
 			
 			if b.shellanimal and b.small and b.speedx == 0 then
 				b:stomp(self.x, self)
-				playsound("shot")
+				playsound("shot", self.x, self.y, self.speedx, self.speedy)
 				addpoints(500, b.x, b.y)
 				return false
 			end
@@ -2863,7 +2870,7 @@ function mario:leftcollide(a, b, c, d)
 		if self.invincible then
 			if b.shellanimal and b.small and b.speedx == 0 then
 				b:stomp(self.x, self)
-				playsound("shot")
+				playsound("shot", self.x, self.y, self.speedx, self.speedy)
 				addpoints(500, b.x, b.y)
 			end
 			return false
@@ -2876,7 +2883,7 @@ function mario:leftcollide(a, b, c, d)
 			
 			if b.shellanimal and b.small and b.speedx == 0 then
 				b:stomp(self.x, self)
-				playsound("shot")
+				playsound("shot", self.x, self.y, self.speedx, self.speedy)
 				addpoints(500, b.x, b.y)
 				return false
 			end
@@ -3403,7 +3410,7 @@ function hitblock(x, y, t, koopa)
 	
 	local r = map[x][y]
 	if not t or not t.infunnel then
-		playsound("blockhit")
+		playsound("blockhit", x-0.5, y-1)
 	end
 	
 	if tilequads[r[1]]:getproperty("breakable", x, y) == true or tilequads[r[1]]:getproperty("coinblock", x, y) == true then --Block should bounce!
@@ -3431,14 +3438,14 @@ function hitblock(x, y, t, koopa)
 				end
 			end
 			if entitylist[r[2]].t == "vine" then
-				playsound("vine")
+				--playsound("vine", x-0.5, y-1)
 			else
-				playsound("mushroomappear")
+				playsound("mushroomappear", x-0.5, y-1)
 			end
 		elseif #r > 1 and table.contains(enemies, r[2]) then
 			table.insert(blockbouncecontent, r[2])
 			table.insert(blockbouncecontent2, t.size)
-			playsound("mushroomappear")
+			playsound("mushroomappear", x-0.5, y-1)
 			
 			
 			if tilequads[r[1]]:getproperty("invisible", x, y) then
@@ -3468,7 +3475,7 @@ function hitblock(x, y, t, koopa)
 		end
 		
 		if #r == 1 and tilequads[r[1]]:getproperty("coinblock", x, y) then --coinblock
-			playsound("coin")
+			playsound("coin", x-0.5, y-1) --not sure if these slight offsets are correct
 			if tilequads[r[1]]:getproperty("invisible", x, y) then
 				if spriteset == 1 then
 					map[x][y][1] = 113
@@ -3502,14 +3509,14 @@ function hitblock(x, y, t, koopa)
 						end
 					end
 					mariocoincount = 0
-					playsound("oneup")
+					playsound("oneup", x-0.5, y-1) --this happens in a lot of places
 				end
 				addpoints(200)
 			end
 		end
 		
 		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t == "manycoins" then --block with many coins inside! yay $_$
-			playsound("coin")
+			playsound("coin", x-0.5, y-1) --I'd like to add velocity but the block-coin graphic isn't an object
 			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
 				if gameplaytype == "vanilla" then
 					mariocoincount = mariocoincount + 1
@@ -3525,7 +3532,7 @@ function hitblock(x, y, t, koopa)
 					end
 				end
 				mariocoincount = 0
-				playsound("oneup")
+				playsound("oneup", self.x, self.y) --point entity, no velocity
 			end
 			addpoints(200)
 			
@@ -3655,7 +3662,7 @@ function destroyblock(x, y)
 	map[x][y][1] = 1
 	objects["tile"][x .. "-" .. y] = nil
 	map[x][y]["gels"] = {}
-	playsound("blockbreak")
+	playsound("blockbreak", x, y) --blocks don't move, we want the position of the block
 	addpoints(50)
 	
 	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, 3.5, -23))
@@ -3725,7 +3732,7 @@ function mario:die(how)
 		love.audio.stop()
 	end
 	
-	playsound("death")
+	playsound("death", self.x, self.y) --happens at a point, therefore velocity gets binned
 	
 	if how == "time" then
 		noupdate = false
@@ -3834,11 +3841,10 @@ function mario:emancipate(a)
 	end
 end
 
-function mario:removeportals(i)	
-	if (self.portalsavailable[1] and self.portal.x1) or (self.portalsavailable[2] and self.portal.x2) then
-		playsound("portalfizzle")
+function mario:removeportals(i)
+	if self.portalsavailable[1] or self.portalsavailable[2] then
+		playsound("portalfizzle", self.x, self.y, self.speedx, self.speedy) --play locally in addition to the portal positions as confirmation that it happened, otherwise, nothing
 	end
-	
 	
 	if self.portalsavailable[1] then
 		self.portal:removeportal(1)
@@ -3975,7 +3981,7 @@ function mario:pipe(x, y, dir, ex)
 		self.animationmisc = ex
 	end
 	self.controlsenabled = false
-	playsound("pipe")
+	playsound("pipe", x, y) --pipe cancels out movement, using velocity would be "throwing one's voice"
 	
 	if intermission then
 		respawnsublevel = i
@@ -4093,7 +4099,7 @@ function mario:flag()
 	love.audio.stop()
 	
 	
-	playsound("levelend")
+	playsound("levelend", self.x, self.y, self.speedx, self.speedy)
 end
 
 function mario:vineanimation()
@@ -4147,7 +4153,6 @@ function mario:fire()
 			self.fireballcount = self.fireballcount + 1
 			self.fireanimationtimer = 0
 			self:setquad()
-			playsound("fireball")
 		end
 	end
 end
@@ -4175,7 +4180,7 @@ function collectcoin(x, y, i)
 		coinmap[x][y] = false
 	end
 	addpoints(200)
-	playsound("coin")
+	playsound("coin", x, y) --point entity, no velocity to use
 	if gameplaytype == "vanilla" then
 		mariocoincount = mariocoincount + (i or 1)
 	elseif gameplaytype == "oddjob" then
@@ -4191,7 +4196,7 @@ function collectcoin(x, y, i)
 			end
 		end
 		mariocoincount = mariocoincount - 100
-		playsound("oneup")
+		playsound("oneup", self.x, self.y, self.speedx, self.speedy) --not a point entity, but the sound may not transfer if players are moving fast
 	end
 end
 
@@ -4223,7 +4228,7 @@ function mario:portaled(dir)
 		table.insert(rainbooms, rainboom:new(self.x+self.width/2, self.y+self.height/2, dir))
 		earthquake = rainboomearthquake
 		self.rainboomallowed = false
-		playsound("rainboom")
+		playsound("rainboom", self.x, self.y, self.speedx, self.speedy)
 		
 		for i, v in pairs(objects["enemy"]) do
 			v:shotted()

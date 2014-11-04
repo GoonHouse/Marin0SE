@@ -1798,7 +1798,7 @@ function menu_controlupdate(dt)
 					end
 					soundpack = soundpacklist[soundpacki]
 					reloadSounds()
-					playsound("coin")
+					playsound("coin") --allowed global
 				elseif optionsselection == 7 then
 					if volume < 0.99 then
 						volume = volume + 0.1
@@ -1806,7 +1806,7 @@ function menu_controlupdate(dt)
 							volume = 1
 						end
 						love.audio.setVolume( volume )
-						playsound("coin")
+						playsound("coin") --allowed global
 						soundenabled = true
 					end
 				elseif optionsselection == 9 then
@@ -1899,7 +1899,7 @@ function menu_controlupdate(dt)
 					end
 					soundpack = soundpacklist[soundpacki]
 					reloadSounds()
-					playsound("coin")
+					playsound("coin") --allowed global
 				elseif optionsselection == 7 then
 					if volume > 0 then
 						volume = volume - 0.1
@@ -1908,7 +1908,7 @@ function menu_controlupdate(dt)
 							soundenabled = false
 						end
 						love.audio.setVolume( volume )
-						playsound("coin")
+						playsound("coin") --allowed global
 					end
 				elseif optionsselection == 9 then
 					vsync = not vsync
@@ -2050,7 +2050,7 @@ function reset_mappacks()
 	
 	loadbackgroundsafe("1-1.txt")
 	
-	playsound("oneup")
+	playsound("oneup") --@DEV: no origin is fine
 end
 
 function delete_mappack(pack)

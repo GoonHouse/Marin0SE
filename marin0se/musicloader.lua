@@ -39,6 +39,9 @@ function music:load(name)
 		local loaded, source = pcall(love.audio.newSource, filepath, "stream")
 		if loaded then
 			-- all music should loop
+			source:setRelative(true)
+			source:setPosition(0,0,0)
+			source:setVelocity(0,0,0)
 			source:setLooping(true)
 			source:setPitch(self.pitch)
 			self.loaded[name] = source

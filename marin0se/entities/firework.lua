@@ -11,7 +11,7 @@ function firework:update(dt)
 	self.timer = self.timer + dt
 	
 	if self.timer >= fireworksoundtime and self.timer-dt < fireworksoundtime then
-		playsound("boom")
+		playsound("boom", self.x, self.y)
 	end
 	
 	if self.timer > fireworkdelay then

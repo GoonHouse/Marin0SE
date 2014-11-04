@@ -150,7 +150,7 @@ function pswitch:hit()
 		end
 
 		switchtimeout = true
-		playsound("switch")
+		playsound("switch", self.x, self.y)
 		pswitch:alive() -- Obnoxiously overwrite the music every time someone hits one.
 	end
 end

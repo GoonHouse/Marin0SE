@@ -172,14 +172,15 @@ function bowser:shotted(dir)
 end
 
 function bowser:firedeath()
-	playsound("shot")
-	playsound("bowserfall")
 	self.shot = true
 	self.speedy = -shotjumpforce
 	self.direction = dir or "right"
 	self.active = false
 	self.gravity = shotgravity
 	self.speedx = 0
+	
+	playsound("shot", self.x, self.y, self.speedx, self.speedy)
+	playsound("bowserfall", self.x, self.y, self.speedx, self.speedy)
 	
 	addpoints(firepoints["bowser"], self.x+self.width/2, self.y)
 	

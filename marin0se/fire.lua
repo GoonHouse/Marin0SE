@@ -46,7 +46,7 @@ function fire:init(x, y)
 	self.timer = 0
 	self.quadi = 1
 	
-	playsound("fire")
+	playsound("fire", self.x, self.y, self.speedx, self.speedy)
 end
 
 function fire:update(dt)

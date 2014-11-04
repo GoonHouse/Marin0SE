@@ -60,5 +60,5 @@ end
 
 function spring:hit()
 	self.timer = 0
-	playsound("spring")
+	playsound("spring", self.x, self.y)
 end

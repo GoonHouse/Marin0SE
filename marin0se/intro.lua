@@ -18,7 +18,7 @@ function intro_update(dt)
 		end
 		
 		if introprogress > 0.5 and playedwilhelm == nil then
-			playsound("stab")
+			playsound("stab") --allowed global
 			
 			playedwilhelm = true
 		end

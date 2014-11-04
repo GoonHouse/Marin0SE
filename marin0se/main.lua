@@ -27,6 +27,15 @@ require("libs.cupid")
 
 	0. You just DO WHAT THE FUCK YOU WANT TO.
 ]]
+--[[distance models
+	none: basically everything stays the same, always
+	inverse: things get quieter as you move away
+	linear: basically things just move around but never fade, you get the most dopple out of this
+	exponent: like inverse, except happens quicker
+	x clamped: gain gets clamped
+]]
+
+love.audio.setDistanceModel("exponent clamped")
 love.audio.oldSource = love.audio.newSource
 love.audio.newSource = function(snd, stype)
 	local finalpath = snd
@@ -1754,7 +1763,7 @@ function love.keypressed(key, isrepeat)
 		end
 		
 		if sha1(s) == konamihash then --Before you wonder how dumb this is; This used to be a different code than konami because I thought it'd be fun to make people figure it out before they can tell others how to easily unlock cheats (without editing files). It wasn't, really.
-			playsound("konami")
+			playsound("konami") --allowed global
 			gamefinished = true
 			saveconfig()
 			notice.new("Cheats unlocked!")

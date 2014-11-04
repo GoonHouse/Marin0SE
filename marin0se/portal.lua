@@ -83,10 +83,10 @@ function portal:createportal(i, cox, coy, side, tendency)
 			end
 			
 			if i == 1 then
-				playsound("portal1open")
+				playsound("portal1open", x, y)
 			else
 				
-				playsound("portal2open")
+				playsound("portal2open", x, y)
 			end
 			
 			modifyportalwalls()
@@ -128,6 +128,8 @@ function portal:removeportal(i)
 				modifyportaltiles(self["x" .. otheri], self["y" .. otheri], 0, 1, self, otheri, "add")
 			end
 		end
+		
+		playsound("portalfizzle", self["x"..i], self["y"..i]) --point entity, no velocity
 		
 		self["x" .. i] = false
 		self["y" .. i] = false

@@ -198,7 +198,7 @@ function game_update(dt)
 			
 			if mariotime > 0 and mariotime + 2.5*dt >= 99 and mariotime < 99 then
 				love.audio.stop()
-				playsound("lowtime")
+				playsound("lowtime") --allowed global
 			end
 			
 			if mariotime > 0 and mariotime + 2.5*dt >= 99-8 and mariotime < 99-8 then
@@ -2952,7 +2952,7 @@ function startlevel(levelstart)
 	if intermission == false then
 		playmusic()
 	else
-		playsound("intermission")
+		playsound("intermission") --allowed global
 	end
 	
 	if replaysystem and levelstart then
@@ -3596,7 +3596,7 @@ function game_controlupdate(dt)
 					volume = volume + 0.1
 					love.audio.setVolume( volume )
 					soundenabled = true
-					playsound("coin")
+					playsound("coin") --allowed global
 				end
 			end
 			
@@ -3607,7 +3607,7 @@ function game_controlupdate(dt)
 				if volume == 0 then
 					soundenabled = false
 				end
-				playsound("coin")
+				playsound("coin") --allowed global
 			end
 		end
 	end
@@ -3622,7 +3622,7 @@ function game_controlupdate(dt)
 		if not editormode and not everyonedead then
 			pausemenuopen = true
 			love.audio.pause()
-			playsound("pause")
+			playsound("pause") --allowed global
 		end
 	end
 	
@@ -4759,7 +4759,7 @@ function givelive(id, t)
 	end
 	t.destroy = true
 	t.active = false
-	playsound("oneup")
+	playsound("oneup", t.x, t.y)
 end	
 
 function givetime(id, t)
@@ -4768,11 +4768,11 @@ function givetime(id, t)
 	mariotime = mariotime+1
 	givemestuff["time"] = givemestuff["time"] - 1
 	end
-playsound("addtime")
+	playsound("addtime", t.x, t.y) --point entity
 end	
 
 function gotatrophy(id, t)
-	playsound("trophy")
+	playsound("trophy", t.x, t.y) --point entity
 end	
 
 function addpoints(i, x, y)
@@ -4813,10 +4813,14 @@ function properprint3(s, x, y)
 	end
 end
 
-function playsound(sound)
+function playsound(sound, px, py, vx, vy)
 	if not soundlist[sound] then
 		return
 	end
+	px = px or 0
+	py = py or 0
+	vx = vx or 0
+	vy = vy or 0
 
 	if soundenabled then
 		if delaylist[sound] then
@@ -4827,9 +4831,21 @@ function playsound(sound)
 				return
 			end
 		end
-		
 		soundlist[sound].source:stop()
-		soundlist[sound].source:rewind()
+		--soundlist[sound].source:rewind()
+		-- we don't need this because stop rewinds in every instance
+		if px~=0 and py~=0 then
+			soundlist[sound].source:setRelative(false)
+			soundlist[sound].source:setPosition(px, py, 0)
+		else
+			soundlist[sound].source:setRelative(true)
+			soundlist[sound].source:setPosition(0,0,0)
+		end
+		if vx~=0 and vy~=0 then
+			soundlist[sound].source:setVelocity(vx, vy, 0)
+		else
+			soundlist[sound].source:setVelocity(0,0,0)
+		end
 		soundlist[sound].source:play()
 	end
 end

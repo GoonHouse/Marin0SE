@@ -62,7 +62,7 @@ function sfxentity:input(t, input)
 		if not self.triggered or not self.single then
 			self.triggered = true
 			if self.sfxname ~= "none.ogg" then
-				playsound(self.sfxname)
+				playsound(self.sfxname, self.x, self.y)
 			end
 		end
 	end

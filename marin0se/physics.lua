@@ -84,7 +84,8 @@ function physicsupdate(dt)
 						end
 						
 						if passed and j == "player" then
-							playsound("portalenter")
+							playsound("portalenter", w.x, w.y, w.speedx, w.speedy)
+							--@WARNING: This might not work in multiplayer, but it might as well.
 						end
 					end
 					
