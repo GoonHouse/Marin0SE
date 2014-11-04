@@ -62,6 +62,31 @@ love.audio.newSource = function(snd, stype)
 	return love.audio.oldSource(snd, stype)
 end
 
+love.sound.oldSoundData = love.sound.newSoundData
+love.sound.newSoundData = function(snd, x, y, z)
+	local finalpath = snd
+	if type(snd)=="string" and not love.filesystem.exists(snd) then
+		local depth = 0
+		for k,v in pairs(soundsearchdirs) do
+			local p = v % {mappack=mappack,file=snd,soundpack=soundpack}
+			if love.filesystem.exists(p) then
+				depth = k
+				finalpath = p
+				break
+			end
+		end
+		if depth == #soundsearchdirs then
+			print("ALERT: Engine couldn't find sounddata '"..snd.."' anywhere!")
+		elseif depth == #soundsearchdirs-1 then
+			print("WARNING: Engine couldn't find sounddata '"..snd.."', used fallback.")
+		elseif depth == 0 then
+			assert(false, "CALL THE COPS: The fallback missingsound(data) file is GONE.")
+		end
+		snd = finalpath
+	end
+	return love.sound.oldSoundData(snd, x, y, z)
+end
+
 love.graphics.oldImage = love.graphics.newImage
 love.graphics.newImage = function(img, ex)
 	local finalpath = img
@@ -2296,8 +2321,12 @@ function reloadSounds() -- mastersfx, master list of sounds current being looked
 	soundlist = {}
 	
 	for i, v in pairs(soundstoload) do
+		local dat = love.sound.newSoundData(v..".ogg")
 		soundlist[v] = {}
-		soundlist[v].source = love.audio.newSource(v .. ".ogg", "stream")
+		soundlist[v].duration = dat:getDuration()
+		soundlist[v].samplecount = dat:getSampleCount()
+		soundlist[v].samplerate = dat:getSampleRate()
+		soundlist[v].source = love.audio.newSource(dat)
 		soundlist[v].lastplayed = 0
 	end
 	

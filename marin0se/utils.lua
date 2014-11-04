@@ -31,6 +31,14 @@ function table.print(t)
 	end
 end
 
+-- this code was originally from TLbind, also works to clone
+function table.combine(a, b)
+	local t = {}
+	for k, v in pairs(a) do if type(v)=="table" then t[k]=table.combine(v) else t[k]=v end end
+	if b then for k, v in pairs(b) do if type(v)=="table" then t[k]=table.combine(v) else t[k]=v end end end
+	return t
+end
+
 function string:split(delimiter) --Not by me
 	local result = {}
 	local from  = 1
@@ -54,4 +62,25 @@ getmetatable("").__mod = interp
 
 function nop()
 	
+end
+
+function table.fdelete(tbl, filterfunc, ex)
+	--[[
+		delete elements in a table where the filterfunc returns true
+		
+		filterfunc is supplied the index and the object, plus whatever is in ex
+	]]
+	local delete = {}
+	
+	for i, v in pairs(tbl) do
+		if filterfunc(i, v, ex) then
+			table.insert(delete, i)
+		end
+	end
+	
+	table.sort(delete, function(a,b) return a>b end) -- why are we doing this
+	
+	for i, v in pairs(delete) do
+		table.remove(tbl, v) --remove
+	end
 end

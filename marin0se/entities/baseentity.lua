@@ -91,6 +91,8 @@ function baseentity:init(x, y, r)
 	self.parent = parent
 	-- x and y are used for physics calculations against the world
 	self.x, self.y = x, y
+	-- z is unused, but we plan on using it, so everything exists on depth 0
+	self.z = 0
 	-- cox and coy generally the starting position, the place in the map where the entity was placed
 	self.cox, self.coy = x, y
 	-- visibility determines whether the draw method is called -- drawable I'm not sure where it's even used
@@ -102,11 +104,17 @@ function baseentity:init(x, y, r)
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	
+	--assets
+	self.sounds = {} --a table of names of sounds to make use of
+	self.activesounds = {} --table of clones from the global soundlist
+	
 	--THIS ALL HAS TO DO WITH PHYSICS
 	-- the size of the bounding box to perform physics checks against
 	self.width, self.height = 1, 1
 	-- how fast we're moving in a particular direction
 	self.speedx, self.speedy = 0, 0
+	-- same as above, eventually we want to use z
+	self.speedz = 0
 	-- how quickly we're moved towards the direction of gravity regardless of speedx/y
 	self.gravity = 0
 	self.gravitydirection = math.pi/2
@@ -143,6 +151,44 @@ function baseentity:init(x, y, r)
 	--table.insert(objects["weapon"], self)
 end
 
+function baseentity:playsound(sound, is_static, use_velocity)
+	if not soundlist[sound] then
+		print("WARNING: Entity tried to play nonexistant sound: "..soundname)
+		return
+	end
+
+	if soundenabled then
+		if delaylist[sound] then
+			local currenttime = love.timer.getTime()
+			if currenttime-soundlist[sound].lastplayed > delaylist[sound] then
+				soundlist[sound].lastplayed = currenttime
+			else
+				return
+			end
+		end
+		local soundclone = table.combine(soundlist[sound])
+		soundclone.source = soundlist[sound].source:clone()
+		soundclone.static = false
+		soundclone.use_velocity = false
+		if is_static then
+			soundclone.static = true
+		end
+		soundclone.source:setRelative(false)
+		soundclone.source:setPosition(self.x, self.y, self.z)
+		if use_velocity then
+			-- velocity has the potential to sound weird, so, it's optional
+			soundclone.use_velocity = true
+			soundclone.source:setVelocity(self.speedx, self.speedy, self.speedz)
+		else
+			soundclone.source:setVelocity(0, 0, 0)
+		end
+		soundclone.source:play()
+		table.insert(self.activesounds, soundclone)
+	end
+end
+local filter_delete_sound = function(k, v)
+	return v.source:tell("samples") >= v.samplecount
+end
 function baseentity:update(dt)
 	if self.primaryAttackDelay and self.primaryAttackTimer and self.primaryAttackTimer > 0 then
 		self.primaryAttackTimer = self.primaryAttackTimer - dt
@@ -150,6 +196,20 @@ function baseentity:update(dt)
 	
 	if self.secondaryAttackDelay and self.secondaryAttackTimer and self.secondaryAttackTimer > 0 then
 		self.secondaryAttackTimer = self.secondaryAttackTimer - dt
+	end
+	
+	-- check each sound to update its positions
+	for k,v in pairs(self.activesounds) do
+		if not v.static then
+			v.source:setPosition(self.x, self.y, self.z)
+		end
+		if v.use_velocity then
+			v.source:setVelocity(self.speedx, self.speedy, self.speedz)
+		end
+	end
+	-- run a filtered deletion on sounds that are completed
+	if #self.activesounds > 0 then
+		table.fdelete(self.activesounds, filter_delete_sounds)
 	end
 end
 
