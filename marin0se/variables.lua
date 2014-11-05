@@ -158,8 +158,6 @@ seesawfriction = 4
 -- can be killed by single fireflower
 -- the spiky dudes turn towards you after they fall down
 
-fireballspeed = 15
-fireballjumpforce = 12
 maxfireballs = 2
 fireanimationtime = 0.11
 

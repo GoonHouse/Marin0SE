@@ -422,7 +422,7 @@ function love.load(args)
 		"walltimer", "notgate", "rsflipflop", "orgate", "andgate",
 		"musicentity", "enemyspawner", "squarewave", "lightbridge",
 		"faithplate", "laser", "noportal", "bulletbill", "animationtarget",
-		"laserdetector", "gel", "geldispenser", "fireball", "pushbutton",
+		"laserdetector", "gel", "geldispenser", "pushbutton",
 		"cubedispenser", "platform", "castlefire", "platformspawner",
 		"bowser", "spring", "seesawplatform", "checkpoint", "seesaw",
 		"ceilblocker", "funnel", "panel", "scaffold", "bubble", "axe",
@@ -430,9 +430,10 @@ function love.load(args)
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody", "weapon",
 		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
 		"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames",
-		"pswitch", "smokepuff"
+		"pswitch", "smokepuff", "emancipateanimation"
 	}
 	-- we made weapon a saneent because tracing mario's draw is REALLY TOUGH
+	-- testing removal of "fireball",
 	
 	--[[ here are a list of entities that have BROKEN THE LAW ]]
 	insaneents = {
@@ -453,6 +454,23 @@ function love.load(args)
 		
 		"gel", --this alters the map when loaded, which is an extreme anomoly
 	}
+	
+	-- this is for global allocation of images + quads
+	globalimages = {}
+	--[[structure:{
+			imagename = {
+				dims = {xdim, ydim}, --size of a single graphic
+				frames = num, --how many times dims fits in the image
+				quads = {},
+				img = imgdata,
+			}
+		}
+		
+		if errors ever arise in reference to this, it's because an entity
+		is trying to reach this when its assets have been unloaded for mysterious reasons
+	]]
+	
+	
 	
 	loadingtext = loadingtexts[math.random(#loadingtexts)]
 	
@@ -510,6 +528,21 @@ function love.load(args)
 	class = require("libs.middleclass")
 	require "magic"
 	require "camera"
+	require "baseentity"
+	
+	-- basedents are used for the transition from saneents to entities that actually inherit and have some common ground
+	-- this is very confusing and I'm sorry for that but it's what must be done
+	basedents = love.filesystem.getDirectoryItems("basedents")
+
+	for k,v in pairs(basedents) do
+		basedents[k] = v:sub(0,-5)
+		require("basedents."..basedents[k])
+		
+		-- precache all the images used by this entity type, eventually this will be dynamic
+		for k2,v2 in pairs(_G[basedents[k]].image_sigs) do
+			allocate_image(k2, v2[1], v2[2])
+		end
+	end
 	
 	-- we don't use the saneents list here because entity name weirdness 
 	--for _,v in pairs(love.filesystem.getDirectoryItems("entities")) do
@@ -556,7 +589,6 @@ function love.load(args)
 	require "fire"
 	require "rainboom"
 	require "miniblock"
-	require "emancipateanimation"
 	require "emancipationfizzle"
 	require "portal"
 	require "dialogbox"
@@ -798,15 +830,6 @@ function love.load(args)
 	flowerquad = {}
 	for i = 1, 4 do
 		flowerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
-	end
-	
-	fireballquad = {}
-	for i = 1, 4 do
-		fireballquad[i] = love.graphics.newQuad((i-1)*8, 0, 8, 8, 80, 16)
-	end
-	
-	for i = 5, 7 do
-		fireballquad[i] = love.graphics.newQuad((i-5)*16+32, 0, 16, 16, 80, 16)
 	end
 	
 	vinequad = {}

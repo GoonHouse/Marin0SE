@@ -300,7 +300,7 @@ function game_update(dt)
 	--UPDATE STUFFFFF
 	
 	local updatetable = {
-		emancipationfizzles, emancipateanimations, dialogboxes,
+		emancipationfizzles, dialogboxes,
 		miniblocks, blockdebristable,
 		userects, rainbooms, coinblockanimations, itemanimations
 	}
@@ -1336,6 +1336,14 @@ function game_draw()
 				if v.draw then v:draw() end
 			end
 		end
+		
+		-- same, but #based
+		for _, entname in pairs(basedents) do
+			love.graphics.setColor(255, 255, 255)
+			for k,v in pairs(objects[entname]) do
+				if v.draw then v:draw() end
+			end
+		end
 
 		love.graphics.setColor(255, 255, 255)
 		--warpzonetext
@@ -1398,11 +1406,6 @@ function game_draw()
 		love.graphics.setColor(255, 255, 255)
 		--miniblocks
 		for i, v in pairs(miniblocks) do
-			v:draw()
-		end
-		
-		--emancipateanimations
-		for i, v in pairs(emancipateanimations) do
 			v:draw()
 		end
 		
@@ -2629,7 +2632,6 @@ function loadlevel(level, is_sublevel)
 	userects = {}
 	blockdebristable = {}
 	rainbooms = {}
-	emancipateanimations = {}
 	emancipationfizzles = {}
 	dialogboxes = {}
 	miniblocks = {}
@@ -2651,6 +2653,9 @@ function loadlevel(level, is_sublevel)
 	
 	objects = {}
 	-- Initialize all registered object arrays.
+	for _,v in pairs(basedents) do
+		objects[v]={}
+	end
 	for _,v in pairs(saneents) do
 		objects[v]={}
 	end

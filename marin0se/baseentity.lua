@@ -86,23 +86,92 @@ local HasCustomColliders = {
 	end,
 }
 
-function baseentity:init(x, y, r)
+--[[
+	SIGNIFICANT STATICS:
+	since these will never change, we make use of this data per-class,
+	I'm not even sure how middleclass will handle attempting to mess with them
+	
+	DEFINED IN EACH CLASS:
+	image_sigs --used to provide info for allocate_image
+]]
+
+-- this is only here temporarily
+function allocate_image(imgname, dimx, dimy)
+	globalimages[imgname] = {quads = {}, dims={dimx,dimy}}
+	local gl = globalimages[imgname]
+	
+	gl.img = love.image.newImageData(imgname..".png")
+	local timg = love.graphics.newImage(gl.img)
+	local w, h = math.floor(timg:getWidth()/dimx), math.floor(timg:getHeight()/dimy)
+	gl.img = timg
+	gl.frames=w*h
+	for y = 1, h do
+		-- Yeah, I'm not entirely certain why I'm allowing the use of y>1, but here we are.
+		for x = 1, w do
+			table.insert(gl.quads, love.graphics.newQuad((x-1)*dimx, (y-1)*dimy, dimx, dimy, timg:getDimensions()))
+		end
+	end
+end
+
+--[[ helper methods to write
+	setCenter
+	x setGraphic
+	setOffset
+	setPos
+	x setQuad (by index)
+	setSize
+]]
+-- BUNDLES OF HELPER METHODS
+
+function baseentity:setGraphic(id, quadwrap)
+	-- if quadwrap is true, we'll modulo the current quadi to the new graphic, else, reset to 1
+	self.graphicid = id
+	self.graphic = globalimages[self.graphicid].img
+	if not quadwrap then
+		self.quadi = 1
+	end
+	self:setQuad(self.quadi)
+	-- worst case scenario, this call is redundant; best: we wrap number that's too big/small
+end
+
+function baseentity:setQuad(ind)
+	ind = ind or self.quadi
+	-- set the quad based on the current graphics set
+	self.quadi = ind%(globalimages[self.graphicid].frames+1)
+	if self.quadi == 0 then
+		--the only thing modulo and 1-indexed languages weren't prepared for
+		self.quadi = 1
+	end
+	self.quad = globalimages[self.graphicid].quads[self.quadi]
+end
+
+function baseentity:init(origclass, classname, x, y, z, r, parent)
+	-- anonymous mapping gets confusing sometimes
+	self.origclass = origclass
+	self.classname = classname
+	
+	x = x or 0
+	y = y or 0
+	z = z or 0
+	
 	-- if we have a parent, it's good to know
-	self.parent = parent
+	self.parent = parent --(or nil)
 	-- x and y are used for physics calculations against the world
 	self.x, self.y = x, y
 	-- z is unused, but we plan on using it, so everything exists on depth 0
-	self.z = 0
+	self.z = z
 	-- cox and coy generally the starting position, the place in the map where the entity was placed
 	self.cox, self.coy = x, y
 	-- visibility determines whether the draw method is called -- drawable I'm not sure where it's even used
 	self.visible, self.drawable = true, true
 	-- r is a general purpose set of packaged parameters in an explicit order that can be made use of
 	-- usually for setting the rightclick attributes of placed map entities
-	self.r = {unpack(r)}
-	-- we dump the first two values of r because they are [read the wiki]
-	table.remove(self.r, 1)
-	table.remove(self.r, 1)
+	if r~= nil then
+		self.r = {unpack(r)}
+		-- we dump the first two values of r because they are [read the wiki]
+		table.remove(self.r, 1)
+		table.remove(self.r, 1)
+	end
 	
 	--assets
 	self.sounds = {} --a table of names of sounds to make use of
@@ -116,10 +185,14 @@ function baseentity:init(x, y, r)
 	-- same as above, eventually we want to use z
 	self.speedz = 0
 	-- how quickly we're moved towards the direction of gravity regardless of speedx/y
-	self.gravity = 0
+	-- left out, because code elsewhere will supply a different value
+	-- ie: gravity is tweaked differently in physics.lua
+	--self.gravity = 0
 	self.gravitydirection = math.pi/2
 	-- whether or not this object should be emancipatable
 	self.emancipationcheck = false
+	-- this will be used to prevent further updates once emancipated
+	self.was_emancipated = false
 	-- static means that it doesn't intend on moving, therefore, it will save us some calculations
 	self.static = true
 	-- this will make it so that the object can be collided with and will invoke its update method
@@ -131,6 +204,14 @@ function baseentity:init(x, y, r)
 	self.dir = "down"
 	
 	
+	-- THIS ALL HAS TO DO WITH ENGINE TRAITS
+	-- whether the object can be carried and held in the player's hands like a box
+	self.carriable = false
+	-- who is carrying the this, if anybody at all
+	self.carrier = nil
+	-- should we destroy ourselves in the next update
+	self.destroy = false
+	
 	-- THIS ALL HAS TO DO WITH THE GRAPHICS ON LEVEL 3
 	-- if we need to be offset from the x/y for drawing
 	self.offsetX, self.offsetY = 0, 0
@@ -138,17 +219,37 @@ function baseentity:init(x, y, r)
 	self.quadcenterX, self.quadcenterY = 0, 0
 	-- ex
 	self.rotation = 0
-	-- if we only utilize a single simple image then we can reference this
-	self.graphic = missinggraphicimg
+	-- the name to reference in our statics
+	self.graphicid = classname
+	self.graphic = globalimages[self.graphicid].img or missinggraphicimg
+	-- the comment below about self.quad also applies here
+	self.quadi = 1
+	self.quad = globalimages[self.graphicid].quads[self.quadi]
+	-- I'm not even entirely certain referencing the quad manually is necessary if we are based around the indexes / images
+	-- as it stands, only the emancipation routine makes use of this
+	
+	-- TIME TRACKING
+	self.timer = 0
+	-- the once timer gets to this, we clear and do timercallback
+	self.timermax = 1
 	
 	
-	
-	-- if you need to make use of first-run data
+	-- if you need to make use of first-run data, we don't handle this in the base in the event
+	-- we need to do the standard run
 	self.initial = true
 	
 	
 	
 	--table.insert(objects["weapon"], self)
+end
+
+-- WONDERFUL COLLECTION OF CALLBACKS
+function baseentity:offscreencallback()
+	-- do something if we're no longer visible
+end
+
+function baseentity:timercallback()
+	-- this gets called whenever the internal timer gets this big
 end
 
 function baseentity:playsound(sound, is_static, use_velocity)
@@ -186,16 +287,23 @@ function baseentity:playsound(sound, is_static, use_velocity)
 		table.insert(self.activesounds, soundclone)
 	end
 end
-local filter_delete_sound = function(k, v)
+local function filter_delete_sounds(k, v)
 	return v.source:tell("samples") >= v.samplecount
 end
 function baseentity:update(dt)
-	if self.primaryAttackDelay and self.primaryAttackTimer and self.primaryAttackTimer > 0 then
-		self.primaryAttackTimer = self.primaryAttackTimer - dt
+	--[[this came from fireball, not sure if it's global:
+		rotate back to 0 (portals)
+	]]
+	self.rotation = 0
+	self.timer = self.timer + dt
+	
+	if self.timer > self.timermax then
+		self.timer = self.timer % self.timermax
+		self:timercallback()
 	end
 	
-	if self.secondaryAttackDelay and self.secondaryAttackTimer and self.secondaryAttackTimer > 0 then
-		self.secondaryAttackTimer = self.secondaryAttackTimer - dt
+	if self.x < xscroll-1 or self.x > xscroll+width+1 or self.y > mapheight and self.active then
+		self:offscreencallback()
 	end
 	
 	-- check each sound to update its positions
@@ -211,21 +319,55 @@ function baseentity:update(dt)
 	if #self.activesounds > 0 then
 		table.fdelete(self.activesounds, filter_delete_sounds)
 	end
+	
+	if self.destroy then
+		--prepare for the cold embrace of death
+		self:remove()
+	end
+	-- let us know we're going to die
+	return self.destroy
 end
 
+function baseentity:remove()
+	-- in the event that an entity utilizes special resources that must be released
+end
+
+--[[ no special draw instructions \o/
 function baseentity:draw()
 	if self.visible then
 		love.graphics.setColor(255, 255, 255)
-		love.graphics.draw(andgateimg, math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
+		love.graphics.draw(self.graphic, self.quad, math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
 	end
-end
+end]]
 
-function baseentity:emancipate(a)
-	-- determine what to do when emancipated
+function baseentity:emancipate()
+	if not self.was_emancipated then
+		table.insert(objects["emancipateanimation"], emancipateanimation:new(self.x, self.y, self.width, self.height, self.graphic, self.quad, self.speedx, self.speedy, self.rotation, self.offsetX, self.offsetY, self.quadcenterX, self.quadcenterY))
+		self.was_emancipated = true
+		self.drawable = false
+	end
 end
 
 function baseentity:collect(ply)
 	-- the presence of this will cause the player that collides with it to invoke it,
 	-- usually this should be the same as destroy but with context of being player-oriented
 	-- additionally it prevents having to employ custom handlers
+end
+
+function baseentity:used(ply)
+	-- where ply is a reference to the player object
+	if self.carriable then
+		self.carrier = ply
+		self.active = false
+		ply:carry(self)
+	end
+end
+
+function baseentity:dropped()
+	if self.carriable then
+		self.carrier = nil
+		self.active = true
+	else
+		print("WARNING: baseentity was dropped but it wasn't supposed to be carried in the first place.")
+	end
 end

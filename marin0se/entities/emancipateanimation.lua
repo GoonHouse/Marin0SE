@@ -1,8 +1,5 @@
 emancipateanimation = class("emancipateanimation")
 
-emancemaxspeed = 3
-emanceaccel = 20
-
 function emancipateanimation:init(x, y, width, height, img, quad, speedx, speedy, rotation, offsetX, offsetY, quadcenterX, quadcenterY)
 	self.x = x
 	self.y = y
@@ -17,10 +14,12 @@ function emancipateanimation:init(x, y, width, height, img, quad, speedx, speedy
 	self.offsetY = offsetY
 	self.quadcenterX = quadcenterX
 	self.quadcenterY = quadcenterY
+	self.emancemaxspeed = 3
+	self.emanceaccel = 20
 	
-	self.speedx = math.max(-emancemaxspeed, math.min(emancemaxspeed, self.speedx))
+	self.speedx = math.max(-self.emancemaxspeed, math.min(self.emancemaxspeed, self.speedx))
 	
-	self.speedy = math.max(-emancemaxspeed, math.min(emancemaxspeed, self.speedy))
+	self.speedy = math.max(-self.emancemaxspeed, math.min(self.emancemaxspeed, self.speedy))
 	
 	self.rotationspeed = (math.random()-.5)*8
 	self.timer = 0
@@ -28,8 +27,8 @@ function emancipateanimation:init(x, y, width, height, img, quad, speedx, speedy
 end
 
 function emancipateanimation:update(dt)
-	self.speedx = self.speedx + (math.random()-.5)*dt*emanceaccel
-	self.speedy = self.speedy + (math.random()-.5)*dt*emanceaccel
+	self.speedx = self.speedx + (math.random()-.5)*dt*self.emanceaccel
+	self.speedy = self.speedy + (math.random()-.5)*dt*self.emanceaccel
 
 	self.x = self.x + self.speedx*dt
 	self.y = self.y + self.speedy*dt
