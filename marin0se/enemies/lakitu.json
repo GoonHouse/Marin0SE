@@ -40,7 +40,6 @@
 	"spawnsenemy": "spinyegg",
 	"spawnenemydelays": [2],
 	"spawnenemyspeedy": -12,
-	"spawnmomentum": true,
 	
 	"throwquadoffset": 1,
 	"throwpreparetime": 0.5,
