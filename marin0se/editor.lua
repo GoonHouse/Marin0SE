@@ -1661,11 +1661,11 @@ function new_level(sub)
 		marioworld = marioworld + 1
 	end
 	
-	savelevel()
+	savelevel(currentmap)
 end
 
 function test_level()
-	savelevel()
+	savelevel(currentmap)
 	editorclose()
 	editormode = false
 	testlevel = true
@@ -1673,9 +1673,9 @@ function test_level()
 	testlevellevel = mariolevel
 	autoscroll = true
 	if mariosublevel ~= 0 then
-		loadlevel(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
+		loadlevel(currentmap)
 	else
-		loadlevel(marioworld .. "-" .. mariolevel)
+		loadlevel(currentmap)
 	end
 	startlevel()
 end

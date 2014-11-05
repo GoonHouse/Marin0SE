@@ -4510,9 +4510,9 @@ end
 
 function savelevel()
 	if mariosublevel == 0 then
-		savemap(marioworld .. "-" .. mariolevel)
+		savemap(currentmap)
 	else
-		savemap(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
+		savemap(currentmap)
 	end
 end
 
