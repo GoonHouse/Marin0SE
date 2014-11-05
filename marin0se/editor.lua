@@ -1661,11 +1661,11 @@ function new_level(sub)
 		marioworld = marioworld + 1
 	end
 	
-	savelevel(currentmap)
+	savelevel()
 end
 
 function test_level()
-	savelevel(currentmap)
+	savelevel()
 	editorclose()
 	editormode = false
 	testlevel = true
