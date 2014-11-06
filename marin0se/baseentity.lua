@@ -2,6 +2,7 @@ baseentity = class('baseentity')
 -- these variables are only available to "baseentity", not its children
 baseentity.static.isSane = true
 
+baseentity_mixins = {} -- make these global so they can be applied in class definitions
 --[[
 	first time, for each class:
 		* imagelist, all graphic parts
@@ -12,7 +13,7 @@ baseentity.static.isSane = true
 
 -- the following are mixins used to imbue properties to a class without being a child of another class
 -- OtherClass:include(HasOutputs) gives it all elements of that table
-local HasInputs = {
+baseentity_mixins.HasInputs = {
 	inputTable = {},
 	link = function(self)
 		while #self.r > 3 do
@@ -21,7 +22,7 @@ local HasInputs = {
 					--check if the coordinates match a linked object
 					if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 						-- alert the item that they have a new listener
-						v:addOutput(self, self.r[2])
+						v:addoutput(self, self.r[2])
 						-- initialize the input table index with nothing
 						self.inputTable[tonumber(self.r[2])] = "off"
 					end
@@ -55,9 +56,9 @@ local HasInputs = {
 	end,
 }
 
-local HasOutputs = {
+baseentity_mixins.HasOutputs = {
 	outputTable = {},
-	addOutput = function(self, a, t)
+	addoutput = function(self, a, t)
 		table.insert(self.outputTable, {a, t})
 	end,
 	out = function(self, t)
@@ -69,9 +70,16 @@ local HasOutputs = {
 			-- if it doesn't, how did it get here to begin with?
 		end
 	end,
+	toggle_all_outputs = function(self)
+		for i = 1, #self.outputTable do
+			if self.outputTable[i][1].input then
+				self.outputTable[i][1]:input("toggle", self.outputTable[i][2])
+			end
+		end
+	end,
 }
 
-local HasCustomColliders = {
+baseentity_mixins.HasCustomColliders = {
 	leftcollide = function(self, a, b)
 		return true
 	end,
@@ -86,6 +94,37 @@ local HasCustomColliders = {
 	end,
 }
 
+--@TODO: Make these userect things a mixin, they were previously in the global scope.
+function adduserect(x, y, width, height, callback)
+	local t = {}
+	t.x = x
+	t.y = y
+	t.width = width
+	t.height = height
+	t.callback = callback
+	t.delete = false
+	
+	table.insert(userects, t)
+	return t
+end
+
+function userect(x, y, width, height)
+	local outtable = {}
+	
+	local j
+	
+	for i, v in pairs(userects) do
+		if aabb(x, y, width, height, v.x, v.y, v.width, v.height) then
+			table.insert(outtable, v.callback)
+			if not j then
+				j = i
+			end
+		end
+	end
+	
+	return outtable, j
+end
+
 --[[
 	SIGNIFICANT STATICS:
 	since these will never change, we make use of this data per-class,
@@ -93,6 +132,11 @@ local HasCustomColliders = {
 	
 	DEFINED IN EACH CLASS:
 	image_sigs --used to provide info for allocate_image
+		{imagename = {dimx, dimy}, ...}
+		where dimx/y is the gridsize of the image, therefore the size of the largest possible sprite
+	sound_sigs --not implemented, to provide info for allocate_sound
+		{soundname = {}, ...}
+		it's assumed pitch/octave/volume properties will be put here eventually, but, not now
 ]]
 
 -- this is only here temporarily
@@ -162,8 +206,6 @@ function baseentity:init(origclass, classname, x, y, z, r, parent)
 	self.z = z
 	-- cox and coy generally the starting position, the place in the map where the entity was placed
 	self.cox, self.coy = x, y
-	-- visibility determines whether the draw method is called -- drawable I'm not sure where it's even used
-	self.visible, self.drawable = true, true
 	-- r is a general purpose set of packaged parameters in an explicit order that can be made use of
 	-- usually for setting the rightclick attributes of placed map entities
 	if r~= nil then
@@ -186,13 +228,35 @@ function baseentity:init(origclass, classname, x, y, z, r, parent)
 	self.speedz = 0
 	-- how quickly we're moved towards the direction of gravity regardless of speedx/y
 	-- left out, because code elsewhere will supply a different value
-	-- ie: gravity is tweaked differently in physics.lua
-	--self.gravity = 0
+	-- gravity, if nil, will be defaulted to global "yacceleration" for physics calculation
+	self.gravity = 80
+	-- (in radians) the angle to apply gravity to
 	self.gravitydirection = math.pi/2
+	--@WARNING: not fully implemented into physics.lua, byob
+	self.base_friction = 14
+	self.friction = self.base_friction
+	--@WARNING: same as above applies, the number to multiply our friction value by while airborne
+	self.base_friction_air_multiplier = 0
+	self.friction_air_multiplier = self.base_friction_air_multiplier
 	-- whether or not this object should be emancipatable
-	self.emancipationcheck = false
+	self.emancipatecheck = false
+	-- whether or not we override the default portal method with a local one
+	self.portaloverride = false
 	-- this will be used to prevent further updates once emancipated
 	self.was_emancipated = false
+	
+	-- do faithplates care about this?
+	self.can_faithplate = false
+	-- is this falling? should gravity be applied?
+	self.falling = false
+	
+	-- can the object be funneled?
+	self.can_funnel = false
+	-- true when this is being handled by a funnel
+	self.funnel = false
+	-- this is an edge-switch against funnel so that we can detect entry/exit
+	self.infunnel = false
+	
 	-- static means that it doesn't intend on moving, therefore, it will save us some calculations
 	self.static = true
 	-- this will make it so that the object can be collided with and will invoke its update method
@@ -203,16 +267,24 @@ function baseentity:init(origclass, classname, x, y, z, r, parent)
 	-- if it has a an orientation, you should use this to set it. should be a direction enum key.
 	self.dir = "down"
 	
-	
 	-- THIS ALL HAS TO DO WITH ENGINE TRAITS
 	-- whether the object can be carried and held in the player's hands like a box
 	self.carriable = false
 	-- who is carrying the this, if anybody at all
 	self.carrier = nil
+	-- this has to do with being carried and portalability, I don't know, it's confusing
+	self.portaledframe = false
+	
+	-- if the player and other things can push 
+	self.pushable = false
+	-- a flag for whether or not we're actively being pushed
+	self.pushed = false
 	-- should we destroy ourselves in the next update
 	self.destroy = false
 	
 	-- THIS ALL HAS TO DO WITH THE GRAPHICS ON LEVEL 3
+	-- visibility determines whether the draw method is called -- drawable I'm not sure where it's even used
+	self.visible, self.drawable = true, true
 	-- if we need to be offset from the x/y for drawing
 	self.offsetX, self.offsetY = 0, 0
 	-- make the center of rotation
@@ -250,6 +322,16 @@ end
 
 function baseentity:timercallback()
 	-- this gets called whenever the internal timer gets this big
+end
+
+function baseentity:funnelcallback(entering)
+	-- if we go into a funnel, this is what we do
+	if entering then
+		self.infunnel = true
+	else
+		self.infunnel = false
+		self.gravity = nil
+	end
 end
 
 function baseentity:playsound(sound, is_static, use_velocity)
@@ -306,6 +388,54 @@ function baseentity:update(dt)
 		self:offscreencallback()
 	end
 	
+	-- PHYSICS HELPERS
+	if self.falling then
+		self.friction = self.base_friction*self.base_friction_air_multiplier
+	else
+		self.friction = self.base_friction
+	end
+	
+	-- funnel magic
+	if self.can_funnel then
+		if self.funnel and not self.infunnel then
+			self:funnelcallback(true)
+		elseif not self.funnel and self.infunnel then
+			self:funnelcallback(false)
+		end
+		self.funnel = false --this is the default, but iirc I thought funnel managed this bool on objects it handles/releases
+	end
+	
+	-- handle carried objects, arguably, this should be in the player's update method
+	if self.carriable then
+		if self.carrier then
+			local oldx = self.x
+			local oldy = self.y
+			
+			self.x = self.carrier.x+math.sin(-self.carrier.pointingangle)*0.3
+			self.y = self.carrier.y-math.cos(-self.carrier.pointingangle)*0.3
+			if self.portaledframe == false then
+				for h, u in pairs(objects["emancipationgrill"]) do
+					if u.active then
+						if u.dir == "hor" then
+							if inrange(self.x+6/16, u.startx-1, u.endx, true) and inrange(u.y-14/16, oldy, self.y, true) then
+								print("trying to emancipate self because carrier")
+								self:emancipate(h)
+							end
+						else
+							if inrange(self.y+6/16, u.starty-1, u.endy, true) and inrange(u.x-14/16, oldx, self.x, true) then
+								print("trying to emancipate self because carrier")
+								self:emancipate(h)
+							end
+						end
+					end
+				end
+			end
+			
+			self.rotation = self.carrier.rotation
+		end
+		self.portaledframe = false
+	end
+	
 	-- check each sound to update its positions
 	for k,v in pairs(self.activesounds) do
 		if not v.static then
@@ -332,7 +462,11 @@ function baseentity:remove()
 	-- in the event that an entity utilizes special resources that must be released
 end
 
---[[ no special draw instructions \o/
+function baseentity:portaled()
+	-- this is only triggered if we have portaloverride
+end
+
+--[[ no special draw instructions, the engine supplies it if we lack it
 function baseentity:draw()
 	if self.visible then
 		love.graphics.setColor(255, 255, 255)
@@ -341,11 +475,28 @@ function baseentity:draw()
 end]]
 
 function baseentity:emancipate()
+	print("baseentity told to emancipate")
 	if not self.was_emancipated then
-		table.insert(objects["emancipateanimation"], emancipateanimation:new(self.x, self.y, self.width, self.height, self.graphic, self.quad, self.speedx, self.speedy, self.rotation, self.offsetX, self.offsetY, self.quadcenterX, self.quadcenterY))
+		local speedx, speedy = self.speedx, self.speedy
+		if self.carrier then
+			speedx = speedx + self.carrier.speedx
+			speedy = speedy + self.carrier.speedy
+			self.carrier:drop_held()
+			self.carrier = nil --in the event that our carrier doesn't call our dropped method
+		end
+		table.insert(objects["emancipateanimation"], emancipateanimation:new(self.x, self.y, self.width, self.height, self.graphic, self.quad, speedx, speedy, self.rotation, self.offsetX, self.offsetY, self.quadcenterX, self.quadcenterY))
+		self:remove()
 		self.was_emancipated = true
 		self.drawable = false
 	end
+end
+
+function baseentity:faithplate(dir)
+	self.falling = true
+end
+
+function baseentity:startfall() -- this is presumably used by a faithplate as a callback, I can't be sure
+	self.falling = true
 end
 
 function baseentity:collect(ply)
@@ -359,11 +510,11 @@ function baseentity:used(ply)
 	if self.carriable then
 		self.carrier = ply
 		self.active = false
-		ply:carry(self)
+		ply:pick_up(self)
 	end
 end
 
-function baseentity:dropped()
+function baseentity:drop()
 	if self.carriable then
 		self.carrier = nil
 		self.active = true

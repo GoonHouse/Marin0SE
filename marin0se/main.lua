@@ -202,6 +202,7 @@ function love.load(args)
 	hook.Call("LovePreLoad", args)
 	game = {}
 	debugmode = "none"
+	userectdebug = true
 	args = args or {}
 	for k,v in pairs(args) do
 		if v=="-zbs" then
@@ -303,10 +304,10 @@ function love.load(args)
 	
 	overwrittenimages = {}
 	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", "oddjobhud", "redcoin", "redcointall", "redcoinbig", "firework",
-	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", "pswitch",
+	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", "pswitch",
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
 	"excursionfunnel2end", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase", "cursorarea", 
-	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "sfxentity", "animationtarget", "musicentity", "smbtiles", "portaltiles", "transparency", "smokepuff",
+	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "sfxentity", "animationtarget", "musicentity", "smbtiles", "portaltiles", "transparency", "smokepuff",
 	"animatedtiletrigger", "delayer", "leaf", "groundlight"}
 	
 	graphicspacki = 1
@@ -417,7 +418,7 @@ function love.load(args)
 			* **having instances stored in the array** `objects["classname"]`
 	]]
 	saneents = {
-		"sfxentity", "portalwall", "tile", "vine", "box", "door", "button",
+		"sfxentity", "portalwall", "tile", "vine", "door", "button",
 		"groundlight", "wallindicator", "animatedtiletrigger", "delayer",
 		"walltimer", "notgate", "rsflipflop", "orgate", "andgate",
 		"musicentity", "enemyspawner", "squarewave", "lightbridge",
@@ -933,8 +934,6 @@ function love.load(args)
 	for y = 1, 7 do
 		decoysquad[y] = love.graphics.newQuad(0, (y-1)*32, 32, 32, 64, 256)
 	end
-	
-	boxquad = {love.graphics.newQuad(0, 0, 12, 12, 32, 16), love.graphics.newQuad(16, 0, 12, 12, 32, 16)}
 	
 	--eh
 	rainboomquad = {}

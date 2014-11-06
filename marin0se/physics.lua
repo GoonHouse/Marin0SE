@@ -219,7 +219,14 @@ function checkforemances(dt, v)
 						if v.emancipate then v:emancipate(h) end
 					end
 				else
-					if inrange(v.y+6/16, u.starty-1, u.endy, true) and inrange(u.cox-14/16, v.x, v.x+v.speedx*dt, true) then
+					--[[@NOTE:
+						we patched this to be overzealous because shoved objects
+						have no speed therefore the range check immediately fails
+						and any other solution is asymetrical (only works from the left)
+						
+						a better solution would have some math.abs()s and math.min()s
+					]]
+					if inrange(v.y+6/16, u.starty-1, u.endy, true) and inrange(u.cox-14/16, v.x-14/16, v.x+v.speedx*dt+14/16, true) then
 						if v.emancipate then v:emancipate(h) end
 					end
 				end
@@ -680,7 +687,7 @@ function callcollision(dir, obj, a, b, c, d)
 	elseif obj.gravitydirection ~= math.pi/2 and (not b.gravitydirection or b.gravitydirection ~= obj.gravitydirection) then
 		--Player vs box hardcode fix
 		if (a == "box" and obj.category == 3) or (a == "player" and obj.category == 9) then
-			
+			print("something something hardcore")
 		else
 			obj.gravitydirection = math.pi/2
 			obj.speedy = 0

@@ -14,6 +14,10 @@ thisclass.static.image_sigs = {
 	fireball = {8,8},
 	fireball_explosion = {16,16}
 }
+thisclass.static.sound_sigs = {
+	fireball = {},
+	blockhit = {},
+}
 function thisclass:init(x, y, dir, parent)
 	baseentity.init(self, thisclass, classname, x, y, 0, nil, parent)
 	
@@ -44,7 +48,7 @@ function thisclass:init(x, y, dir, parent)
 	self.quadcenterX, self.quadcenterY = 4, 4
 	self.timermax = thisclass.frametime
 	--self.gravity = 40
-	--unused, because we get a better value elsewhere
+	--unused, because we get a better value elsewhere I guess
 	
 	-- custom vars
 	self.exploded = false
@@ -55,7 +59,7 @@ end
 
 function thisclass:timercallback()
 	if self.quadi > globalimages[self.graphicid].frames then
-		print("rolling back", self.exploded, self.quadi, globalimages[self.graphicid].frames)
+		--print("rolling back", self.exploded, self.quadi, globalimages[self.graphicid].frames)
 		if self.exploded then
 			self.destroy = true
 			--self.quadi = globalimages[self.graphicid].frames
@@ -80,7 +84,6 @@ end
 
 --@NOTE: I'm not even sure all these collides are necessary, but here we are
 function thisclass:leftcollide(a, b)
-	print("rip us, left")
 	self.x = self.x-.5
 	self:hitstuff(a, b)
 	
@@ -89,7 +92,6 @@ function thisclass:leftcollide(a, b)
 end
 
 function thisclass:rightcollide(a, b)
-	print("rip us, right")
 	self:hitstuff(a, b)
 	
 	self.speedx = -thisclass.fireballspeed
@@ -97,13 +99,11 @@ function thisclass:rightcollide(a, b)
 end
 
 function thisclass:floorcollide(a, b)
-	print("rip us, floor")
 	if not table.contains(thisclass.deadtable, a) then
-		print("we ded")
-		
 		self:hitstuff(a, b)
-	elseif a=="spring" then
-		print("ALERT: The code for fireballs and springs is unverified, please ensure nothing terrible happened.")
+		if a=="spring" then
+			print("ALERT: The code for fireballs and springs is unverified, please ensure nothing terrible happened.")
+		end
 	end
 	
 	self.speedy = -thisclass.fireballjumpforce
@@ -111,12 +111,10 @@ function thisclass:floorcollide(a, b)
 end
 
 function thisclass:ceilcollide(a, b)
-	print("rip us, ceil")
 	self:hitstuff(a, b)
 end
 
 function thisclass:passivecollide(a, b)
-	print("rip us, passive")
 	self:ceilcollide(a, b)
 	return false
 end
@@ -134,8 +132,8 @@ function thisclass:hitstuff(a, b)
 			end
 		end
 		self:explode()
-	else
-		print("NOTE: Investigating collisions, fireball went past a", a)
+	--else
+		--print("NOTE: Investigating collisions, fireball went past a", a)
 	end
 end
 

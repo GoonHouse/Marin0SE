@@ -367,6 +367,7 @@ function mario:controlPress(control, fromnetwork)
 		self:jump()
 	elseif control=="playerDebug" then
 		playsound("shrink", 1, 1)
+		--debugbox()
 		print("oh boy I'm a test")
 	elseif control=="playerRun" then
 		self:fire()
@@ -3839,6 +3840,10 @@ function mario:emancipate(a)
 	for i, v in pairs(delete) do
 		table.remove(portalprojectiles, v) --remove
 	end
+	
+	if self.pickup then
+		self.pickup:emancipate()
+	end
 end
 
 function mario:removeportals(i)
@@ -3864,23 +3869,24 @@ function mario:use(xcenter, ycenter)
 		if self.pickup.destroying then
 			self.pickup = false
 		else
-			self:dropbox()
+			self:drop_held()
 			return
 		end
 	end
 	
 	local col, i = userect(xcenter-usesquaresize/2, ycenter-usesquaresize/2, usesquaresize, usesquaresize)
 	if #col > 0 then
-		col[1]:used(self.playernumber)
+		print("attempted to pickup object")
+		col[1]:used(self)
 	end
 end
 
-function mario:pickupbox(box)
-	self.pickup = box
+function mario:pick_up(itm)
+	self.pickup = itm
 end
 
-function mario:dropbox()
-	self.pickup:dropped()
+function mario:drop_held()
+	self.pickup:drop()
 	
 	self.pickup.gravitydirection = self.gravitydirection
 	
