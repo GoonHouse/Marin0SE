@@ -197,6 +197,7 @@ hat[i].y = -3
 hat[i].height = 5
 hat[i].graphic = love.graphics.newImage("standardhats/koopa.png")
 
+
 table.insert(hat, {x = 5, y = -5, height = 5, graphic = love.graphics.newImage("standardhats/blooper.png")})
 
 --30:
@@ -205,3 +206,5 @@ table.insert(hat, {x = 7, y = 1, height = 2, graphic = love.graphics.newImage("s
 table.insert(hat, {x = 6, y = 4, height = 4, graphic = love.graphics.newImage("standardhats/goodnewseverybody.png")})
 
 table.insert(hat, {x = 5, y = 1, height = 4, graphic = love.graphics.newImage("standardhats/jetset.png")})
+
+table.insert(hat, {x = 6, y = 0, height = 2, graphic = love.graphics.newImage("standardhats/jotaro.png")})
