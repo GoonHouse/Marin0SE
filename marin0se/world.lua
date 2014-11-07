@@ -11,6 +11,8 @@ world = class("world")
 	
 	since world is a class there can be multiple worlds and by utilizing this we would have
 	multiple sets of worlds loaded simultaneously
+	
+	modifying this file to teach bungalo something
 ]]
 
 function world:init()
