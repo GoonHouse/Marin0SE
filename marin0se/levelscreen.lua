@@ -1,11 +1,11 @@
 function levelscreen_load(reason, i)
 	--check if lives left
-	livesleft = false
-	for i = 1, players do
-		if mariolivecount == false or mariolives[i] > 0 then
+	livesleft = true
+	--[[for i = 1, players do
+		if mariolivecount == false or objects["player"][i].lives > 0 then
 			livesleft = true
 		end
-	end
+	end]]
 	
 	if reason == "sublevel" then
 		gamestate = "sublevelscreen"
@@ -138,7 +138,7 @@ function levelscreen_draw()
 					if mariolivecount == false then
 						properprint("*  inf", (width/2*16)*scale-8*scale, y*scale+7*scale)
 					else
-						properprint("*  " .. mariolives[i], (width/2*16)*scale-8*scale, y*scale+7*scale)
+						properprint("*  " .. objects["player"][i].lives, (width/2*16)*scale-8*scale, y*scale+7*scale)
 					end
 				end
 			end

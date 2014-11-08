@@ -1138,8 +1138,6 @@ function loadbackground(backgroundlevel)
 	blockbouncex = {}
 	blockbouncey = {}
 	
-	marioscore = 0
-	mariocoincount = 0
 	marioworld = 1
 	mariolevel = 1
 	mariotime = ""
@@ -1552,16 +1550,6 @@ function menu_controlupdate(dt)
 				infinitetime = false
 				infinitelives = false
 				onlinemenu_load()
-				mariolives = {}
-				for x = 1, 4 do
-					mariolives[x] = 3
-				end
-				playersaresharingportals = false
-				onlinemenu_load()
-				mariolives = {}
-				for x = 1, 4 do
-					mariolives[x] = 3
-				end
 				playersaresharingportals = false
 			elseif selection == 4 then
 				gamestate = "mappackmenu"

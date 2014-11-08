@@ -1,0 +1,5 @@
+base=mushroom
+{
+	"poweruptype": "small",
+	"powerdowntarget": "death"
+}

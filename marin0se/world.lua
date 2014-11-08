@@ -15,6 +15,7 @@ world = class("world")
 	modifying this file to teach bungalo something
 ]]
 
+
 function world:init()
 	self.map = { --x
 			{ --y
@@ -23,6 +24,8 @@ function world:init()
 				},
 			},
 		}
+	
+	-- PHYSICS AND THE LIKE
 	self.friction = 14
 	--[[significant friction values:
 		14 = base friction for motionless players
@@ -38,4 +41,49 @@ function world:init()
 		30 = player's gravity while jumping
 		
 	]]
+	
+	
+	-- GAME FLAGS
+	self.timelimit = 300
+	self.time = self.timelimit
+	
+	self.lowtime = 99 --when the time gets to this, play the jingle
+	self.timescale = 2.5 --for use with converting magic nintendo units into real people time
+	
+	self.backgroundcolor = {0,0,0}
+	
+	-- OTHER THINGS THAT WE MANAGE
+	self.players = objects["player"] --for now we reference the global players because that's all we know
+end
+
+
+
+-- SPECIAL HELPER FUNCTIONS TO TRACK THE WORLD'S INHABITANTS
+function world:isFantastic()
+	return true
+end
+
+-- FILTERS
+local filters = {}
+filters.by_property = function(ply, property)
+	return ply[property]
+end
+filters.genocide = function(ply, reason)
+	return ply:die(reason)
+end
+
+-- FILTER WRAPPERS
+function world:anyPlayersWithProperty(property)
+	return filter.runAny(self.players, filters.by_property, property)
+end
+
+function world:killAllPlayers(reason)
+	return filter.runAll(self.players, filters.genocide, reason)
+end
+
+function world:anyPlayersActiveAndAlive()
+	return filter.multiAny("All",
+		{self.players, filters.by_property, "controlsenabled"}, 
+		{self.players, filters.by_property, "dead"}
+	)
 end

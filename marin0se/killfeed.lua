@@ -6,9 +6,35 @@ killfeed.attacker = {255, 127, 127}
 killfeed.dtype = {127, 255, 127}
 killfeed.victim = {127, 127, 255}
 
-killfeed.regular = {0, 0, 0}
-killfeed.localplayer = {208,208,102}
-killfeed.humiliation = {255,223,221}
+killfeed.themes = {
+	dark = {
+		background = {30,28,17},
+		icon = {229,224,181},
+		alpha = 200,
+		
+		attacker = {184,59,59},
+		neutral = {255,255,255},
+		victim = {89,121,139}
+	},
+	light = {
+		background = {179,171,141},
+		icon = {61,57,35},
+		alpha = 200,
+		
+		attacker = {184,59,59},
+		neutral = {0,0,0},
+		victim = {89,121,139}
+	},
+	humiliation = {
+		background = {213,198,217},
+		icon = {89,76,93},
+		alpha = 200,
+		
+		attacker = {229,172,182},
+		neutral = {0,0,0},
+		victim = {229,172,182}
+	},
+}
 
 killfeed.killfeeds = {}
 killfeed.duration = 5 --seconds
@@ -16,9 +42,9 @@ killfeed.fadetime = 0.5
 
 function killfeed.glob(glob)
 	if glob == nil then
-		return "world"
+		return ""
 	end
-	local fallbackname = "mystery "..tostring(glob):split("class ")[2]
+	local fallbackname = tostring(glob):split("class ")[2].."?"
 	local name = ""
 	
 	if objects~=nil then
@@ -43,25 +69,48 @@ function killfeed.glob(glob)
 	end
 end
 
-function killfeed.new(attacker, dtype, victim, ex)
-	local duration = duration or killfeed.duration
-	local color = color or killfeed.white
+function killfeed.process_dtypes(dtype)
 	
-	local attackername = killfeed.glob(attacker) --getglobalentityid(attacker)
+end
+
+function killfeed.new(attackers, dtype, victims, ex)
+	local duration = duration or killfeed.duration
+	local theme = "dark"
+	
+	local trashname = tostring(attackers):split("class ")[2]
+	local attackername = ""
+	if attackers.isInstanceOf and attackers:isInstanceOf(_G[trashname]) then
+		if attackers.playernumber == 1 then
+			theme = "light"
+		end
+		attackername = killfeed.glob(attackers)
+	else
+		for k,v in pairs(attackers) do
+			if v.playernumber == 1 then
+				theme = "light"
+			end
+			attackername = attackername .. killfeed.glob(v)
+			if k<#attackers then
+				attackername = attackername.." + "
+			end
+		end
+	end
 	dtype = dtype or "kiss"
-	local victimname = killfeed.glob(victim) --getglobalentityid(victim)
-	local localplayer = false
-	if (attacker and attacker.playernumber == 1) or (victim and victim.playernumber == 1) then
-		localplayer = true
+	local victimname = killfeed.glob(victims)
+	
+	if (victims and victims.playernumber == 1) then
+		theme = "light"
+	end
+	if attackers==victims or table.contains(attackers, victims) then
+		theme = "humiliation"
 	end
 	
 	table.insert(killfeed.killfeeds, {
 		attacker=attackername:lower(),
 		dtype=dtype:lower(),
 		victim=victimname:lower(),
-		color = killfeed.white,
-		islocal = localplayer,
-		text=attackername:lower().." "..dtype:lower().."ed "..victimname:lower(),
+		theme=theme,
+		--text=attackername:lower().." "..dtype:lower().."ed "..victimname:lower(),
 		life=duration,
 		duration=duration,
 	})
@@ -85,53 +134,72 @@ function killfeed.draw()
 		local v = killfeed.killfeeds[i]
 		
 		--get width by finding longest line 
-		local split = v.text:split("|")
+		local thewidth = (
+			v.attacker:len()
+			+ v.victim:len()
+			+ v.dtype:len() --eventually this will be an image width
+			+ 2 --spacing chars
+			+ 2 --"ed" to the dtype
+		)*8
+		--[[local split = v.text:split("|")
 		local longest = #split[1]
 		for i = 2, #split do
 			if #split[i] > longest then
 				longest = #split[i]
 			end
-		end
+		end]]
 		
-		local height = #split*10+3
 		
+		
+		local height = 1*10+3 --1 was #split
 		local actualy = killfeed.gety(y, v.life, height, v.duration)
 		
-		local targetrect = {width*16 - longest*8-5, actualy, longest*8+5, height}
-		local scissor = {(width*16 - longest*8-5)*scale, y*scale, (longest*8+5)*scale, (actualy-y+height)*scale}
-		--This freezes the menu for some reason
-		--Spent a goddamn hour debugging this
-		--FML
-		--love.graphics.setScissor(unpack(scissor))
+		local targetrect = {
+			width*16 - thewidth-5,
+			actualy,
+			thewidth+5,
+			height
+		}
+		local scissor = {
+			(width*16 - thewidth-5)*scale,
+			y*scale,
+			(thewidth+5)*scale,
+			(actualy-y+height)*scale
+		}
+		local datheme = killfeed.themes[v.theme]
 		
-		local bgcolor = killfeed.regular
-		if v.attacker==v.victim then
-			bgcolor = killfeed.humiliation
-		elseif v.islocal then
-			bgcolor = killfeed.localplayer
-		end
+		-- background
+		love.graphics.setColor(datheme.background, datheme.alpha)
+		--love.graphics.rectangle("fill", targetrect[1]*scale, targetrect[2]*scale, targetrect[3]*scale, targetrect[4]*scale)
+		love.graphics.roundrect("fill", targetrect[1]*scale, targetrect[2]*scale, targetrect[3]*scale, targetrect[4]*scale, 16, 16)
 		
-		love.graphics.setColor(bgcolor, 200)
-		love.graphics.rectangle("fill", targetrect[1]*scale, targetrect[2]*scale, targetrect[3]*scale, targetrect[4]*scale)
+		-- outline
+		local tline = love.graphics.getLineWidth()
+		love.graphics.setColor(datheme.neutral, datheme.alpha)
+		love.graphics.setLineWidth(2)
+		love.graphics.roundrect("line", targetrect[1]*scale, targetrect[2]*scale, targetrect[3]*scale, targetrect[4]*scale, 16, 16)
+		--love.graphics.roundrect("line", (targetrect[1]+1)*scale, (targetrect[2]+1)*scale, (targetrect[3]-2)*scale, (targetrect[4]-2)*scale, 16, 16)
+		love.graphics.setLineWidth(tline)
 		
-		love.graphics.setColor(255, 255, 255, 255)
-		drawrectangle(targetrect[1]+1, targetrect[2]+1, targetrect[3]-2, targetrect[4]-2)
+		--drawrectangle(targetrect[1]+1, targetrect[2]+1, targetrect[3]-2, targetrect[4]-2)
 		
 		--love.graphics.setColor(killfeed.white)
 		--properprint(v.text, 	(targetrect[1]+2)*scale, (actualy+3)*scale)
 		
+		--attacker(s)
 		local xoff = targetrect[1]+3
-		love.graphics.setColor(killfeed.attacker)
+		love.graphics.setColor(datheme.attacker, datheme.alpha)
 		properprint(v.attacker, xoff*scale, (actualy+3)*scale)
 		xoff = xoff + (v.attacker.." "):len()*8
-		love.graphics.setColor(killfeed.dtype)
+		
+		love.graphics.setColor(datheme.icon, datheme.alpha)
 		properprint(v.dtype.."ed", xoff*scale, (actualy+3)*scale)
 		xoff = xoff + (v.dtype.."ed "):len()*8
-		love.graphics.setColor(killfeed.victim)
+		
+		love.graphics.setColor(datheme.victim, datheme.alpha)
 		properprint(v.victim, xoff*scale, (actualy+3)*scale)
 		
 		y = actualy+height
-		--love.graphics.setScissor()
 	end
 	
 	love.graphics.setColor(255, 255, 255)

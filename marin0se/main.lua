@@ -2,7 +2,9 @@ require("hook")
 require("libs.tserial")
 require("utils")
 require("globals")
+require("loveutils")
 require("libs.cupid")
+require("libs.filter")
 --[[
 	STEAL MY SHIT AND I'LL FUCK YOU UP
 	PRETTY MUCH EVERYTHING BY MAURICE GUÉGAN AND IF SOMETHING ISN'T BY ME THEN IT SHOULD BE OBVIOUS OR NOBODY CARES
@@ -34,108 +36,7 @@ require("libs.cupid")
 	exponent: like inverse, except happens quicker
 	x clamped: gain gets clamped
 ]]
-
 love.audio.setDistanceModel("exponent clamped")
-love.audio.oldSource = love.audio.newSource
-love.audio.newSource = function(snd, stype)
-	local finalpath = snd
-	stype = stype or "static"
-	if type(snd)=="string" and not love.filesystem.exists(snd) then
-		local depth = 0
-		for k,v in pairs(soundsearchdirs) do
-			local p = v % {mappack=mappack,file=snd,soundpack=soundpack}
-			if love.filesystem.exists(p) then
-				depth = k
-				finalpath = p
-				break
-			end
-		end
-		if depth == #soundsearchdirs then
-			print("ALERT: Engine couldn't find sound '"..snd.."' anywhere!")
-		elseif depth == #soundsearchdirs-1 then
-			print("WARNING: Engine couldn't find sound '"..snd.."', used fallback.")
-		elseif depth == 0 then
-			assert(false, "CALL THE COPS: The fallback missingsound file is GONE.")
-		end
-		snd = finalpath
-	end
-	return love.audio.oldSource(snd, stype)
-end
-
-love.sound.oldSoundData = love.sound.newSoundData
-love.sound.newSoundData = function(snd, x, y, z)
-	local finalpath = snd
-	if type(snd)=="string" and not love.filesystem.exists(snd) then
-		local depth = 0
-		for k,v in pairs(soundsearchdirs) do
-			local p = v % {mappack=mappack,file=snd,soundpack=soundpack}
-			if love.filesystem.exists(p) then
-				depth = k
-				finalpath = p
-				break
-			end
-		end
-		if depth == #soundsearchdirs then
-			print("ALERT: Engine couldn't find sounddata '"..snd.."' anywhere!")
-		elseif depth == #soundsearchdirs-1 then
-			print("WARNING: Engine couldn't find sounddata '"..snd.."', used fallback.")
-		elseif depth == 0 then
-			assert(false, "CALL THE COPS: The fallback missingsound(data) file is GONE.")
-		end
-		snd = finalpath
-	end
-	return love.sound.oldSoundData(snd, x, y, z)
-end
-
-love.graphics.oldImage = love.graphics.newImage
-love.graphics.newImage = function(img, ex)
-	local finalpath = img
-	if type(img)=="string" and not love.filesystem.exists(img) then
-		local depth = 0
-		for k,v in pairs(graphicssearchdirs) do
-			local p = v % {mappack=mappack,file=img,graphicspack=graphicspack}
-			if love.filesystem.exists(p) then
-				depth = k
-				finalpath = p
-				break
-			end
-		end
-		if depth == #graphicssearchdirs then
-			print("ALERT: Engine couldn't find graphic '"..img.."' anywhere!")
-		elseif depth == #graphicssearchdirs-1 then
-			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
-		elseif depth == 0 then
-			assert(false, "CALL THE COPS: The fallback missinggraphic image is GONE.")
-		end
-		img = finalpath
-	end
-	return love.graphics.oldImage(img, ex)
-end
-
-love.image.oldImageData = love.image.newImageData
-love.image.newImageData = function(img, ex)
-	local finalpath = img
-	if type(img)=="string" and not love.filesystem.exists(img) then
-		local depth = 0
-		for k,v in pairs(graphicssearchdirs) do
-			local p = v % {mappack=mappack,file=img,graphicspack=graphicspack}
-			if love.filesystem.exists(p) then
-				depth = k
-				finalpath = p
-				break
-			end
-		end
-		if depth == #graphicssearchdirs then
-			print("ALERT: Engine couldn't find graphic '"..img.."' anywhere!")
-		elseif depth == #graphicssearchdirs-1 then
-			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
-		elseif depth == 0 then
-			assert(false, "CALL THE COPS: The fallback missinggraphic image is GONE.")
-		end
-		img = finalpath
-	end
-	return love.image.oldImageData(img, ex)
-end
 
 function love.run()
 	love.math.setRandomSeed(os.time())
@@ -582,7 +483,7 @@ function love.load(args)
 	require "entitytooltip"
 	require "imgurupload"
 	
-	require "mario"
+	require "player"
 	require "scrollingscore"
 	require "scrollingtext"
 	require "portalparticle"
@@ -1596,7 +1497,7 @@ function loadcustomimages(path)
 	portaltilecount = width*height
 end
 
-function suspendgame()
+--[[function suspendgame()
 	local s = ""
 	if marioworld == "M" then
 		marioworld = 1
@@ -1623,9 +1524,9 @@ function suspendgame()
 	
 	love.audio.stop()
 	menu_load()
-end
+end]]
 
-function continuegame()
+--[[function continuegame()
 	if not love.filesystem.exists("suspend.txt") then
 		return
 	end
@@ -1659,7 +1560,7 @@ function continuegame()
 	end
 	
 	love.filesystem.remove("suspend.txt")
-end
+end]]
 
 function changescale(s, init)
 	scale = s

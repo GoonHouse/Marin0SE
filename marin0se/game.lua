@@ -24,8 +24,6 @@ function game_load(suspended)
 
 	
 	--LINK STUFF
-	mariocoincount = 0
-	marioscore = 0
 	
 	--get mariolives
 	mariolivecount = 3
@@ -42,11 +40,6 @@ function game_load(suspended)
 	
 	if mariolivecount == 0 then
 		mariolivecount = false
-	end
-	
-	mariolives = {}
-	for i = 1, players do
-		mariolives[i] = mariolivecount
 	end
 	
 	mariosizes = {}
@@ -80,6 +73,7 @@ end
 
 function game_update(dt)
 	if not objects then return end
+	pt = {p1 = objects["player"][1]}
 	dt = dt * speed
 	gdt = dt
 	
@@ -224,7 +218,6 @@ function game_update(dt)
 			end
 		end
 	end
-	
 	--remove userects
 	local delete = {}
 	for i, v in pairs(userects) do
@@ -1133,9 +1126,9 @@ function drawui(hidetime)
 		for i = 1, players do
 			local x = (width*16)/players/2 + (width*16)/players*(i-1)
 			if mariolivecount ~= false then
-				printfunction("p" .. i .. " * " .. mariolives[i], (x-string.len("p" .. i .. " * " .. mariolives[i])*4+4)*scale, 25*scale)
+				printfunction("p" .. i .. " * " .. objects["player"][i].lives, (x-string.len("p" .. i .. " * " .. objects["player"][i].lives)*4+4)*scale, 25*scale)
 				love.graphics.setColor(mariocolors[i][1] or {255, 255, 255})
-				love.graphics.rectangle("fill", (x-string.len("p" .. i .. " * " .. mariolives[i])*4-3)*scale, 25*scale, 7*scale, 7*scale)
+				love.graphics.rectangle("fill", (x-string.len("p" .. i .. " * " .. objects["player"][i].lives)*4-3)*scale, 25*scale, 7*scale, 7*scale)
 				love.graphics.setColor(255, 255, 255, 255)
 			end
 		end
@@ -2897,9 +2890,9 @@ function loadlevel(level, is_sublevel)
 			
 			table.insert(spawns, {x=astartx, y=astarty})
 			
-			objects["player"][i] = mario:new(astartx+add, astarty-1, i, lanimation, mariosizes[i], playertype)
+			objects["player"][i] = player:new(astartx+add, astarty-1, i, lanimation, mariosizes[i], playertype)
 		else
-			objects["player"][i] = mario:new(1.5 + (i-1)*mul-6/16+1.5, 13, i, lanimation, mariosizes[i], playertype)
+			objects["player"][i] = player:new(1.5 + (i-1)*mul-6/16+1.5, 13, i, lanimation, mariosizes[i], playertype)
 		end
 	end
 	
@@ -2942,7 +2935,6 @@ function startlevel(levelstart)
 	-- Oddjob Variables
 		redcoincount = 0
 		levelscore = 0
-		levelcoincount = 0
 	
 		for i = 1, 5 do
 				oddjobquotas[i] = 0
@@ -4759,12 +4751,10 @@ function givelive(id, t)
 	end
 	if mariolivecount ~= false then
 		for i = 1, players do
-			while givemestuff["lives"] ~= 0 do
-			mariolives[i] = mariolives[i] + 1
-			givemestuff["lives"] = givemestuff["lives"] - 1
-			end
-			respawnplayers()
+			objects["player"][i].lives = objects["player"][i].lives + givemestuff["lives"]
 		end
+		givemestuff["lives"] = 0
+		respawnplayers()
 	end
 	t.destroy = true
 	t.active = false
@@ -4773,10 +4763,8 @@ end
 
 function givetime(id, t)
 	table.insert(scrollingscores, scrollingscore:new("timeincrease", t.x, t.y))
-	while givemestuff["time"] ~= 0 do
-	mariotime = mariotime+1
-	givemestuff["time"] = givemestuff["time"] - 1
-	end
+	mariotime = mariotime+givemestuff["time"]
+	givemestuff["time"] = 0
 	playsound("addtime", t.x, t.y) --point entity
 end	
 
@@ -5022,7 +5010,7 @@ function respawnplayers()
 		return
 	end
 	for i = 1, players do
-		if mariolives[i] == 1 and objects["player"].dead then
+		if objects["player"].lives == 1 and objects["player"].dead then
 			objects["player"][i]:respawn()
 		end
 	end

@@ -1,6 +1,7 @@
-mario = class("mario")
+player = class("player")
 
-function mario:init(x, y, i, animation, size, t)
+function player:init(x, y, i, animation, size, t)
+	print("DEBUG: Player was initialized.")
 	if (SERVER or CLIENT) and i ~= netplayernumber then
 		self.remote = true
 	end
@@ -203,7 +204,7 @@ function mario:init(x, y, i, animation, size, t)
 	
 	-- PROJECT: LOCALIZE THEM GLOBALS
 	self.coins = 0
-	self.lives = 0
+	self.lives = 3
 	self.score = 0
 	
 	self.gravitydirection = math.pi/2
@@ -241,7 +242,7 @@ function mario:init(x, y, i, animation, size, t)
 		self.animation = false
 	end
 	
-	if mariolivecount ~= false and mariolives[self.playernumber] <= 0 then
+	if mariolivecount ~= false and self.lives <= 0 then
 		self.dead = true
 		self.drawable = false
 		self.active = false
@@ -360,7 +361,7 @@ function mario:init(x, y, i, animation, size, t)
 end
 
 
-function mario:controlPress(control, fromnetwork)
+function player:controlPress(control, fromnetwork)
 	if onlinemp and not fromnetwork then
 		client_send("controlupdate", {control=control,direction="press"})
 	end
@@ -376,6 +377,7 @@ function mario:controlPress(control, fromnetwork)
 		self:jump()
 	elseif control=="playerDebug" then
 		playsound("shrink", 1, 1)
+		killfeed.new({objects["enemy"][1],objects["enemy"][2]}, "debugg", objects["enemy"][3])
 		--debugbox()
 		print("oh boy I'm a test")
 	elseif control=="playerRun" then
@@ -400,7 +402,7 @@ function mario:controlPress(control, fromnetwork)
 		end
 	end
 end
-function mario:controlRelease(control, fromnetwork)
+function player:controlRelease(control, fromnetwork)
 	if onlinemp and not fromnetwork then
 		client_send("controlupdate", {control=control,direction="release"})
 	end
@@ -417,7 +419,7 @@ function mario:controlRelease(control, fromnetwork)
 	end
 end
 
-function mario:adddata()
+function player:adddata()
 	--i, x, y, cscale,     offsetX, offsetY, rotation, quadcenterX, quadcenterY, animationstate, underwater, ducking, hats, graphic, quad, pointingangle, shot, upsidedown, colors, lastportal, portal1color, portal2color)
 	
 	--local colors = {}
@@ -468,7 +470,7 @@ function mario:adddata()
 	end
 end
 
-function mario:update(dt)
+function player:update(dt)
 	if self.binds.update and self.controls and self.playernumber == 1 then
 		self.binds:update()
 	end
@@ -824,11 +826,7 @@ function mario:update(dt)
 				subtracttimer = subtracttimer - scoresubtractspeed
 				if mariotime > 0 then
 					mariotime = math.ceil(mariotime - 1)
-					if gameplaytype == "vanilla" then
-					marioscore = marioscore + 50
-					elseif gameplaytype == "oddjob" then
-					levelscore = levelscore + 50
-					end
+					self.score = self.score + 50
 				end
 				
 				if mariotime <= 0 then
@@ -860,7 +858,7 @@ function mario:update(dt)
 			for i = 1, fireworkcount do
 				local fireworktime = i*fireworkdelay
 				if timedelta >= fireworktime and timedelta - dt < fireworktime then
-					table.insert(objects["firework"], firework:new(flagx+6, flagy-13))
+					table.insert(objects["firework"], firework:new(flagx+6, flagy-13, self))
 				end
 			end
 			
@@ -1518,7 +1516,7 @@ function mario:update(dt)
 	self:setquad()
 end
 
-function mario:updateangle()
+function player:updateangle()
 	if self.remote then
 		return
 	end
@@ -1550,7 +1548,7 @@ function mario:updateangle()
 	end
 end
 
-function mario:movement(dt)
+function player:movement(dt)
 	local maxrunspeed = maxrunspeed
 	local maxwalkspeed = maxwalkspeed
 	local runacceleration = runacceleration
@@ -1889,7 +1887,7 @@ function mario:movement(dt)
 	end
 end
 
-function mario:runanimation(dt)
+function player:runanimation(dt)
 	self.runanimationprogress = self.runanimationprogress + (math.abs(self.speedx)+4)/5*dt*(self.char.rundelay or runanimationspeed)
 	while self.runanimationprogress > self.char.runframes+1 do
 		self.runanimationprogress = self.runanimationprogress - self.char.runframes
@@ -1897,7 +1895,7 @@ function mario:runanimation(dt)
 	self.runframe = math.floor(self.runanimationprogress)
 end
 
-function mario:underwatermovement(dt)
+function player:underwatermovement(dt)
 	if self.jumping or self.falling then
 		--Swim animation
 		if self.animationstate == "jumping" or self.animationstate == "falling" then
@@ -2073,7 +2071,7 @@ function mario:underwatermovement(dt)
 	end
 end
 
-function mario:setquad(anim, s)
+function player:setquad(anim, s)
 	local angleframe
 	if self.char.nopointing then
 		angleframe = 1
@@ -2192,7 +2190,7 @@ function gethatoffset(char, graphic, animationstate, runframe, jumpframe, climbf
 	return hatoffset
 end
 
-function mario:jump(force)
+function player:jump(force)
 	if ((not noupdate or self.animation == "grow1" or self.animation == "grow2") and self.controlsenabled) or force then
 	
 		if not self.underwater then
@@ -2269,7 +2267,7 @@ function mario:jump(force)
 	end
 end
 
-function mario:stopjump(force)
+function player:stopjump(force)
 	if self.controlsenabled or force then
 		if self.jumping == true then
 			self.jumping = false
@@ -2278,7 +2276,7 @@ function mario:stopjump(force)
 	end
 end
 
-function mario:rightkey()
+function player:rightkey()
 	if self.controlsenabled and self.vine then
 		if self.vineside == "left" then
 			local targetx = self.x + 8/16
@@ -2294,7 +2292,7 @@ function mario:rightkey()
 	end
 end
 
-function mario:leftkey()
+function player:leftkey()
 	if self.controlsenabled and self.vine then
 		if self.vineside == "right" then
 			local targetx = self.x - 8/16
@@ -2309,7 +2307,7 @@ function mario:leftkey()
 		end
 	end
 end
---[[function mario:grow()
+--[[function player:grow()
 	self.animationmisc = self.animationstate
 	if self.animation and self.animation ~= "invincible" then
 		return
@@ -2344,7 +2342,7 @@ end
 	end
 end]]
 
---[[function mario:shrink()
+--[[function player:shrink()
 	self.animationmisc = self.animationstate
 	if self.animation then
 		return
@@ -2371,7 +2369,7 @@ end]]
 	noupdate = true
 end]]
 
-function mario:getpowerup(poweruptype, powerdowntarget, reason)
+function player:getpowerup(poweruptype, powerdowntarget, reason)
 	powerdowntarget = powerdowntarget or "death"
 	reason = reason or "it is a mystery"
 	if self.powerupstate == poweruptype then
@@ -2471,7 +2469,7 @@ function mario:getpowerup(poweruptype, powerdowntarget, reason)
 	end
 end
 
-function mario:washurt(reason)
+function player:washurt(reason)
 	print("Mario was hurt because '"..reason.."' also he is size "..tostring(self.size))
 	if self.powerdowntargetstate=="super" then
 		self:getpowerup(self.powerdowntargetstate, "small", reason)
@@ -2480,7 +2478,7 @@ function mario:washurt(reason)
 	end
 end
 
-function mario:floorcollide(a, b, c, d)
+function player:floorcollide(a, b, c, d)
 	if self:globalcollide(a, b, c, d, "floor") then
 		return false
 	end
@@ -2603,7 +2601,7 @@ function mario:floorcollide(a, b, c, d)
 	self.combo = 1
 end
 
-function mario:bluegel(dir)
+function player:bluegel(dir)
 	if dir == "top" then
 		if self.binds.control.playerDown == false and self.speedy > gdt*yacceleration*10 then
 			self.speedy = -self.speedy
@@ -2635,7 +2633,7 @@ function mario:bluegel(dir)
 	end
 end
 
-function mario:getcombo(val, ctype, x, y, grantlife)
+function player:getcombo(val, ctype, x, y, grantlife)
 	val = val or 0
 	x = x or self.x
 	y = y or self.y
@@ -2666,7 +2664,7 @@ function mario:getcombo(val, ctype, x, y, grantlife)
 	end
 end
 
-function mario:stompenemy(a, b, c, d, side)
+function player:stompenemy(a, b, c, d, side)
 	--[[
 		crazy parameter demystification
 		
@@ -2748,7 +2746,7 @@ function mario:stompenemy(a, b, c, d, side)
 	end
 end
 
-function mario:rightcollide(a, b, c, d)
+function player:rightcollide(a, b, c, d)
 	if self:globalcollide(a, b, c, d, "right") then
 		return false
 	end
@@ -2881,7 +2879,7 @@ function mario:rightcollide(a, b, c, d)
 	end
 end
 
-function mario:leftcollide(a, b, c, d)
+function player:leftcollide(a, b, c, d)
 	if self:globalcollide(a, b, c, d, "left") then
 		return false
 	end
@@ -3016,7 +3014,7 @@ function mario:leftcollide(a, b, c, d)
 	end
 end
 
-function mario:ceilcollide(a, b, c, d)
+function player:ceilcollide(a, b, c, d)
 	if self:globalcollide(a, b, c, d, "ceil") then
 		return false
 	end
@@ -3106,7 +3104,7 @@ function mario:ceilcollide(a, b, c, d)
 	end
 end
 
-function mario:globalcollide(a, b, c, d, dir)
+function player:globalcollide(a, b, c, d, dir)
 	self.lastcollision = {a, b, c, d, dir}
 	
 	if a == "platform" or a == "seesawplatform" then
@@ -3236,7 +3234,7 @@ function twistdirection(gravitydir, dir)
 	end
 end
 
-function mario:passivecollide(a, b, c, d)
+function player:passivecollide(a, b, c, d)
 	if self:globalcollide(a, b, c, d, "passive") then
 		return false
 	end
@@ -3298,7 +3296,7 @@ function mario:passivecollide(a, b, c, d)
 	self:rightcollide(a, b, c, d)
 end
 
-function mario:starcollide(a, b, c, d)
+function player:starcollide(a, b, c, d)
 	--enemies that die
 	if a == "enemy" then
 		b:do_damage("star",self,"right")
@@ -3315,7 +3313,7 @@ function mario:starcollide(a, b, c, d)
 	end
 end
 
-function mario:hitspring(b)
+function player:hitspring(b)
 	b:hit()
 	self.springb = b
 	self.springx = self.x
@@ -3330,11 +3328,11 @@ function mario:hitspring(b)
 	self:setquad()
 end
 
-function mario:hitpswitch(b)
+function player:hitpswitch(b)
 	b:hit()
 end
 
-function mario:leavespring()
+function player:leavespring()
 	self.y = self.springy - self.height-31/16
 	if self.springhigh then
 		if self.springb.type == "vanilla" then  -- Regular Springboard
@@ -3355,7 +3353,7 @@ function mario:leavespring()
 	self.mask[19] = false
 end
 
-function mario:dropvine(dir)
+function player:dropvine(dir)
 	if dir == "right" then
 		self.x = self.x + 8/16
 	else
@@ -3369,7 +3367,7 @@ function mario:dropvine(dir)
 	self.mask[18] = false
 end
 
-function mario:grabvine(b)
+function player:grabvine(b)
 	if self.ducking then
 		self:duck(false)
 	end
@@ -3400,7 +3398,7 @@ function mario:grabvine(b)
 	end
 end
 
-function mario:hitblock(x, y)
+function player:hitblock(x, y)
 	hitblock(x, y, self)
 end
 
@@ -3618,7 +3616,7 @@ function hitblock(x, y, t, koopa)
 	end
 end
 
-function mario:goinvincible()
+function player:goinvincible()
 	self.animationstate = self.animationmisc
 	self.animation = "invincible"
 	self.invincible = true
@@ -3637,7 +3635,7 @@ function mario:goinvincible()
 	self.drawable = true
 end
 
-function mario:destroyblock(x, y)
+function player:destroyblock(x, y)
 	return destroyblock(x, y, self)
 end
 
@@ -3696,13 +3694,13 @@ function destroyblock(x, y, t)
 	generatespritebatch()
 end
 
-function mario:faithplate(dir)
+function player:faithplate(dir)
 	self.animationstate = "jumping"
 	self.falling = true
 	self:setquad()
 end
 
-function mario:startfall()
+function player:startfall()
 	if self.falling == false then
 		self.falling = true
 		self.animationstate = "falling"
@@ -3721,13 +3719,13 @@ function traceinfluence(b)
 		return b
 	end
 end
-function mario:murder(attacker, dtype, how)
+function player:murder(attacker, dtype, how)
 	--print("moyided", traceinfluence(attacker), dtype, how)
 	killfeed.new(traceinfluence(attacker), dtype, self)
 	self:die(how)
 end
 
-function mario:die(how)
+function player:die(how)
 	print("Mario was told to die because '"..how.."' also he is size "..tostring(self.size))
 	if self.dead then 
 		return
@@ -3809,19 +3807,12 @@ function mario:die(how)
 	prevsublevel = false
 	
 	if not levelfinished and not testlevel and not infinitelives and mariolivecount ~= false and not arcade and not mkstation then
-		mariolives[self.playernumber] = mariolives[self.playernumber] - 1
+		self.lives = self.lives - 1
 	end
-	
-	if arcade then
-		if mariolives[self.playernumber] == 0 then
-			arcadeleave(self.playernumber)
-		end
-	end
-	
 	return
 end
 
-function mario:laser(dir)
+function player:laser(dir)
 	if self.pickup then
 		if dir == "right" and self.pointingangle < 0 then
 			return
@@ -3863,7 +3854,7 @@ function getAngleFrame(angle, rotation)
 	return angleframe
 end
 
-function mario:emancipate(a)
+function player:emancipate(a)
 	self:removeportals()
 	
 	local delete = {}
@@ -3885,7 +3876,7 @@ function mario:emancipate(a)
 	end
 end
 
-function mario:removeportals(i)
+function player:removeportals(i)
 	if self.portalsavailable[1] or self.portalsavailable[2] then
 		playsound("portalfizzle", self.x, self.y, self.speedx, self.speedy) --play locally in addition to the portal positions as confirmation that it happened, otherwise, nothing
 	end
@@ -3898,7 +3889,7 @@ function mario:removeportals(i)
 	end
 end
 
-function mario:use(xcenter, ycenter)
+function player:use(xcenter, ycenter)
 	if not xcenter then
 		xcenter = self.x + 6/16 - math.sin(self.pointingangle)*userange
 		ycenter = self.y + 6/16 - math.cos(self.pointingangle)*userange
@@ -3920,11 +3911,11 @@ function mario:use(xcenter, ycenter)
 	end
 end
 
-function mario:pick_up(itm)
+function player:pick_up(itm)
 	self.pickup = itm
 end
 
-function mario:drop_held()
+function player:drop_held()
 	self.pickup:drop()
 	
 	self.pickup.gravitydirection = self.gravitydirection
@@ -3981,11 +3972,11 @@ function mario:drop_held()
 	self.pickup = false
 end
 
-function mario:cubeemancipate()
+function player:cubeemancipate()
 	self.pickup = false
 end
 
-function mario:duck(ducking) --goose
+function player:duck(ducking) --goose
 	if self.infunnel then
 		self.ducking = false
 		return
@@ -4007,7 +3998,7 @@ function mario:duck(ducking) --goose
 	end
 end
 
-function mario:pipe(x, y, dir, ex)
+function player:pipe(x, y, dir, ex)
 	if editormode then
 		return
 	end
@@ -4055,7 +4046,7 @@ function mario:pipe(x, y, dir, ex)
 	self:setquad()
 end
 
-function mario:savereplaydata()
+function player:savereplaydata()
 	local i = 1
 	while love.filesystem.exists("replay" .. i .. ".txt") do
 		i = i + 1
@@ -4086,7 +4077,7 @@ function mario:savereplaydata()
 	end
 end
 
-function mario:flag()	
+function player:flag()	
 	for i = 1, players do
 		objects["player"][i].invincible = true
 	end
@@ -4147,7 +4138,7 @@ function mario:flag()
 	playsound("levelend", self.x, self.y, self.speedx, self.speedy)
 end
 
-function mario:vineanimation()
+function player:vineanimation()
 	self.infunnel = false
 	self.animation = "vine"
 	self.invincible = false
@@ -4160,7 +4151,7 @@ function mario:vineanimation()
 	self.vine = false
 end
 
-function mario:star()
+function player:star()
 	self:getscore(score_enum.collect_star)
 	self.startimer = 0
 	self.colors = starcolors[1]
@@ -4169,7 +4160,7 @@ function mario:star()
 	music:play("starmusic.ogg")
 end
 
-function mario:fire()
+function player:fire()
 	if (not noupdate and self.animation ~= "grow1" and self.animation ~= "grow2") and self.char.raccoon and self.size >= 2 and not self.ducking and not self.raccoonspinframe then --Wiggle wiggle wag wag
 		self.raccoonspinframe = 1
 		self.raccoonspintimer = 0
@@ -4202,7 +4193,7 @@ function mario:fire()
 	end
 end
 
-function mario:spinhit(x, y, dir)
+function player:spinhit(x, y, dir)
 	local col = checkrect(x, y, 0, 0, "all", true)
 	for i = 1, #col, 2 do
 		local a = col[i]
@@ -4217,11 +4208,11 @@ function mario:spinhit(x, y, dir)
 	end
 end
 
-function mario:fireballcallback()
+function player:fireballcallback()
 	self.fireballcount = self.fireballcount - 1
 end
 
-function mario:getscore(val, x, y)
+function player:getscore(val, x, y)
 	self.score = self.score + val
 	if not x and not y then
 		-- score appears above us, not anywhere else
@@ -4232,7 +4223,7 @@ function mario:getscore(val, x, y)
 	table.insert(scrollingscores, scrollingscore:new(val, x, y))
 end
 
-function mario:getlife(val, x, y)
+function player:getlife(val, x, y)
 	--@WARNING: x/y underutilized
 	self.lives = self.lives + val
 	for i=1, val do
@@ -4240,7 +4231,7 @@ function mario:getlife(val, x, y)
 	end
 end
 
-function mario:getcoin(val, x, y, passx, passy)
+function player:getcoin(val, x, y, passx, passy)
 	if x and y and inmap(x, y) then
 		-- we collected a map coin, alter it accordingly
 		coinmap[x][y] = false
@@ -4255,7 +4246,7 @@ function mario:getcoin(val, x, y, passx, passy)
 	self.coins = self.coins % 100
 end
 
-function mario:portaled(dir)
+function player:portaled(dir)
 	if self.pickup then
 		self.pickup:portaled()
 	end
@@ -4302,8 +4293,8 @@ function mario:portaled(dir)
 	end
 end
 
-function mario:respawn()
-	if mariolivecount ~= false and (mariolives[self.playernumber] == 0 or levelfinished) then
+function player:respawn()
+	if mariolivecount ~= false and (self.lives == 0 or levelfinished) then
 		return
 	end
 	
@@ -4389,7 +4380,7 @@ function mario:respawn()
 	self.active = true
 end
 
-function mario:dive(water)
+function player:dive(water)
 	if water then
 		self.gravity = uwgravity
 		self.underwater = true
@@ -4407,7 +4398,7 @@ function mario:dive(water)
 	self:setquad()
 end
 
-function mario:enteredfunnel(inside)
+function player:enteredfunnel(inside)
 	if inside then
 		if self.ducking then
 			self:duck(false)
@@ -4418,17 +4409,17 @@ function mario:enteredfunnel(inside)
 	end
 end
 
-function mario:animationwalk(dir)
+function player:animationwalk(dir)
 	self.animation = "animationwalk"
 	self.animationstate = "running"
 	self.animationmisc = dir
 end
 
-function mario:stopanimation()
+function player:stopanimation()
 	self.animation = false
 end
 
-function mario:portalpickup(i)
+function player:portalpickup(i)
 	self.lastportal = i
 	
 	if not self.portalsavailable[1] and not self.portalsavailable[2] then

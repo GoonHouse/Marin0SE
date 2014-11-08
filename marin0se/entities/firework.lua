@@ -1,10 +1,10 @@
 firework = class("firework")
 
-function firework:init(x, yoffset)
+function firework:init(x, yoffset, ply)
 	self.x = x+(math.random(9)-5)
 	self.y = math.random(5)+3+yoffset
 	self.timer = 0
-	marioscore = marioscore + 200
+	ply.score = ply.score + 200
 end
 
 function firework:update(dt)
@@ -18,9 +18,7 @@ function firework:update(dt)
 		return true
 	end
 	
-	if self.destroy then
-	return true
-	end
+	return self.destroy
 end
 
 function firework:draw()
