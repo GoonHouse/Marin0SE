@@ -4,16 +4,21 @@
 	"animationtype": "frames",
 	"animationframes": 2,
 	"animationstart": 1,
-	"animationspeed": 0.2,
+	"animationspeed": 0.1,
 		
 	"stompable": true,
 	"killsonsides": true,
 	"killsonbottom": true,
   
   "facesplayer": true,
+  
+  "jumps": true,
+	"jumptime": 2,
+	"jumpforce": 18,
+	"jumpforcedown": 15,
 	
 	"movement": "follow",
-	"followspace": 2,
+	"followspace": -1,
 	"distancetime": -2,
 	
 	"width": 0.75,

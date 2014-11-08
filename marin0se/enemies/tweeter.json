@@ -2,16 +2,20 @@
 	"quadcount": 2,
 	
 	"movement": "truffleshuffle",
-	"rideable": true,
+	"stompable": false,
 	"killsonbottom": true,
 	"killsonsides": true,
 	
 	"animationtype": "frames",
-	"animationframes": 2,
+  "animationframes": 1,
 	"animationstart": 1,
-	"animationspeed": 0.2,
+	"animationspeed": 0.6,
 	
-	"truffleshufflespeed": 2,
+	"stompanimation": true,
+	"stompanimationtime": 0.5,
+	"stompedframe": 2,
+	
+	"truffleshufflespeed": 1,
 	"truffleshuffleacceleration": 8,
 	
 	"quadno": 1,
@@ -37,7 +41,12 @@
 	"autodelete": true,
 	
 	"offsetX": 6,
-	"offsetY": 3,
+	"offsetY": 4,
 	"quadcenterX": 8,
-	"quadcenterY": 8
+	"quadcenterY": 8,
+  
+  "jumps": true,
+	"jumptime": 0.5,
+	"jumpforce": 8,
+	"jumpforcedown": 3
 }
