@@ -760,7 +760,7 @@ function enemy:addoutput(a, t)
 	table.insert(self.outtable, {a, t})
 end
 
-function enemy:hurt(attacker, damagetype, damagetaken)
+function enemy:hurt(attacker, damagetype, damagetaken, ex)
 	-- damagetype isn't used (yet) but it will help
 	-- returns true if this would kill the enemy, false otherwise
 	if self:evaluate_damagetype(damagetype) then
@@ -1385,8 +1385,13 @@ function enemy:addoutput(a, t)
 	table.insert(self.outtable, {a, t})
 end
 
-function enemy:portaled()
+function enemy:portaled(theportal, entereddir, exitdir)
 	if self.killsenemiesafterportal then
+		--@NOTE: This is only in here because we didn't add an option or ruleset for changing influencers.
+		if theportal.parent then
+			--the portal belonged to someone, reset our influence
+			self:setinfluence(theportal.parent)
+		end
 		self.killsenemies = true
 	end
 end

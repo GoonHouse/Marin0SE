@@ -79,12 +79,12 @@ function killfeed.new(attackers, dtype, victims, ex)
 	
 	local trashname = tostring(attackers):split("class ")[2]
 	local attackername = ""
-	if attackers.isInstanceOf and attackers:isInstanceOf(_G[trashname]) then
+	if attackers and attackers.isInstanceOf and attackers:isInstanceOf(_G[trashname]) then
 		if attackers.playernumber == 1 then
 			theme = "light"
 		end
 		attackername = killfeed.glob(attackers)
-	else
+	elseif attackers then
 		for k,v in pairs(attackers) do
 			if v.playernumber == 1 then
 				theme = "light"
@@ -94,6 +94,8 @@ function killfeed.new(attackers, dtype, victims, ex)
 				attackername = attackername.." + "
 			end
 		end
+	else
+		attackername = "world"
 	end
 	dtype = dtype or "kiss"
 	local victimname = killfeed.glob(victims)
@@ -101,7 +103,7 @@ function killfeed.new(attackers, dtype, victims, ex)
 	if (victims and victims.playernumber == 1) then
 		theme = "light"
 	end
-	if attackers==victims or table.contains(attackers, victims) then
+	if attackers==victims or (type(attackers)=="table" and table.contains(attackers, victims)) then
 		theme = "humiliation"
 	end
 	

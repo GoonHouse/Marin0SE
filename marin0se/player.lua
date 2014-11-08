@@ -185,7 +185,7 @@ function player:init(x, y, i, animation, size, t)
 		shell = 1,
 	}
 	if not portals[self.playernumber] then
-		portals[self.playernumber] = portal:new(self.playernumber, self.portal1color, self.portal2color)
+		portals[self.playernumber] = portal:new(self.playernumber, self.portal1color, self.portal2color, self)
 	end
 	self.portal = portals[self.playernumber]
 	self.rotation = 0 --for portals
@@ -4246,7 +4246,7 @@ function player:getcoin(val, x, y, passx, passy)
 	self.coins = self.coins % 100
 end
 
-function player:portaled(dir)
+function player:portaled(daportal, entereddir, dir)
 	if self.pickup then
 		self.pickup:portaled()
 	end

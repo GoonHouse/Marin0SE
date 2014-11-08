@@ -1027,7 +1027,7 @@ function checkportalHOR(self, nextY) --handles horizontal (up- and down facing) 
 				end
 				
 				if self.portaled then
-					self:portaled(exitportalfacing)
+					self:portaled(v, entryportalfacing, exitportalfacing)
 				end
 				
 				return true
@@ -1115,7 +1115,7 @@ function checkportalVER(self, nextX) --handles vertical (left- and right facing)
 				self.falling = true
 				
 				if self.portaled then
-					self:portaled(exitportalfacing)
+					self:portaled(v, entryportalfacing, exitportalfacing)
 				end
 				
 				return true

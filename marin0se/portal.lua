@@ -1,6 +1,7 @@
 portal = class("portal")
 
-function portal:init(number, c1, c2)	
+function portal:init(number, c1, c2, parent)	
+	self.parent = parent
 	self.number = number
 	self.portal1color = c1 or {60, 188, 252}
 	self.portal2color = c2 or {232, 130, 30}
