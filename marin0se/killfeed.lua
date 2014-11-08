@@ -6,11 +6,18 @@ killfeed.attacker = {255, 127, 127}
 killfeed.dtype = {127, 255, 127}
 killfeed.victim = {127, 127, 255}
 
+killfeed.regular = {0, 0, 0}
+killfeed.localplayer = {208,208,102}
+killfeed.humiliation = {255,223,221}
+
 killfeed.killfeeds = {}
 killfeed.duration = 5 --seconds
 killfeed.fadetime = 0.5
 
 function killfeed.glob(glob)
+	if glob == nil then
+		return "world"
+	end
 	local fallbackname = "mystery "..tostring(glob):split("class ")[2]
 	local name = ""
 	
@@ -43,12 +50,17 @@ function killfeed.new(attacker, dtype, victim, ex)
 	local attackername = killfeed.glob(attacker) --getglobalentityid(attacker)
 	dtype = dtype or "kiss"
 	local victimname = killfeed.glob(victim) --getglobalentityid(victim)
+	local localplayer = false
+	if (attacker and attacker.playernumber == 1) or (victim and victim.playernumber == 1) then
+		localplayer = true
+	end
 	
 	table.insert(killfeed.killfeeds, {
 		attacker=attackername:lower(),
 		dtype=dtype:lower(),
 		victim=victimname:lower(),
 		color = killfeed.white,
+		islocal = localplayer,
 		text=attackername:lower().." "..dtype:lower().."ed "..victimname:lower(),
 		life=duration,
 		duration=duration,
@@ -92,7 +104,14 @@ function killfeed.draw()
 		--FML
 		--love.graphics.setScissor(unpack(scissor))
 		
-		love.graphics.setColor(0, 0, 0, 200)
+		local bgcolor = killfeed.regular
+		if v.attacker==v.victim then
+			bgcolor = killfeed.humiliation
+		elseif v.islocal then
+			bgcolor = killfeed.localplayer
+		end
+		
+		love.graphics.setColor(bgcolor, 200)
 		love.graphics.rectangle("fill", targetrect[1]*scale, targetrect[2]*scale, targetrect[3]*scale, targetrect[4]*scale)
 		
 		love.graphics.setColor(255, 255, 255, 255)
