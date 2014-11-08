@@ -1,0 +1,49 @@
+{
+	"quadcount": 3,
+	
+	"movement": "truffleshuffle",
+	"stompable": true,
+	"killsonbottom": true,
+	"killsonsides": true,
+	
+	"animationtype": "frames",
+	"animationframes": 2,
+	"animationstart": 1,
+	"animationspeed": 0.6,
+	
+	"stompanimation": true,
+	"stompanimationtime": 0.5,
+	"stompedframe": 3,
+  
+   "spawnsound": "blockbreak",
+	
+	"truffleshufflespeed": 0.5,
+	"truffleshuffleacceleration": 8,
+	
+	"quadno": 1,
+	
+	"width": 0.75,
+	"height": 0.75,
+	
+	"static": false,
+	"active": true,
+	
+	"category": 4,
+	
+	"mask": [	true, 
+				false, false, false, false, true,
+				false, true, false, true, false,
+				false, false, false, false, false,
+				true, true, false, false, false,
+				false, true, true, false, false,
+				true, false, true, true, true],
+					
+	
+	"emancipatecheck": true,
+	"autodelete": true,
+	
+	"offsetx": 6,
+	"offsety": 1,
+	"quadcenterX": 8,
+	"quadcenterY": 19
+}
