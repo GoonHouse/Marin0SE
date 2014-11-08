@@ -8,7 +8,7 @@
 	
 	"shellanimal": true,
 	"smallmovement": "shell",
-	"smallspeed": 0,
+	"smallspeed": 1,
 	"chasemarioonwakeup": true,
   "StompComboSuppressor": false,
 	
