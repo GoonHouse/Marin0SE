@@ -3,8 +3,14 @@
 	
 	"movement": "truffleshuffle",
 	"stompable": false,
+  "killsontop": true,
 	"killsonbottom": true,
 	"killsonsides": true,
+  "resistFire": true,
+  "killsenemiesafterportal": true,
+  
+  "Bounces": true,
+  "BounceForce": 0.1,
 	
 	"animationtype": "mirror",
 	"animationspeed": 0.1,
@@ -24,7 +30,7 @@
 	"static": false,
 	"active": true,
 	
-	"category": 4,
+	"category": 14,
 	
 	"mask": [	true, 
 				false, false, false, false, true,
@@ -39,7 +45,7 @@
 	"autodelete": true,
 	
 	"offsetX": 6,
-	"offsetY": 3,
+	"offsetY": 2,
 	"quadcenterX": 8,
 	"quadcenterY": 8
 }
