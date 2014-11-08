@@ -23,10 +23,11 @@ function thisclass:init(x, y, dir, parent)
 	
 	-- baseentity overrides
 	self.y = y-4/16 --this was positive, now it's negative so that firing on top of a single block is accurate
-	if dir == "right" then
+	self.dir = dir or self.dir
+	if self.dir == "right" then
 		self.speedx = thisclass.fireballspeed
 		self.x = x+6/16
-	elseif dir == "left" then
+	elseif self.dir == "left" then
 		self.speedx = -thisclass.fireballspeed
 		self.x = x
 	else
@@ -47,12 +48,15 @@ function thisclass:init(x, y, dir, parent)
 	self.offsetX, self.offsetY = 4, 4
 	self.quadcenterX, self.quadcenterY = 4, 4
 	self.timermax = thisclass.frametime
+	self.influencable = true
+	self.doesdamagetype = "fireball"
 	--self.gravity = 40
 	--unused, because we get a better value elsewhere I guess
 	
 	-- custom vars
 	self.exploded = false
 	-- used for when the fireball hits something
+	-- we do this because it's not implemented into baseentity yet, it's the player that caused this
 	
 	self:playsound(classname, false, true)
 end
@@ -77,9 +81,7 @@ function thisclass:offscreencallback()
 end
 
 function thisclass:update(dt)
-	local darpa = baseentity.update(self, dt)
-	if darpa then print("we should die", darpa) end
-	return darpa
+	return baseentity.update(self, dt)
 end
 
 --@NOTE: I'm not even sure all these collides are necessary, but here we are
@@ -125,12 +127,8 @@ function thisclass:hitstuff(a, b)
 		self:explode()
 		self:playsound("blockhit", true, false)
 	elseif a == "enemy" then
-		if b:shotted("right", false, false, true) ~= false then
-			--@DEV: Eventually we're going to move this into the enemy shotted function, but, baby steps.
-			if b.t~="bowser" then
-				addpoints(b.firepoints or 200, self.x, self.y)
-			end
-		end
+		--@NOTE: If we don't do damage here, we could make a koopa shell turn around post-explosion.
+		b:do_damage(self.doesdamagetype, self.lastinfluence, self.dir)
 		self:explode()
 	--else
 		--print("NOTE: Investigating collisions, fireball went past a", a)

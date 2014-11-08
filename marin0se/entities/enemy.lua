@@ -19,7 +19,8 @@ function enemy:init(x, y, t, a)
 	self.mask = {}
 	self.gravitydirection = math.pi/2
 	
-	self.combo = 1
+	--self.combo = 1
+	--why is this here? I dunno
 	
 	self.falling = false
 	
@@ -29,19 +30,24 @@ function enemy:init(x, y, t, a)
 	self.speedx = 0
 	self.speedy = 0
 	
-	--Gameplaytype exclusivity
-	if gameplaytype ~= "oddjob" then
-		if self.istrophy then
-			self.active = false
-			self.drawable = false
-			self.destroy = true
-			return true
-		end
-	end
+	-- this is here so when things like koopa shells kill things, the player responsible gets points
+	self.doesdamagetype = "touch"
+	self.lastinfluence = nil --nil means "world", otherwise, it's an object reference
+	
+	self.health = 1
 	
 	--Get our enemy's properties from the property table
 	for i, v in pairs(enemiesdata[self.t]) do
 		self[i] = v
+	end
+	
+	--Gameplaytype exclusivity
+	if self.gamemodeexclusive then
+		if gameplaytype ~= self.exclusivegamemode then
+			self.active = false
+			self.drawable = false
+			self.destroy = true
+		end
 	end
 	
 	if self.customtimer then
@@ -754,20 +760,278 @@ function enemy:addoutput(a, t)
 	table.insert(self.outtable, {a, t})
 end
 
-function enemy:shotted(dir, below, high, fireball, star)
+function enemy:hurt(attacker, damagetype, damagetaken)
+	-- damagetype isn't used (yet) but it will help
+	-- returns true if this would kill the enemy, false otherwise
+	if self:evaluate_damagetype(damagetype) then
+		self.health = self.health - damagetaken
+		local waslethal = self.health <= 0
+		local printtbl = {"DEBUG: enemy hurt by ", attacker, "doing", damagetype, "for", damagetaken, "damage"}
+		if waslethal then
+			printtbl[#printtbl]="damage -- so hard it died"
+		end
+		for k,v in pairs(printtbl) do
+			print(k, v)
+		end
+		--print(unpack(printtbl))
+		killfeed.new(attacker, damagetype, self, damagetaken)
+		return waslethal
+	else
+		print("DEBUG: enemy WAS NOT HURT by ", attacker, "doing", damagetype, "for", damagetaken, "damage")
+	end
+end
+
+function enemy:murder(attacker, reason)
+	--@TODO: killfeed stuff here
+	
+end
+
+function enemy:evaluate_damagetype(dtype)
+	-- return true if we could potentially be hurt
+	-- only focus on the conditions that result in death, generic no-death return at end
+	if dtype == "fireball" then
+		return not self.resistsfire
+	elseif dtype == "star" then
+		return not self.resistsstar
+	elseif dtype == "stomp" then
+		-- if we can be stomped but aren't in a shell, this hurts us
+		return self.stompable and not self.shellanimal 
+	elseif dtype == "shell" then
+		-- there's no form of immunity for the shell
+		return true
+	elseif dtype == "bump" then
+		return not self.notkilledfromblocksbelow
+	else
+		assert(false, "Unknown damage type: "..tostring(dtype))
+		--print("WARNING: Tried to evaluate unknown damagetype ",dtype)
+		return false
+		-- it can't hurt us if we don't understand it, duh
+	end
+	
+	return false --nothing that we care about
+end
+
+function enemy:setinfluence(influencer)
+	self.lastinfluence = influencer
+end
+
+function enemy:do_damage(damagetype, attacker, ...)
+	--print("DEBUG: do_damage called with", damagetype, attacker, ...)
+	if self["damage_"..damagetype] then
+		self["damage_"..damagetype](self, attacker, ...)
+	else
+		print("CRITICAL: Tried to process unknown damage callback -- ",damagetype)
+	end
+end
+
+-- these are all damage type evaluators
+function enemy:damage_stomp(attacker)
+	if self.stompable then
+		-- stuff to do regardless of hurt
+		if self.shellanimal then
+			local soundtoplay = "stomp"
+			if self.small then
+				soundtoplay = "shot"
+			end
+			playsound(soundtoplay, self.x, self.y, self.speedx, self.speedy)
+		end
+		
+		if self.transforms and self.transformtrigger == "stomp" then
+			--@WARNING: we're not determining if we're dying here, so the transform trigger is premature
+			self:transform(self.transformsinto)
+			return
+		end
+		
+		if self.givecoinwhenstomped then
+			attacker:getcoin(1)
+		end
+		
+		if self:hurt(attacker, "stomp", 1) then
+			if self.transforms and self.transformtrigger == "death" then
+				self:transform(self.transformsinto)
+				return
+			end
+			
+			self.active = false
+			if self.stompanimation then
+				self.quad = self.quadgroup[self.stompedframe]
+				if self.fallswhenstomped then
+					self.shot = true
+					self.gravity = shotgravity
+				else
+					self.dead = true
+				end
+			else
+				self.shot = true
+				self.gravity = shotgravity
+			end
+		else
+			-- non-lethal, do shell stuff
+			if not self.small then
+				print("DEBUG: case 1")
+				self.quadcenterY = 19
+				self.offsetY = 0
+				self.quad = self.quadgroup[self.smallquad]
+				self.small = true
+				self.movement = self.smallmovement
+				self.speedx = 0
+				self.animationtype = "none"
+				playsound("stomp", self.x, self.y, self.speedx, self.speedy)
+			elseif self.speedx == 0 then
+				print("DEBUG: case 2")
+				playsound("shot", self.x, self.y, self.speedx, self.speedy)
+				attacker:getscore(500, self.x, self.y) --koopa got kicked or something
+				if self.x > attacker.x then
+					self.speedx = self.smallspeed
+					self.x = attacker.x+12/16+self.smallspeed*gdt
+					if b then
+						self.size = b.size
+					else
+						self.size = 1
+					end
+					self.killsenemies = true
+					self:setinfluence(attacker)
+				else
+					self.speedx = -self.smallspeed
+					self.x = attacker.x-self.width-self.smallspeed*gdt
+					if attacker then
+						--@WARNING: I don't understand this branch but I'm just rolling with it.
+						self.size = attacker.size
+					else
+						self.size = 1
+					end
+					self.killsenemies = true
+					self:setinfluence(attacker)
+				end
+			else
+				print("DEBUG: case 3")
+				playsound("shot", self.x, self.y, self.speedx, self.speedy)
+				self.speedx = 0
+				self.combo = 1
+			end
+		end
+	end
+end
+
+function enemy:damage_shell(attacker, dir)
+	if self.givecoinwhenshot then
+		attacker:getcoin(1)
+	end
+	
+	if self.transforms and self.transformtrigger == "shell" then
+		self:transform(self.transformsinto)
+		return false
+	end
+	
+	playsound("shot", self.x, self.y, self.speedx, self.speedy)
+	
+	if self:hurt(attacker, "shell", 1) then
+		if self.transforms and self.transformtrigger == "death" then
+			self:transform(self.transformsinto)
+			return false
+		end
+		self.speedy = -(self.shotjumpforce or shotjumpforce)
+		self.direction = dir or "right"
+		self.gravity = shotgravity
+		
+		if self.direction == "left" then
+			self.speedx = -(self.shotspeedx or shotspeedx)
+		else
+			self.speedx = self.shotspeedx or shotspeedx
+		end
+		
+		if self.shellanimal then
+			self.small = true
+			self.quad = self.quadgroup[self.smallquad]
+		end
+		
+		self.shot = true
+		self.active = false
+		
+		if self.doesntflyawayonfireball then
+			self.kill = true
+			self.drawable = false
+		end
+		return true
+	end
+end
+
+
+function enemy:damage_fireball(attacker, dir)
+	if self:hurt(attacker, "fireball", 1) then
+		attacker:getscore(self.firepoints or score_enum.generic_firepoints, self.x, self.y)
+		self:neo_shotted(attacker, "fireball", dir)
+	end
+end
+function enemy:damage_bump(attacker, dir)
+	if self:hurt(attacker, "bump", 1) then
+		attacker:getscore(score_enum.underside_bump, self.x, self.y)
+		self:neo_shotted(attacker, "bump", dir, true)
+	end
+end
+--w:do_damage("bump", self, dir, true)
+
+function enemy:neo_shotted(attacker, damagetype, dir, below, high)
+	if self.givecoinwhenshot then
+		attacker:getcoin(1)
+	end
+	
+	if self.transforms and self.transformtrigger == damagetype then
+		self:transform(self.transformsinto)
+		return
+	end --self.transformtrigger == "death"
+	
+	playsound("shot", self.x, self.y, self.speedx, self.speedy)
+	
+	self.speedy = -(self.shotjumpforce or shotjumpforce)
+	if high then
+		self.speedy = self.speedy*2
+	end
+	self.direction = dir or "right"
+	self.gravity = shotgravity
+	
+	if self.direction == "left" then
+		self.speedx = -(self.shotspeedx or shotspeedx)
+	else
+		self.speedx = self.shotspeedx or shotspeedx
+	end
+	
+	if self.shellanimal then
+		self.small = true
+		self.quad = self.quadgroup[self.smallquad]
+		if below then
+			-- bumping and the like
+			self.upsidedown = true
+			self.kickedupsidedown = true
+			self.stompable = true
+			self.offsetY = 4
+			self.movement = self.smallmovement
+			self.animationtype = "none"
+		else
+			self.shot = true
+			self.active = false
+		end
+	else
+		self.shot = true
+		self.active = false
+	end
+	
+	if self.doesntflyawayonfireball and damagetype == "fireball" then
+		self.kill = true
+		self.drawable = false
+	end
+	
+	return true
+end
+
+function enemy:legacy_shotted(dir, below, high, fireball, star)
+	-- this shouldn't be called, it's just here to look pretty
 	if fireball and self.resistsfire then
 		return false
 	end
 	
 	if star and self.resistsstar then
 		return false
-	end
-	
-	if self.health then
-		if self.health > 0 then
-			self.health = self.health - 1
-			return
-		end
 	end
 	
 	if self.givecoinwhenshot then
@@ -894,9 +1158,18 @@ function enemy:globalcollide(a, b, c, d, dir)
 		if b.speedx < 0 then
 			dir = "left"
 		end
-		self:shotted(dir)
 		
-		addpoints((firepoints[self.t] or 200), self.x, self.y)
+		if b.lastinfluence then
+			if b.doesdamagetype then
+				--print("DEBUG: hurt points =", firepoints[self.t])
+				self:do_damage(b.doesdamagetype, b.lastinfluence, dir)
+				b.lastinfluence:getcombo(1, "shell", self.x, self.y, true)
+			else
+				print("WARNING: Something tried to kill something else without a definite damagetype.")
+			end
+		else
+			print("WARNING: Something attempted to kill something else without being influenced by a player.")
+		end
 		return true
 	end
 	
@@ -1076,78 +1349,6 @@ end
 
 function enemy:startfall()
 	self.falling = true
-end
-
-function enemy:stomp(x, b)
-	if self.stompable then
-		if self.health then
-			if self.health > 0 then
-				self.health = self.health - 1
-				return
-			end
-		end
-	
-		if self.transforms and (self.transformtrigger == "stomp" or self.transformtrigger == "death") then
-			self:transform(self.transformsinto)
-			return
-		end
-		
-		if self.givecoinwhenstomped then
-			collectcoin(nil, nil, 1)
-		end
-		
-		if self.shellanimal then
-			if not self.small then
-				self.quadcenterY = 19
-				self.offsetY = 0
-				self.quad = self.quadgroup[self.smallquad]
-				self.small = true
-				self.movement = self.smallmovement
-				self.speedx = 0
-				self.animationtype = "none"
-				--playsound("stomp", self.x, self.y, self.speedx, self.speedy)
-			elseif self.speedx == 0 then
-				--playsound("shot", self.x, self.y, self.speedx, self.speedy)
-				if self.x > x then
-					self.speedx = self.smallspeed
-					self.x = x+12/16+self.smallspeed*gdt
-					if b then
-						self.size = b.size
-					else
-						self.size = 1
-					end
-					self.killsenemies = true
-				else
-					self.speedx = -self.smallspeed
-					self.x = x-self.width-self.smallspeed*gdt
-					if b then
-						self.size = b.size
-					else
-						self.size = 1
-					end
-					self.killsenemies = true
-				end
-			else
-				--playsound("shot", self.x, self.y, self.speedx, self.speedy)
-				self.speedx = 0
-				self.combo = 1
-			end
-		else
-			self.active = false
-			if self.stompanimation then
-				self.quad = self.quadgroup[self.stompedframe]
-				if self.fallswhenstomped then
-					self.shot = true
-					self.gravity = shotgravity
-				else
-					self.dead = true
-				end
-			else
-				self.shot = true
-				self.gravity = shotgravity
-			end
-		end
-	end
 end
 
 function enemy:autodeleted()

@@ -5,9 +5,18 @@ local thisclass = _G[classname]
 thisclass.static.image_sigs = {
 	box = {12,12},
 }
+-- data for editor
+thisclass.static.category		= "portal elements"
+thisclass.static.description	= "place on empty tile - weighted storage cube"
+thisclass.static.iconauthor		= "alesan99"
+thisclass.static.hasOutput		= true
+thisclass.static.rightclickmenu	= {
+	{t="text", value="type:"},
+	{t="submenu", entries={"weighted", "companion"}, default=1, width=9},
+}
 -- get some mixins
 thisclass:include(baseentity_mixins.HasOutputs)
-
+--thisclass:include(baseentity_mixins.IsMappable)
 function thisclass:init(x, y, r)
 	baseentity.init(self, thisclass, classname, x, y, 0, r)
 	--PHYSICS STUFF
@@ -35,16 +44,16 @@ function thisclass:init(x, y, r)
 	self.base_friction = 20
 	self.can_funnel = true
 	self.carriable = true
-
-	-- we haven't inherited our outputs table yet
-	--self.outtable = {}
+	self.influencable = true
+	self.lastinfluence = parent
+	self.doesdamagetype = "physics"
 	
 	-- custom vars
-	-- 
 	self.portaledframe = false
 	-- whether we were pushed by the player
-	self.pushed = false --this *should* be further up the chain, but, without enough samples, can't be certain
+	self.pushed = false --this *should* be further up the chain, but, being pushable isn't demonstrated with any other object
 	self.userect = adduserect(self.x, self.y, 12/16, 12/16, self)
+	--self:getBasicInput("variant") --reads input from "r" as variable "variant"
 end
 
 function thisclass:update(dt)
@@ -138,9 +147,9 @@ function thisclass:floorcollide(a, b)
 	end
 	
 	if a == "enemy" and b.killedbyboxes then
-		b:stomp()
-		addpoints(200, self.x, self.y)
-		playsound("stomp", self.x, self.y, self.speedx, self.speedy)
+		b:do_damage(self.doesdamagetype, self)
+		--addpoints(200, self.x, self.y)
+		--playsound("stomp", self.x, self.y, self.speedx, self.speedy)
 		self.falling = true
 		self.speedy = -10
 		return false

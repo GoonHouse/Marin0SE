@@ -519,10 +519,12 @@ table.insert(toenter, {name = "addcoins",
 		nicename="add coins",
 		entries={
 			{
+				t="playerselection",
+			},
+			{
 				t="numinput",
 				default="1"
 			},
-			
 			{
 				t="text",
 				value="coins"
@@ -536,6 +538,9 @@ table.insert(toenter, {name = "addpoints",
 		t="action",
 		nicename="add points",
 		entries={
+			{
+				t="playerselection",
+			},
 			{
 				t="numinput",
 				default="1"

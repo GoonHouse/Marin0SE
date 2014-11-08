@@ -177,7 +177,12 @@ function mario:init(x, y, i, animation, size, t)
 	self.animationstate = "idle" --idle, running, jumping, falling, swimming, sliding, climbing, dead
 	self.animationdirection = "right" --left, right. duh
 	self.platform = false
-	self.combo = 1
+	-- we're redoing the combo system to be generic
+	self.killstreak = 0
+	self.combos = {
+		stomp = 1,
+		shell = 1,
+	}
 	if not portals[self.playernumber] then
 		portals[self.playernumber] = portal:new(self.playernumber, self.portal1color, self.portal2color)
 	end
@@ -196,6 +201,10 @@ function mario:init(x, y, i, animation, size, t)
 	self.tailwagframe = 1
 	self.tailwagtimer = 0
 	
+	-- PROJECT: LOCALIZE THEM GLOBALS
+	self.coins = 0
+	self.lives = 0
+	self.score = 0
 	
 	self.gravitydirection = math.pi/2
 	
@@ -376,7 +385,7 @@ function mario:controlPress(control, fromnetwork)
 	elseif control=="playerUse" then
 		self:use()
 	elseif control=="playerSuicide" then
-		self:die("Suicide")
+		self:murder(self, "suicide", "Suicide")
 	elseif control=="playerLeft" then
 		self:leftkey()
 	elseif control=="playerRight" then
@@ -1270,15 +1279,15 @@ function mario:update(dt)
 		local x = math.floor(self.x+self.width/2)+1
 		local y = math.floor(self.y+self.height)+14/16
 		if inmap(x, y) and coinmap[x][y] then
-			collectcoin(x, y)
+			self:getcoin(1, x, y)
 		end
 		local y = math.floor(self.y+self.height/2)+1
 		if inmap(x, y) and coinmap[x][y] then
-			collectcoin(x, y)
+			self:getcoin(1, x, y)
 		end
 		if self.size > 1 then
 			if inmap(x, y-1) and coinmap[x][y-1] then
-				collectcoin(x, y-1)
+				self:getcoin(1, x, y-1)
 			end
 		end
 	end
@@ -1423,11 +1432,11 @@ function mario:update(dt)
 		--DEATH BY PIT
 		if self.gravitydirection > math.pi/4*1 and self.gravitydirection <= math.pi/4*3 then --down
 			if self.y >= mapheight then
-				self:die("pit")
+				self:murder(nil, "pit", "pit")
 			end
 		elseif self.gravitydirection > math.pi/4*5 and self.gravitydirection <= math.pi/4*7 then --up
 			if self.y <= -1 then
-				self:die("pit")
+				self:murder(nil, "pit", "pit")
 			end
 		end
 		
@@ -2452,7 +2461,7 @@ function mario:getpowerup(poweruptype, powerdowntarget, reason)
 		noupdate = true
 	end
 	if pointstoadd~=false then
-		addpoints(pointstoadd, self.x+self.width/2, self.y)
+		self:getscore(pointstoadd, self.x+self.width/2, self.y)
 	end
 	if soundtoplay~=false then
 		playsound(soundtoplay, self.x, self.y, self.speedx, self.speedy)
@@ -2508,7 +2517,7 @@ function mario:floorcollide(a, b, c, d)
 		local x, y = b.cox, b.coy
 		self.lastground = {x, y}
 		if bigmario and self.speedy > 2 then
-			destroyblock(x, y)
+			self:destroyblock(x, y)
 			self.speedy = self.speedy/10
 		end
 		
@@ -2582,7 +2591,7 @@ function mario:floorcollide(a, b, c, d)
 			self.animationstate = anim
 			return false
 		else
-			self:die("enemy")
+			self:murder(b, b.doesdamagetype, "enemy")
 			return false
 		end
 	elseif a == "lightbridgebody" and b.gels.top == 1 then
@@ -2626,32 +2635,73 @@ function mario:bluegel(dir)
 	end
 end
 
+function mario:getcombo(val, ctype, x, y, grantlife)
+	val = val or 0
+	x = x or self.x
+	y = y or self.y
+	grantlife = grantlife or false
+	--print("DEBUG: givecombo called")
+	if val >= 0 then
+		-- I'm not sure if this logic is faster than:
+		-- local comboindex = self.combo-(self.combo%#mariocombo)
+		local comboindex = 1
+		if combo_enums[ctype]==nil then print("WHOA: NO COMBOTYPE FOR ", ctype) end
+		local maxcombo = #combo_enums[ctype]
+		if self.combos[ctype] > maxcombo then
+			comboindex = maxcombo
+		else
+			comboindex = self.combos[ctype]
+		end
+		
+		if comboindex == maxcombo and grantlife then
+			self:getlife(1, true)
+		else
+			self:getscore(combo_enums[ctype][comboindex], x, y)
+		end
+		self.combos[ctype] = self.combos[ctype] + val
+		--print("NOTE: combo is", self.combo, "was", self.combo-val)
+	else -- negative one, etc destroys combo
+		print("DEBUG: Combo broken via getcombo.")
+		self.combos[ctype] = 1
+	end
+end
+
 function mario:stompenemy(a, b, c, d, side)
+	--[[
+		crazy parameter demystification
+		
+		a		== type, physics calc
+		b		== reference to the object stomped
+		c		== ??? physics calc
+		d		== ??? physics calc
+		side	== a bool as to whether or not 
+	]]
 	if not b then
 		return
 	end
 	
 	local bounce = false
+	
+	b:do_damage("stomp", self) --we do this regardless of the code paths below
+	
+	local combonum = 1
+	if b.stompcombosuppressor then
+		combonum = 0
+	end
+	
 	if b.shellanimal then
 		if b.small then	
-			playsound("shot", b.x, b.y, b.speedx, b.speedy)
 			if b.speedx == 0 then
-				playsound("shot", self.x, self.y, self.speedx, self.speedy)
+				print("ALERT: Crazy edge case happened, just wanted you to know.")
+				--[[playsound("shot", self.x, self.y, self.speedx, self.speedy)
 				addpoints(500, b.x, b.y)
-				self.combo = 1
+				self.combo = 1]]
 			end
-		else
-			playsound("stomp", b.x, b.y, b.speedx, b.speedy)
 		end
 		
-		b:stomp(self.x, self)
-		
 		if b.speedx == 0 or (b.flying and b.small == false) then
-			addpoints(mariocombo[self.combo], self.x, self.y)
-			if self.combo < #mariocombo then
-				self.combo = self.combo + 1
-			end
-		
+			self:getcombo(combonum, "stomp", b.x, b.y, false) --@DEV: no lives because we hate america
+			
 			local grav = self.gravity or yacceleration
 			
 			local bouncespeed = math.sqrt(2*grav*bounceheight)
@@ -2680,22 +2730,8 @@ function mario:stompenemy(a, b, c, d, side)
 			end
 		end
 	elseif b.stompable then
-		b:stomp(self.x, self)
-		if self.combo < #mariocombo then
-			addpoints(mariocombo[self.combo], self.x, self.y)
-			if not b.stompcombosuppressor then
-				self.combo = self.combo + 1
-			end
-		else
-			if mariolivecount ~= false then
-				for i = 1, players do
-					mariolives[i] = mariolives[i]+1
-				end
-			end
-			table.insert(scrollingscores, scrollingscore:new("1up", self.x, self.y))
-			playsound("oneup", self.x, self.y)
-		end
-		playsound("stomp", b.x, b.y, b.speedx, b.speedy)
+		self:getcombo(combonum, "stomp", b.x, b.y, true)
+		--@TODO: eventually we'll want to make the bounce flag controlled by the enemy as "canbounce"
 		bounce = true
 	end
 	
@@ -2738,22 +2774,23 @@ function mario:rightcollide(a, b, c, d)
 	elseif b.kills or b.killsonsides or a == "bowser" then --KILLS
 		if self.invincible then
 			if b.shellanimal and b.small and b.speedx == 0 then
-				b:stomp(self.x, self)
-				playsound("shot", self.x, self.y, self.speedx, self.speedy)
-				addpoints(500, b.x, b.y)
+				b:do_damage("stomp", self, "right")
+				--playsound("shot", self.x, self.y, self.speedx, self.speedy)
+				--addpoints(500, b.x, b.y)
 			end
 			return false
 		else
-			if self.raccoonspinframe and b.shotted then
-				b:shotted("right", true, true)
-				addpoints(firepoints[b.t] or 100, self.x, self.y)
+			if self.raccoonspinframe then
+				b:do_damage("tailspin", self, "right")
+				--b:shotted("right", true, true)
+				--addpoints(firepoints[b.t] or 100, self.x, self.y)
 				return false
 			end
 			
 			if b.shellanimal and b.small and b.speedx == 0 then
-				b:stomp(self.x, self)
-				playsound("shot", self.x, self.y, self.speedx, self.speedy)
-				addpoints(500, b.x, b.y)
+				print("NOTE: Kicked a koopa shell, how exciting.")
+				b:do_damage("stomp", self, "right")
+				--playsound("shot", self.x, self.y, self.speedx, self.speedy)
 				return false
 			end
 			
@@ -2765,7 +2802,7 @@ function mario:rightcollide(a, b, c, d)
 				return false
 			end
 			
-			self:die("Enemy (rightcollide)")
+			self:murder(b, b.doesdamagetype, "Enemy (rightcollide)")
 			return false
 		end
 	elseif a == "tile" then
@@ -2811,7 +2848,7 @@ function mario:rightcollide(a, b, c, d)
 		end
 		
 		if bigmario then
-			destroyblock(x, y)
+			self:destroyblock(x, y)
 			return false
 		end
 	elseif a == "box" and self.gravitydirection == math.pi/2 then
@@ -2870,22 +2907,23 @@ function mario:leftcollide(a, b, c, d)
 	elseif b.kills or b.killsonsides or a == "bowser" then --KILLS
 		if self.invincible then
 			if b.shellanimal and b.small and b.speedx == 0 then
-				b:stomp(self.x, self)
-				playsound("shot", self.x, self.y, self.speedx, self.speedy)
-				addpoints(500, b.x, b.y)
+				b:do_damage("stomp", self)
+				--playsound("shot", self.x, self.y, self.speedx, self.speedy)
+				--addpoints(500, b.x, b.y)
 			end
 			return false
 		else
-			if self.raccoonspinframe and b.shotted then
-				b:shotted("left", true, true)
-				addpoints(firepoints[b.t] or 100, self.x, self.y)
+			if self.raccoonspinframe then
+				b:do_damage("tailspin", self)
+				--b:shotted("left", true, true)
+				--addpoints(firepoints[b.t] or 100, self.x, self.y)
 				return false
 			end
 			
 			if b.shellanimal and b.small and b.speedx == 0 then
-				b:stomp(self.x, self)
-				playsound("shot", self.x, self.y, self.speedx, self.speedy)
-				addpoints(500, b.x, b.y)
+				b:do_damage("stomp", self)
+				--playsound("shot", self.x, self.y, self.speedx, self.speedy)
+				--addpoints(500, b.x, b.y)
 				return false
 			end
 			
@@ -2897,7 +2935,7 @@ function mario:leftcollide(a, b, c, d)
 				return false
 			end
 			
-			self:die("Enemy (leftcollide)")
+			self:murder(b, b.doesdamagetype, "Enemy (leftcollide)")
 			return false
 		end
 	elseif a == "tile" then
@@ -2944,7 +2982,7 @@ function mario:leftcollide(a, b, c, d)
 		end
 	
 		if bigmario then
-			destroyblock(x, y)
+			self:destroyblock(x, y)
 			return false
 		end
 	elseif a == "box" and self.gravitydirection == math.pi/2 then
@@ -3004,7 +3042,7 @@ function mario:ceilcollide(a, b, c, d)
 		if self.invincible then
 			return false
 		else
-			self:die("Enemy (Ceilcollided)")
+			self:murder(b, b.doesdamagetype, "Enemy (Ceilcollided)")
 			return false
 		end
 	elseif a == "tile" then
@@ -3018,7 +3056,7 @@ function mario:ceilcollide(a, b, c, d)
 			end
 		else
 			if bigmario then
-				destroyblock(x, y)
+				self:destroyblock(x, y)
 				return false
 			end
 			
@@ -3057,7 +3095,7 @@ function mario:ceilcollide(a, b, c, d)
 			end
 		end
 
-		hitblock(x, y, self)
+		self:hitblock(x, y)
 	end
 	
 	self.jumping = false
@@ -3110,16 +3148,16 @@ function mario:globalcollide(a, b, c, d, dir)
 		else
 			dir = twistdirection(self.gravitydirection, dir)
 			if dir == "ceil" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikesbottom", b.cox, b.coy) then
-				self:die("Spikes")
+				self:murder(nil, "spike", "Spike (bottom)")
 				return false
 			elseif dir == "right" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikesleft", b.cox, b.coy) then
-				self:die("Spikes")
+				self:murder(nil, "spike", "Spike (left)")
 				return false
 			elseif dir == "left" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikesright", b.cox, b.coy) then
-				self:die("Spikes")
+				self:murder(nil, "spike", "Spike (right)")
 				return false
 			elseif dir == "floor" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikestop", b.cox, b.coy) then
-				self:die("Spikes")
+				self:murder(nil, "spike", "Spike (top)")
 				return false
 			end
 		end
@@ -3131,7 +3169,7 @@ function mario:globalcollide(a, b, c, d, dir)
 			givemestuff["lives"] = b.lifeamount
 			givemestuff["lives"] = b.lifeamount
 		end
-		givelive(self.playernumber, b)
+		self:getlife(b.lifeamount or 1)
 		return true
 	elseif b.givestime then
 		if b.timeamount then
@@ -3145,7 +3183,7 @@ function mario:globalcollide(a, b, c, d, dir)
 		gotatrophy(self.playernumber, b)
 		return true
 	elseif b.givecoinoncollect then
-		collectcoin(x, y, (b.givecoinoncollect))
+		self:getcoin(b.givecoinoncollect)--@WARNING: I left out x, y because that would collect the coin at wherever the enemy is
 		return true
 	elseif b.makesmariostar then
 		self:star()
@@ -3262,15 +3300,17 @@ end
 function mario:starcollide(a, b, c, d)
 	--enemies that die
 	if a == "enemy" then
-		b:shotted("right", nil, nil, false, true)
-		addpoints(firepoints[b.t] or 100, self.x, self.y)
+		b:do_damage("star",self,"right")
+		--b:shotted("right", nil, nil, false, true)
+		--addpoints(firepoints[b.t] or 100, self.x, self.y)
 		return true
-	elseif a == "bowser" then
-		b:shotted("right")
-		return true
+		--@DEV: we're gonna ignore those special exceptions right now
+	--elseif a == "bowser" then
+		--b:shotted("right")
+		--return true
 	--enemies (and stuff) that don't do shit
-	elseif a == "upfire" or a == "fire" or a == "hammer" or a == "fireball" or a == "castlefirefire" then
-		return true
+	--elseif a == "upfire" or a == "fire" or a == "hammer" or a == "fireball" or a == "castlefirefire" then
+		--return true
 	end
 end
 
@@ -3357,6 +3397,10 @@ function mario:grabvine(b)
 		self.animationdirection = "left"
 		self.vineside = "right"
 	end
+end
+
+function mario:hitblock(x, y)
+	hitblock(x, y, self)
 end
 
 function hitblock(x, y, t, koopa)	
@@ -3471,7 +3515,7 @@ function hitblock(x, y, t, koopa)
 			table.insert(blockbouncecontent2, t.size)
 			
 			if (koopa or (t and t.size > 1)) and tilequads[r[1]]:getproperty("coinblock", x, y) == false and (#r == 1 or (entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins")) then --destroy block!
-				destroyblock(x, y)
+				destroyblock(x, y, t)
 			end
 		end
 		
@@ -3496,46 +3540,15 @@ function hitblock(x, y, t, koopa)
 			end
 			if #r == 1 then
 				table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-					if gameplaytype == "vanilla" then
-						mariocoincount = mariocoincount + 1
-					elseif gameplaytype == "oddjob" then
-						levelcoincount = levelcoincount + 1
-					end
 				
-				if mariocoincount == 100 then
-					if mariolivecount ~= false then
-						for i = 1, players do
-							mariolives[i] = mariolives[i] + 1
-							respawnplayers()
-						end
-					end
-					mariocoincount = 0
-					playsound("oneup", x-0.5, y-1) --this happens in a lot of places
-				end
-				addpoints(200)
+				t:getcoin(1, nil, nil, x-0.5, y-1)
+				--@WARNING: These might not be right, but, who knows
 			end
 		end
 		
 		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t == "manycoins" then --block with many coins inside! yay $_$
-			playsound("coin", x-0.5, y-1) --I'd like to add velocity but the block-coin graphic isn't an object
 			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-				if gameplaytype == "vanilla" then
-					mariocoincount = mariocoincount + 1
-				elseif gameplaytype == "oddjob" then
-					levelcoincount = levelcoincount + 1
-				end
-			
-			if mariocoincount == 100 then
-				if mariolivecount ~= false then
-					for i = 1, players do
-						mariolives[i] = mariolives[i] + 1
-						respawnplayers()
-					end
-				end
-				mariocoincount = 0
-				playsound("oneup", self.x, self.y) --point entity, no velocity
-			end
-			addpoints(200)
+			t:getcoin(1, nil, nil, x-0.5, y-1)
 			
 			local exists = false
 			for i = 1, #coinblocktimers do
@@ -3547,6 +3560,7 @@ function hitblock(x, y, t, koopa)
 			if not exists then
 				table.insert(coinblocktimers, {x, y, coinblocktime})
 			elseif coinblocktimers[exists][3] <= 0 then
+				--@WARNING: Magic tileID transformations, this is bad.
 				if spriteset == 1 then
 					map[x][y][1] = 113
 				elseif spriteset == 2 then
@@ -3567,11 +3581,13 @@ function hitblock(x, y, t, koopa)
 					if w.x+w.width/2 < x-0.5 then
 						dir = "left"
 					end
-				
-					if w.shotted then
-						w:shotted(dir, true)
-						addpoints(100, w.x+w.width/2, w.y)
-					end
+					
+					--if w.shotted then
+					--@WARNING: FLAGRANTLY DISREGARDING SAFETY
+						w:do_damage("bump", t, dir, true)
+						--addpoints(100, w.x+w.width/2, w.y)
+						--@WARNING: origin of points might not be right, but, who knows
+					--end
 				end
 			end
 		end
@@ -3594,7 +3610,7 @@ function hitblock(x, y, t, koopa)
 		
 		--check for coin on top
 		if inmap(x, y-1) and coinmap[x][y-1] then
-			collectcoin(x, y-1)
+			t:getcoin(1, x, y-1)
 			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
 		end
 		generatespritebatch()
@@ -3620,7 +3636,11 @@ function mario:goinvincible()
 	self.drawable = true
 end
 
-function destroyblock(x, y)
+function mario:destroyblock(x, y)
+	return destroyblock(x, y, self)
+end
+
+function destroyblock(x, y, t)
 	for i = 1, players do
 		local v = objects["player"][i].portal
 		local x1 = v.x1
@@ -3664,7 +3684,19 @@ function destroyblock(x, y)
 	objects["tile"][x .. "-" .. y] = nil
 	map[x][y]["gels"] = {}
 	playsound("blockbreak", x, y) --blocks don't move, we want the position of the block
-	addpoints(50)
+	if t.getscore then
+		print("NOTE: broke block as player")
+		-- we got a player
+		t:getscore(score_enum.block_break, x-0.5, y-1)
+	else
+		-- this is /probably/ a koopa
+		print("NOTE: broke a block as what I *think* is a koopa")
+		if t.lastinfluence then
+			t.lastinfluence:getscore(score_enum.block_break, x-0.5, y-1)
+		else
+			print("NOTE: whatever broke the block didn't have a player to give score to")
+		end
+	end
 	
 	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, 3.5, -23))
 	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, -3.5, -23))
@@ -3686,6 +3718,12 @@ function mario:startfall()
 		self.animationstate = "falling"
 		self:setquad()
 	end
+end
+
+function mario:murder(attacker, dtype, how)
+	print("moyided", attacker, dtype, how)
+	killfeed.new(attacker, dtype, self)
+	self:die(how)
 end
 
 function mario:die(how)
@@ -3794,7 +3832,7 @@ function mario:laser(dir)
 			return
 		end
 	end
-	self:die("Laser")
+	self:murder(nil, "laser", "Laser")
 end
 
 function getAngleFrame(angle, rotation)
@@ -4090,7 +4128,7 @@ function mario:flag()
 		end
 	end
 	
-	addpoints(flagscore)
+	self:getscore(flagscore)
 	
 	--get firework count
 	fireworkcount = tonumber(string.sub(math.ceil(mariotime), -1, -1))
@@ -4122,7 +4160,7 @@ function mario:vineanimation()
 end
 
 function mario:star()
-	addpoints(1000)
+	self:getscore(score_enum.collect_star)
 	self.startimer = 0
 	self.colors = starcolors[1]
 	self.starred = true
@@ -4170,9 +4208,10 @@ function mario:spinhit(x, y, dir)
 		local b = objects[a][col[i+1]]
 		if a == "tile" then
 			hitblock(b.cox, b.coy, self)
-		elseif a ~= "bowser" and b.shotted then
-			b:shotted(dir, true, true)
-			addpoints(b.firepoints or 200, self.x, self.y)
+		else
+			b:do_damage("spin", self)
+			--b:shotted(dir, true, true)
+			--addpoints(b.firepoints or 200, self.x, self.y)
 		end
 	end
 end
@@ -4181,29 +4220,38 @@ function mario:fireballcallback()
 	self.fireballcount = self.fireballcount - 1
 end
 
-function collectcoin(x, y, i)
-	if x and y then
+function mario:getscore(val, x, y)
+	self.score = self.score + val
+	if not x and not y then
+		-- score appears above us, not anywhere else
+		x = self.x
+		y = self.y
+	end
+	--@TODO: make scrollingscores a (sane/based)entity
+	table.insert(scrollingscores, scrollingscore:new(val, x, y))
+end
+
+function mario:getlife(val, x, y)
+	--@WARNING: x/y underutilized
+	self.lives = self.lives + val
+	for i=1, val do
+		playsound("oneup", self.x, self.y, self.speedx, self.speedy)
+	end
+end
+
+function mario:getcoin(val, x, y, passx, passy)
+	if x and y and inmap(x, y) then
+		-- we collected a map coin, alter it accordingly
 		coinmap[x][y] = false
 	end
-	addpoints(200)
-	playsound("coin", x, y) --point entity, no velocity to use
-	if gameplaytype == "vanilla" then
-		mariocoincount = mariocoincount + (i or 1)
-	elseif gameplaytype == "oddjob" then
-		levelcoincount = levelcoincount + (i or 1)
-	end
+	self:getscore(score_enum.coin, passx, passy)
+	playsound("coin", self.x, self.y, self.speedx, self.speedy) --making "stick to player" because doppler is weird
+	self.coins = self.coins + (val or 1)
 	
-	
-	while mariocoincount >= 100 do
-		if mariolivecount ~= false then
-			for i = 1, players do
-				mariolives[i] = mariolives[i] + 1
-				respawnplayers()
-			end
-		end
-		mariocoincount = mariocoincount - 100
-		playsound("oneup", self.x, self.y, self.speedx, self.speedy) --not a point entity, but the sound may not transfer if players are moving fast
-	end
+	--@WARNING: this branch of code should be moved to gamemode object
+	self:getlife((self.coins - (self.coins % 100))/100, x, y)
+	--@NOTE: do hook trigger here for shared lives
+	self.coins = self.coins % 100
 end
 
 function mario:portaled(dir)
@@ -4237,17 +4285,19 @@ function mario:portaled(dir)
 		playsound("rainboom", self.x, self.y, self.speedx, self.speedy)
 		
 		for i, v in pairs(objects["enemy"]) do
-			v:shotted()
-			if v ~= "bowser" then
-				addpoints(firepoints[v.t] or 100, v.x, v.y)
-			else
-				for i = 1, 6 do
-					v:shotted()
-				end
-			end
+			v:do_damage("pow", self)
+			--if v ~= "bowser" then
+			--	self:getscore(firepoints[v.t] or 100, v.x, v.y)
+			--else
+			--	for i = 1, 6 do
+			--		--@DEV: Why only six? What the hell is happening here?
+			--		v:shotted()
+			--	end
+			--end
 		end
 		
-		self.hats = {32}
+		-- you thought it was horse, but it was I, dio
+		self.hats = {34}
 	end
 end
 

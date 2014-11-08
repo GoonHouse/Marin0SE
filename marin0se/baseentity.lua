@@ -58,6 +58,7 @@ baseentity_mixins.HasInputs = {
 
 baseentity_mixins.HasOutputs = {
 	outputTable = {},
+	hasOutput = true,
 	addoutput = function(self, a, t)
 		table.insert(self.outputTable, {a, t})
 	end,
@@ -92,6 +93,24 @@ baseentity_mixins.HasCustomColliders = {
 	floorcollide = function(self, a, b)
 		return true
 	end,
+}
+
+baseentity_mixins.IsMappable = {
+	--[[Takes inputs similarly to how we save the data through the editor, where signature is:
+		{t="optiontype", 
+	]]
+	getBasicInput = function(self, vartoset)
+		--vartoset corresponds to a local variable to overwrite
+		if #self.r > 0 and self.r[1] ~= "link" then
+			self[vartoset] = self.r[1]
+			table.remove(self.r, 1)
+			-- we got the data correctly
+			return true
+		else
+			-- we did not get the data correctly
+			return false
+		end
+	end
 }
 
 --@TODO: Make these userect things a mixin, they were previously in the global scope.
@@ -189,6 +208,15 @@ function baseentity:setQuad(ind)
 	self.quad = globalimages[self.graphicid].quads[self.quadi]
 end
 
+function baseentity:setInfluence(inf)
+	if self.influencable then
+		self.lastinfluence = inf
+		return true
+	else
+		return false
+	end
+end
+
 function baseentity:init(origclass, classname, x, y, z, r, parent)
 	-- anonymous mapping gets confusing sometimes
 	self.origclass = origclass
@@ -265,7 +293,7 @@ function baseentity:init(origclass, classname, x, y, z, r, parent)
 	self.category = 22
 	self.mask = {true}
 	-- if it has a an orientation, you should use this to set it. should be a direction enum key.
-	self.dir = "down"
+	self.dir = "right"
 	
 	-- THIS ALL HAS TO DO WITH ENGINE TRAITS
 	-- whether the object can be carried and held in the player's hands like a box
@@ -281,6 +309,15 @@ function baseentity:init(origclass, classname, x, y, z, r, parent)
 	self.pushed = false
 	-- should we destroy ourselves in the next update
 	self.destroy = false
+	
+	-- if this is capable of being influenced by a player to kill someone
+	self.influencable = false
+	-- last player to touch this, or nobody
+	self.lastinfluence = parent --nil==world
+	
+	-- what kind of damage this does
+	self.doesdamagetype = "toilet"
+	
 	
 	-- THIS ALL HAS TO DO WITH THE GRAPHICS ON LEVEL 3
 	-- visibility determines whether the draw method is called -- drawable I'm not sure where it's even used
@@ -511,6 +548,7 @@ function baseentity:used(ply)
 		self.carrier = ply
 		self.active = false
 		ply:pick_up(self)
+		self:setInfluence(ply) 
 	end
 end
 

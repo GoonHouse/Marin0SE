@@ -1075,21 +1075,23 @@ function drawui(hidetime)
 		printfunction(texttodraw, uispace*.5 - 24*scale, 8*scale)
 		
 		--player score
-		local texttodraw=addzeros(marioscore, 6)
+		local texttodraw="mystery"
+		if objects and objects["player"] and objects["player"][1] then
+			texttodraw=addzeros(objects["player"][1].score, 6)
+		end
 		if editormode and activeeditortool then
 			texttodraw = activeeditortool.status
 		end
 		printfunction(texttodraw, uispace*0.5-24*scale, 16*scale)
 
 		--coin count
-		love.graphics.draw(coinanimationimg, coinanimationquads[spriteset][coinframe], uispace*1.5-16*scale, 16*scale, 0, scale, scale)
-		if gameplaytype == "vanilla" then
-			printfunction("*", uispace*1.5-8*scale, 16*scale)
-			printfunction(addzeros(mariocoincount, 2), uispace*1.5-0*scale, 16*scale)
-		elseif gameplaytype == "oddjob" then
-			printfunction("*", uispace*1.5-8*scale, 16*scale)
-			printfunction(addzeros(levelcoincount, 2), uispace*1.5-0*scale, 16*scale)
+		local texttodraw="??"
+		if objects and objects["player"] and objects["player"][1] then
+			texttodraw=addzeros(objects["player"][1].coins, 2)
 		end
+		love.graphics.draw(coinanimationimg, coinanimationquads[spriteset][coinframe], uispace*1.5-16*scale, 16*scale, 0, scale, scale)
+		printfunction("*", uispace*1.5-8*scale, 16*scale)
+		printfunction(texttodraw, uispace*1.5-0*scale, 16*scale)
 		
 		--world indicator
 		local texttodraw = " map"
@@ -4780,20 +4782,6 @@ end
 
 function gotatrophy(id, t)
 	playsound("trophy", t.x, t.y) --point entity
-end	
-
-function addpoints(i, x, y)
-	if i > 0 then
-		marioscore = marioscore + i
-			if gameplaytype == "oddjob" then
-				levelscore = levelscore + i
-			end
-		if x and y then
-			table.insert(scrollingscores, scrollingscore:new(i, x, y))
-		end
-	else
-		table.insert(scrollingscores, scrollingscore:new(-i, x, y))
-	end
 end
 
 function addzeros(s, i)

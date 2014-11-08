@@ -305,9 +305,25 @@ function animation:update(dt)
 			elseif v[1] == "screenshake" then
 				earthquake = tonumber(v[2]) or 1
 			elseif v[1] == "addcoins" then
-				collectcoin(nil, nil, tonumber(v[2]) or 1)
+				if v[2] == "everyone" then
+					for i = 1, players do
+						objects["player"][i]:getcoin(tonumber(v[3]) or 1)
+					end
+				else
+					if objects["player"][tonumber(string.sub(v[2], -1))] then
+						objects["player"][tonumber(string.sub(v[2], -1))]:getcoin(tonumber(v[3]) or 1)
+					end
+				end
 			elseif v[1] == "addpoints" then
-				addpoints(tonumber(v[2]) or 1)
+				if v[2] == "everyone" then
+					for i = 1, players do
+						objects["player"][i]:getscore(tonumber(v[3]) or 1)
+					end
+				else
+					if objects["player"][tonumber(string.sub(v[2], -1))] then
+						objects["player"][tonumber(string.sub(v[2], -1))]:getscore(tonumber(v[3]) or 1)
+					end
+				end
 			elseif v[1] == "changebackgroundcolor" then
 				love.graphics.setBackgroundColor(tonumber(v[2]) or 255, tonumber(v[3]) or 255, tonumber(v[4]) or 255)
 			elseif v[1] == "killplayer" then

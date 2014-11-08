@@ -271,6 +271,7 @@ function love.load(args)
 	totaltime = 0
 	JSON = require("libs.JSON")
 	require "notice"
+	require "killfeed"
 	
 	--Get biggest screen size
 	
@@ -1127,6 +1128,7 @@ function love.update(dt)
 		--netplay_update(dt)
 		
 		notice.update(dt)
+		killfeed.update(dt)
 		
 		love.window.setTitle("NCN:"..networkclientnumber.."; FPS:" .. love.timer.getFPS())
 	end
@@ -1149,6 +1151,7 @@ function love.draw()
 	end
 	
 	notice.draw()
+	killfeed.draw()
 	
 	--mycamera:detach()
 	

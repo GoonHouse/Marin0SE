@@ -16,7 +16,8 @@ function coinblockanimation:update(dt)
 	end
 	
 	if self.frame >= 31 then
-		addpoints(-200, self.x, self.y)
+		--addpoints(-200, self.x, self.y)
+		--@WARNING: I'm not sure why this is here. At all.
 		return true
 	end
 	

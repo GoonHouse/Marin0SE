@@ -46,8 +46,19 @@ superfriction = 100 --see above, but when speed is greater than maxrunspeed
 frictionair = 0 --see above, but in air
 airslidefactor = 0.8 --multiply of acceleration in air when changing direction
 
-mariocombo = {100, 200, 400, 500, 800, 1000, 2000, 4000, 5000, 8000} --combo scores for bouncing on enemies
-koopacombo = {500, 800, 1000, 2000, 4000, 5000, 8000} --combo scores for series of koopa kills
+combo_enums = {
+	stomp = {100, 200, 400, 500, 800, 1000, 2000, 4000, 5000, 8000},
+	shell = {500, 800, 1000, 2000, 4000, 5000, 8000},
+}
+
+score_enum = {
+	block_break			= 50,	--for when mario gets bricky
+	generic				= 100,	--reward people for doing things we're not even aware of!
+	underside_bump		= 100,	--killing something with our heads, with a block as the medium
+	generic_firepoints	= 200,	--for when an enemy has no sense of self-worth
+	coin				= 200,	--for every individual coin we get
+	collect_star		= 1000, --good job
+}
 
 --star scores are identical so I'm just gonn be lazy
 firepoints = {	goomba = 100,
