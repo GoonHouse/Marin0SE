@@ -2935,6 +2935,7 @@ function mario:leftcollide(a, b, c, d)
 				return false
 			end
 			
+			
 			self:murder(b, b.doesdamagetype, "Enemy (leftcollide)")
 			return false
 		end
@@ -3541,14 +3542,14 @@ function hitblock(x, y, t, koopa)
 			if #r == 1 then
 				table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
 				
-				t:getcoin(1, nil, nil, x-0.5, y-1)
+				traceinfluence(t):getcoin(1, nil, nil, x-0.5, y-1)
 				--@WARNING: These might not be right, but, who knows
 			end
 		end
 		
 		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t == "manycoins" then --block with many coins inside! yay $_$
 			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-			t:getcoin(1, nil, nil, x-0.5, y-1)
+			traceinfluence(t):getcoin(1, nil, nil, x-0.5, y-1)
 			
 			local exists = false
 			for i = 1, #coinblocktimers do
@@ -3584,7 +3585,7 @@ function hitblock(x, y, t, koopa)
 					
 					--if w.shotted then
 					--@WARNING: FLAGRANTLY DISREGARDING SAFETY
-						w:do_damage("bump", t, dir, true)
+					w:do_damage("bump", traceinfluence(t), dir, true)
 						--addpoints(100, w.x+w.width/2, w.y)
 						--@WARNING: origin of points might not be right, but, who knows
 					--end
@@ -3610,7 +3611,7 @@ function hitblock(x, y, t, koopa)
 		
 		--check for coin on top
 		if inmap(x, y-1) and coinmap[x][y-1] then
-			t:getcoin(1, x, y-1)
+			traceinfluence(t):getcoin(1, x, y-1)
 			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
 		end
 		generatespritebatch()
@@ -3684,19 +3685,8 @@ function destroyblock(x, y, t)
 	objects["tile"][x .. "-" .. y] = nil
 	map[x][y]["gels"] = {}
 	playsound("blockbreak", x, y) --blocks don't move, we want the position of the block
-	if t.getscore then
-		print("NOTE: broke block as player")
-		-- we got a player
-		t:getscore(score_enum.block_break, x-0.5, y-1)
-	else
-		-- this is /probably/ a koopa
-		print("NOTE: broke a block as what I *think* is a koopa")
-		if t.lastinfluence then
-			t.lastinfluence:getscore(score_enum.block_break, x-0.5, y-1)
-		else
-			print("NOTE: whatever broke the block didn't have a player to give score to")
-		end
-	end
+	
+	traceinfluence(t):getscore(score_enum.block_break, x-0.5, y-1)
 	
 	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, 3.5, -23))
 	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, -3.5, -23))
@@ -3719,10 +3709,19 @@ function mario:startfall()
 		self:setquad()
 	end
 end
-
+function traceinfluence(b)
+	if b.getcoin then
+		return b
+	elseif b.lastinfluence then
+		return b.lastinfluence
+	else
+		print("CRITICAL: Couldn't trace an influence from", b)
+		return b
+	end
+end
 function mario:murder(attacker, dtype, how)
-	print("moyided", attacker, dtype, how)
-	killfeed.new(attacker, dtype, self)
+	print("moyided", traceinfluence(attacker), dtype, how)
+	killfeed.new(traceinfluence(attacker), dtype, self)
 	self:die(how)
 end
 
