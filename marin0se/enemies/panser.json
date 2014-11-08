@@ -48,11 +48,11 @@
 	"jumpforce": 19,
 	"jumpforcedown": 6,
 
-	"spawnsenemy": "hammer",
+	"spawnsenemy": "sunfire",
 	"spawnenemydelays": [2, 4],
 	"spawnenemyspeedy": -15,
 	"spawnenemyspeedx": 0,
-	"spawnenemyoffsety": 0.5,
+	"spawnenemyoffsety": -1,
 	"spawnenemyspeedxtowardsplayer": false,
 	
 	"throwquadoffset": 2,
