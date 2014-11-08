@@ -3710,6 +3710,8 @@ function mario:startfall()
 	end
 end
 function traceinfluence(b)
+	if not b then return nil end
+	
 	if b.getcoin then
 		return b
 	elseif b.lastinfluence then
@@ -3720,7 +3722,7 @@ function traceinfluence(b)
 	end
 end
 function mario:murder(attacker, dtype, how)
-	print("moyided", traceinfluence(attacker), dtype, how)
+	--print("moyided", traceinfluence(attacker), dtype, how)
 	killfeed.new(traceinfluence(attacker), dtype, self)
 	self:die(how)
 end

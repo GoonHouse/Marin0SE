@@ -802,10 +802,8 @@ function enemy:evaluate_damagetype(dtype)
 	elseif dtype == "bump" then
 		return not self.notkilledfromblocksbelow
 	else
-		assert(false, "Unknown damage type: "..tostring(dtype))
-		--print("WARNING: Tried to evaluate unknown damagetype ",dtype)
-		return false
-		-- it can't hurt us if we don't understand it, duh
+		print("WARNING: Tried to evaluate unknown damagetype ",dtype, "run as 'suicide'.")
+		return true
 	end
 	
 	return false --nothing that we care about
@@ -959,7 +957,19 @@ end
 
 function enemy:damage_fireball(attacker, dir)
 	if self:hurt(attacker, "fireball", 1) then
-		attacker:getscore(self.firepoints or score_enum.generic_firepoints, self.x, self.y)
+		attacker:getscore(self.firepoints or
+						score_enum.generic_firepoints or
+						enemy_score_enum.fireball[self.t],
+					self.x, self.y)
+		self:neo_shotted(attacker, "fireball", dir)
+	end
+end
+function enemy:damage_star(attacker, dir)
+	if self:hurt(attacker, "star", 1) then
+		attacker:getscore(self.firepoints or
+						score_enum.generic_firepoints or
+						enemy_score_enum.fireball[self.t],
+					self.x, self.y)
 		self:neo_shotted(attacker, "fireball", dir)
 	end
 end
@@ -967,6 +977,13 @@ function enemy:damage_bump(attacker, dir)
 	if self:hurt(attacker, "bump", 1) then
 		attacker:getscore(score_enum.underside_bump, self.x, self.y)
 		self:neo_shotted(attacker, "bump", dir, true)
+	end
+end
+function enemy:damage_suicide(attacker)
+	if self:hurt(attacker, "suicide", 1) then
+		-- no, giving score to a suicide doesn't make sense, but I don't want to write another generic kill handler
+		attacker:getscore(enemy_score_enum.fireball[self.t], self.x, self.y)
+		self:neo_shotted(attacker, "suicide")
 	end
 end
 --w:do_damage("bump", self, dir, true)

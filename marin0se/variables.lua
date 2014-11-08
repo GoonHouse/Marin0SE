@@ -46,6 +46,28 @@ superfriction = 100 --see above, but when speed is greater than maxrunspeed
 frictionair = 0 --see above, but in air
 airslidefactor = 0.8 --multiply of acceleration in air when changing direction
 
+damage_types = {
+	"toilet",		--if this happens, something had an undefined kill type, mostly for bug finding
+	"kill",			--generic, this happens as a fallback for icon purposes (skull & crossbones)
+	
+	"physics",		--box crushes enemy, or other deaths caused by inaction
+	
+	"stomp",		--when feet land on something's head, sometimes side-kicks
+	"shell",		--shells from koopas
+	"star",			--reflective rampage man
+	"fireball",		--the projectiles that come out of the player's hands
+	
+	"touch",		--goombas and any other oddly threatining simpletons
+	"bump", 		--hit by the underside of a block
+	"suicide",		--generic self-kill
+	"pit",			--fell off screen boundary
+	"spike",		--landed on a sharp block
+	"tailspin",		--spinning as a raccoon
+	"spin",			--I'm not sure when/where this happens nor if it differs from tailspin
+	"pow",			--kill everything on the screen
+	"laser",		--giant red light dissolves flesh and patience
+}
+
 combo_enums = {
 	stomp = {100, 200, 400, 500, 800, 1000, 2000, 4000, 5000, 8000},
 	shell = {500, 800, 1000, 2000, 4000, 5000, 8000},
@@ -60,17 +82,34 @@ score_enum = {
 	collect_star		= 1000, --good job
 }
 
---star scores are identical so I'm just gonn be lazy
-firepoints = {	goomba = 100,
-				koopa = 200,
-				plant = 200,
-				bowser = 5000,
-				squid = 200,
-				cheep = 200,
-				flyingfish = 200,
-				hammerbro = 1000,
-				lakito = 200,
-				bulletbill = 200}
+enemy_score_enum = {
+	fireball = {
+		goomba = 100,
+		koopa = 200,
+		plant = 200,
+		bowser = 5000,
+		squid = 200,
+		cheep = 200,
+		flyingfish = 200,
+		hammerbro = 1000,
+		lakito = 200,
+		bulletbill = 200,
+	},
+	--star scores are identical, but, now we have an opportunity to change that
+	star = {
+		goomba = 100,
+		koopa = 200,
+		plant = 200,
+		bowser = 5000,
+		squid = 200,
+		cheep = 200,
+		flyingfish = 200,
+		hammerbro = 1000,
+		lakito = 200,
+		bulletbill = 200,
+	},
+}
+
 
 yacceleration = 80 --gravity
 mariogravity = yacceleration
