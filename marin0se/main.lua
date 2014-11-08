@@ -205,7 +205,7 @@ function love.load(args)
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	
 	overwrittenimages = {}
-	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", "oddjobhud", "redcoin", "redcointall", "redcoinbig", "firework",
+	imagelist = {"coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", "oddjobhud", "redcoin", "redcointall", "redcoinbig", "firework",
 	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", "pswitch",
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
 	"excursionfunnel2end", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase", "cursorarea", 
@@ -488,10 +488,8 @@ function love.load(args)
 	require "scrollingtext"
 	require "portalparticle"
 	require "portalprojectile"
-	require "blockdebris"
 	require "fire"
 	require "rainboom"
-	require "miniblock"
 	require "emancipationfizzle"
 	require "portal"
 	require "dialogbox"
@@ -614,14 +612,6 @@ function love.load(args)
 	popupfontquads = {}
 	for i = 1, 6 do
 		popupfontquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 8, 96, 8)
-	end
-	
-	blockdebrisquads = {}
-	for y = 1, 4 do
-		blockdebrisquads[y] = {}
-		for x = 1, 2 do
-			blockdebrisquads[y][x] = love.graphics.newQuad((x-1)*8, (y-1)*8, 8, 8, 16, 32)
-		end
 	end
 
 	fireworkquads = {}

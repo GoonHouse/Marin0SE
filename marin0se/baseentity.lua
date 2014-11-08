@@ -354,11 +354,15 @@ end
 
 -- WONDERFUL COLLECTION OF CALLBACKS
 function baseentity:offscreencallback()
-	-- do something if we're no longer visible
+	-- do something if we're no longer visible, usually it's disappear
+	self.destroy = true
 end
 
 function baseentity:timercallback()
 	-- this gets called whenever the internal timer gets this big
+	-- usually this is just for animation
+	self:setQuad(self.quadi)
+	self.quadi = self.quadi + 1
 end
 
 function baseentity:funnelcallback(entering)
@@ -474,17 +478,19 @@ function baseentity:update(dt)
 	end
 	
 	-- check each sound to update its positions
-	for k,v in pairs(self.activesounds) do
-		if not v.static then
-			v.source:setPosition(self.x, self.y, self.z)
+	if self.activesounds then
+		for k,v in pairs(self.activesounds) do
+			if not v.static then
+				v.source:setPosition(self.x, self.y, self.z)
+			end
+			if v.use_velocity then
+				v.source:setVelocity(self.speedx, self.speedy, self.speedz)
+			end
 		end
-		if v.use_velocity then
-			v.source:setVelocity(self.speedx, self.speedy, self.speedz)
+		-- run a filtered deletion on sounds that are completed
+		if #self.activesounds > 0 then
+			table.fdelete(self.activesounds, filter_delete_sounds)
 		end
-	end
-	-- run a filtered deletion on sounds that are completed
-	if #self.activesounds > 0 then
-		table.fdelete(self.activesounds, filter_delete_sounds)
 	end
 	
 	if self.destroy then

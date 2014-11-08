@@ -323,9 +323,6 @@ flyingfishforce = 23
 userange = 1
 usesquaresize = 1
 
-blockdebrisanimationtime = 0.1
-blockdebrisgravity = 60
-
 castlefireangleadd = 1.125
 castlefiredelay = .34/(360/castlefireangleadd) --the number in front of the bracket is how long a full turn takes
 castlefireanimationdelay = 0.07

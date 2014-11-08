@@ -3686,10 +3686,10 @@ function destroyblock(x, y, t)
 	
 	traceinfluence(t):getscore(score_enum.block_break, x-0.5, y-1)
 	
-	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, 3.5, -23))
-	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, -3.5, -23))
-	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, 3.5, -14))
-	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, -3.5, -14))
+	blockdebris:new(x, y, "right", 1)
+	blockdebris:new(x, y, "right", 0)
+	blockdebris:new(x, y, "left", 1)
+	blockdebris:new(x, y, "left", 0)
 	
 	generatespritebatch()
 end

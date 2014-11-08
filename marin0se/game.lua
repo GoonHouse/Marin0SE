@@ -294,7 +294,6 @@ function game_update(dt)
 	
 	local updatetable = {
 		emancipationfizzles, dialogboxes,
-		miniblocks, blockdebristable,
 		userects, rainbooms, coinblockanimations, itemanimations
 	}
 	local noupdateobjects = {"tile", "portalwall", "screenboundary"}
@@ -304,6 +303,8 @@ function game_update(dt)
 		end
 	end
 	
+	
+	-- the big update
 	for i, v in pairs(updatetable) do
 		delete = {}
 		
@@ -339,6 +340,7 @@ function game_update(dt)
 	local oldxscroll = xscroll
 	local oldyscroll = yscroll
 	
+	-- abandon hope all who enter: scrollhandler
 	if autoscroll and minimapdragging == false then
 		--scrolling
 		local i = 1
@@ -1398,12 +1400,6 @@ function game_draw()
 			end
 		end
 		
-		love.graphics.setColor(255, 255, 255)
-		--miniblocks
-		for i, v in pairs(miniblocks) do
-			v:draw()
-		end
-		
 		--emancipationfizzles
 		for i, v in pairs(emancipationfizzles) do
 			v:draw()
@@ -1678,11 +1674,6 @@ function game_draw()
 		
 		--SCROLLING TEXT
 		for i, v in pairs(scrollingtexts) do
-			v:draw()
-		end
-		
-		--BLOCK DEBRIS
-		for i, v in pairs(blockdebristable) do
 			v:draw()
 		end
 	
@@ -2625,11 +2616,9 @@ function loadlevel(level, is_sublevel)
 	portalparticles = {}
 	portalprojectiles = {}
 	userects = {}
-	blockdebristable = {}
 	rainbooms = {}
 	emancipationfizzles = {}
 	dialogboxes = {}
-	miniblocks = {}
 	inventory = {}
 	for i = 1, 9 do
 		inventory[i] = {}
