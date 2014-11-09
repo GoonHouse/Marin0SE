@@ -22,8 +22,8 @@ thisclass.static.image_sigs = {
 
 function thisclass:init(x, y, text, stype)
 	--baseentity.init(self, thisclass, classname, x-.5, y-.5, 0, nil, parent)
-	self.x = x-xscroll
-	self.y = y-yscroll
+	self.x = x
+	self.y = y
 	self.text = text
 	self.stype = stype or "score" --score, life, time, coin
 	
@@ -44,6 +44,8 @@ function thisclass:init(x, y, text, stype)
 	self.timermax = thisclass.frametime
 	self.timer = 0
 	
+	self.maxy = self.y-thisclass.scrollheight
+	
 	table.insert(objects[classname], self)
 end
 
@@ -54,16 +56,16 @@ function thisclass:update(dt)
 	--math.floor((self.y-1.5-2.8*(dt/0.8))*16*scale)
 	--math.floor((self.y-1.5-thisclass.scrollheight*(self.timer/thisclass.frametime))*16*scale)
 	
+	if self.y < self.maxy or self.destroy then
+		return true
+	end
+	
 	return self.destroy
-end
-
-function thisclass:timercallback()
-	self.destroy = true
 end
 
 function thisclass:draw()
 	--properprintbackground(self.s, self.x*16*scale, (self.y-.5-self.timer)*16*scale, true, nil, scale)
-	properprint2(self.text, math.floor((self.x-0.4)*16*scale), math.floor((self.y-1.5)*16*scale))
+	properprint2(self.text, math.floor((self.x-0.4-xscroll)*16*scale), math.floor((self.y-1.5-yscroll)*16*scale))
 	if self.stype == "life" then
 		--love.graphics.draw(popupfontimage, popupfontquads[1], math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
 	elseif self.stype == "time" then
