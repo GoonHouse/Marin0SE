@@ -283,14 +283,9 @@ function editor_start()
 	players = 1
 	playertype = "portalgun"
 	playertypei = 1
-	bullettime = false
-	portalknockback = false
-	bigmario = false
-	goombaattack = false
-	sonicrainboom = false
-	playercollisions = false
-	infinitetime = false
-	infinitelives = false
+	for k,v in pairs(cheats_active) do
+		cheats_active[k] = false
+	end
 	game_load()
 end
 

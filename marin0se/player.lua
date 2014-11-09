@@ -4246,50 +4246,20 @@ function player:getcoin(val, x, y, passx, passy)
 	self.coins = self.coins % 100
 end
 
-function player:portaled(daportal, entereddir, dir)
+function player:portaled(daportal, entereddir, exitdir)
 	if self.pickup then
 		self.pickup:portaled()
 	end
-	if not sonicrainboom or not self.rainboomallowed then
-		return
-	end
 	
-	local didrainboom = false
-	
-	if dir == "up" then
-		if self.speedy < -rainboomspeed then
-			didrainboom = true
-		end
-	elseif dir == "left" then
-		if self.speedx < -rainboomspeed then
-			didrainboom = true
-		end
-	elseif dir == "right" then
-		if self.speedx > rainboomspeed then
-			didrainboom = true
-		end
-	end
-	
-	if didrainboom then
-		table.insert(rainbooms, rainboom:new(self.x+self.width/2, self.y+self.height/2, dir))
-		earthquake = rainboomearthquake
-		self.rainboomallowed = false
-		playsound("rainboom", self.x, self.y, self.speedx, self.speedy)
+	-- I'm not sorry for this monster, not in the slightest.
+	if cheats_active.rainboom and 
+		self.rainboomallowed and 
+		((exitdir == "up" and self.speedy < -rainboom.basespeed) or
+		(exitdir == "left" and self.speedx < -rainboom.basespeed) or
+		(exitdir == "right" and self.speedx > rainboom.basespeed) or
+		(exitdir == "down" and self.speedy < -rainboom.basespeed)) then
 		
-		for i, v in pairs(objects["enemy"]) do
-			v:do_damage("pow", self)
-			--if v ~= "bowser" then
-			--	self:getscore(firepoints[v.t] or 100, v.x, v.y)
-			--else
-			--	for i = 1, 6 do
-			--		--@DEV: Why only six? What the hell is happening here?
-			--		v:shotted()
-			--	end
-			--end
-		end
-		
-		-- you thought it was horse, but it was I, dio
-		self.hats = {34}
+		rainboom:new(self.x+self.width/2, self.y+self.height/2, exitdir, self)
 	end
 end
 

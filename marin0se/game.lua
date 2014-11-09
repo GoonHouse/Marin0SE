@@ -294,7 +294,7 @@ function game_update(dt)
 	
 	local updatetable = {
 		emancipationfizzles, dialogboxes,
-		userects, rainbooms, coinblockanimations, itemanimations
+		userects, coinblockanimations, itemanimations
 	}
 	local noupdateobjects = {"tile", "portalwall", "screenboundary"}
 	for i, v in pairs(objects) do
@@ -1288,18 +1288,17 @@ function game_draw()
 	
 	currentscissor = {0, 0,love.window.getWidth(), love.window.getHeight()}
 	--This is just silly
-	if earthquake > 0 and #rainbooms > 0 then
-		local colortable = {{242, 111, 51}, {251, 244, 174}, {95, 186, 76}, {29, 151, 212}, {101, 45, 135}, {238, 64, 68}}
-		for i = 1, backgroundstripes do
-			local r, g, b = unpack(colortable[math.mod(i-1, 6)+1])
-			local a = earthquake/rainboomearthquake*255
+	if earthquake > 0 and #objects["rainboom"] > 0 then
+		for i = 1, rainboom.effectstripes do
+			local r, g, b = unpack(rainboom.colortable[math.mod(i-1, 6)+1])
+			local a = earthquake/rainboom.effectearthquake*255
 			
 			love.graphics.setColor(r, g, b, a)
 			
-			local alpha = math.rad((i/backgroundstripes + math.mod(sunrot/5, 1)) * 360)
+			local alpha = math.rad((i/rainboom.effectstripes + math.mod(sunrot/5, 1)) * 360)
 			local point1 = {width*8*scale+300*scale*math.cos(alpha), 112*scale+300*scale*math.sin(alpha)}
 			
-			local alpha = math.rad(((i+1)/backgroundstripes + math.mod(sunrot/5, 1)) * 360)
+			local alpha = math.rad(((i+1)/rainboom.effectstripes + math.mod(sunrot/5, 1)) * 360)
 			local point2 = {width*8*scale+300*scale*math.cos(alpha), 112*scale+300*scale*math.sin(alpha)}
 			
 			love.graphics.polygon("fill", width*8*scale, 112*scale, point1[1], point1[2], point2[1], point2[2])
@@ -1753,12 +1752,6 @@ function game_draw()
 		end
 		
 		love.graphics.setColor(255, 255, 255)
-
-		--nothing to see here
-		--http://ejew.in/pub/click_the_horse.swf
-		for i, v in pairs(rainbooms) do
-			v:draw()
-		end
 		
 		drawforeground()
 	end --SCENE DRAW FUNCTION END
@@ -2616,7 +2609,6 @@ function loadlevel(level, is_sublevel)
 	portalparticles = {}
 	portalprojectiles = {}
 	userects = {}
-	rainbooms = {}
 	emancipationfizzles = {}
 	dialogboxes = {}
 	inventory = {}
