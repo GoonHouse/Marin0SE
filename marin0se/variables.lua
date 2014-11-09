@@ -12,6 +12,8 @@ gellifetime = 2
 bulletbilllifetime = 20
 playertypelist = {"portalgun", "gelcannon"}
 gameplaytypelist = {"na", "vanilla", "oddjob"}
+help_tips = { "i love men", "this is a helpful tip i promise", "flabberific", "beware of gaping buttholes", "first jo is best jo", "cake is a lie joke ban me", "that was easy", "george lucas is an asshole", "what the fuck is wrong with his neck", "now with more hints", "shoot it until it dies", "watashi wa desu", "naah he-man", "where the video games at",}
+help_tipi = 1
 
 latetable = {"portalwall", "castlefirefire", "platform"}
 -- the above is used in physics.lua to calculate late physics entities
