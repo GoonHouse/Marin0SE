@@ -48,7 +48,7 @@
 	"quadcenterX": 18,
 	"quadcenterY": 24,
 	
-  "spawnsenemy": "fireball",
+  "spawnsenemy": "firespark",
 	"spawnenemydelays": [1, 2, 3, 2],
 	"spawnenemyspeedy": 0,
 	"spawnenemyspeedx": -10,

@@ -48,7 +48,7 @@
 	"jumpforce": 19,
 	"jumpforcedown": 6,
 
-	"spawnsenemy": "sunfire",
+	"spawnsenemy": "firespark",
 	"spawnenemydelays": [2, 4],
 	"spawnenemyspeedy": -15,
 	"spawnenemyspeedx": 0,
