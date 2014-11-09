@@ -137,8 +137,9 @@ function shaders:init(numpasses)
 			local name = "shaders".."/"..v
 			if love.filesystem.isFile(name) then
 				local str = love.filesystem.read(name)
+				--local effect = love.graphics.newShader(str)
 				local success, effect = pcall(love.graphics.newShader, str)
-				if success then
+				if success and effect then
 					local defs = {}
 					for vtype, extern in str:gmatch("extern (%w+) (%w+)") do
 						defs[extern] = true
