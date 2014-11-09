@@ -1,5 +1,6 @@
 function levelscreen_load(reason, i)
 	--check if lives left
+  help_tipi = math.random(1,#help_tips)
 	livesleft = true
 	--[[for i = 1, players do
 		if mariolivecount == false or objects["player"][i].lives > 0 then
@@ -144,15 +145,8 @@ function levelscreen_draw()
 			end
 			
 			
-			if mappack == "smb" and marioworld == 1 and mariolevel == 1 then
-				local s = "remember that you can run with "
-				--[[for i = 1, #controls[1]["run"] do
-					s = s .. controls[1]["run"][i]
-					if i ~= #controls[1]["run"] then
-						s = s .. "-"
-					end
-				end]]
-				s = s .. "your feet"
+			if mappack == "smb" then
+				local  s = help_tips[help_tipi]
 				properprint(s, (width/2*16)*scale-string.len(s)*4*scale, 200*scale)
 			end
 			
