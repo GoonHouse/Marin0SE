@@ -164,6 +164,11 @@ function love.load(args)
 
 	math.mod = math.fmod
 	math.random = love.math.random
+	-- I'm literally doing this just so the title load text gets shaken up.
+	math.random()
+	for i=1,math.random(5) do
+		math.random()
+	end
 	
 	print("Loading Mari0 SE!")
 	print("=======================")
@@ -400,7 +405,7 @@ function love.load(args)
 	-- injecting this here, I'm sorry
 		love.graphics.clear()
 		love.graphics.setColor(100, 100, 100)
-		loadingtext = loadingtexts[math.random(#loadingtexts)]
+		loadingtext = loadingtexts[math.random(1,#loadingtexts)]
 		
 		local logoscale = scale
 		if logoscale <= 1 then
@@ -413,7 +418,7 @@ function love.load(args)
 		
 		love.graphics.draw(logo, love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0, logoscale, logoscale, 142, 150)
 		love.graphics.setColor(150, 150, 150)
-		properprint("loading mari0 se..", love.graphics.getWidth()/2-string.len("loading mari0 se..")*4*scale, love.graphics.getHeight()/2-170*logoscale-7*scale)
+		properprint(loading_header, love.graphics.getWidth()/2-string.len(loading_header)*4*scale, love.graphics.getHeight()/2-170*logoscale-7*scale)
 		love.graphics.setColor(50, 50, 50)
 		properprint(loadingtext, love.graphics.getWidth()/2-string.len(loadingtext)*4*scale, love.graphics.getHeight()/2+165*logoscale)
 		love.graphics.present()

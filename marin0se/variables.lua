@@ -12,7 +12,22 @@ gellifetime = 2
 bulletbilllifetime = 20
 playertypelist = {"portalgun", "gelcannon"}
 gameplaytypelist = {"na", "vanilla", "oddjob"}
-help_tips = { "i love men", "this is a helpful tip i promise", "flabberific", "beware of gaping buttholes", "first jo is best jo", "cake is a lie joke ban me", "that was easy", "george lucas is an asshole", "what the fuck is wrong with his neck", "now with more hints", "shoot it until it dies", "watashi wa desu", "naah he-man", "where the video games at",}
+help_tips = { 
+	"i love men",
+	"this is a helpful tip i promise",
+	"flabberific",
+	"beware of gaping buttholes",
+	"first jo is best jo",
+	"cake is a lie joke ban me",
+	"that was easy",
+	"george lucas is an asshole",
+	"what the fuck is wrong with his neck",
+	"now with more hints",
+	"shoot it until it dies",
+	"watashi wa desu",
+	"naah he-man",
+	"where the video games at",
+}
 help_tipi = 1
 
 latetable = {"portalwall", "castlefirefire", "platform"}
@@ -48,7 +63,12 @@ superfriction = 100 --see above, but when speed is greater than maxrunspeed
 frictionair = 0 --see above, but in air
 airslidefactor = 0.8 --multiply of acceleration in air when changing direction
 
+
+loading_header = "pretending to load"
 loadingtexts = {
+	"#meatlesstaco",
+	"subtweeting entrancejew",
+	"flabberizing data to new efficient format",
 	"reticulating splines",
 	"rendering important stuff",
 	"01110000011011110110111001111001",
@@ -57,6 +77,7 @@ loadingtexts = {
 	"happy explosion day",
 	"raising coolness by a fifth",
 	"yay facepunch",
+	"yay somethingawful",
 	"stabbing myself",
 	"sharpening knives",
 	"tanaka, thai kick",
@@ -67,7 +88,7 @@ loadingtexts = {
 	"oh my god, jc, a bomb",
 	"silly loading message here",
 	"motivational art by jorichi",
-	"love.graphics.print(\"loading..\", 200, 120)",
+	"downloading pacman hentai",
 	"you're my favorite deputy",
 	"licensed under wtfpl",
 	"banned in australia",
