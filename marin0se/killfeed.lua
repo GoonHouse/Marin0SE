@@ -139,7 +139,7 @@ function killfeed.draw()
 		local thewidth = (
 			v.attacker:len()
 			+ v.victim:len()
-			+ 2 --spacing chars
+			+ .75
 		)*8 + v.icon:getWidth()
 		--[[local split = v.text:split("|")
 		local longest = #split[1]

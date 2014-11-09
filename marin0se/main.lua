@@ -2210,23 +2210,23 @@ function reloadGraphics()
 	gradientimg = love.graphics.newImage("gradient.png")
 	gradientimg:setFilter("linear", "linear")
 	
-	-- kill icons
+	--@WARNING: This code is a bad influence because icons that don't already exist can't be introduced by a modpack. I'll fix it later.
 	killfeed.icons = {}
-	for h,s in pairs(damage_types) do
-		--local foundit = false
-		for i,j in pairs(graphicssearchdirs) do
-			j = j % {mappack=mappack,file="killicon/"..s..".png",graphicspack=graphicspack}
-			if love.filesystem.exists(j) then
-				--foundit = true
-				killfeed.icons[s] = love.graphics.newImage(j)
-				break
-			end
-		end
-		if not killfeed.icons[s] then
-			print("missingno", s)
-			killfeed.icons[s] = love.graphics.newImage("killicon/mystery.png")
+	killfeed.exicons = {}
+	local gdir = "graphics/DEFAULT/"
+	local idir = "ui/icons/kill"
+	for h,s in ipairs(love.filesystem.getDirectoryItems(gdir..idir)) do
+		if love.filesystem.isFile(gdir..idir.."/"..s) then
+			killfeed.icons[s:sub(0,-5)] = love.graphics.newImage(gdir..idir.."/"..s)
 		end
 	end
+	idir = "ui/icons"
+	for h,s in ipairs(love.filesystem.getDirectoryItems(gdir..idir)) do
+		if love.filesystem.isFile(gdir..idir.."/"..s) then
+			killfeed.exicons[s:sub(0,-5)] = love.graphics.newImage(gdir..idir.."/"..s)
+		end
+	end
+	
 end
 
 function reloadSounds() -- mastersfx, master list of sounds current being looked at.
