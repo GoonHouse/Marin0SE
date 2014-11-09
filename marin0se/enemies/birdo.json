@@ -1,8 +1,9 @@
 {
 	"quadcount": 4,
-	
+  "nospritesets": true,
+  
 	"movement": "wiggle",
-	"wiggledistance": 3,
+	"wiggledistance": 5,
 	"wigglespeed": 2,
 	"speedx": -3,
 	
@@ -20,8 +21,8 @@
 	
 	"quadno": 1,
 	
-	"width": 0.75,
-	"height": 0.75,
+	"width": 1,
+	"height": 1.50,
 	
 	"gravity": 40,
 	
@@ -39,21 +40,16 @@
 	"autodelete": true,
 	
 	"offsetX": 6,
-	"offsetY": 8,
+	"offsetY": -6,
 	"quadcenterX": 8,
 	"quadcenterY": 21,
-	
-	"jumps": true,
-	"jumptime": 7,
-	"jumpforce": 10,
-	"jumpforcedown": 10,
 
 	"spawnsenemy": "egg",
 	"spawnenemydelays": [1, 4, 3, 2, 1, 4, 2, 3, 4, 3, 1, 1, 3, 2],
 	"spawnenemyspeedy": 0,
 	"spawnenemyspeedx": -8,
 	"spawnenemyoffsety": -0.875,
-	"spawnenemyoffsetx": 0,
+	"spawnenemyoffsetx": -0.5,
 	"spawnenemyspeedxtowardsplayer": true,
 	
 	"throwquadoffset": 2,

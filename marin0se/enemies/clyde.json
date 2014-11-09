@@ -22,9 +22,9 @@
 	"quadno": 1,
 	
 	"width": 2.125,
-	"height": 3,
+	"height": 1.80,
 	
-  "gravity": 0,
+  "gravity": 10,
 	
 	"static": false,
 	"active": true,
@@ -44,7 +44,7 @@
 	"autodelete": false,
 	
 	"offsetX": 16,
-	"offsetY": -16,
+	"offsetY": 3,
 	"quadcenterX": 18,
 	"quadcenterY": 24,
 	
@@ -52,7 +52,7 @@
 	"spawnenemydelays": [1, 2, 3, 2],
 	"spawnenemyspeedy": 0,
 	"spawnenemyspeedx": -10,
-	"spawnenemyoffsety": -3,
+	"spawnenemyoffsety": -1.5,
 	"spawnenemyoffsetx": 0.1,
 	"spawnenemyspeedxtowardsplayer": true,
 	

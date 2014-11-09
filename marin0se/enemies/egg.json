@@ -35,10 +35,10 @@
 	"emancipatecheck": true,
 	"autodelete": true,
 	
-	"offsetX": 0,
-	"offsetY": 8,
-	"quadcenterX": 0,
-	"quadcenterY": 0,
+	"offsetX": 8,
+	"offsetY": 4,
+	"quadcenterX": 8,
+	"quadcenterY": 6,
 	
 	"portalable": true,
 	"resistsstar": true,
