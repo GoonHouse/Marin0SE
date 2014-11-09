@@ -1,11 +1,12 @@
 {
 	"quadcount": 4,
-	
+  
 	"animationtype": "frames",
 	"animationframes": 4,
 	"animationstart": 1,
 	"animationspeed": 0.1,
-	"spawnsound": "throw",
+  
+	"spawnsound": "boss_spit",
 
 	"nocollidestops": true,
 	"killsenemiesafterportal": true,
@@ -14,10 +15,10 @@
 	"speedy": -15,
 	"speedx": -4,
 
-	"offsetX": 6,
-	"offsetY": 2,
-	"quadcenterX": 8,
-	"quadcenterY": 8,
+"offsetX": 4,
+	"offsetY": 4,
+	"quadcenterX": 4,
+	"quadcenterY": 4,
 
 	"width": 0.5,
 	"height": 0.5,

@@ -3,16 +3,16 @@
 
   "nospritesets": true,
   
-	"movement": "wiggle",
-	"wiggledistance": 1.5,
-	"wigglespeed": 0.1,
-	"wigglespeedbackwards": 1.875,
-	
+"movement": "wiggle",
+	"wiggledistance": 1,
+	"wigglespeed": 0.5,
+	"speedx": -2,	
 	"facesplayer": true,
 	
-	"stompable": true,
+	"stompable": false,
 	"killsonsides": true,
 	"killsonbottom": true,
+  "killsontop": true,
 	
 	"animationtype": "frames",
 	"animationframes": 2,
@@ -24,12 +24,12 @@
 	"width": 2.125,
 	"height": 3,
 	
-	"gravity": 10.9,
+  "gravity": 0,
 	
 	"static": false,
 	"active": true,
 	
-	"category": 16,
+	"category": 20,
 	
 	"mask": [	true,
 				false, false, false, false, true,
@@ -43,21 +43,21 @@
 	"emancipatecheck": true,
 	"autodelete": false,
 	
-	"offsetX": 20,
-	"offsetY": -20,
-	"quadcenterX": 16,
-	"quadcenterY": 12,
+	"offsetX": 16,
+	"offsetY": -16,
+	"quadcenterX": 18,
+	"quadcenterY": 24,
 	
-  "spawnsenemy": "fire",
-	"spawnenemydelays": [1, 4, 3, 2, 1, 4, 2, 3, 4, 3, 1, 1, 3, 2],
+  "spawnsenemy": "fireball",
+	"spawnenemydelays": [1, 2, 3, 2],
 	"spawnenemyspeedy": 0,
-	"spawnenemyspeedx": -3,
-	"spawnenemyoffsety": -1,
-	"spawnenemyoffsetx": 1.5,
+	"spawnenemyspeedx": -10,
+	"spawnenemyoffsety": -3,
+	"spawnenemyoffsetx": 0.1,
 	"spawnenemyspeedxtowardsplayer": true,
 	
 	"throwquadoffset": 2,
-	"throwpreparetime": 1,
+	"throwpreparetime": 0.25,
 	
 	"ignorefaithplates": true
 }
