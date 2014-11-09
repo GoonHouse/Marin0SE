@@ -262,8 +262,10 @@ function game_update(dt)
 	--UPDATE STUFFFFF
 	
 	local updatetable = {
-		emancipationfizzles, dialogboxes,
-		userects, coinblockanimations, itemanimations
+		dialogboxes,
+		userects,
+		coinblockanimations,
+		itemanimations
 	}
 	local noupdateobjects = {"tile", "portalwall", "screenboundary"}
 	for i, v in pairs(objects) do
@@ -1366,11 +1368,6 @@ function game_draw()
 					properprint("to play as steve", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (lastaxe.coy+.5-yscroll)*16*scale)
 				end
 			end
-		end
-		
-		--emancipationfizzles
-		for i, v in pairs(emancipationfizzles) do
-			v:draw()
 		end
 		
 		love.graphics.setColor(255, 255, 255)
@@ -2557,7 +2554,6 @@ function loadlevel(level, is_sublevel)
 	portalparticles = {}
 	portalprojectiles = {}
 	userects = {}
-	emancipationfizzles = {}
 	dialogboxes = {}
 	inventory = {}
 	for i = 1, 9 do
