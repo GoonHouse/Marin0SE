@@ -27,6 +27,8 @@ help_tips = {
 	"watashi wa desu",
 	"naah he-man",
 	"where the video games at",
+  "toddy always has the best memes",
+  "bingle bangle bongle bungalo",
 }
 help_tipi = 1
 
