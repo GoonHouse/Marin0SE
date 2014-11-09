@@ -419,13 +419,6 @@ endanimationend = 12 -- user can press any button
 drainspeed = 20
 drainmax = 10
 
-rainboomdelay = 0.03
-rainboomframes = 49
-rainboomspeed = 45
-rainboomearthquake = 50
-
-backgroundstripes = 24
-
 konamilength = 10
 konamihash = "7d0b25cc0abdcc216e9f26b078c0cb5c9032ed8c"
 konamitable = {}
@@ -434,17 +427,20 @@ for i = 1, konamilength do
 end
 
 earthquakespeed = 40
-bullettime = false
-portalknockback = false
-bigmario = false
-goombaattack = false
-sonicrainboom = false
-playercollisions = false
+
+cheats_active = {
+	rainboom = true,
+	goombaattack = false,
+	bigmario = false,
+	bullettime = false,
+	portalknockback = false,
+	playercollisions = false,
+	infinitetime = false,
+	infinitelives = false,
+}
 scalefactor = 5
 gelcannondelay = 0.05
 gelcannonspeed = 30
-infinitetime = false
-infinitelives = false
 
 pausemenuoptions = {"resume", "suspend", "volume", "quit to", "quit to"}
 pausemenuoptions2 = {"", "", "", "menu", "desktop"}

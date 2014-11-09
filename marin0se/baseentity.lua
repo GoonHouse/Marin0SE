@@ -320,7 +320,8 @@ function baseentity:init(origclass, classname, x, y, z, r, parent)
 	
 	
 	-- THIS ALL HAS TO DO WITH THE GRAPHICS ON LEVEL 3
-	-- visibility determines whether the draw method is called -- drawable I'm not sure where it's even used
+	-- visibility determines whether the draw method is called
+	-- drawable determines whether we use the base drawing method or overwrite with our own, having this and a draw method will cause double vision
 	self.visible, self.drawable = true, true
 	-- if we need to be offset from the x/y for drawing
 	self.offsetX, self.offsetY = 0, 0

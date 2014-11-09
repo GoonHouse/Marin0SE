@@ -1038,7 +1038,7 @@ function menu_draw()
 			end
 			
 			properprint("sonic rainboom:", 30*scale, 150*scale)
-			if sonicrainboom then
+			if cheats_active.rainboom then
 				properprint("on", (180-16)*scale, 150*scale)
 			else
 				properprint("off", (180-24)*scale, 150*scale)
@@ -1541,14 +1541,9 @@ function menu_controlupdate(dt)
 				players = 1
 				playertype = "portal"
 				playertypei = 1
-				bullettime = false
-				portalknockback = false
-				bigmario = false
-				goombaattack = false
-				sonicrainboom = false
-				playercollisions = false
-				infinitetime = false
-				infinitelives = false
+				for k,v in pairs(cheats_active) do
+					cheats_active[k] = false
+				end
 				onlinemenu_load()
 				playersaresharingportals = false
 			elseif selection == 4 then
@@ -1808,9 +1803,6 @@ function menu_controlupdate(dt)
 						playertypei = 1
 					end
 					playertype = playertypelist[playertypei]
-					if playertype == "gelcannon" then
-						sonicrainboom = false
-					end
 				elseif optionsselection == 3 then
 					portalknockback = not portalknockback
 				elseif optionsselection == 4 then
@@ -1820,9 +1812,7 @@ function menu_controlupdate(dt)
 				elseif optionsselection == 6 then
 					goombaattack = not goombaattack
 				elseif optionsselection == 7 then
-					sonicrainboom = not sonicrainboom
-					playertype = "portalgun"
-					playertypei = 1
+					cheats_active.rainboom = not cheats_active.rainboom
 				elseif optionsselection == 8 then
 					playercollisions = not playercollisions
 				elseif optionsselection == 9 then
@@ -1909,9 +1899,6 @@ function menu_controlupdate(dt)
 						playertypei = #playertypelist
 					end
 					playertype = playertypelist[playertypei]
-					if playertype == "gelcannon" then
-						sonicrainboom = false
-					end
 				elseif optionsselection == 3 then
 					portalknockback = not portalknockback
 				elseif optionsselection == 4 then
@@ -1921,7 +1908,7 @@ function menu_controlupdate(dt)
 				elseif optionsselection == 6 then
 					goombaattack = not goombaattack
 				elseif optionsselection == 7 then
-					sonicrainboom = not sonicrainboom
+					cheats_active.rainboom = not cheats_active.rainboom
 					playertype = "portalgun"
 					playertypei = 1
 				elseif optionsselection == 8 then

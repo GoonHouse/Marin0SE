@@ -489,7 +489,6 @@ function love.load(args)
 	require "portalparticle"
 	require "portalprojectile"
 	require "fire"
-	require "rainboom"
 	require "emancipationfizzle"
 	require "portal"
 	require "dialogbox"
@@ -825,14 +824,6 @@ function love.load(args)
 	decoysquad = {}
 	for y = 1, 7 do
 		decoysquad[y] = love.graphics.newQuad(0, (y-1)*32, 32, 32, 64, 256)
-	end
-	
-	--eh
-	rainboomquad = {}
-	for x = 1, 7 do
-		for y = 1, 7 do
-			rainboomquad[x+(y-1)*7] = love.graphics.newQuad((x-1)*204, (y-1)*182, 204, 182, 1428, 1274)
-		end
 	end
 	
 	--magic!
@@ -2204,8 +2195,6 @@ function reloadGraphics()
 	titleimage = love.graphics.newImage("title.png")
 	playerselectimg = love.graphics.newImage("playerselectarrow.png")
 	
-	rainboomimg = love.graphics.newImage("rainboom.png")
-	
 	magicimg = love.graphics.newImage("magic.png")
 	
 	checkboximg = love.graphics.newImage("checkbox.png")
@@ -2230,8 +2219,8 @@ function reloadGraphics()
 end
 
 function reloadSounds() -- mastersfx, master list of sounds current being looked at.
-	soundstoload = {"none", "jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball", "redcoin1", "redcoin2", "redcoin3", "redcoin4", "redcoin5", "boss_spit", "enemy_hit",
-					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill", "addtime", "throw", "trophy", "switch",
+	soundstoload = {"none", "jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball", "redcoin1", "redcoin2", "redcoin3", "redcoin4", "redcoin5", "boss_spit", "enemy_hit", "rainboom",
+					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "konami", "pause", "bulletbill", "addtime", "throw", "trophy", "switch",
 					"lowtime", "tailwag", "planemode", "stab", "spring", "portal1open", "portal2open", "portalenter", "portalfizzle"}
 				
 	soundlist = {}
