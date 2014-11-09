@@ -242,9 +242,6 @@ speed = 1
 speedtarget = 1
 speedmodifier = 10
 
-scrollingscoretime = 0.8
-scrollingscoreheight = 2.5
-
 portalparticlespeed = 1
 portalparticletimer = 0
 portalparticletime = 0.05

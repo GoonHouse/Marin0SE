@@ -4220,7 +4220,8 @@ function player:getscore(val, x, y)
 		y = self.y
 	end
 	--@TODO: make scrollingscores a (sane/based)entity
-	table.insert(scrollingscores, scrollingscore:new(val, x, y))
+	
+	scrollingtext:new(x, y, val)
 end
 
 function player:getlife(val, x, y)
