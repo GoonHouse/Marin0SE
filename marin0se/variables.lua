@@ -468,12 +468,6 @@ funnelmaxspeed = 10
 linktoolfadeouttimefast = 0.1
 linktoolfadeouttimeslow = 0.5
 
-emancipateanimationtime = 0.6
-emancipatefadeouttime = 0.2
-
-emancipationfizzletime = 0.4
-emancipationfizzledelay = 0.05
-
 pedestaltime = 1
 
 --Functions, functions everywhere.
