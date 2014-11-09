@@ -1,0 +1,63 @@
+{
+	"quadcount": 4,
+	
+	"movement": "wiggle",
+	"wiggledistance": 3,
+	"wigglespeed": 2,
+	"speedx": -3,
+	
+	"facesplayer": true,
+	
+	"stompable": false,
+  "rideable": true,
+	"killsonsides": true,
+	"killsonbottom": true,
+	
+	"animationtype": "frames",
+	"animationframes": 2,
+	"animationstart": 1,
+	"animationspeed": 0.2,
+	
+	"quadno": 1,
+	
+	"width": 0.75,
+	"height": 0.75,
+	
+	"gravity": 40,
+	
+	"static": false,
+	"active": true,
+	
+	"category": 20,
+	
+	"mask": [	true, 
+				false, false, false, false, true, 
+				false, false, false, true],
+					
+	
+	"emancipatecheck": true,
+	"autodelete": true,
+	
+	"offsetX": 6,
+	"offsetY": 8,
+	"quadcenterX": 8,
+	"quadcenterY": 21,
+	
+	"jumps": true,
+	"jumptime": 7,
+	"jumpforce": 10,
+	"jumpforcedown": 10,
+
+	"spawnsenemy": "egg",
+	"spawnenemydelays": [1, 4, 3, 2, 1, 4, 2, 3, 4, 3, 1, 1, 3, 2],
+	"spawnenemyspeedy": 0,
+	"spawnenemyspeedx": -8,
+	"spawnenemyoffsety": -0.875,
+	"spawnenemyoffsetx": 0,
+	"spawnenemyspeedxtowardsplayer": true,
+	
+	"throwquadoffset": 2,
+	"throwpreparetime": 0.5,
+	
+	"ignorefaithplates": true
+}
