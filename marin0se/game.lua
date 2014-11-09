@@ -1295,22 +1295,6 @@ function game_draw()
 		if bdrawui then
 			drawui()
 		end
-		
-		-- We're going to buck draw depth for now.
-		for _, entname in pairs(saneents) do
-			love.graphics.setColor(255, 255, 255)
-			for k,v in pairs(objects[entname]) do
-				if v.draw then v:draw() end
-			end
-		end
-		
-		-- same, but #based
-		for _, entname in pairs(basedents) do
-			love.graphics.setColor(255, 255, 255)
-			for k,v in pairs(objects[entname]) do
-				if v.draw then v:draw() end
-			end
-		end
 
 		love.graphics.setColor(255, 255, 255)
 		--warpzonetext
@@ -1372,9 +1356,8 @@ function game_draw()
 		
 		love.graphics.setColor(255, 255, 255)
 		
-		--OBJECTS
-		-- apparently this *doesn't* draw all the objects? what kind of crap is this?
-		for j, w in pairs(objects) do	
+		--@DEV: THE GREAT BIG DRAW HANDLER
+		for j, w in pairs(objects) do
 			if j ~= "tile" then
 				for i, v in pairs(w) do
 					if v.drawable and v.graphic and v.quad then
