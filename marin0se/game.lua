@@ -126,37 +126,6 @@ function game_update(dt)
 	
 	redcoinframe = math.floor(redcoinanimation)
 	
-	--SCROLLING SCORES
-	local delete = {}
-	
-	for i, v in pairs(scrollingscores) do
-		if scrollingscores[i]:update(dt) == true then
-			table.insert(delete, i)
-		end
-	end
-	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(scrollingscores, v) --remove
-	end
-	
-	
-	--SCROLLING TEXTS
-	local delete = {}
-	
-	for i, v in pairs(scrollingtexts) do
-		if scrollingtexts[i]:update(dt) == true then
-			table.insert(delete, i)
-		end
-	end
-	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(scrollingtexts, v) --remove
-	end
-	
 	if replaysystem then
 		for j = 1, #replaydata do
 			if replaydata[j].data then
@@ -1657,25 +1626,6 @@ function game_draw()
 			love.graphics.draw(coinblockanimationimg, coinblockanimationquads[coinblockanimations[i].frame], math.floor((coinblockanimations[i].x - xscroll)*16*scale), math.floor(((coinblockanimations[i].y-yscroll)*16-8)*scale), 0, scale, scale, 4, 54)
 		end
 		
-		--SCROLLING SCORE
-		for i, v in pairs(scrollingscores) do
-			if type(scrollingscores[i].i) == "number" then
-				properprint2(scrollingscores[i].i, math.floor((scrollingscores[i].x-0.4)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale))
-			elseif scrollingscores[i].i == "1up" then
-				love.graphics.draw(popupfontimage, popupfontquads[1], math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
-			elseif scrollingscores[i].i == "3up" then
-				love.graphics.draw(popupfontimage, popupfontquads[3], math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
-			elseif scrollingscores[i].i == "timeincrease" then
-				love.graphics.draw(popupfontimage, popupfontquads[6], math.floor((scrollingscores[i].x)*16*scale)-32, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
-				properprint2(givemetemp["time"], math.floor((scrollingscores[i].x-0.4)*16*scale)+8, math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale))
-			end
-		end
-		
-		--SCROLLING TEXT
-		for i, v in pairs(scrollingtexts) do
-			v:draw()
-		end
-	
 		local minex, miney, minecox, minecoy
 		
 		--PORTAL UI STUFF
@@ -2604,8 +2554,6 @@ function loadlevel(level, is_sublevel)
 	
 	--class tables
 	coinblockanimations = {}
-	scrollingscores = {}
-	scrollingtexts = {}
 	portalparticles = {}
 	portalprojectiles = {}
 	userects = {}
@@ -4725,11 +4673,7 @@ function item(i, x, y, size)
 end
 
 function givelive(id, t)
-	if givemestuff["lives"] == 3 then
-		table.insert(scrollingscores, scrollingscore:new("3up", t.x, t.y))
-	else 
-		table.insert(scrollingscores, scrollingscore:new("1up", t.x, t.y))
-	end
+	scrollingscore:new(t.x, t.y, givemestuff["lives"], "life")
 	if mariolivecount ~= false then
 		for i = 1, players do
 			objects["player"][i].lives = objects["player"][i].lives + givemestuff["lives"]
@@ -4743,7 +4687,7 @@ function givelive(id, t)
 end	
 
 function givetime(id, t)
-	table.insert(scrollingscores, scrollingscore:new("timeincrease", t.x, t.y))
+	scrollingtext:new(t.x, t.y, givemestuff["time"], "time")
 	mariotime = mariotime+givemestuff["time"]
 	givemestuff["time"] = 0
 	playsound("addtime", t.x, t.y) --point entity

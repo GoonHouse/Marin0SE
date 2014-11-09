@@ -484,8 +484,6 @@ function love.load(args)
 	require "imgurupload"
 	
 	require "player"
-	require "scrollingscore"
-	require "scrollingtext"
 	require "portalparticle"
 	require "portalprojectile"
 	require "fire"
