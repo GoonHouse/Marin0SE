@@ -1,10 +1,4 @@
 killfeed = {}
-killfeed.red = {255, 127, 127}
-killfeed.white = {255, 255, 255}
-
-killfeed.attacker = {255, 127, 127}
-killfeed.dtype = {127, 255, 127}
-killfeed.victim = {127, 127, 255}
 
 killfeed.themes = {
 	dark = {
@@ -97,7 +91,12 @@ function killfeed.new(attackers, dtype, victims, ex)
 	else
 		attackername = "world"
 	end
-	dtype = dtype or "kiss"
+	dtype = dtype or "mystery"
+	if killfeed.icons[dtype] then
+		dicon = killfeed.icons[dtype]
+	else
+		dicon = killfeed.icons["mystery"]
+	end
 	local victimname = killfeed.glob(victims)
 	
 	if (victims and victims.playernumber == 1) then
@@ -110,6 +109,7 @@ function killfeed.new(attackers, dtype, victims, ex)
 	table.insert(killfeed.killfeeds, {
 		attacker=attackername:lower(),
 		dtype=dtype:lower(),
+		icon=dicon,
 		victim=victimname:lower(),
 		theme=theme,
 		--text=attackername:lower().." "..dtype:lower().."ed "..victimname:lower(),
@@ -139,10 +139,8 @@ function killfeed.draw()
 		local thewidth = (
 			v.attacker:len()
 			+ v.victim:len()
-			+ v.dtype:len() --eventually this will be an image width
 			+ 2 --spacing chars
-			+ 2 --"ed" to the dtype
-		)*8
+		)*8 + v.icon:getWidth()
 		--[[local split = v.text:split("|")
 		local longest = #split[1]
 		for i = 2, #split do
@@ -192,12 +190,17 @@ function killfeed.draw()
 		local xoff = targetrect[1]+3
 		love.graphics.setColor(datheme.attacker, datheme.alpha)
 		properprint(v.attacker, xoff*scale, (actualy+3)*scale)
-		xoff = xoff + (v.attacker.." "):len()*8
+		xoff = xoff + (v.attacker):len()*8+4
 		
+		-- icon
 		love.graphics.setColor(datheme.icon, datheme.alpha)
-		properprint(v.dtype.."ed", xoff*scale, (actualy+3)*scale)
-		xoff = xoff + (v.dtype.."ed "):len()*8
+		love.graphics.draw(v.icon, xoff*scale, (actualy+scale/2)*scale, 0, scale-1, scale-1) 
+		-- we offset the scales because otherwise the scissor would pee on our icons
+		-- the 1.5 is, uh, what it takes to center the graphic
+		--properprint(v.dtype.."ed", xoff*scale, (actualy+3)*scale)
+		xoff = xoff + v.icon:getWidth()
 		
+		-- victim(s)
 		love.graphics.setColor(datheme.victim, datheme.alpha)
 		properprint(v.victim, xoff*scale, (actualy+3)*scale)
 		

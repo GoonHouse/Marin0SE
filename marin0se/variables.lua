@@ -46,7 +46,43 @@ superfriction = 100 --see above, but when speed is greater than maxrunspeed
 frictionair = 0 --see above, but in air
 airslidefactor = 0.8 --multiply of acceleration in air when changing direction
 
+loadingtexts = {
+	"reticulating splines",
+	"rendering important stuff",
+	"01110000011011110110111001111001",
+	"sometimes, i dream about cheese",
+	"baking cake",
+	"happy explosion day",
+	"raising coolness by a fifth",
+	"yay facepunch",
+	"stabbing myself",
+	"sharpening knives",
+	"tanaka, thai kick",
+	"slime will find you",
+	"becoming self-aware",
+	"it's a secret to everybody",
+	"there is probably not a minus world",
+	"oh my god, jc, a bomb",
+	"silly loading message here",
+	"motivational art by jorichi",
+	"love.graphics.print(\"loading..\", 200, 120)",
+	"you're my favorite deputy",
+	"licensed under wtfpl",
+	"banned in australia",
+	"loading anti-piracy module",
+	"watch out there's a sni",
+	"attack while its tail's up!",
+	"what a horrible night to have a curse",
+	"why is george lucas an asshole",
+	"establishing connection to nsa servers",
+	"how do i programm",
+	"making palette inaccurate",
+	"restandardizing ntsc",
+	"y cant mario crawl?"
+}
+
 damage_types = {
+	"mystery",		--this is here as a fallback for the killicons, I'm a very disorganized person
 	"toilet",		--if this happens, something had an undefined kill type, mostly for bug finding
 	"kill",			--generic, this happens as a fallback for icon purposes (skull & crossbones)
 	
@@ -426,7 +462,7 @@ end
 earthquakespeed = 40
 
 cheats_active = {
-	rainboom = true,
+	rainboom = false,
 	goombaattack = false,
 	bigmario = false,
 	bullettime = false,

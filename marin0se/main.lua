@@ -172,7 +172,6 @@ function love.load(args)
 	totaltime = 0
 	JSON = require("libs.JSON")
 	require "notice"
-	require "killfeed"
 	
 	--Get biggest screen size
 	
@@ -242,8 +241,6 @@ function love.load(args)
 		print(err)
 	end
 	
-	reloadGraphics()
-	
 	physicsdebug = false
 	incognito = false
 	portalwalldebug = false
@@ -287,26 +284,6 @@ function love.load(args)
 	for i = 1, 4 do
 		cursorareaquads[i] = love.graphics.newQuad((i-1)*18, 0, 18, 18, 72, 18)
 	end
-	
-	fontglyphs = "0123456789abcdefghijklmnopqrstuvwxyz.:/,\"C-_A* !{}?'()+=><#%"
-	fontquads = {}
-	for i = 1, string.len(fontglyphs) do
-		fontquads[string.sub(fontglyphs, i, i)] = love.graphics.newQuad((i-1)*8, 0, 8, 8, fontimage:getWidth(), fontimage:getHeight())
-	end
-	fontquadsback = {}
-	for i = 1, string.len(fontglyphs) do
-		fontquadsback[string.sub(fontglyphs, i, i)] = love.graphics.newQuad((i-1)*10, 0, 10, 10, fontimageback:getWidth(), fontimageback:getHeight())
-	end
-	
-	love.graphics.clear()
-	love.graphics.setColor(100, 100, 100)
-	loadingtexts = {"reticulating splines", "rendering important stuff", "01110000011011110110111001111001", "sometimes, i dream about cheese",
-					"baking cake", "happy explosion day", "raising coolness by a fifth", "yay facepunch", "stabbing myself", "sharpening knives",
-					"tanaka, thai kick", "slime will find you", "becoming self-aware", "it's a secret to everybody", "there is no minus world", 
-					"oh my god, jc, a bomb", "silly loading message here", "motivational art by jorichi", "love.graphics.print(\"loading..\", 200, 120)",
-					"you're my favorite deputy", "licensed under wtfpl", "banned in australia", "loading anti-piracy module", "watch out there's a sni",
-					"attack while its tail's up!", "what a horrible night to have a curse", "han shot first", "establishing connection to nsa servers..",
-					"how do i programm", "making palette inaccurate..", "y cant mario crawl?"}
 	
 	--[[@DEV:
 		I'm getting really tired of |nonstandard global containers| for entities, so
@@ -373,26 +350,6 @@ function love.load(args)
 		is trying to reach this when its assets have been unloaded for mysterious reasons
 	]]
 	
-	
-	
-	loadingtext = loadingtexts[math.random(#loadingtexts)]
-	
-	local logoscale = scale
-	if logoscale <= 1 then
-		logoscale = 0.5
-	else
-		logoscale = 1
-	end
-	
-	love.graphics.setColor(255, 255, 255)
-	
-	love.graphics.draw(logo, love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0, logoscale, logoscale, 142, 150)
-	love.graphics.setColor(150, 150, 150)
-	properprint("loading mari0 se..", love.graphics.getWidth()/2-string.len("loading mari0 se..")*4*scale, love.graphics.getHeight()/2-170*logoscale-7*scale)
-	love.graphics.setColor(50, 50, 50)
-	properprint(loadingtext, love.graphics.getWidth()/2-string.len(loadingtext)*4*scale, love.graphics.getHeight()/2+165*logoscale)
-	love.graphics.present()
-	
 	add("Variables")
 	
 	--require ALL the files!
@@ -427,6 +384,40 @@ function love.load(args)
 	
 	require "shaders"
 	require "variables"
+	require "killfeed"
+	reloadGraphics()
+	
+	fontglyphs = "0123456789abcdefghijklmnopqrstuvwxyz.:/,\"C-_A* !{}?'()+=><#%"
+	fontquads = {}
+	for i = 1, string.len(fontglyphs) do
+		fontquads[string.sub(fontglyphs, i, i)] = love.graphics.newQuad((i-1)*8, 0, 8, 8, fontimage:getWidth(), fontimage:getHeight())
+	end
+	fontquadsback = {}
+	for i = 1, string.len(fontglyphs) do
+		fontquadsback[string.sub(fontglyphs, i, i)] = love.graphics.newQuad((i-1)*10, 0, 10, 10, fontimageback:getWidth(), fontimageback:getHeight())
+	end
+	
+	-- injecting this here, I'm sorry
+		love.graphics.clear()
+		love.graphics.setColor(100, 100, 100)
+		loadingtext = loadingtexts[math.random(#loadingtexts)]
+		
+		local logoscale = scale
+		if logoscale <= 1 then
+			logoscale = 0.5
+		else
+			logoscale = 1
+		end
+		
+		love.graphics.setColor(255, 255, 255)
+		
+		love.graphics.draw(logo, love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0, logoscale, logoscale, 142, 150)
+		love.graphics.setColor(150, 150, 150)
+		properprint("loading mari0 se..", love.graphics.getWidth()/2-string.len("loading mari0 se..")*4*scale, love.graphics.getHeight()/2-170*logoscale-7*scale)
+		love.graphics.setColor(50, 50, 50)
+		properprint(loadingtext, love.graphics.getWidth()/2-string.len(loadingtext)*4*scale, love.graphics.getHeight()/2+165*logoscale)
+		love.graphics.present()
+	-- whew, that's over with
 	require("libs.sha1")
 	class = require("libs.middleclass")
 	require "magic"
@@ -2213,6 +2204,24 @@ function reloadGraphics()
 	
 	gradientimg = love.graphics.newImage("gradient.png")
 	gradientimg:setFilter("linear", "linear")
+	
+	-- kill icons
+	killfeed.icons = {}
+	for h,s in pairs(damage_types) do
+		--local foundit = false
+		for i,j in pairs(graphicssearchdirs) do
+			j = j % {mappack=mappack,file="killicon/"..s..".png",graphicspack=graphicspack}
+			if love.filesystem.exists(j) then
+				--foundit = true
+				killfeed.icons[s] = love.graphics.newImage(j)
+				break
+			end
+		end
+		if not killfeed.icons[s] then
+			print("missingno", s)
+			killfeed.icons[s] = love.graphics.newImage("killicon/mystery.png")
+		end
+	end
 end
 
 function reloadSounds() -- mastersfx, master list of sounds current being looked at.
