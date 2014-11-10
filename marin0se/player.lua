@@ -2793,10 +2793,11 @@ function player:rightcollide(a, b, c, d)
 			end
 			
 			--Check if Mario is walking off a ridable enemy, so that he can safely walk off.
-			if b.rideable and self.y <= b.y - .005 then 
+			if b.rideable and self.y <= b.y - (.005 + (self.height - .75)) then 
 				self.y = b.y - self.height
 				self.speedy = 0
 				print("Giving leeway to Mario's Position (Right)")
+				print(self.height)
 				return false
 			end
 			
@@ -2926,10 +2927,11 @@ function player:leftcollide(a, b, c, d)
 			end
 			
 			--Check if Mario is walking off a ridable enemy, so that he can safely walk off.
-			if b.rideable and self.y <= b.y - .005 then 
+			if b.rideable and self.y <= b.y - (.005 + (self.height - .75)) then 
 				self.y = b.y - self.height
 				self.speedy = 0
 				print("Giving leeway to Mario's Position (Left)")
+				print(self.height)
 				return false
 			end
 			
