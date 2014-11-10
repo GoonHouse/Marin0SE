@@ -1,0 +1,48 @@
+{
+	"quadcount": 2,
+  
+	"movement": "wiggle",
+	"wiggledistance": 8,
+	"wigglespeed": 2,
+	"speedx": 0,
+	
+	"facesplayer": false,
+	
+	"stompable": false,
+  "rideable": true,
+	"killsonsides": false,
+	"killsonbottom": false,
+	
+	"animationtype": "frames",
+	"animationframes": 2,
+	"animationstart": 1,
+	"animationspeed": 0.2,
+	
+	"quadno": 1,
+	
+	"width": 1,
+	"height": 1.125,
+	
+	"gravity": 40,
+	
+	"static": false,
+	"active": true,
+	
+	"category": 20,
+	
+	"mask": [	true, 
+				false, false, false, false, true, 
+				false, false, false, true],
+					
+	
+	"emancipatecheck": true,
+	"autodelete": true,
+	
+	"offsetX": 8,
+	"offsetY": -1,
+	"quadcenterX": 9,
+	"quadcenterY": 9,
+
+	
+	"ignorefaithplates": true
+}
