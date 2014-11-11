@@ -34,7 +34,8 @@ help_tips = {
   "praise the sun",
   "he",
   "did you just say girl cock?",
-  "doge gonnit"
+  "doge gonnit",
+  "ol feshioned hamburge"
 }
 help_tipi = 1
 
