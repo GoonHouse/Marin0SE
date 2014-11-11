@@ -29,6 +29,12 @@ help_tips = {
 	"where the video games at",
   "toddy always has the best memes",
   "bingle bangle bongle bungalo",
+  "dirty old mattress",
+  "pass the whiskey",
+  "praise the sun",
+  "he",
+  "did you just say girl cock?",
+  "doge gonnit"
 }
 help_tipi = 1
 
@@ -103,7 +109,9 @@ loadingtexts = {
 	"how do i programm",
 	"making palette inaccurate",
 	"restandardizing ntsc",
-	"y cant mario crawl?"
+	"y cant mario crawl?",
+  "gordon freeman",
+  "passing the whiskey"
 }
 
 damage_types = {
