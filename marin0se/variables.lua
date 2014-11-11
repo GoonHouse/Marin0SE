@@ -7,6 +7,21 @@ EQUALSIGN = "¨"
 
 --SETABLE VARS--	
 --almost all vars are in "blocks", "blocks per second" or just "seconds". Should be obvious enough what's what.
+-- I couldn't think of a way to draw 
+uiscales = {
+	
+}
+
+debugflags = {
+	userect = true,
+	--speeddebug
+	--portalwalldebug
+	--incognito
+	--physicsdebug
+}
+
+uiscale = 2 --sometimes the ui is too big for higher resolutions, this is independent from the HUD
+
 portalgundelay = 0.2
 gellifetime = 2
 bulletbilllifetime = 20
@@ -104,6 +119,9 @@ loadingtexts = {
 	"making palette inaccurate",
 	"restandardizing ntsc",
 	"y cant mario crawl?"
+}
+loadingtexts = {
+	"downloading pacman hentai"
 }
 
 damage_types = {

@@ -52,7 +52,7 @@ function thisclass:init(x, y, r)
 	self.portaledframe = false
 	-- whether we were pushed by the player
 	self.pushed = false --this *should* be further up the chain, but, being pushable isn't demonstrated with any other object
-	self.userect = adduserect(self.x, self.y, 12/16, 12/16, self)
+	self.userect = userect:new(self.x, self.y, 12/16, 12/16, self)
 	--self:getBasicInput("variant") --reads input from "r" as variable "variant"
 end
 
@@ -77,8 +77,7 @@ function thisclass:update(dt)
 	end
 	
 	-- update our userect
-	self.userect.x = self.x
-	self.userect.y = self.y
+	self.userect:setPos(self.x, self.y)
 	
 	return self.destroy
 end
@@ -194,7 +193,7 @@ function thisclass:passivecollide(a, b)
 end
 
 function thisclass:remove()
-	self.userect.delete = true --need a better way of handling this, but userects aren't their own entity yet
+	self.userect.destroy = true --need a better way of handling this, but userects aren't their own entity yet
 	self.destroy = true
 	self:toggle_all_outputs()
 end

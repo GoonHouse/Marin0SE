@@ -246,10 +246,10 @@ function love.load(args)
 		print(err)
 	end
 	
+	--@DEBUG: here are some vars that are used elsewhere, maybe
 	physicsdebug = false
 	incognito = false
 	portalwalldebug = false
-	userectdebug = false
 	speeddebug = false
 	
 	frameskip = false -- false/0     true is not valid, so stop accidentally writing that.
@@ -281,7 +281,7 @@ function love.load(args)
 	
 	hatcount = #love.filesystem.getDirectoryItems("graphics/standardhats")
 	saveconfig()
-	love.window.setTitle( "Mari0 SE" )
+	love.window.setTitle( "Marin0 SE" )
 	
 	love.graphics.setBackgroundColor(0, 0, 0)
 	
@@ -315,7 +315,7 @@ function love.load(args)
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody", "weapon",
 		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
 		"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames",
-		"pswitch", "smokepuff", "emancipateanimation"
+		"pswitch", "smokepuff", "emancipateanimation", "userect"
 	}
 	-- we made weapon a saneent because tracing mario's draw is REALLY TOUGH
 	-- testing removal of "fireball",

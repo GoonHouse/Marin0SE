@@ -187,19 +187,6 @@ function game_update(dt)
 			end
 		end
 	end
-	--remove userects
-	local delete = {}
-	for i, v in pairs(userects) do
-		if v.delete then
-			table.insert(delete, i)
-		end
-	end
-	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(userects, v)
-	end
 	
 	--Portaldots
 	portaldotstimer = portaldotstimer + dt
@@ -1838,6 +1825,14 @@ function game_draw()
 	
 	love.graphics.setColor(255, 255, 255, 255)
 	
+	if debugflags.userect then
+		for k,v in pairs(objects["userect"]) do
+			love.graphics.setColor(255, 255, 255, 100)
+			love.graphics.rectangle("fill", (v.x-xscroll)*16*scale, (v.y-yscroll-.5)*16*scale, v.width*16*scale, v.height*16*scale)
+			love.graphics.setColor(255, 255, 255, 255)
+		end
+	end
+	
 	--Player markers
 	for i = 1, players do
 		local v = objects["player"][i]
@@ -1974,14 +1969,6 @@ function game_draw()
 	end
 	
 	--Use region debug
-	if userectdebug then
-		love.graphics.setColor(255, 255, 255, 100)
-		for i, k in pairs(userects) do
-			love.graphics.rectangle("fill", (k.x-xscroll)*16*scale, (k.y-yscroll-.5)*16*scale, k.width*16*scale, k.height*16*scale)
-		end
-		love.graphics.setColor(255, 255, 255, 255)
-	end
-	
 	
 	--portalwalldebug
 	if portalwalldebug then
@@ -2536,7 +2523,6 @@ function loadlevel(level, is_sublevel)
 	coinblockanimations = {}
 	portalparticles = {}
 	portalprojectiles = {}
-	userects = {}
 	dialogboxes = {}
 	inventory = {}
 	for i = 1, 9 do

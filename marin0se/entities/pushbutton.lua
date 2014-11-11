@@ -24,7 +24,7 @@ function pushbutton:init(x, y, r)
 		table.remove(self.r, 1)
 	end
 
-	adduserect(x-11/16, y-11/16, 6/16, 6/16, self)
+	self.userect = userect:new(x-11/16, y-11/16, 6/16, 6/16, self)
 	
 	self.timer = pushbuttontime
 end
