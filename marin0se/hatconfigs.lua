@@ -212,3 +212,9 @@ table.insert(hat, {x = 6, y = 0, height = 2, graphic = love.graphics.newImage("s
 table.insert(hat, {x = 7, y = -2, height = 4, graphic = love.graphics.newImage("standardhats/dio.png")})
 
 table.insert(hat, {x = 5, y = -2, height = 14, graphic = love.graphics.newImage("standardhats/flabber.png")})
+
+table.insert(hat, {x = 5, y = -2, height = 14, graphic = love.graphics.newImage("standardhats/he.png")})
+
+table.insert(hat, {x = 5, y = 0, height = 14, graphic = love.graphics.newImage("standardhats/mario3coon.png")})
+
+table.insert(hat, {x = 2, y = -7, height = 14, graphic = love.graphics.newImage("standardhats/hothead.png")})

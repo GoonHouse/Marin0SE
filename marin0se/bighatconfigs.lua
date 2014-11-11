@@ -69,3 +69,9 @@ table.insert(bighat, {x = -1, y = 0, height = 3, graphic = love.graphics.newImag
 table.insert(bighat, {x = -1, y = -3, height = 4, graphic = love.graphics.newImage("standardbighats/dio.png")})
 
 table.insert(bighat, {x = -1, y = -2, height = 14, graphic = love.graphics.newImage("standardbighats/flabber.png")})
+
+table.insert(bighat, {x = -1, y = -2, height = 14, graphic = love.graphics.newImage("standardbighats/he.png")})
+
+table.insert(bighat, {x = -1, y = -2, height = 14, graphic = love.graphics.newImage("standardbighats/mario3coon.png")})
+
+table.insert(bighat, {x = -4, y = -5, height = 14, graphic = love.graphics.newImage("standardbighats/hothead.png")})
