@@ -3906,10 +3906,16 @@ function player:use(xcenter, ycenter)
 		end
 	end
 	
-	local col, i = userect(xcenter-usesquaresize/2, ycenter-usesquaresize/2, usesquaresize, usesquaresize)
-	if #col > 0 then
-		print("attempted to pickup object")
-		col[1]:used(self)
+	-- this used to be the check userect function but we murdered it
+	for i, v in pairs(objects["userect"]) do
+		if aabb(
+			xcenter-usesquaresize/2,
+			ycenter-usesquaresize/2,
+			usesquaresize, usesquaresize,
+			v.x, v.y, v.width, v.height) then
+			v.parent:used(self)
+			break
+		end
 	end
 end
 
