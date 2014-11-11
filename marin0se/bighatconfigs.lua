@@ -75,3 +75,5 @@ table.insert(bighat, {x = -1, y = -2, height = 14, graphic = love.graphics.newIm
 table.insert(bighat, {x = -1, y = -2, height = 14, graphic = love.graphics.newImage("standardbighats/mario3coon.png")})
 
 table.insert(bighat, {x = -4, y = -5, height = 14, graphic = love.graphics.newImage("standardbighats/hothead.png")})
+
+table.insert(bighat, {x = -5, y = -5, height = 14, graphic = love.graphics.newImage("standardbighats/praisethesun.png")})
