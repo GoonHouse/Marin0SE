@@ -954,7 +954,15 @@ function enemy:damage_shell(attacker, dir)
 	end
 end
 
-
+function enemy:damage_physics(attacker, dir)
+	if self:hurt(attacker, "physics", 1) then
+		attacker:getscore(self.firepoints or
+						score_enum.generic_firepoints or
+						enemy_score_enum.fireball[self.t],
+					self.x, self.y)
+		self:neo_shotted(attacker, "physics", dir)
+	end
+end
 function enemy:damage_fireball(attacker, dir)
 	if self:hurt(attacker, "fireball", 1) then
 		attacker:getscore(self.firepoints or
@@ -970,7 +978,7 @@ function enemy:damage_star(attacker, dir)
 						score_enum.generic_firepoints or
 						enemy_score_enum.fireball[self.t],
 					self.x, self.y)
-		self:neo_shotted(attacker, "fireball", dir)
+		self:neo_shotted(attacker, "star", dir)
 	end
 end
 function enemy:damage_bump(attacker, dir)

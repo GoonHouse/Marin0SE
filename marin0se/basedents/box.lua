@@ -23,6 +23,8 @@ thisclass.static.INPUT_MAP			= {
 }
 
 -- get some mixins
+thisclass:include(CanDamage) --before physics so that we maintain 
+
 thisclass:include(HasPhysics)
 thisclass:include(HasGraphics)
 thisclass:include(HasOutputs)
@@ -145,8 +147,8 @@ function thisclass:floorcollide(a, b)
 		self.falling = false
 	end
 	
-	if a == "enemy" and b.killedbyboxes then
-		b:do_damage(self.doesdamagetype, self)
+	if a == "enemy" and b.stompable then
+		self:doDamage(b)
 		--addpoints(200, self.x, self.y)
 		--playsound("stomp", self.x, self.y, self.speedx, self.speedy)
 		self.falling = true

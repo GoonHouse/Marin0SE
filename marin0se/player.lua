@@ -3898,7 +3898,7 @@ function player:use(xcenter, ycenter)
 	end
 	
 	if self.pickup then
-		if self.pickup.destroying then
+		if self.pickup.destroy then
 			self.pickup = false
 		else
 			self:drop_held()
@@ -3924,8 +3924,7 @@ function player:pick_up(itm)
 end
 
 function player:drop_held()
-	self.pickup:drop()
-	
+	self.pickup:setSpeed(self.speedx, self.speedy, 0) --@WARNING: dummied Z
 	self.pickup.gravitydirection = self.gravitydirection
 	
 	local set = false
@@ -3977,7 +3976,8 @@ function player:drop_held()
 			end
 		end
 	end
-	self.pickup = false
+	self.pickup:drop()
+	self.pickup = nil
 end
 
 function player:cubeemancipate()

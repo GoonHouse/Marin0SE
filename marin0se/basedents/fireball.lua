@@ -32,6 +32,7 @@ thisclass:include(HasSounds)
 thisclass:include(CanEmancipate)
 thisclass:include(CanInfluence)
 thisclass:include(CanPortal)
+thisclass:include(CanDamage)
 thisclass:include(CanFunnel)
 
 function thisclass:init(x, y, dir, parent)
@@ -134,7 +135,7 @@ function thisclass:hitstuff(a, b)
 		self:playSound("blockhit", true, false)
 	elseif a == "enemy" then
 		--@NOTE: If we don't do damage here, we could make a koopa shell turn around post-explosion.
-		b:do_damage(self.doesdamagetype, self.lastinfluence, self.dir)
+		self:doDamage(b, self.dir)
 		self:explode()
 	--else
 		--print("NOTE: Investigating collisions, fireball went past a", a)

@@ -140,8 +140,8 @@ function baseentity:update(dt)
 			local oldx = self.x
 			local oldy = self.y
 			
-			self.x = self.carrier.x+math.sin(-self.carrier.pointingangle)*0.3
-			self.y = self.carrier.y-math.cos(-self.carrier.pointingangle)*0.3
+			self.x = self.carrier.x+math.sin(-self.carrier.pointingangle)*0.3+(self.carrier.speedx*dt)
+			self.y = self.carrier.y-math.cos(-self.carrier.pointingangle)*0.3+(self.carrier.speedy*dt)
 			if self.portaledframe == false then
 				--@WARNING: this code is basically checkforemances in physics.lua \o/
 				for h, u in pairs(objects["emancipationgrill"]) do
