@@ -49,7 +49,10 @@ help_tips = {
 	"praise the sun",
 	"he",
 	"did you just say girl cock?",
-	"doge gonnit"
+	"doge gonnit",
+	"ol feshioned hamburge",
+	"error: failed to load paid ad",
+	"this is just like dark souls"
 }
 help_tipi = 1
 
@@ -509,7 +512,7 @@ end
 earthquakespeed = 40
 
 cheats_active = {
-	rainboom = true,
+	rainboom = false,
 	goombaattack = false,
 	bigmario = false,
 	bullettime = false,

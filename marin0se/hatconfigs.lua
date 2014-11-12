@@ -222,3 +222,5 @@ table.insert(hat, {x = 2, y = -7, height = 14, graphic = love.graphics.newImage(
 table.insert(hat, {x = 2, y = -6, height = 14, graphic = love.graphics.newImage("standardhats/praisethesun.png")})
 
 table.insert(hat, {x = 2, y = -6, height = 14, graphic = love.graphics.newImage("standardhats/flycap.png")})
+
+table.insert(hat, {x = 5, y = -3, height = 14, graphic = love.graphics.newImage("standardhats/konamim.png")})
