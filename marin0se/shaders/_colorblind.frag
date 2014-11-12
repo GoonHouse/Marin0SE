@@ -5,7 +5,7 @@
 	not to help colorblind players directly (as much as we'd like to)
 */
 const int index = 0;
-const mat3 m[] =  mat3[](
+const mat3 m[] = mat3[9](
 		mat3(1.0  , 0.0  , 0.0  ,  0.0  , 1.0  , 0.0  ,  0.0  , 0.0  , 1.0  ), // 0 normal
 		mat3(0.567, 0.433, 0.0  ,  0.558, 0.442, 0.0  ,  0.0  , 0.242, 0.758), // 1 protanopia
 		mat3(0.817, 0.183, 0.0  ,  0.333, 0.667, 0.0  ,  0.0  , 0.125 ,0.875), // 2 protanomaly
@@ -18,7 +18,6 @@ const mat3 m[] =  mat3[](
 	);
 
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 pixel_coords){
-	vec3 c2 = color.rgb;
-	c2 *= m[index];
-	return vec4(c2.x, c2.y, c2.z, color.a);
+	vec4 vcolor = Texel(texture, texture_coords);
+	return vec4(vcolor.rgb * m[index], vcolor.a); 
 }
