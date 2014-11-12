@@ -50,7 +50,9 @@ help_tips = {
   "he",
   "did you just say girl cock?",
   "doge gonnit",
-  "ol feshioned hamburge"
+  "ol feshioned hamburge",
+  "error: failed to load paid ad",
+  "this is just like dark souls"
 }
 help_tipi = 1
 
