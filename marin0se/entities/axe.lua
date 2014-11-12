@@ -8,7 +8,7 @@ function axe:init(x, y, r)
 	self.y = y-1
 	self.speedx = 0
 	self.speedy = 0
-	self.static = true
+	self.moves = false
 	self.active = true
 	self.width = 1
 	self.height = 1

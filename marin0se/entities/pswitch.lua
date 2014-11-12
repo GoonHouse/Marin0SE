@@ -11,7 +11,7 @@ function pswitch:init(x, y, r)
 	self.frame = 1
 	self.speedy = 0
 	self.speedx = 0
-	self.static = true
+	self.moves = false
 	self.active = true
 	self.destroy = false
 	self.inuse = false

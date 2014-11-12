@@ -79,7 +79,7 @@ function player:init(x, y, i, animation, size, t)
 	self.lastground = {0, 0}
 	
 	self.y = y+1-self.height
-	self.static = false
+	self.moves = true
 	self.active = true
 	self.category = 3
 	self.mask = {	true, 
@@ -246,7 +246,7 @@ function player:init(x, y, i, animation, size, t)
 		self.dead = true
 		self.drawable = false
 		self.active = false
-		self.static = true
+		self.moves = false
 		self.controlsenabled = false
 		self.animation = false
 	end
@@ -3754,7 +3754,7 @@ function player:die(how)
 	self.dead = true
 	
 	if self.pickup then
-		self:dropbox()
+		self:drop_held()
 	end
 	
 	if not arcade then
@@ -4192,7 +4192,7 @@ function player:fire()
 				end
 			end
 			
-			table.insert(objects["fireball"], fireball:new(self.x, self.y, dir, self))
+			fireball:new(self.x, self.y, dir, self)
 			
 			self.fireballcount = self.fireballcount + 1
 			self.fireanimationtimer = 0
@@ -4218,6 +4218,10 @@ end
 
 function player:fireballcallback()
 	self.fireballcount = self.fireballcount - 1
+	if self.fireballcount < 0 then
+		self.fireballcount = 0
+		print("NOTICE: Fireball counter was bounded up to zero.")
+	end
 end
 
 function player:getscore(val, x, y)

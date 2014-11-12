@@ -9,7 +9,7 @@ function faithplate:init(x, y, r)
 	self.width = 2
 	self.height = 0.125
 	self.active = true
-	self.static = true
+	self.moves = false
 	self.category = 26
 	
 	self.power = true

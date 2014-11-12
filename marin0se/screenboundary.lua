@@ -5,7 +5,7 @@ function screenboundary:init(x)
 	self.y = -1000	
 	self.width = 0
 	self.height = 1000+mapheight
-	self.static = true
+	self.moves = false
 	self.active = true
 	self.category = 10
 	self.mask = {true}

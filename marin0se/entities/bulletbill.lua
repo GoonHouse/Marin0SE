@@ -80,7 +80,7 @@ function bulletbill:init(x, y, dir)
 	end
 	self.width = 12/16
 	self.height = 12/16
-	self.static = false
+	self.moves = true
 	self.active = true
 	self.gravity = 0
 	self.rotation = 0

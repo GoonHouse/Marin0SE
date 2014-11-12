@@ -18,12 +18,18 @@ thisclass.static.effectframes = 49
 thisclass.static.effectearthquake = 50
 
 -- engine stuff
-thisclass.static.image_sigs = {
+thisclass.static.GRAPHIC_QUADCENTER = {102,91,0}
+thisclass.static.GRAPHIC_OFFSET = {102,91,0}
+thisclass.static.GRAPHIC_SIGS = {
 	rainboom = {204,182}
 }
-thisclass.static.sound_sigs = {
+thisclass.static.SOUND_SIGS = {
 	rainboom = {}
 }
+
+thisclass:include(Base)
+thisclass:include(HasGraphics)
+thisclass:include(HasSounds)
 
 function thisclass:init(x, y, dir, parent)
 	baseentity.init(self, thisclass, classname, x, y, 0, nil, parent)
@@ -43,42 +49,32 @@ function thisclass:init(x, y, dir, parent)
 		v:do_damage("pow", parent)
 		--parent:getscore(firepoints[v.t] or 100, v.x, v.y)
 	end
-	self.static = true
-	self.width, self.height = 204, 182
-	self.offsetX, self.offsetY = self.width/2, self.height/2
-	self.quadcenterX, self.quadcenterY = self.width/2, self.height/2
-	self.graphicid = classname
-	self.graphic = globalimages[self.graphicid].img or missinggraphicimg
-	-- the comment below about self.quad also applies here
-	self.quadi = 1
-	self.quad = globalimages[self.graphicid].quads[self.quadi]
-	self.drawable = false
-	self.active = true
-	self.timermax = thisclass.frametime
-	self.timer = self.timermax
 	
-	self.r = 0 
+	self.roll = 0 
 	if dir == "up" then
-		self.r = -math.pi/2
+		self.roll = -math.pi/2
 	elseif dir == "down" then
-		self.r = math.pi/2
+		self.roll = math.pi/2
 	elseif dir == "left" then
-		self.r = math.pi
+		self.roll = math.pi
 	end
 	
-	table.insert(objects[classname], self)
-	self:playsound(classname, false, true)
+	self.drawable=false --@WARNING: prevent the global drawhandler for now
+	
+	timer.Create(self, thisclass.frametime, 0,
+		function()
+			if self.quadi > globalimages[self.graphicid].frames then
+				self.destroy = true
+			else
+				self:nextFrame()
+			end
+		end
+	)
+	timer.Start(self)
+	
+	self:playSound(classname, false, true)
 end
 
-function thisclass:timercallback()
-	self.quadi = self.quadi + 1
-	if self.quadi > globalimages[self.graphicid].frames then
-		self.destroy = true
-	else
-		self:setQuad(self.quadi)
-	end
-end
-
-function rainboom:draw()
-	love.graphics.draw(self.graphic, self.quad, (self.x-xscroll)*16*scale, (self.y-yscroll-0.5)*16*scale, self.r, scale, scale, 29, 92)
+function thisclass:draw()
+	love.graphics.draw(self.graphic, self.quad, (self.x-xscroll)*16*scale, (self.y-yscroll-0.5)*16*scale, self.roll, scale, scale, 29, 92)
 end

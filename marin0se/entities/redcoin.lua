@@ -8,7 +8,7 @@ function redcoin:init(x, y, r)
 	self.y = y-1
 	self.width = 1
 	self.height = 1
-	self.static = true
+	self.moves = false
 	self.active = true
 	self.category = 6
 	self.mask = {true}

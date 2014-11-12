@@ -2,22 +2,38 @@ local classname=debug.getinfo(1,'S').source:split("/")[2]:sub(0,-5)
 _G[classname] = class(classname, baseentity)
 local thisclass = _G[classname]
 
+thisclass.static.PHYS_SIZE			= {8/16, 8/16, 8/16}
+
+thisclass.static.GRAPHIC_QUADCENTER = {4,4,0}
+thisclass.static.GRAPHIC_OFFSET = {4,4,0}
+thisclass.static.GRAPHIC_SIGS = {
+	fireball = {8,8},
+	fireball_explosion = {16,16}
+}
+
+thisclass.static.SOUND_SIGS = {
+	fireball = {},
+	blockhit = {},
+}
+
+
 -- custom stuff
-thisclass.static.fireballspeed = 15
-thisclass.static.fireballjumpforce = 12
+thisclass.static.fireballspeed = 15 --15 was good before making it physical, now it bounces too far with a gravity of 40 7.5
+thisclass.static.fireballjumpforce = 12 --12 was good, toning it down 10
 thisclass.static.frametime = 0.04
 thisclass.static.deadtable = {"tile", "portalwall", "spring"}
 -- bulletbill was once in this list, but since he was promoted to an enemy, ignore that
 
--- engine stuff
-thisclass.static.image_sigs = {
-	fireball = {8,8},
-	fireball_explosion = {16,16}
-}
-thisclass.static.sound_sigs = {
-	fireball = {},
-	blockhit = {},
-}
+-- get some mixins
+thisclass:include(HasPhysics)
+thisclass:include(HasGraphics)
+thisclass:include(HasSounds)
+
+thisclass:include(CanEmancipate)
+thisclass:include(CanInfluence)
+thisclass:include(CanPortal)
+thisclass:include(CanFunnel)
+
 function thisclass:init(x, y, dir, parent)
 	baseentity.init(self, thisclass, classname, x, y, 0, nil, parent)
 	
@@ -33,9 +49,6 @@ function thisclass:init(x, y, dir, parent)
 	else
 		print("WARNING: Tried to spawn a fireball in a nonstandard direction: ", dir)
 	end
-	self.width = 8/16
-	self.height = 8/16
-	self.static = false
 	self.category = 13
 	self.mask = {	true,
 					false, true, false, false, true,
@@ -44,11 +57,6 @@ function thisclass:init(x, y, dir, parent)
 					true, true, false, false, false,
 					false, true, false, false, true,
 					false, false, false, false, true}
-	self.emancipatecheck = true
-	self.offsetX, self.offsetY = 4, 4
-	self.quadcenterX, self.quadcenterY = 4, 4
-	self.timermax = thisclass.frametime
-	self.influencable = true
 	self.doesdamagetype = "fireball"
 	--self.gravity = 40
 	--unused, because we get a better value elsewhere I guess
@@ -56,28 +64,26 @@ function thisclass:init(x, y, dir, parent)
 	-- custom vars
 	self.exploded = false
 	-- used for when the fireball hits something
-	-- we do this because it's not implemented into baseentity yet, it's the player that caused this
 	
-	self:playsound(classname, false, true)
-end
-
-function thisclass:timercallback()
-	if self.quadi > globalimages[self.graphicid].frames then
-		--print("rolling back", self.exploded, self.quadi, globalimages[self.graphicid].frames)
-		if self.exploded then
-			self.destroy = true
-			--self.quadi = globalimages[self.graphicid].frames
+	timer.Create(self, thisclass.frametime, 0,
+		function()
+			if self.exploded and self.quadi > globalimages[self.graphicid].frames then
+				self.destroy = true
+			end
+			
+			self:nextFrame()
 		end
-	end
+	)
+	timer.Start(self)
 	
-	self:setQuad(self.quadi)
-	-- we're technically a frame behind, but, meh
-	self.quadi = self.quadi + 1
+	self:playSound(classname, false, true)
 end
 
-function thisclass:offscreencallback()
-	self.parent:fireballcallback()
-	self.destroy = true
+function thisclass:remove()
+	if not self.exploded then
+		self.parent:fireballcallback()
+	end
+	baseentity.remove(self)
 end
 
 function thisclass:update(dt)
@@ -125,7 +131,7 @@ end
 function thisclass:hitstuff(a, b)
 	if table.contains(thisclass.deadtable, a) then
 		self:explode()
-		self:playsound("blockhit", true, false)
+		self:playSound("blockhit", true, false)
 	elseif a == "enemy" then
 		--@NOTE: If we don't do damage here, we could make a koopa shell turn around post-explosion.
 		b:do_damage(self.doesdamagetype, self.lastinfluence, self.dir)

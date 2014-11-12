@@ -10,7 +10,7 @@ function tile:init(x, y, slant)
 	self.width = 1
 	self.height = 1
 	self.active = true
-	self.static = true
+	self.moves = false
 	self.category = 2
 	self.mask = {true}
 end

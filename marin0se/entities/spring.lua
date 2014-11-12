@@ -9,7 +9,7 @@ function spring:init(x, y, r)
 	self.y = y-32/16
 	self.width = 16/16
 	self.height = 32/16
-	self.static = true
+	self.moves = false
 	self.active = true
 	
 	self.drawable = false

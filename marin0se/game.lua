@@ -1282,6 +1282,23 @@ function game_draw()
 		if bdrawui then
 			drawui()
 		end
+		
+		--@WARNING: These draws are partially redundant. Objects handled by the master handler are sometimes drawn twice and there's not much I can do about it until I get my hands in it and start managing it.
+		-- We're going to buck draw depth for now.
+		for _, entname in pairs(saneents) do
+			love.graphics.setColor(255, 255, 255)
+			for k,v in pairs(objects[entname]) do
+				if v.draw then v:draw() end
+			end
+		end
+		
+		-- same, but #based
+		for _, entname in pairs(basedents) do
+			love.graphics.setColor(255, 255, 255)
+			for k,v in pairs(objects[entname]) do
+				if v.draw then v:draw() end
+			end
+		end
 
 		love.graphics.setColor(255, 255, 255)
 		--warpzonetext
@@ -1408,7 +1425,7 @@ function game_draw()
 							love.graphics[t](function() love.graphics.rectangle("fill", math.floor((v.customscissor[1]-xscroll)*16*scale), math.floor((v.customscissor[2]-.5-yscroll)*16*scale), v.customscissor[3]*16*scale, v.customscissor[4]*16*scale) end)
 						end
 							
-						if v.static == false and v.portalable ~= false then
+						if v.moves and v.portalable ~= false then
 							if not v.customscissor and portal ~= false and (v.active or v.portaloverride) then
 								if portaly == 1 then
 									entryX, entryY, entryfacing = portal.x1, portal.y1, portal.facing1
@@ -1491,7 +1508,7 @@ function game_draw()
 							love.graphics[t](function() love.graphics.rectangle("fill", math.floor((v.customscissor[1]-xscroll)*16*scale), math.floor((v.customscissor[2]-.5-yscroll)*16*scale), v.customscissor[3]*16*scale, v.customscissor[4]*16*scale) end)
 						end
 						
-						if v.static == false and (v.active or v.portaloverride) and v.portalable ~= false then
+						if v.moves and (v.active or v.portaloverride) and v.portalable ~= false then
 							if not v.customscissor and portal ~= false then
 								love.graphics.setScissor(unpack(currentscissor))
 								local px, py, pw, ph, pr, pad = v.x, v.y, v.width, v.height, v.rotation, v.animationdirection
@@ -4127,7 +4144,7 @@ function moveoutportal() --pushes objects out of the portal i in.
 	for i, v in pairs(objects) do
 		if i ~= "tile" and i ~= "portalwall" then
 			for j, w in pairs(v) do
-				if w.active and w.static == false then
+				if w.active and w.moves then
 					local p1, p2 = insideportal(w.x, w.y, w.width, w.height)
 					
 					if p1 ~= false then

@@ -10,16 +10,18 @@ thisclass.static.yspeedstep = 9
 thisclass.static.gravity = 80
 
 -- engine stuff
-thisclass.static.image_sigs = {
+thisclass.static.GRAPHIC_QUADCENTER = {4,4,0}
+thisclass.static.GRAPHIC_OFFSET = {4,4,0}
+thisclass.static.GRAPHIC_SIGS = {
 	blockdebris = {8,8}
 }
 
+thisclass:include(Base)
+thisclass:include(HasGraphics)
+
 function thisclass:init(x, y, dir, forcemultiplier)
-	--baseentity.init(self, thisclass, classname, x-.5, y-.5, 0, nil, parent)
+	baseentity.init(self, thisclass, classname, x-.5, y-.5, 0, nil, parent)
 	forcemultiplier = forcemultiplier or 0
-	
-	self.x = x-.5
-	self.y = y-.5
 	
 	self.dir = dir or self.dir
 	if self.dir == "right" then
@@ -29,25 +31,12 @@ function thisclass:init(x, y, dir, forcemultiplier)
 	end
 	self.speedy = thisclass.baseyspeed-(thisclass.yspeedstep*forcemultiplier)
 	
-	self.width = 8/16
-	self.height = 8/16
-	self.static = true
-	self.nospritesets = true
-	self.mask = {true, false}
-	self.category = 1
-	self.offsetX, self.offsetY = 4, 4
-	self.quadcenterX, self.quadcenterY = 4, 4
-	self.graphicid = classname
-	self.graphic = globalimages[self.graphicid].img or missinggraphicimg
-	-- the comment below about self.quad also applies here
-	self.quadi = 1
-	self.quad = globalimages[self.graphicid].quads[self.quadi]
-	self.drawable = true
-	self.active = true
-	self.timermax = thisclass.frametime
-	self.timer = self.timermax
-	
-	table.insert(objects[classname], self)
+	timer.Create(self, thisclass.frametime, 0,
+		function()
+			self:nextFrame()
+		end
+	)
+	timer.Start(self)
 end
 
 function thisclass:update(dt)
@@ -60,13 +49,8 @@ function thisclass:update(dt)
 	
 	
 	if self.y > mapheight then
-		return true
+		self:remove()
 	end
 	
-	return false
-end
-
-function thisclass:timercallback()
-	self:setQuad(self.quadi)
-	self.quadi = self.quadi + 1
+	return self.destroy
 end

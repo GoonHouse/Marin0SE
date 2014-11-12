@@ -29,7 +29,7 @@ function vine:init(x, y, t)
 	self.x = x-0.5-self.width/2
 	self.y = y-1
 	
-	self.static = true
+	self.moves = false
 	self.active = true
 	
 	self.category = 18

@@ -43,8 +43,8 @@ function timer.Update(dt)
 			if v.delayTimer >= v.delay then
 				v.func()
 				v.repetitionsDone = v.repetitionsDone + 1
-				if v.repetitionsDone >= v.repetitions then
-					timer.namedTimers = nil
+				if v.repetitions ~= 0 and v.repetitionsDone >= v.repetitions then
+					timer.namedTimers[k] = nil
 				else
 					v.delayTimer = 0
 				end
@@ -90,7 +90,7 @@ function timer.RepsLeft(identifier)
 		return timer.namedTimers[identifier].repetitionsLeft
 	end
 end
-function timer.Simple(delay, func) 
+function timer.Simple(delay, func)
 	table.insert(timer.simpleTimers, {delay=delay,delayTimer=0,func=func})
 end
 function timer.Start(identifier) 
@@ -116,6 +116,8 @@ end
 function timer.TimeLeft(identifier)
 	if timer.namedTimers[identifier] then
 		return timer.namedTimers[identifier].delay-timer.namedTimers[identifier].delayTimer
+	else
+		return 0
 	end
 end
 function timer.Toggle(identifier)

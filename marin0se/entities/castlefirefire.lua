@@ -7,7 +7,7 @@ function castlefirefire:init()
 	self.width = 8/16
 	self.height = 8/16
 	self.active = true
-	self.static = true
+	self.moves = false
 	self.category = 23
 	
 	self.kills = true

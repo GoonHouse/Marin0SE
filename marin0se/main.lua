@@ -176,6 +176,7 @@ function love.load(args)
 	starttime = love.timer.getTime()
 	totaltime = 0
 	JSON = require("libs.JSON")
+	require "timer"
 	require "notice"
 	
 	--Get biggest screen size
@@ -391,6 +392,7 @@ function love.load(args)
 	require "variables"
 	require "killfeed"
 	reloadGraphics()
+	reloadSounds()
 	
 	fontglyphs = "0123456789abcdefghijklmnopqrstuvwxyz.:/,\"C-_A* !{}?'()+=><#%"
 	fontquads = {}
@@ -429,6 +431,17 @@ function love.load(args)
 	require "camera"
 	require "baseentity"
 	
+	local mixins = love.filesystem.getDirectoryItems("basedmixins")
+
+	for k,v in pairs(mixins) do
+		require("basedmixins."..v:sub(0,-5))
+		
+		-- precache all the images used by this entity type, eventually this will be dynamic
+		--for k2,v2 in pairs(_G[basedents[k]].image_sigs) do
+		--	allocate_image(k2, v2[1], v2[2])
+		--end]]
+	end
+	
 	-- basedents are used for the transition from saneents to entities that actually inherit and have some common ground
 	-- this is very confusing and I'm sorry for that but it's what must be done
 	basedents = love.filesystem.getDirectoryItems("basedents")
@@ -438,10 +451,12 @@ function love.load(args)
 		require("basedents."..basedents[k])
 		
 		-- precache all the images used by this entity type, eventually this will be dynamic
-		for k2,v2 in pairs(_G[basedents[k]].image_sigs) do
-			allocate_image(k2, v2[1], v2[2])
-		end
+		--for k2,v2 in pairs(_G[basedents[k]].image_sigs) do
+		--	allocate_image(k2, v2[1], v2[2])
+		--end]]
 	end
+	
+	
 	
 	-- we don't use the saneents list here because entity name weirdness 
 	--for _,v in pairs(love.filesystem.getDirectoryItems("entities")) do
@@ -872,10 +887,7 @@ function love.load(args)
 	
 	add("Images, quads")
 	
-	--AUDIO--
-	--sounds
-	reloadSounds()
-	
+	--AUDIO
 	delaylist = {}
 	delaylist["blockhit"] = 0.2
 	
@@ -923,6 +935,7 @@ function love.update(dt)
 	if music then
 		music:update()
 	end
+	timer.Update(dt)
 	Monocle.update()
 	TLbind:update()
 	binds:update()

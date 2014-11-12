@@ -15,7 +15,7 @@ function enemy:init(x, y, t, a)
 	--Some standard values..
 	self.rotation = 0
 	self.active = true
-	self.static = false
+	self.moves = true
 	self.mask = {}
 	self.gravitydirection = math.pi/2
 	

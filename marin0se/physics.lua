@@ -59,7 +59,7 @@ function physicsupdate(dt)
 	for j, w in pairs(lobjects) do
 		if j ~= "tile" then
 			for i, v in pairs(w) do
-				if v.static == false and v.active then
+				if v.moves and v.active then
 					--GRAVITY
 					v.speedy = v.speedy + (v.gravity or yacceleration)*dt*0.5
 					
@@ -833,7 +833,7 @@ function checkrect(x, y, width, height, list, statics)
 		
 		if list == "all" or contains then
 			for j, w in pairs(v) do
-				if statics or w.static ~= true or list ~= "all" then
+				if statics or w.moves or list ~= "all" then
 					local skip = false
 					if inobj then
 						for i, v in pairs(inobj) do

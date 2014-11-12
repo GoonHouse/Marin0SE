@@ -61,7 +61,7 @@ function scaffold:init(x, y, r)
 	self.speedy = 0
 	self.width = self.size
 	self.height = 8/16
-	self.static = true
+	self.moves = false
 	self.active = true
 	self.category = 15
 	self.mask = {true}

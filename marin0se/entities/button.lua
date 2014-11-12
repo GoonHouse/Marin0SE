@@ -9,7 +9,7 @@ function button:init(x, y, r)
 	self.y = y-3/16
 	self.width = 30/16
 	self.height = 3/16
-	self.static = true
+	self.moves = false
 	self.active = false
 	self.category = 22
 	self.dir = "down"

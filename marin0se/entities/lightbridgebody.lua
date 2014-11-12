@@ -20,7 +20,7 @@ function lightbridgebody:init(parent, x, y, dir, i)
 		self.width= 1/8
 		self.height = 1
 	end
-	self.static = true
+	self.moves = false
 	self.active = true
 	self.category = 28
 	

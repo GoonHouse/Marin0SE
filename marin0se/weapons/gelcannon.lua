@@ -1,5 +1,5 @@
 gelcannon = class('gelcannon', weapon)
-gelcannon.static.name = 'gelcannon'
+--gelcannon.static.name = 'gelcannon'
 function gelcannon:init(parent)
 	weapon.init(self,parent)
 	self.primaryAttackDelay = gelcannondelay

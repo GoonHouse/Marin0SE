@@ -20,7 +20,7 @@ function fire:init(x, y)
 	self.width = 24/16
 	self.height = 8/16
 	self.active = true
-	self.static = true
+	self.moves = false
 	self.autodelete = true
 	self.gravity = 0
 	self.category = 17

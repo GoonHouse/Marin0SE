@@ -6,37 +6,30 @@ local thisclass = _G[classname]
 thisclass.static.frametime = 0.4
 
 -- engine stuff
-thisclass.static.image_sigs = {
-	fizzle = {4,2}
+thisclass.static.GRAPHIC_QUADCENTER = {2,1,0}
+thisclass.static.GRAPHIC_OFFSET = {2,1,0}
+thisclass.static.GRAPHIC_SIGS = {
+	emancipationfizzle = {4,2}
 }
 
+thisclass:include(Base)
+thisclass:include(HasGraphics)
+
 function thisclass:init(x, y, speedx, speedy)
-	--baseentity.init(self, thisclass, classname, x-.5, y-.5, 0, nil, parent)
-	self.x = x
-	self.y = y
+	baseentity.init(self, thisclass, classname, x-.5, y-.5, 0)
 	self.r = math.random()*math.pi*2
 	self.rotspeed = (math.random()-.5)*2
 	self.speedx = speedx+(math.random()-.5)*1
 	self.speedy = speedy+(math.random()-.5)*1
 	
-	self.static = true
-	self.mask = {true, false}
-	self.category = 1
-	self.width, self.height = 16, 8
-	self.offsetX, self.offsetY = self.width/2, self.height/2
-	self.quadcenterX, self.quadcenterY = self.width/2, self.height/2
-	self.width, self.height = 16/16, 8/16
-	self.graphicid = "fizzle"
-	self.graphic = globalimages[self.graphicid].img or missinggraphicimg
-	-- the comment below about self.quad also applies here
-	self.quadi = 1
-	self.quad = globalimages[self.graphicid].quads[self.quadi]
 	self.drawable = false
-	self.active = true
-	self.timermax = thisclass.frametime
-	self.timer = 0
 	
-	table.insert(objects[classname], self)
+	timer.Create(self, thisclass.frametime, 0,
+		function()
+			self:remove()
+		end
+	)
+	timer.Start(self)
 end
 
 function thisclass:update(dt)
@@ -49,12 +42,8 @@ function thisclass:update(dt)
 	return self.destroy
 end
 
-function thisclass:timercallback()
-	self.destroy = true
-end
-
 function thisclass:draw()
-	local da = 255*(1-self.timer/thisclass.frametime)
+	local da = 255*(1-timer.TimeLeft(self)/thisclass.frametime)
 	love.graphics.setColor(da, da, da, da)
 	love.graphics.draw(
 		self.graphic,

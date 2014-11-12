@@ -3,7 +3,7 @@ emancipateanimation = class("emancipateanimation")
 function emancipateanimation:init(x, y, width, height, img, quad, speedx, speedy, rotation, offsetX, offsetY, quadcenterX, quadcenterY)
 	
 	-- this would be static but it's not, call the cops
-	self.effectdelay = 0.05
+	self.effectdelay = 0.10
 	self.effecttime = 0.4
 	self.effectanimtime = 0.6
 	self.effectfadeouttime = 0.2

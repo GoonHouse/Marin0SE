@@ -42,14 +42,14 @@ help_tips = {
 	"watashi wa desu",
 	"naah he-man",
 	"where the video games at",
-  "toddy always has the best memes",
-  "bingle bangle bongle bungalo",
-  "dirty old mattress",
-  "pass the whiskey",
-  "praise the sun",
-  "he",
-  "did you just say girl cock?",
-  "doge gonnit"
+	"toddy always has the best memes",
+	"bingle bangle bongle bungalo",
+	"dirty old mattress",
+	"pass the whiskey",
+	"praise the sun",
+	"he",
+	"did you just say girl cock?",
+	"doge gonnit"
 }
 help_tipi = 1
 
@@ -85,7 +85,6 @@ friction = 14 --amount of speed that is substracted when not pushing buttons, as
 superfriction = 100 --see above, but when speed is greater than maxrunspeed
 frictionair = 0 --see above, but in air
 airslidefactor = 0.8 --multiply of acceleration in air when changing direction
-
 
 loading_header = "pretending to load"
 loadingtexts = {
@@ -125,11 +124,8 @@ loadingtexts = {
 	"making palette inaccurate",
 	"restandardizing ntsc",
 	"y cant mario crawl?",
-  "gordon freeman",
-  "passing the whiskey"
-}
-loadingtexts = {
-	"downloading pacman hentai"
+	"gordon freeman",
+	"passing the whiskey"
 }
 
 damage_types = {
@@ -513,7 +509,7 @@ end
 earthquakespeed = 40
 
 cheats_active = {
-	rainboom = false,
+	rainboom = true,
 	goombaattack = false,
 	bigmario = false,
 	bullettime = false,

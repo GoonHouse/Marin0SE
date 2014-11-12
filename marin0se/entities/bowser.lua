@@ -13,7 +13,7 @@ function bowser:init(x, y)
 	self.speedx = 0
 	self.width = 30/16--v
 	self.height = 28/16--v
-	self.static = false--v
+	self.moves = true--v
 	self.active = true--v
 	self.emancipatecheck = true--v
 	self.category = 16--v

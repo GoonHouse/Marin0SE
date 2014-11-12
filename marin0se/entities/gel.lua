@@ -10,7 +10,7 @@ function gel:init(x, y, id)
 	self.speedx = 0
 	self.width = 12/16
 	self.height = 12/16
-	self.static = false
+	self.moves = true
 	self.active = true
 	self.category = 8
 	self.mask = {false, false, true, true, true, true, true, true, false, false, true}

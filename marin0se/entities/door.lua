@@ -46,7 +46,7 @@ function door:init(x, y, r)
 	
 	self.mask = {true}
 		
-	self.static = true
+	self.moves = false
 	self.active = true
 	
 	self.drawable = false

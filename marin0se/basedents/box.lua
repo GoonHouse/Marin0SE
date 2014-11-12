@@ -2,33 +2,43 @@ local classname=debug.getinfo(1,'S').source:split("/")[2]:sub(0,-5)
 _G[classname] = class(classname, baseentity)
 local thisclass = _G[classname]
 
-thisclass.static.image_sigs = {
+thisclass.static.PHYS_SIZE			= {12/16, 12/16, 12/16}
+
+thisclass.static.GRAPHIC_QUADCENTER = {6,6,0}
+thisclass.static.GRAPHIC_OFFSET = {6,2,0}
+thisclass.static.GRAPHIC_SIGS = {
 	box = {12,12},
 }
--- data for editor
-thisclass.static.category		= "portal elements"
-thisclass.static.description	= "place on empty tile - weighted storage cube"
-thisclass.static.iconauthor		= "alesan99"
-thisclass.static.hasOutput		= true
-thisclass.static.rightclickmenu	= {
+--@NOTE: These aren't used yet.
+thisclass.static.EDITOR_CATEGORY	= "portal elements"
+thisclass.static.EDITOR_DESC		= "place on empty tile - weighted storage cube"
+thisclass.static.EDITOR_ICONAUTHOR	= "alesan99"
+thisclass.static.EDITOR_RCM			= {
 	{t="text", value="type:"},
 	{t="submenu", entries={"weighted", "companion"}, default=1, width=9},
 }
+
+thisclass.static.INPUT_MAP			= {
+	cubetype = "submenu",
+}
+
 -- get some mixins
-thisclass:include(baseentity_mixins.HasOutputs)
---thisclass:include(baseentity_mixins.IsMappable)
+thisclass:include(HasPhysics)
+thisclass:include(HasGraphics)
+thisclass:include(HasOutputs)
+
+thisclass:include(CanEmancipate)
+thisclass:include(CanInfluence)
+thisclass:include(CanPortal)
+thisclass:include(CanCarry)
+thisclass:include(CanFunnel)
+
+thisclass:include(IsMappable)
+
 function thisclass:init(x, y, r)
 	baseentity.init(self, thisclass, classname, x, y, 0, r)
 	--PHYSICS STUFF
-	self.cox = x
-	self.coy = y
-	self.x = x-14/16
-	self.y = y-12/16
-	self.width = 12/16
-	self.height = 12/16
-	self.static = false
 	self.category = 9
-	self.portaloverride = true
 	self.mask = {	true,
 					false, false, false, false, false,
 					false, true, false, true, true,
@@ -36,24 +46,14 @@ function thisclass:init(x, y, r)
 					true, true, false, false, true,
 					false, true, true, false, false,
 					true, false, true, true, true}
-	self.emancipatecheck = true
-	self.offsetX = 6
-	self.offsetY = 2
-	self.quadcenterX = 6
-	self.quadcenterY = 6
+	self.friction = 20
 	self.base_friction = 20
-	self.can_funnel = true
-	self.carriable = true
-	self.influencable = true
-	self.lastinfluence = parent
-	self.doesdamagetype = "physics"
 	
 	-- custom vars
 	self.portaledframe = false
 	-- whether we were pushed by the player
 	self.pushed = false --this *should* be further up the chain, but, being pushable isn't demonstrated with any other object
 	self.userect = userect:new(self.x, self.y, 12/16, 12/16, self)
-	--self:getBasicInput("variant") --reads input from "r" as variable "variant"
 end
 
 function thisclass:update(dt)
@@ -192,14 +192,11 @@ function thisclass:passivecollide(a, b)
 	end
 end
 
+
 function thisclass:remove()
 	self.userect.destroy = true --need a better way of handling this, but userects aren't their own entity yet
 	self.destroy = true
 	self:toggle_all_outputs()
-end
-
-function thisclass:portaled()
-	self.portaledframe = true
 end
 
 -- custom methods

@@ -5,6 +5,6 @@ function ceilblocker:init(x)
 	self.y = -1000
 	self.height = 1000
 	self.width = 1
-	self.static = true
+	self.moves = false
 	self.active = true
 end

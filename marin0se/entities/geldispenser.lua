@@ -11,7 +11,7 @@ function geldispenser:init(x, y, r)
 	self.speedx = 0
 	self.width = 2
 	self.height = 2
-	self.static = true
+	self.moves = false
 	self.active = true
 	self.category = 7
 	self.mask = {true, false, false, false, false, false}
