@@ -49,8 +49,8 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 pixel_coords){
 	//where texture and texture_coords correspond to the individual sprites
 	
 	vec4 pcolor = Texel(texture, texture_coords,1.0);
-	float xindex = float((2*(pcolor.r*255) + 1)/(2*(PalDepth)));
-	float yindex = float((2*(PalIndex)+1)/(2*(NumPals)));
+	float xindex = float((2*(pcolor.r*255)+1)/(2*(PalDepth)));
+	float yindex = float((2*(PalIndex-1)+1)/(2*(NumPals)));
 	vec4 ncolor = Texel(ColorTable, 
 		vec2(
 			xindex,
