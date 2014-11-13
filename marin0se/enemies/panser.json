@@ -11,7 +11,7 @@
 	"stompable": false,
 	"killsonsides": true,
 	"killsonbottom": true,
-  "killsontop": true,
+	"killsontop": true,
 	
 	"animationtype": "frames",
 	"animationframes": 2,
@@ -48,7 +48,7 @@
 	"jumpforce": 19,
 	"jumpforcedown": 6,
 
-	"spawnsenemy": "firespark",
+	"spawnsenemy": "enemyfire",
 	"spawnenemydelays": [2, 4],
 	"spawnenemyspeedy": -15,
 	"spawnenemyspeedx": 0,
