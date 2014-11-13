@@ -47,12 +47,30 @@ end
 
 function generatorcheeps:update(dt)
 	local col = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, self.checktable)
-	if #col > 0 then
-			gensrunning["flyingcheeps"] = true
-			return true
+	if not levelfinished and #col > 0 then
+		flyingfishtimer = flyingfishtimer + dt
+		while flyingfishtimer > flyingfishdelay do
+			flyingfishtimer = flyingfishtimer - flyingfishdelay
+			flyingfishdelay = math.random(6, 20)/10
+			
+			local x, y = math.random(math.floor(xscroll), math.floor(xscroll)+width), mapheight
+			local temp = enemy:new(x, y, "flyingfish")
+			table.insert(objects["enemy"], temp)
+			
+			temp.speedx = objects["player"][1].speedx + math.random(10)-5
+			
+			if temp.speedx == 0 then
+				temp.speedx = 1
+			end
+			
+			if temp.speedx > 0 then
+				temp.animationdirection = "left"
+			else
+				temp.animationdirection = "right"
+			end
+		end
 	elseif #col == 0 then
-			gensrunning["flyingcheeps"] = false
-			return false
+	flyingfishtimer = 0
 	end
 end
 

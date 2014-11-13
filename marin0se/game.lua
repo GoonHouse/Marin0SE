@@ -661,108 +661,6 @@ function game_update(dt)
 		table.remove(portalprojectiles, v) --remove
 	end
 	
-	--FIRE SPAWNING
-	if not levelfinished and gensrunning["bowserflames"] and (not objects["bowser"][1] or (objects["bowser"][1].backwards == false and objects["bowser"][1].shot == false and objects["bowser"][1].fall == false)) then
-		firetimer = firetimer + dt
-		while firetimer > firedelay do
-			firetimer = firetimer - firedelay
-			firedelay = math.random(4)
-			local temp = enemy:new(xscroll + width, math.random(3)+7, "fire")
-			table.insert(objects["enemy"], temp)
-			
-			
-			if objects["bowser"][1] then --make bowser fire this
-				temp.y = objects["bowser"][1].y+0.25
-				temp.x = objects["bowser"][1].x-0.750
-				
-				--get goal Y
-				temp.movement = "targety"
-				temp.targetyspeed = 2
-				temp.targety = objects["bowser"][1].starty-math.random(3)+2/16
-			end
-		end
-	end
-	
-	-- High Wind
-	if not levelfinished and gensrunning["highwind"] then
-		--[[if windsound:isStopped() then
-			playsound(windsound)
-		end]]
-		local player1 = objects["player"][1]
-		if player1.animationdirection == "left" and player1.animationstate ~= "idle" then
-			if not player1.spring and not player1.springhigh then
-				if windgentable[1] == "left" then
-					player1.speedx = player1.speedx - ((windgentable[2]/100)/2)
-					elseif windgentable[1] == "right" then
-					player1.speedx = player1.speedx + (windgentable[2]/100)
-				end
-			else
-				
-			end
-		elseif player1.animationstate ~= "idle" then
-			if not player1.spring and not player1.springhigh then
-				if windgentable[1] == "left" then
-					player1.speedx = player1.speedx - (windgentable[2]/100)
-					elseif windgentable[1] == "right" then
-					player1.speedx = player1.speedx + ((windgentable[2]/100)/2)
-				end
-			else
-				
-			end
-		elseif player1.animationstate == "idle" then
-			if windgentable[2] == "left" then
-				player1.speedx = player1.speedx - 1
-				elseif windgentable[1] == "right" then
-				player1.speedx = player1.speedx + 1
-			end
-		end
-		-- Make high wind leaves appear
-		windtimer = windtimer + dt
-		while windtimer > 0.05 do
-			windtimer = windtimer - 0.05
-			if windgentable[1] == "right" then
-			table.insert(objects["leaf"], leaf:new(xscroll, math.random(1, mapheight)))
-			elseif windgentable[1] == "left" then
-			table.insert(objects["leaf"], leaf:new(xscroll+25, math.random(1, mapheight)))
-			end
-		end
-	end
-	
-	--FLYING FISH
-	if not levelfinished and gensrunning["flyingcheeps"] then
-		flyingfishtimer = flyingfishtimer + dt
-		while flyingfishtimer > flyingfishdelay do
-			flyingfishtimer = flyingfishtimer - flyingfishdelay
-			flyingfishdelay = math.random(6, 20)/10
-			
-			local x, y = math.random(math.floor(xscroll), math.floor(xscroll)+width), mapheight
-			local temp = enemy:new(x, y, "flyingfish")
-			table.insert(objects["enemy"], temp)
-			
-			temp.speedx = objects["player"][1].speedx + math.random(10)-5
-			
-			if temp.speedx == 0 then
-				temp.speedx = 1
-			end
-			
-			if temp.speedx > 0 then
-				temp.animationdirection = "left"
-			else
-				temp.animationdirection = "right"
-			end
-		end
-	end
-	
-	--BULLET BILL
-	if not levelfinished and gensrunning["bulletbill"] then
-		bulletbilltimer = bulletbilltimer + dt
-		while bulletbilltimer > bulletbilldelay do
-			bulletbilltimer = bulletbilltimer - bulletbilldelay
-			bulletbilldelay = math.random(5, 40)/10
-			table.insert(objects["enemy"], enemy:new(xscroll+width+2, math.random(4, 12), "bulletbill"))
-		end
-	end
-	
 	--Editor
 	if editormode then
 		editor_update(dt)
@@ -2529,7 +2427,6 @@ function loadlevel(level, is_sublevel)
 		
 	givemestuff = {lives = 0, times = 0, coinage = 0}
 	givemetemp = {lives = 0, times = 0, coinage = 0}
-	gensrunning = {cheepcheep = false, bulletbill = false, bowserflames = false, highwind = false}
 	
 	portaldelay = {}
 	for i = 1, players do
@@ -3065,26 +2962,6 @@ function loadmap(filename, createobjects)
 						elseif t == "flag" then
 							flagx = x-1
 							flagy = y
-							
-						elseif t == "firestart" then
-							firestartx = x
-						elseif t == "fireend" then
-							fireendx = x
-							
-						elseif t == "flyingfishstart" then
-							flyingfishstartx = x
-						elseif t == "flyingfishend" then
-							flyingfishendx = x
-							
-						elseif t == "bulletbillstart" then
-							bulletbillstartx = x
-						elseif t == "bulletbillend" then
-							bulletbillendx = x
-
-						elseif t == "windstart" then
-							windstartx = x
-						elseif t == "windend" then
-							windendx = x
 							
 						elseif t == "lakitoend" then
 							lakitoendx = x
