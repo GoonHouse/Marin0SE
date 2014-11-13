@@ -1921,7 +1921,7 @@ function player:underwatermovement(dt)
 	while self.bubbletimer > self.bubbletime do
 		self.bubbletimer = self.bubbletimer - self.bubbletime
 		self.bubbletime = bubblestime[math.random(#bubblestime)]
-		table.insert(objects["bubble"], bubble:new(self.x+8/12, self.y+2/12))
+		bubble:new(self.x+8/12, self.y+2/12)
 	end
 	
 	--HORIZONTAL MOVEMENT	
