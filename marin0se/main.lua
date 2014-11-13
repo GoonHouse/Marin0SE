@@ -311,7 +311,7 @@ function love.load(args)
 		"laserdetector", "gel", "geldispenser", "pushbutton",
 		"cubedispenser", "platform", "castlefire", "platformspawner",
 		"bowser", "spring", "seesawplatform", "checkpoint", "seesaw",
-		"ceilblocker", "funnel", "panel", "scaffold", "bubble", "axe",
+		"ceilblocker", "funnel", "panel", "scaffold", "axe",
 		"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody", "weapon",
 		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",

@@ -79,6 +79,7 @@ joystickaimdeadzone = 0.5
 
 outofboundstime = 1 --time to wait before playing out of bounds music
 was_anyone_outofbounds = false --if anyone has been out of bounds long enough to trigger
+
 walkacceleration = 8 --acceleration of walking on ground
 runacceleration = 16 --acceleration of running on ground
 walkaccelerationair = 8 --acceleration of walking in the air
@@ -232,9 +233,6 @@ waterjumpforce = 13
 uwmaxheight = 2.5
 uwpushdownspeed = 3
 
-bubblesmaxy = 2.5
-bubblesspeed = 2.3
-bubblesmargin = 0.5
 bubblestime = {1.2, 1.6}
 
 gelmaxrunspeed = 50
