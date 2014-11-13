@@ -122,7 +122,7 @@ function enemy:init(x, y, t, a)
 		if self.spawnonlyonextended then
 			self.spawnallow = false
 		end
-	elseif self.movement == "flytime" then
+	elseif self.movement == "flytime" or self.movement == "flyvertical" or self.movement == "flyhorizontal" then
 		self.flyingtimer = 0
 		self.startx = self.x
 		self.starty = self.y
@@ -194,14 +194,6 @@ function enemy:init(x, y, t, a)
 end
 
 function enemy:update(dt)
-	-- Gameplaytype: Dupe Checker
-	--[[if oddjobquotas[2] >= 1 then
-		self.active = false
-		self.drawable = false
-		self.destroy = true
-		return true
-	end]]
-	
 	--Funnels and fuck
 	if self.funnel and not self.infunnel then
 		self:enteredfunnel(true)
@@ -215,6 +207,9 @@ function enemy:update(dt)
 	if self.lifetimer then
 		self.lifetimer = self.lifetimer - dt
 		if self.lifetimer <= 0 then
+			if self.transforms and self.transformtrigger == "lifetime" then
+				self:transform(self.transformsinto)
+			end
 			self:output()
 			self.dead = true
 			
@@ -407,7 +402,7 @@ function enemy:update(dt)
 			
 			local distance = math.abs(self.x - nearestplayerx)
 			
-			--check if too far in wrong direciton
+			--check if too far in wrong direction
 			if (not self.direction or self.direction == "left") and self.x < nearestplayerx-self.followspace then
 				self.direction = "right"
 				self.animationdirection = "right"
@@ -417,7 +412,11 @@ function enemy:update(dt)
 			end
 			
 			if self.direction == "right" then
-				self.speedx = math.max((self.followspeed or 2), round((distance-3)*2))
+				if self.nofollowspeedup then
+					self.speedx = self.followspeed or 2
+				else
+					self.speedx = math.max((self.followspeed or 2), round((distance-3)*2))
+				end
 			else
 				self.speedx = -(self.followspeed or 2)
 			end
@@ -638,16 +637,23 @@ function enemy:update(dt)
 				self.y = self.targety
 			end
 		end
-	elseif self.movement == "flytime" then
+	elseif self.movement == "flyvertical" then
 		self.flyingtimer = self.flyingtimer + dt
 		
 		while self.flyingtimer > (self.flyingtime or 7) do
 			self.flyingtimer = self.flyingtimer - (self.flyingtime or 7)
 		end
 		
-		local newy = self:func(self.flyingtimer/(self.flyingtime or 7))*(self.flyingdisy or 0) + self.starty
+		local newy = self:func(self.flyingtimer/(self.flyingtime or 7))*(self.flyingdistance or 7.5) + self.starty
 		self.y = newy
-		local newx = self:func(self.flyingtimer/(self.flyingtime or 7))*(self.flyingdisx or 0) + self.startx
+	elseif self.movement == "flyhorizontal" then
+		self.flyingtimer = self.flyingtimer + dt
+		
+		while self.flyingtimer > (self.flyingtime or 7) do
+			self.flyingtimer = self.flyingtimer - (self.flyingtime or 7)
+		end
+		
+		local newx = self:func(self.flyingtimer/(self.flyingtime or 7))*(self.flyingdistance or 7.5) + self.startx
 		self.x = newx
 	end
 	
@@ -739,9 +745,92 @@ function enemy:update(dt)
 		end
 	end
 	
+	--Check if player is near
+	if self.transforms and (self.transformtrigger == "playernear" or self.transformtrigger == "playernotnear") then
+		if type(self.playerneardist) == "number" then
+			for i = 1, players do
+				local v = objects["player"][i]
+				if inrange(v.x+v.width/2, self.x+self.width/2-(self.playerneardist or 3), self.x+self.width/2+(self.playerneardist or 3)) then
+					if self.transformtrigger == "playernear" then
+						self:transform(self.transformsinto)
+						return
+					end
+				elseif self.transformtrigger == "playernotnear" then
+					self:transform(self.transformsinto)
+					
+				end
+			end
+		elseif type(self.playerneardist) == "table" and #self.playerneardist == 4 then
+			local col = checkrect(self.x+self.playerneardist[1], self.y+self.playerneardist[2], self.x+self.playerneardist[1]+self.playerneardist[3], self.y+self.playerneardist[2]+self.playerneardist[4], {"player"})
+			if #col > 0 then
+				if self.transformtrigger == "playernear" then
+					self:transform(self.transformsinto)
+					return
+				end
+			elseif self.transformtrigger == "playernotnear" then
+				self:transform(self.transformsinto)
+				return
+			end
+		end
+	end
+	
+	--Check if player if facing the enemy
+	if self.staticifseen or self.staticifnotseen or (self.transforms and (self.transformtrigger == "seen" or self.transformtrigger == "notseen"))then
+		local lookedat = false
+		for i = 1, players do
+			local v = objects["player"][i]
+			if v.x+(self.width/2) > self.x+(self.width/2) then
+				if v.portalsavailable[1] or v.portalsavailable[2] then
+					if v.pointingangle > 0 then
+						lookedat = true
+					end
+				else
+					if v.animationdirection == "left" then
+						lookedat = true
+					end
+				end
+			else
+				if v.portalsavailable[1] or v.portalsavailable[2] then
+					if v.pointingangle < 0 then
+						lookedat = true
+					end
+				else
+					if v.animationdirection == "right" then
+						lookedat = true
+					end
+				end
+			end
+		end
+		if (self.transforms and self.transformtrigger == "notseen") or self.staticifnotseen then
+			lookedat = not lookedat
+		end
+		if lookedat then
+			if self.staticifseen or self.staticifnotseen then
+				self.static = true
+			else
+				self:transform(self.transformsinto)
+				return
+			end
+		else
+			if self.staticifseen or self.staticifnotseen then
+				self.static = false
+			end
+		end
+	end
+	
+	if self.rotatetowardsplayer then
+		for i = 1, players do
+			local v = objects["player"][i]
+			if not v.dead then
+				self.rotation = (-math.atan2((v.x+v.width/2)-(self.x+self.width/2), (v.y+v.height/2)-(self.y+self.height/2-3/16)))-math.pi/2
+			end
+		end
+	end
+	
 	if self.customtimer then
 		self.customtimertimer = self.customtimertimer + dt
 		while self.customtimertimer > self.customtimer[self.currentcustomtimerstage][1] do
+			self.customtimertimer = self.customtimertimer - self.customtimer[self.currentcustomtimerstage][1]
 			if self.customtimer[self.currentcustomtimerstage][2] and self.customtimer[self.currentcustomtimerstage][3] then
 				self:customtimeraction(self.customtimer[self.currentcustomtimerstage][2], self.customtimer[self.currentcustomtimerstage][3])
 			elseif self.customtimer[self.currentcustomtimerstage][2] then
@@ -751,7 +840,6 @@ function enemy:update(dt)
 			if self.currentcustomtimerstage > #self.customtimer then
 				self.currentcustomtimerstage = 1
 			end
-			self.customtimertimer = 0
 		end
 	end
 end
@@ -1089,7 +1177,6 @@ function enemy:legacy_shotted(dir, below, high, fireball, star)
 		if below then
 			self.upsidedown = true
 			self.kickedupsidedown = true
-			self.stompable = true
 			self.offsetY = 4
 			self.movement = self.smallmovement
 			self.animationtype = "none"
@@ -1112,9 +1199,26 @@ end
 
 function enemy:customtimeraction(action, arg)
 	if action == "bounce" then
-		self.speedy = -(arg or 10)
+		if self.speedy == 0 then
+			self.speedy = -(arg or 10)
+		end
 	elseif action == "playsound" then
 		playsound(arg, self.x, self.y, self.speedx, self.speedy)
+	elseif string.sub(action, 0, 7) == "reverse" then
+		local parameter = string.sub(action, 8, string.len(action))
+		if not self[parameter] then return end
+		if type(self[parameter]) ~= "number" then return end
+		self[parameter] = -self[parameter]
+	elseif string.sub(action, 0, 3) == "add" then
+		local parameter = string.sub(action, 8, string.len(action))
+		if not self[parameter] or not arg or tonumber(arg) == nil then return end
+		if type(self[parameter]) ~= "number" then return end
+		self[parameter] = self[parameter] + arg
+	elseif string.sub(action, 0, 8) == "multiply" then
+		local parameter = string.sub(action, 8, string.len(action))
+		if not self[parameter] or not arg or tonumber(arg) == nil then return end
+		if type(self[parameter]) ~= "number" then return end
+		self[parameter] = self[parameter] * arg
 	elseif action == "setframe" then
 		self.quad = self.quadgroup[arg]
 	elseif string.sub(action, 0, 3) == "set" then
@@ -1199,18 +1303,23 @@ function enemy:globalcollide(a, b, c, d, dir)
 	end
 	
 	if self.transforms and (self.transformtrigger == "globalcollide" or self.transformtrigger == "collide") then
-		self:transform(self.transformsinto)
+		if self.transformtriggerenemycollide then
+			if a == "enemy" and b.t == self.transformtriggerenemycollide then
+				self:transform(self.transformsinto)
+			end
+		elseif self.transformtriggerobjectcollide then
+			if a == self.transformtriggerenemycollide then
+				self:transform(self.transformsinto)
+			end
+		else
+			self:transform(self.transformsinto)
+		end
+		return true
 	end
 	
 	if self.breaksblocks then
 		if self.breakblockside == "global" and a == "tile" then
 			hitblock(b.cox, b.coy, self, true)
-		end
-	end
-	
-	if self.transforms then
-		if a == self.transformtriggerenemycollide then
-			self:transform(self.transformsinto)
 		end
 	end
 	
@@ -1231,7 +1340,18 @@ function enemy:leftcollide(a, b, c, d)
 	end
 	
 	if self.transforms and self.transformtrigger == "leftcollide" then
-		self:transform(self.transformsinto)
+		if self.transformtriggerenemycollide then
+			if a == "enemy" and b.t == self.transformtriggerenemycollide then
+				self:transform(self.transformsinto)
+			end
+		elseif self.transformtriggerobjectcollide then
+			if a == self.transformtriggerenemycollide then
+				self:transform(self.transformsinto)
+			end
+		else
+			self:transform(self.transformsinto)
+		end
+		return
 	end
 	
 	if self.reflects then
@@ -1276,7 +1396,18 @@ function enemy:rightcollide(a, b, c, d)
 	end
 	
 	if self.transforms and self.transformtrigger == "rightcollide" then
-		self:transform(self.transformsinto)
+		if self.transformtriggerenemycollide then
+			if a == "enemy" and b.t == self.transformtriggerenemycollide then
+				self:transform(self.transformsinto)
+			end
+		elseif self.transformtriggerobjectcollide then
+			if a == self.transformtriggerenemycollide then
+				self:transform(self.transformsinto)
+			end
+		else
+			self:transform(self.transformsinto)
+		end
+		return
 	end
 	
 	if self.reflects then
@@ -1321,7 +1452,18 @@ function enemy:ceilcollide(a, b, c, d)
 	end
 	
 	if self.transforms and self.transformtrigger == "ceilcollide" then
-		self:transform(self.transformsinto)
+		if self.transformtriggerenemycollide then
+			if a == "enemy" and b.t == self.transformtriggerenemycollide then
+				self:transform(self.transformsinto)
+			end
+		elseif self.transformtriggerobjectcollide then
+			if a == self.transformtriggerenemycollide then
+				self:transform(self.transformsinto)
+			end
+		else
+			self:transform(self.transformsinto)
+		end
+		return
 	end
 	
 	if self.reflects then
@@ -1341,7 +1483,18 @@ function enemy:floorcollide(a, b, c, d)
 	end
 	
 	if self.transforms and self.transformtrigger == "floorcollide" then
-		self:transform(self.transformsinto)
+		if self.transformtriggerenemycollide then
+			if a == "enemy" and b.t == self.transformtriggerenemycollide then
+				self:transform(self.transformsinto)
+			end
+		elseif self.transformtriggerobjectcollide then
+			if a == self.transformtriggerenemycollide then
+				self:transform(self.transformsinto)
+			end
+		else
+			self:transform(self.transformsinto)
+		end
+		return
 	end
 	
 	if self.reflects then
@@ -1414,9 +1567,9 @@ function enemy:spawnenemy(t)
 	end
 	if self.spawnmomentum then
 		if objects["player"][1].x < self.x then
-		speedx = self.speedx + math.random(-6,2)
+			speedx = self.speedx + math.random(-6,2)
 		else
-		speedx = self.speedx + math.random(-2,6)
+			speedx = self.speedx + math.random(-2,6)
 		end
 	end
 	
@@ -1475,8 +1628,20 @@ end
 function enemy:transform(t)
 	local xoffset = self.transformsoffsetx or 0
 	local yoffset = self.transformsoffsety or 0
+	if self.transformsintorandoms then
+		self.transformsinto = self.transformsintorandoms[math.random(#self.transformsintorandoms)]
+	end
 
 	local temp = enemy:new(self.x+self.width/2+.5+xoffset, self.y+self.height+yoffset, t, {})
+	
+	if self.transformpassedparameters then
+		for i = 1, #self.transformpassedparameters do
+			if self.transformpassedparameters[i] ~= nil then
+				temp[self.transformpassedparameters[i]] = self[self.transformpassedparameters[i]]
+			end
+		end
+	end
+	
 	table.insert(objects["enemy"], temp)
 	
 	if self.spawner then
