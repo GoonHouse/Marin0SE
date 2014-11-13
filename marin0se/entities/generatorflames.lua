@@ -47,12 +47,27 @@ end
 
 function generatorflames:update(dt)
 	local col = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, self.checktable)
-	if #col > 0 then
-			gensrunning["bowserflames"] = true
-			return true
+	if not levelfinished and #col > 0 and (not objects["bowser"][1] or (objects["bowser"][1].backwards == false and objects["bowser"][1].shot == false and objects["bowser"][1].fall == false)) then
+		firetimer = firetimer + dt
+		while firetimer > firedelay do
+			firetimer = firetimer - firedelay
+			firedelay = math.random(4)
+			local temp = enemy:new(xscroll + width, math.random(3)+7, "fire")
+			table.insert(objects["enemy"], temp)
+			
+			
+			if objects["bowser"][1] then --make bowser fire this
+				temp.y = objects["bowser"][1].y+0.25
+				temp.x = objects["bowser"][1].x-0.750
+				
+				--get goal Y
+				temp.movement = "targety"
+				temp.targetyspeed = 2
+				temp.targety = objects["bowser"][1].starty-math.random(3)+2/16
+			end
+		end
 	elseif #col == 0 then
-			gensrunning["bowserflames"] = false
-			return false
+	firetimer = 0
 	end
 end
 

@@ -47,12 +47,50 @@ end
 
 function generatorwind:update(dt)
 	local col = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, self.checktable)
-	if #col > 0 then
-			gensrunning["highwind"] = true
-			return true
+	if not levelfinished and #col > 0 then
+		--[[if windsound:isStopped() then
+			playsound(windsound)
+		end]]
+		local player1 = objects["player"][1]
+		if player1.animationdirection == "left" and player1.animationstate ~= "idle" then
+			if not player1.spring and not player1.springhigh then
+				if windgentable[1] == "left" then
+					player1.speedx = player1.speedx - ((windgentable[2]/100)/2)
+					elseif windgentable[1] == "right" then
+					player1.speedx = player1.speedx + (windgentable[2]/100)
+				end
+			else
+				
+			end
+		elseif player1.animationstate ~= "idle" then
+			if not player1.spring and not player1.springhigh then
+				if windgentable[1] == "left" then
+					player1.speedx = player1.speedx - (windgentable[2]/100)
+					elseif windgentable[1] == "right" then
+					player1.speedx = player1.speedx + ((windgentable[2]/100)/2)
+				end
+			else
+				
+			end
+		elseif player1.animationstate == "idle" then
+			if windgentable[2] == "left" then
+				player1.speedx = player1.speedx - 1
+				elseif windgentable[1] == "right" then
+				player1.speedx = player1.speedx + 1
+			end
+		end
+		-- Make high wind leaves appear
+		windtimer = windtimer + dt
+		while windtimer > 0.05 do
+			windtimer = windtimer - 0.05
+			if windgentable[1] == "right" then
+			table.insert(objects["leaf"], leaf:new(xscroll, math.random(1, mapheight)))
+			elseif windgentable[1] == "left" then
+			table.insert(objects["leaf"], leaf:new(xscroll+25, math.random(1, mapheight)))
+			end
+		end
 	elseif #col == 0 then
-			gensrunning["highwind"] = false
-			return false
+	windtimer = 0
 	end
 end
 

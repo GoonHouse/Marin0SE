@@ -6,6 +6,7 @@ function generatorbullet:init(x, y, r)
 	self.cox = x
 	self.coy = y
 	bulletgentable = {"right", 0}
+	gensrun = false
 	
 	self.checktable = {}
 	table.insert(self.checktable, "player")
@@ -47,12 +48,15 @@ end
 
 function generatorbullet:update(dt)
 	local col = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, self.checktable)
-	if #col > 0 then
-			gensrunning["bulletbill"] = true
-			return true
+	if not levelfinished and #col > 0 then
+		bulletbilltimer = bulletbilltimer + dt
+		while bulletbilltimer > bulletbilldelay do
+			bulletbilltimer = bulletbilltimer - bulletbilldelay
+			bulletbilldelay = math.random(5, 40)/10
+			table.insert(objects["enemy"], enemy:new(xscroll+width+2, math.random(self.regionY, self.regionY+self.regionheight), "bulletbill"))
+			end
 	elseif #col == 0 then
-			gensrunning["bulletbill"] = false
-			return false
+		bulletbilltimer = 0
 	end
 end
 

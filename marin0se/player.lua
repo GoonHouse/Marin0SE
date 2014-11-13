@@ -1460,33 +1460,6 @@ function player:update(dt)
 				end
 			end
 		end
-		
-		if fireendx and self.x >= fireendx - 1 then
-			firestarted = false
-		end
-		
-		if flyingfishstartx and self.x >= flyingfishstartx - 1 then
-			flyingfishstarted = true
-		end
-			
-		if flyingfishendx and self.x >= flyingfishendx - 1 then
-			flyingfishstarted = false
-		end
-		
-		if bulletbillstartx and self.x >= bulletbillstartx - 1 then
-			bulletbillstarted = true
-		end
-		
-		if bulletbillendx and self.x >= bulletbillendx - 1 then
-			bulletbillstarted = false
-		end
-	
-		if windstartx and self.x >= windstartx - 1 then
-			windstarted = true
-		end
-		if windendx and self.x >= windendx - 1 then
-			windstarted = false
-		end
 ]]		
 		if lakitoendx and self.x >= lakitoendx then
 			lakitoend = true
