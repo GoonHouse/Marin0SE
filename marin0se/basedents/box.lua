@@ -8,6 +8,7 @@ thisclass.static.GRAPHIC_QUADCENTER = {6,6,0}
 thisclass.static.GRAPHIC_OFFSET = {6,2,0}
 thisclass.static.GRAPHIC_SIGS = {
 	box = {12,12},
+	box_companion = {12,12},
 }
 --@NOTE: These aren't used yet.
 thisclass.static.EDITOR_ENTDEX		= 20
@@ -15,12 +16,8 @@ thisclass.static.EDITOR_CATEGORY	= "portal elements"
 thisclass.static.EDITOR_DESC		= "place on empty tile - weighted storage cube"
 thisclass.static.EDITOR_ICONAUTHOR	= "alesan99"
 thisclass.static.EDITOR_RCM			= {
-	{t="text", value="type:"},
-	{t="submenu", entries={"weighted", "companion"}, default=1, width=9},
-}
-
-thisclass.static.INPUT_MAP			= {
-	cubetype = "submenu",
+	{t="text", value="variant:"},
+	{t="submenu", entries={"weighted", "companion"}, default="weighted", width=9, name="variant", actualvalue=true},
 }
 
 -- get some mixins
@@ -39,7 +36,7 @@ thisclass:include(CanFunnel)
 thisclass:include(IsMappable) --must be preceeded by HasGraphics and optionally HasOutputs
 
 function thisclass:init(x, y, r)
-	baseentity.init(self, thisclass, classname, x, y, 0, r)
+	baseentity.init(self, x, y, 0, r)
 	--PHYSICS STUFF
 	self.category = 9
 	self.mask = {	true,
@@ -51,6 +48,12 @@ function thisclass:init(x, y, r)
 					true, false, true, true, true}
 	self.friction = 20
 	self.base_friction = 20
+	
+	if self.variant and self.variant == "companion" then
+		self:setGraphic("box_companion", true)
+	end
+	
+	
 	
 	-- custom vars
 	self.portaledframe = false

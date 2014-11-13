@@ -18,7 +18,7 @@ thisclass:include(Base)
 --thisclass:include(HasGraphics)
 
 function thisclass:init(x, y, text, stype)
-	baseentity.init(self, thisclass, classname, x, y+.5, 0, nil)
+	baseentity.init(self, x, y+.5, 0, nil)
 	--baseentity.init(self, thisclass, classname, x-.5, y-.5, 0, nil, parent)
 	self.text = text
 	self.stype = stype or "score" --score, life, time, coin

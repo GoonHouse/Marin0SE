@@ -20,7 +20,7 @@ thisclass:include(Base)
 thisclass:include(HasGraphics)
 
 function thisclass:init(x, y, dir, forcemultiplier)
-	baseentity.init(self, thisclass, classname, x-.5, y-.5, 0, nil, parent)
+	baseentity.init(self, x-.5, y-.5, 0, nil, parent)
 	forcemultiplier = forcemultiplier or 0
 	
 	self.dir = dir or self.dir

@@ -32,7 +32,7 @@ thisclass:include(HasGraphics)
 thisclass:include(HasSounds)
 
 function thisclass:init(x, y, dir, parent)
-	baseentity.init(self, thisclass, classname, x, y, 0, nil, parent)
+	baseentity.init(self, x, y, 0, nil, parent)
 	
 	--@WARNING: we touched a global and feel filthy
 	earthquake = thisclass.effectearthquake

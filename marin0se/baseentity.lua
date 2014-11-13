@@ -33,17 +33,23 @@ baseentity.mixedins = {}
 	CanCarry:		userect
 ]]
 
-function baseentity:init(origclass, classname, x, y, z, r, parent)
+function baseentity:init(x, y, z, r, parent)
 	local mix = self.class.__mixins
-	-- anonymous mapping gets confusing sometimes
-	self.origclass = origclass
-	self.classname = classname
 	self.parent = parent --(or nil)
 	
-	self.r = r
+	if r then
+		self.r = {}
+		for k,v in ipairs(r) do
+			if k > 2 then
+				--1 = ???
+				--2 = entity lookup id
+				table.insert(self.r, v)
+			end
+		end
+	end
 	
 	if mix[HasGraphics] then
-		self:setGraphic(classname, true)
+		self:setGraphic(self.class.name, true)
 		self:setCo(x, y, z)
 		self:setOffset(self.class.GRAPHIC_OFFSET)
 		self:setQuadCenter(self.class.GRAPHIC_QUADCENTER)
@@ -79,9 +85,16 @@ function baseentity:init(origclass, classname, x, y, z, r, parent)
 	-- should we destroy ourselves in the next update
 	self.destroy = false
 	-- self-manage our copy in the right tables
-	if not mix[IsMappable] then
+	if mix[IsMappable] then
+		-- use the existence of the name attribute to map a variable to self
+		for k,v in pairs(self.class.EDITOR_RCM) do
+			if v.name then
+				self:getBasicInput(v.name)
+			end
+		end
+	else
 		-- mapped entities are already inserted
-		table.insert(objects[classname], self)
+		table.insert(objects[self.class.name], self)
 	end
 end
 

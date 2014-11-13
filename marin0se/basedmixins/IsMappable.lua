@@ -18,6 +18,7 @@ function IsMappable:getBasicInput(vartoset)
 		-- we got the data correctly
 		return true
 	else
+		print("CRITICAL: Entity wasn't able to read data from the r table.")
 		-- we did not get the data correctly
 		return false
 	end

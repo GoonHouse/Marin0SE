@@ -16,7 +16,7 @@ thisclass:include(Base)
 thisclass:include(HasGraphics)
 
 function thisclass:init(x, y, speedx, speedy)
-	baseentity.init(self, thisclass, classname, x-.5, y-.5, 0)
+	baseentity.init(self, x-.5, y-.5, 0)
 	self.r = math.random()*math.pi*2
 	self.rotspeed = (math.random()-.5)*2
 	self.speedx = speedx+(math.random()-.5)*1

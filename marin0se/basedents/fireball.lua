@@ -36,7 +36,7 @@ thisclass:include(CanDamage)
 thisclass:include(CanFunnel)
 
 function thisclass:init(x, y, dir, parent)
-	baseentity.init(self, thisclass, classname, x, y, 0, nil, parent)
+	baseentity.init(self, x, y, 0, nil, parent)
 	
 	-- baseentity overrides
 	self.y = y-4/16 --this was positive, now it's negative so that firing on top of a single block is accurate
