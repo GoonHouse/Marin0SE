@@ -122,7 +122,7 @@ function enemy:init(x, y, t, a)
 		if self.spawnonlyonextended then
 			self.spawnallow = false
 		end
-	elseif self.movement == "flytime" or self.movement == "flyvertical" or self.movement == "flyhorizontal" then
+	elseif self.movement == "flytime" then
 		self.flyingtimer = 0
 		self.startx = self.x
 		self.starty = self.y
@@ -637,23 +637,16 @@ function enemy:update(dt)
 				self.y = self.targety
 			end
 		end
-	elseif self.movement == "flyvertical" then
+	elseif self.movement == "flytime" then
 		self.flyingtimer = self.flyingtimer + dt
 		
 		while self.flyingtimer > (self.flyingtime or 7) do
 			self.flyingtimer = self.flyingtimer - (self.flyingtime or 7)
 		end
 		
-		local newy = self:func(self.flyingtimer/(self.flyingtime or 7))*(self.flyingdistance or 7.5) + self.starty
+		local newy = self:func(self.flyingtimer/(self.flyingtime or 7))*(self.flyingdisy or 0) + self.starty
 		self.y = newy
-	elseif self.movement == "flyhorizontal" then
-		self.flyingtimer = self.flyingtimer + dt
-		
-		while self.flyingtimer > (self.flyingtime or 7) do
-			self.flyingtimer = self.flyingtimer - (self.flyingtime or 7)
-		end
-		
-		local newx = self:func(self.flyingtimer/(self.flyingtime or 7))*(self.flyingdistance or 7.5) + self.startx
+		local newx = self:func(self.flyingtimer/(self.flyingtime or 7))*(self.flyingdisx or 0) + self.startx
 		self.x = newx
 	end
 	
