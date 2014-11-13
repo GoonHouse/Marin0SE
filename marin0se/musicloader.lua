@@ -7,6 +7,7 @@ music = {
 		"castle.ogg",
 		"underwater.ogg",
 		"starmusic.ogg",
+		"outofbounds.ogg",
 	},
 	list_fast = {
 		"overworld-fast.ogg",

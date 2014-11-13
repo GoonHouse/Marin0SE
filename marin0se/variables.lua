@@ -77,6 +77,8 @@ spawnarea = {1, 1, 1, 1}
 joystickdeadzone = 0.2
 joystickaimdeadzone = 0.5
 
+outofboundstime = 1 --time to wait before playing out of bounds music
+was_anyone_outofbounds = false --if anyone has been out of bounds long enough to trigger
 walkacceleration = 8 --acceleration of walking on ground
 runacceleration = 16 --acceleration of running on ground
 walkaccelerationair = 8 --acceleration of walking in the air
