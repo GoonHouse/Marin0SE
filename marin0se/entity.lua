@@ -20,7 +20,7 @@ entitylist = {
 	{t=""},
 	{t="platform", category="smb stuff", description="place on empty tile - oscillating platform", iconauthor="Assasin-Kiashi"},
 	{t="regiontrigger", category="i/o objects", description="place anywhere - will output when there's an object in a region", output=true, iconauthor="alesan99"},
-	{t="box", category="portal elements", description="place on empty tile - weighted storage cube", output=true, iconauthor="alesan99"},
+	{t=""},
 	{t=""}, --20
 	{t=""},
 	{t="mazestart", category="level markers", description="place anywhere - logical maze start", hidden=not DEBUG, iconauthor=""},
@@ -612,7 +612,11 @@ rightclickmenues.generatorflames = {
 
 function entity:init(img, x, y, width, height)
 	self.image = img
-	self.quad = love.graphics.newQuad((x-1)*17, (y-1)*17, 16, 16, width, height)	
+	if type(x)~="number" then
+		self.quad = x
+	else
+		self.quad = love.graphics.newQuad((x-1)*17, (y-1)*17, 16, 16, width, height)
+	end
 end
 
 function entity:sett(i)
@@ -622,3 +626,5 @@ function entity:sett(i)
 		end
 	end
 end
+
+entityquad_overloads = {} --this is for overloading whatever is done to entityquads because we can't use it normally

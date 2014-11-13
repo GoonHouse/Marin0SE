@@ -10,6 +10,7 @@ thisclass.static.GRAPHIC_SIGS = {
 	box = {12,12},
 }
 --@NOTE: These aren't used yet.
+thisclass.static.EDITOR_ENTDEX		= 20
 thisclass.static.EDITOR_CATEGORY	= "portal elements"
 thisclass.static.EDITOR_DESC		= "place on empty tile - weighted storage cube"
 thisclass.static.EDITOR_ICONAUTHOR	= "alesan99"
@@ -35,7 +36,7 @@ thisclass:include(CanPortal)
 thisclass:include(CanCarry)
 thisclass:include(CanFunnel)
 
-thisclass:include(IsMappable)
+thisclass:include(IsMappable) --must be preceeded by HasGraphics and optionally HasOutputs
 
 function thisclass:init(x, y, r)
 	baseentity.init(self, thisclass, classname, x, y, 0, r)

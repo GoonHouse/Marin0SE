@@ -430,6 +430,7 @@ function love.load(args)
 	require "magic"
 	require "camera"
 	require "baseentity"
+	require "entity"
 	
 	local mixins = love.filesystem.getDirectoryItems("basedmixins")
 
@@ -477,7 +478,6 @@ function love.load(args)
 	require "animationguiline"
 	require "physics"
 	require "quad"
-	require "entity"
 	require "hatconfigs"
 	require "bighatconfigs"
 	require "customhats"
@@ -603,6 +603,11 @@ function love.load(args)
 		end
 	end
 	entitiescount = width*height
+	
+	-- overload table because we can't change the timing of the above
+	for k,v in pairs(entityquad_overloads) do
+		entityquads[k] = v
+	end
 	
 	numberglyphs = "0123456789"
 	font2quads = {}
