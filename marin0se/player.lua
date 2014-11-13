@@ -104,7 +104,7 @@ function player:init(x, y, i, animation, size, t)
 		self.smallgraphic = self.char.nogunanimations
 		self.biggraphic = self.char.nogunbiganimations
 	end
-	
+	self.outofboundstimer = 0
 	self.drawable = true
 	self.quad = self.char.idle[3]
 	self.colors = mariocolors[self.playernumber]
@@ -1479,6 +1479,13 @@ function player:update(dt)
 		if self.speedy < drainmax then
 			self.speedy = math.min( drainmax, self.speedy + drainspeed*dt)
 		end
+	end
+	
+	--out of bounds
+	if self.y < 0-self.height then
+		self.outofboundstimer = self.outofboundstimer+dt
+	elseif self.outofboundstimer > 0 then
+		self.outofboundstimer = 0
 	end
 	
 	--@DEV: Experimental audio foolery.

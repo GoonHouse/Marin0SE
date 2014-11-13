@@ -188,6 +188,26 @@ function game_update(dt)
 		end
 	end
 	
+	--out of bounds
+	local anyone_outofbounds = false
+	for i, v in pairs(objects["player"]) do
+		if v.outofboundstimer > outofboundstime then
+			anyone_outofbounds = true
+			break
+		end
+	end
+	
+	if not was_anyone_outofbounds and anyone_outofbounds then
+		print("TRIGGER: OB!")
+		stopmusic()
+		music:play("outofbounds.ogg")
+	elseif was_anyone_outofbounds and not anyone_outofbounds then
+		print("TRIGGER: Welcome back to earth.")
+		music:stop("outofbounds.ogg")
+		playmusic()
+	end
+	was_anyone_outofbounds = anyone_outofbounds
+	
 	--Portaldots
 	portaldotstimer = portaldotstimer + dt
 	while portaldotstimer > portaldotstime do
