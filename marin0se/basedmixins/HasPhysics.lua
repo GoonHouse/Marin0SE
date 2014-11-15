@@ -58,9 +58,30 @@ function HasPhysics:setSpeed(nx, ny, nz)
 		ny = nx[2]
 		nx = nx[1]
 	end
+	if not ny then ny = nx end
+	if not nz then nz = ny end
+	
 	self.speedx = nx or 0
 	self.speedy = ny or 0
 	self.speedz = nz or 0
+end
+
+function HasPhysics:setOSize(nw, nh, nd)
+	if type(nw) == "table" then
+		nd = nd[3]
+		nh = nh[2]
+		nw = nw[1]
+	end
+	if not nh then nh = nw end
+	if not nd then nd = nh end
+	
+	self.width  = nw/16 or 0
+	self.height = nh/16 or 0
+	self.depth  = nd/16 or 0
+	
+	self.centerx = self.width/2
+	self.centery = self.height/2
+	self.centerz = self.depth/2
 end
 
 function HasPhysics:setSize(nw, nh, nd)
@@ -69,6 +90,9 @@ function HasPhysics:setSize(nw, nh, nd)
 		nh = nh[2]
 		nw = nw[1]
 	end
+	if not nh then nh = nw end
+	if not nd then nd = nh end
+	
 	self.width  = nw or 0
 	self.height = nh or 0
 	self.depth  = nd or 0

@@ -51,15 +51,40 @@ function baseentity:init(x, y, z, r, parent)
 	if mix[HasGraphics] then
 		self:setGraphic(self.class.name, true)
 		self:setCo(x, y, z)
-		self:setOffset(self.class.GRAPHIC_OFFSET)
-		self:setQuadCenter(self.class.GRAPHIC_QUADCENTER)
+		if self.class.UNI_SIZE then
+			local size = self.class.UNI_SIZE
+			self:setOffset(size[1]/2, (16-size[2])*.5, size[3]/2)
+			self:setQuadCenter(size[1]/2, size[2]/2, size[3]/2)
+		else
+			self:setOffset(self.class.GRAPHIC_OFFSET)
+			self:setQuadCenter(self.class.GRAPHIC_QUADCENTER)
+		end
 	end
 	
 	if mix[HasPhysics] then
-		local size = self.class.PHYS_SIZE
-		self:setSize(size[1], size[2], size[3])
-		self:setPosition(x-size[1], y-size[2], z-size[3])
-		self:setCo(x, y, z)
+		local size = self.class.UNI_SIZE or self.class.PHYS_SIZE
+		if self.class.UNI_SIZE then
+			self:setSize(size[1]/16, size[2]/16, size[3]/16)
+		else
+			self:setSize(size[1], size[2], size[3])
+		end
+		local posoff = {-1, -1, 0}
+		if self.class.MAPPABLE_CENTERX then
+			local multi = math.ceil(self.width)*16
+			--[[
+				this is to correct for objects larger than 16 units,
+				finding the nearest multiple of 16 to apply against
+			]]
+			posoff[1] = posoff[1] + (multi%self.width)/2
+		end
+		if self.class.MAPPABLE_FLUSHY then
+			posoff[2] = posoff[2] + (math.ceil(self.height)-self.height)
+		end
+		self:setPosition(x+posoff[1], y+posoff[2], z+posoff[3])
+	end
+	
+	if mix[CanCarry] then
+		self.userect = userect:new(self.x, self.y, self.width, self.height, self)
 	end
 	
 	if mix[Base] then
@@ -176,6 +201,7 @@ function baseentity:update(dt)
 			
 			self.rotation = self.carrier.rotation
 		end
+		self.userect:setPos(self.x+self.speedx*dt, self.y+self.speedy*dt)
 		self.portaledframe = false
 	end
 	

@@ -2,7 +2,7 @@ local classname=debug.getinfo(1,'S').source:split("/")[2]:sub(0,-5)
 _G[classname] = class(classname, baseentity)
 local thisclass = _G[classname]
 
-thisclass.static.UNI_SIZE			= {12, 12, 12}
+thisclass.static.UNI_SIZE			= {24, 24, 24}
 
 thisclass.static.MAPPABLE_CENTERX = true
 thisclass.static.MAPPABLE_FLUSHY = true
@@ -11,9 +11,9 @@ thisclass.static.GRAPHIC_SIGS = {
 	[classname.."_companion"] = thisclass.static.UNI_SIZE,
 }
 --@NOTE: These aren't used yet.
-thisclass.static.EDITOR_ENTDEX		= 20
+thisclass.static.EDITOR_ENTDEX		= 21
 thisclass.static.EDITOR_CATEGORY	= "portal elements"
-thisclass.static.EDITOR_DESC		= "place on empty tile - weighted storage cube"
+thisclass.static.EDITOR_DESC		= "place on empty tile - big weighted storage cube"
 thisclass.static.EDITOR_ICONAUTHOR	= "alesan99"
 thisclass.static.EDITOR_RCM			= {
 	{t="text", value="variant:"},
@@ -59,6 +59,7 @@ function thisclass:init(x, y, r)
 	self.portaledframe = false
 	-- whether we were pushed by the player
 	self.pushed = false --this *should* be further up the chain, but, being pushable isn't demonstrated with any other object
+	--self.userect = userect:new(self.x, self.y, self.class.PHYS_SIZE[1], self.class.PHYS_SIZE[2], self)
 end
 
 function thisclass:update(dt)

@@ -73,7 +73,10 @@ end
 
 function game_update(dt)
 	if not objects then return end
-	pt = {p1 = objects["player"][1]}
+	pt = {
+		p1 = objects["player"][1],
+		b1 = objects["box"][1]
+	}
 	dt = dt * speed
 	gdt = dt
 	

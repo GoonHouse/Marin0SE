@@ -55,6 +55,9 @@ function HasGraphics:setOffset(nx, ny, nz)
 		ny = nx[2]
 		nx = nx[1]
 	end
+	if not ny then ny = nx end
+	if not nz then nz = ny end
+	
 	self.offsetX = nx or 0
 	self.offsetY = ny or 0
 	self.offsetZ = nz or 0
@@ -66,6 +69,9 @@ function HasGraphics:setQuadCenter(nx, ny, nz)
 		ny = nx[2]
 		nx = nx[1]
 	end
+	if not ny then ny = nx end
+	if not nz then nz = ny end
+	
 	self.quadcenterX = nx or 0
 	self.quadcenterY = ny or 0
 	self.quadcenterZ = nz or 0
@@ -77,6 +83,9 @@ function HasGraphics:setCo(nx, ny, nz)
 		ny = nx[2]
 		nx = nx[1]
 	end
+	if not ny then ny = nx end
+	if not nz then nz = ny end
+	
 	self.cox = nx or 0
 	self.coy = ny or 0
 	self.coz = nz or 0

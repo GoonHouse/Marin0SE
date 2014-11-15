@@ -1140,6 +1140,18 @@ function enemy:legacy_shotted(dir, below, high, fireball, star)
 		return false
 	end
 	
+	if self.shothealth then
+		if self.shothealth > 1 then
+			self.shothealth = self.shothealth - 1
+			return
+		end
+	elseif self.health and not self.shothealth then
+		if self.health > 1 then
+			self.health = self.health - 1
+			return
+		end
+	end
+	
 	if self.givecoinwhenshot then
 		collectcoin(nil, nil, 1)
 	end
@@ -1520,6 +1532,80 @@ end
 
 function enemy:startfall()
 	self.falling = true
+end
+
+function enemy:legacy_stomp(x, b)
+	if self.stompable then
+		if self.stomphealth then
+			if self.stomphealth > 1 then
+				self.stomphealth = self.stomphealth - 1
+				return
+			end
+		elseif self.health and not self.stomphealth then
+			if self.health > 1 then
+				self.health = self.health - 1
+				return
+			end
+		end
+	
+		if self.transforms and (self.transformtrigger == "stomp" or self.transformtrigger == "death") then
+			self:transform(self.transformsinto)
+			return
+		end
+		
+		if self.givecoinwhenstomped then
+			collectcoin(nil, nil, 1)
+		end
+		
+		if self.shellanimal then
+			if not self.small then
+				self.quadcenterY = 19
+				self.offsetY = 0
+				self.quad = self.quadgroup[self.smallquad]
+				self.small = true
+				self.movement = self.smallmovement
+				self.speedx = 0
+				self.animationtype = "none"
+			elseif self.speedx == 0 then
+				if self.x > x then
+					self.speedx = self.smallspeed
+					self.x = x+12/16+self.smallspeed*gdt
+					if b then
+						self.size = b.size
+					else
+						self.size = 1
+					end
+					self.killsenemies = true
+				else
+					self.speedx = -self.smallspeed
+					self.x = x-self.width-self.smallspeed*gdt
+					if b then
+						self.size = b.size
+					else
+						self.size = 1
+					end
+					self.killsenemies = true
+				end
+			else
+				self.speedx = 0
+				self.combo = 1
+			end
+		else
+			self.active = false
+			if self.stompanimation then
+				self.quad = self.quadgroup[self.stompedframe]
+				if self.fallswhenstomped then
+					self.shot = true
+					self.gravity = shotgravity
+				else
+					self.dead = true
+				end
+			else
+				self.shot = true
+				self.gravity = shotgravity
+			end
+		end
+	end
 end
 
 function enemy:autodeleted()
