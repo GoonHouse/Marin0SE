@@ -2619,31 +2619,35 @@ function loadlevel(level, is_sublevel)
 			end
 		end
 		
-		local pipeoffx, pipeoffy
-		if thepipe[7] == "up" then
-			pipeoffx = 1
-			pipeoffy = 0
-		elseif thepipe[7] == "down" then
-			pipeoffx = 1
-			pipeoffy = -1
-		elseif thepipe[7] == "left" then
-			pipeoffx = -1
-			pipeoffy = 0
-		elseif thepipe[7] == "right" then
-			pipeoffx = 0
-			pipeoffy = 0
+		if foundit then
+			
+			local pipeoffx, pipeoffy
+			if thepipe[7] == "up" then
+				pipeoffx = 1
+				pipeoffy = 0
+			elseif thepipe[7] == "down" then
+				pipeoffx = 1
+				pipeoffy = -1
+			elseif thepipe[7] == "left" then
+				pipeoffx = -1
+				pipeoffy = 0
+			elseif thepipe[7] == "right" then
+				pipeoffx = 0
+				pipeoffy = 0
+			end
+			
+			globalanimation = "pipe_"..thepipe[7].."_out"
+			
+			startx = {pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx}
+			starty = {pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy}
+			
+			--check if startpos is a colliding block
+			--if tilequads[map[startx[1]][starty[1]][1]]:getproperty("collision", startx[1], starty[1]) then
+			--	animation = "pipeup2"
+			--end
+		else
+			print("WARNING: Tried to take a pipe to a level that did not have corresponding destination pipe (",warpdestid,")")
 		end
-		
-		globalanimation = "pipe_"..thepipe[7].."_out"
-		
-		startx = {pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx}
-		starty = {pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy}
-		
-		--check if startpos is a colliding block
-		--if tilequads[map[startx[1]][starty[1]][1]]:getproperty("collision", startx[1], starty[1]) then
-		--	animation = "pipeup2"
-		--end
-		
 		--clear warpdestid because it would never get cleared otherwise
 		warpdestid = nil
 	end
