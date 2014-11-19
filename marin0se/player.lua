@@ -3155,7 +3155,6 @@ function player:globalcollide(a, b, c, d, dir)
 	elseif b.givestime then
 		if b.timeamount then
 			givemestuff["time"] = b.timeamount
-			givemetemp["time"] = b.timeamount
 		end
 		givetime(self.playernumber, b)
 		return true

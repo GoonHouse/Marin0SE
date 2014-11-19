@@ -2449,7 +2449,6 @@ function loadlevel(level, is_sublevel)
 	pswitchtimers = {blue = 0, grey = 0}
 		
 	givemestuff = {lives = 0, times = 0, coinage = 0}
-	givemetemp = {lives = 0, times = 0, coinage = 0}
 	
 	portaldelay = {}
 	for i = 1, players do

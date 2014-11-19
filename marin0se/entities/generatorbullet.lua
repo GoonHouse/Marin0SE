@@ -5,8 +5,8 @@ function generatorbullet:init(x, y, r)
 	self.y = y
 	self.cox = x
 	self.coy = y
-	bulletgentable = {"right", 0}
-	gensrun = false
+	self.bulletgentable = {left = false, right = false, up = false, down = false}
+	self.bulletfiringtype = "one at a time"
 	
 	self.checktable = {}
 	table.insert(self.checktable, "player")
@@ -17,17 +17,31 @@ function generatorbullet:init(x, y, r)
 	table.remove(self.r, 1)
 	
 	
-	--Stuff to come sometime
-	--[[if #self.r > 0 and self.r[1] ~= "link" then
-		bulletgentable[1] = self.r[1]
+	--Directions, Firing Type
+	if #self.r > 0 and self.r[1] ~= "link" then
+		self.bulletgentable["left"] = true
 		table.remove(self.r, 1)
 	end
 	
-	--Wind Intensity
 	if #self.r > 0 and self.r[1] ~= "link" then
-		bulletgentable[2] = self.r[1]		
+		self.bulletgentable["right"] = true
 		table.remove(self.r, 1)
-	end]]
+	end
+	
+	if #self.r > 0 and self.r[1] ~= "link" then
+		self.bulletgentable["up"] = true
+		table.remove(self.r, 1)
+	end
+	
+	if #self.r > 0 and self.r[1] ~= "link" then
+		self.bulletgentable["down"] = true
+		table.remove(self.r, 1)
+	end
+	
+	if #self.r > 0 and self.r[1] ~= "link" then
+		bulletfiringtype = self.r[1]
+		table.remove(self.r, 1)
+	end
 	
 	--Region
 	if #self.r > 0 then
@@ -44,6 +58,21 @@ function generatorbullet:init(x, y, r)
 		self.regionY = tonumber(self.regionY) + self.y - 1
 		table.remove(self.r, 1)
 	end
+	
+	if #self.r > 0 then
+		local s = self.r[1]:split(":")
+		self.triggerregionX, self.triggerregionY, self.triggerregionwidth, self.triggerregionheight = s[2], s[3], tonumber(s[4]), tonumber(s[5])
+		if string.sub(self.triggerregionX, 1, 1) == "m" then
+			self.triggerregionX = -tonumber(string.sub(self.triggerregionX, 2))
+		end
+		if string.sub(self.triggerregionY, 1, 1) == "m" then
+			self.triggerregionY = -tonumber(string.sub(self.triggerregionY, 2))
+		end
+		
+		self.triggerregionX = tonumber(self.triggerregionX) + self.x - 1
+		self.triggerregionY = tonumber(self.triggerregionY) + self.y - 1
+		table.remove(self.r, 1)
+	end
 end
 
 function generatorbullet:update(dt)
@@ -53,7 +82,34 @@ function generatorbullet:update(dt)
 		while bulletbilltimer > bulletbilldelay do
 			bulletbilltimer = bulletbilltimer - bulletbilldelay
 			bulletbilldelay = math.random(5, 40)/10
-			table.insert(objects["enemy"], enemy:new(xscroll+width+2, math.random(self.regionY, self.regionY+self.regionheight), "bulletbill"))
+			
+			local nearestplayer = 1
+			
+			while objects["player"][nearestplayer] and objects["player"][nearestplayer].dead do
+				nearestplayer = nearestplayer + 1
+			end
+			
+			if objects["player"][nearestplayer] then
+				local nearestplayerx = objects["player"][nearestplayer].x
+				for i = 2, players do
+					local v = objects["player"][i]
+					if v.x > nearestplayerx and not v.dead then
+						nearestplayer = i
+					end
+				end
+			end
+			
+				if bulletfiringtype == "oneatatime" then
+					local randomfactor = math.random(1, 4)
+					if randomfactor == 1 and self.bulletgentable["left"] == true then
+						table.insert(objects["enemy"], enemy:new(objects["player"][nearestplayer].x+24, math.random(self.triggerregionY, self.triggerregionY+self.triggerregionheight), "bulletbill"))
+					elseif randomfactor == 2 and self.bulletgentable["right"] == true then
+						table.insert(objects["enemy"], enemy:new(objects["player"][nearestplayer].x-24, math.random(self.triggerregionY, self.triggerregionY+self.triggerregionheight), "bulletbill"))
+					else 
+					bulletbilldelay = bulletbilltimer
+					end
+				end
+			playsound("bulletbill") --allowed global
 			end
 	elseif #col == 0 then
 		bulletbilltimer = 0
