@@ -378,6 +378,7 @@ function player:controlPress(control, fromnetwork)
 	elseif control=="playerDebug" then
 		playsound("shrink", 1, 1)
 		killfeed.new({objects["enemy"][1],objects["enemy"][2]}, "physics", objects["enemy"][3])
+		savemap2(currentmap)
 		--debugbox()
 		print("oh boy I'm a test")
 	elseif control=="playerRun" then

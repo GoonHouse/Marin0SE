@@ -4147,6 +4147,213 @@ function getMouseTile(x, y)
 	return xout, yout
 end
 
+function savemap2(filename)
+	local tmap = {
+		version = 1,
+		tilewidth = 16,
+		tileheight = 16,
+		
+		width = mapwidth,
+		height = mapheight,
+		
+		orientation = "orthogonal",
+		renderorder = "right-down",
+		
+		properties = {},
+		
+		tilesets = { -- this is for tile images and properties
+			{
+				firstgid = 1,
+				image = "../../graphics/DEFAULT/smbtiles.png",
+				imageheight = 119,
+				imagewidth = 374,
+				margin = 0,
+				name = "smbtiles",
+				properties = {},
+				spacing = 1,
+				tileheight = 16,
+				tilewidth = 16,
+				tileproperties = {
+					-- all this junk
+					[1] = {
+						solid = false,
+					}
+				}
+			},
+		},
+		
+		layers = {
+			[1] = {
+				type = "tilelayer",
+				name = "tiles",
+				x = 0,
+				y = 0,
+				width = mapwidth,
+				height = mapheight,
+				visible = true,
+				opacity = 1,
+				properties = {},
+				
+				data = {}, --a single dimensional array of indexes that refer to tileset ids
+			},
+			[2] = {
+				type = "tilelayer",
+				name = "coins",
+				x = 0,
+				y = 0,
+				width = mapwidth,
+				height = mapheight,
+				visible = true,
+				opacity = 1,
+				properties = {},
+				
+				data = {}, --a single dimensional array of indexes that refer to tileset ids
+			},
+			[3] = {
+				type = "objectgroup",
+				name = "ents",
+				visible = true,
+				opacity = 1,
+				properties = {},
+				objects = {},
+			},
+			[4] = {
+				type = "objectgroup",
+				name = "enemies",
+				visible = true,
+				opacity = 1,
+				properties = {},
+				objects = {},
+			},
+			[5] = {
+				type = "objectgroup",
+				name = "gels",
+				visible = true,
+				opacity = 1,
+				properties = {},
+				objects = {},
+			},
+		},
+	}
+	--JSON:encode_pretty(lua_table_or_value)
+	
+	-- instead of doing RLE on the blocks, have a pass to optimize large chunks of blocks into single objects
+	
+	for y = 0, mapheight-1 do
+		for x = 0, mapwidth-1 do
+			local tile = map[x+1][y+1]
+			
+			-- tile ID
+			tmap.layers[1].data[y+x] = tile[1]
+			
+			-- is there a coin here
+			if coinmap[x+1][y+1] then
+				tmap.layers[2].data[y+x] = 116
+			else
+				tmap.layers[2].data[y+x] = 0
+			end
+			
+			-- entities
+			local target_layer
+			if tile[2] then
+				-- this will also handle gels, since gels are technically entities
+				-- portaloverride will not get handled, though
+				if type(tile[2]) == "number" then --entity
+					target_layer = tmap.layers[3].objects
+				elseif type(tile[2]) == "string" then --enemy
+					target_layer = tmap.layers[4].objects
+				else
+					print("WARNING: tile property#2 wasn't a number or string at "..tostring(x+1)..","..tostring(y+1))
+				end
+				
+				local nent = {
+					name = "", --we don't have a way to determine globally unique names
+					shape = "rectangle",
+					
+					type = tile[2], --supposed to be a string, but we can't reverse entity names yet
+					x = (x+1)*tmap.tilewidth,
+					y = (y+1)*tmap.tileheight,
+					-- since we can't manage object size yet, we'll stub these
+					width = tmap.tilewidth,
+					height = tmap.tileheight,
+					
+					rotation = 0,
+					visible = true,
+					properties = {}
+				}
+				
+				local i = 3
+				while i <= #tile do
+					if tile[i] == "link" then
+						-- i+1 = link name; +2, +3 = link coords
+						nent.properties["link_"..tostring(tile[i+1])] = {tile[i+2], tile[i+3]}
+						i = i + 4
+					else
+						nent.properties["r_"..tostring(i)] = tile[i]
+						i = i + 1
+					end
+				end
+				
+				table.insert(target_layer, nent)
+			end
+			
+			
+			--[[@NOTE:
+				because not being able to manipulate the index complicates things,
+				we do a second loop for named values and just take their word for things
+				
+				if we wanted to fix this, we'd assign i+4 and lt compare 
+				while assigning/grabbing everything the first time and skipping everything else
+				
+				but since we don't have a layer specifically for dicking with gel types,
+				none of this note even matters
+			]]
+		end
+	end
+	
+	--options
+	tmap.properties.background = background --r, g, b
+	tmap.properties.spriteset = spriteset
+	tmap.properties.music = musicname --conditional
+	tmap.properties.intermission = intermission --conditional, bool
+	tmap.properties.bonusstage = bonusstage --conditional, bool
+	tmap.properties.haswarpzone = haswarpzone --conditional, bool
+	tmap.properties.underwater = underwater --conditional, bool
+	tmap.properties.custombackground = custombackground --conditional, true or string
+	tmap.properties.customforeground = customforeground --conditional, true or string
+	tmap.properties.timelimit = mariotimelimit
+	tmap.properties.scrollfactor = scrollfactor
+	tmap.properties.fscrollfactor = fscrollfactor
+	
+	if not portalsavailable[1] or not portalsavailable[2] then
+		local ptype = "none"
+		if portalsavailable[1] then
+			ptype = "blue"
+		elseif portalsavailable[2] then
+			ptype = "orange"
+		end
+		
+		tmap.properties.portalgun = ptype --if missing, assume both
+	end
+	
+	tmap.properties.levelscreenback = levelscreenbackname --conditional, string
+	
+	love.filesystem.createDirectory( "mappacks" )
+	love.filesystem.createDirectory( "mappacks/" .. mappack )
+	
+	jsonencoded = JSON:encode_pretty(tmap)
+	
+	love.filesystem.write("mappacks/" .. mappack .. "/" .. filename .. ".json", jsonencoded)
+	
+	--preview
+	
+	previewimg = renderpreview()
+	previewimg:encode("mappacks/" .. mappack .. "/" .. filename .. ".png")
+	
+	print("Map saved as " .. "mappacks/" .. filename .. ".json")
+	notice.new("Map saved!", notice.white, 2)
+end
+
 function savemap(filename)
 	local s = ""
 	
