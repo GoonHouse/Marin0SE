@@ -13,11 +13,27 @@ uiscales = {
 }
 
 debugflags = {
-	userect = true,
+	userect = true, --draws the userects on usable objects
+	netplay = false, --INCOMPLETE: controls access to netplay features
+	console = false, --INCOMPLETE: allows the console to be loaded
 	--speeddebug
 	--portalwalldebug
 	--incognito
 	--physicsdebug
+}
+enum_errors = { --setting error_level to one of these
+	debug = {},
+	note = {}, 
+	alert = {},
+	warn = {},
+	critical = {},
+}
+alert_show_types = { -- entries in this list will allow the user to see alerts of the above type in the enums
+	"debug",
+	"note",
+	"alert",
+	"warn",
+	"critical"
 }
 
 uiscale = 2 --sometimes the ui is too big for higher resolutions, this is independent from the HUD
