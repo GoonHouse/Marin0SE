@@ -360,6 +360,9 @@ function love.load(args)
 	
 	--require ALL the files!
 	require("libs.lube")
+	class = require("libs.middleclass")
+	require("libs.neubind")
+	nb = neubind:new(neuControlTable)
 	TLbind = require("libs.TLbind")
 	binds, controls = TLbind.giveInstance(controlTable)
 	require("libs.monocle")
@@ -386,11 +389,17 @@ function love.load(args)
 	--require "client"
 	require "server"
 	require "lobby"
-	require "onlinemenu"
 	
 	require "shaders"
 	require "variables"
-	require "killfeed"
+	
+	-- gui elements??
+	require "gui.onlinemenu"
+	require "gui.killfeed"
+	require "gui.nodetree"
+	require "gui.maptree"
+	require "gui.tiletree"
+	
 	reloadGraphics()
 	reloadSounds()
 	
@@ -426,7 +435,6 @@ function love.load(args)
 		love.graphics.present()
 	-- whew, that's over with
 	require("libs.sha1")
-	class = require("libs.middleclass")
 	require "magic"
 	require "camera"
 	require "baseentity"
@@ -942,6 +950,7 @@ function love.update(dt)
 	end
 	timer.Update(dt)
 	Monocle.update()
+	nb:update(dt)
 	TLbind:update()
 	binds:update()
 	controlsUpdate(dt)
@@ -1800,6 +1809,10 @@ end
 function round(num, idp) --Not by me
 	local mult = 10^(idp or 0)
 	return math.floor(num * mult + 0.5) / mult
+end
+
+function keyPromptSignal(itype, ...)
+	
 end
 
 function getrainbowcolor(i)

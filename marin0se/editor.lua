@@ -10,9 +10,6 @@ editor_undohistory = {}
 	},
 	}
 ]]
-require "nodetree"
-require "maptree"
-require "tiletree"
 testbed = {}
 
 require "editortool"

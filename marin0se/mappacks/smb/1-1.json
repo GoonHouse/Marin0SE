@@ -1,0 +1,394 @@
+{
+         "height": 15,
+         "layers": [ {
+                             "data": [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 24, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],
+                           "height": 15,
+                             "name": "tiles",
+                          "opacity": 1,
+                       "properties": [  ],
+                             "type": "tilelayer",
+                          "visible": true,
+                            "width": 224,
+                                "x": 0,
+                                "y": 0
+                   }, {
+                             "data": [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+                           "height": 15,
+                             "name": "coins",
+                          "opacity": 1,
+                       "properties": [  ],
+                             "type": "tilelayer",
+                          "visible": true,
+                            "width": 224,
+                                "x": 0,
+                                "y": 0
+                   }, {
+                             "name": "ents",
+                          "objects": [ {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": 2,
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1760,
+                                                  "y": 96
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": 2,
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 352,
+                                                  "y": 160
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": {
+                                                           "r_3": 2
+                                                       },
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": 21,
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 944,
+                                                  "y": 160
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": 2,
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1264,
+                                                  "y": 160
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": {
+                                                           "r_3": 7
+                                                       },
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": 5,
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1520,
+                                                  "y": 160
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": {
+                                                           "r_3": 2
+                                                       },
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": 31,
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 2640,
+                                                  "y": 192
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": {
+                                                           "r_10": "region:0:m12:1:15",
+                                                            "r_3": "true",
+                                                            "r_4": "false",
+                                                            "r_5": "false",
+                                                            "r_6": "false",
+                                                            "r_7": "false",
+                                                            "r_8": "false",
+                                                            "r_9": "false"
+                                                       },
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": 100,
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1328,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": 11,
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 3184,
+                                                  "y": 208
+                                     } ],
+                          "opacity": 1,
+                       "properties": [  ],
+                             "type": "objectgroup",
+                          "visible": true
+                   }, {
+                             "name": "enemies",
+                          "objects": [ {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goomba",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1296,
+                                                  "y": 80
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goomba",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1328,
+                                                  "y": 80
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "oneup",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1040,
+                                                  "y": 144
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "star",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1632,
+                                                  "y": 160
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goomba",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 368,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goomba",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 656,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goomba",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 832,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goombahalf",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 848,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goomba",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1568,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goombahalf",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1584,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "koopa",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1728,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goomba",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1840,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goombahalf",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 1856,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goomba",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 2000,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goombahalf",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 2016,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goomba",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 2064,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goombahalf",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 2080,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goomba",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 2800,
+                                                  "y": 208
+                                     }, {
+                                             "height": 16,
+                                               "name": "",
+                                         "properties": [  ],
+                                           "rotation": 0,
+                                              "shape": "rectangle",
+                                               "type": "goombahalf",
+                                            "visible": true,
+                                              "width": 16,
+                                                  "x": 2816,
+                                                  "y": 208
+                                     } ],
+                          "opacity": 1,
+                       "properties": [  ],
+                             "type": "objectgroup",
+                          "visible": true
+                   }, {
+                             "name": "gels",
+                          "objects": [  ],
+                          "opacity": 1,
+                       "properties": [  ],
+                             "type": "objectgroup",
+                          "visible": true
+                   } ],
+    "orientation": "orthogonal",
+     "properties": {
+                             "background": [ 92, 148, 252 ],
+                             "bonusstage": false,
+                       "custombackground": false,
+                       "customforeground": false,
+                          "fscrollfactor": 0,
+                            "haswarpzone": false,
+                           "intermission": false,
+                                  "music": "overworld.ogg",
+                           "scrollfactor": 0,
+                              "spriteset": 1,
+                              "timelimit": 400,
+                             "underwater": false
+                   },
+    "renderorder": "right-down",
+     "tileheight": 16,
+       "tilesets": [ {
+                             "firstgid": 1,
+                                "image": "../../graphics/DEFAULT/smbtiles.png",
+                          "imageheight": 119,
+                           "imagewidth": 374,
+                               "margin": 0,
+                                 "name": "smbtiles",
+                           "properties": [  ],
+                              "spacing": 1,
+                           "tileheight": 16,
+                       "tileproperties": [ {
+                                             "solid": false
+                                         } ],
+                            "tilewidth": 16
+                   } ],
+      "tilewidth": 16,
+        "version": 1,
+          "width": 224
+}
