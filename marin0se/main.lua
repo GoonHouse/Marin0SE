@@ -389,11 +389,17 @@ function love.load(args)
 	--require "client"
 	require "server"
 	require "lobby"
-	require "onlinemenu"
 	
 	require "shaders"
 	require "variables"
-	require "killfeed"
+	
+	-- gui elements??
+	require "gui.onlinemenu"
+	require "gui.killfeed"
+	require "gui.nodetree"
+	require "gui.maptree"
+	require "gui.tiletree"
+	
 	reloadGraphics()
 	reloadSounds()
 	
