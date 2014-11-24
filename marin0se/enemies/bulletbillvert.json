@@ -1,5 +1,6 @@
 base=bulletbill
 {
 	"speedx": 0,
-	"speedy": 8
+	"speedy": 8,
+	"starttowardsplayerhorizontal": false
 }

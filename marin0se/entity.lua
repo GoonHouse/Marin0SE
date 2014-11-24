@@ -604,11 +604,8 @@ rightclickmenues.generatorbullet = {
 	{t="checkbox", text="right", default="false"},
 	{t="checkbox", text="up", default="false"},
 	{t="checkbox", text="down", default="false"},
-	{t="text", value="type:"},
-	{t="submenu", entries={"oneatatime", "crossfire"}, default=1, width=10, actualvalue=true},
 	{},
 	{t="regionselect", value="trigger region", region="region", default="region:0:0:1:1"},
-	{t="regionselect", value="firing range", region="region2", default="region:0:0:1:1"}
 }
 
 rightclickmenues.generatorcheeps = {

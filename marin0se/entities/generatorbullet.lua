@@ -6,7 +6,6 @@ function generatorbullet:init(x, y, r)
 	self.cox = x
 	self.coy = y
 	self.bulletgentable = {left = false, right = false, up = false, down = false}
-	self.bulletfiringtype = "one at a time"
 	
 	self.checktable = {}
 	table.insert(self.checktable, "player")
@@ -38,11 +37,6 @@ function generatorbullet:init(x, y, r)
 		table.remove(self.r, 1)
 	end
 	
-	if #self.r > 0 and self.r[1] ~= "link" then
-		bulletfiringtype = self.r[1]
-		table.remove(self.r, 1)
-	end
-	
 	--Region
 	if #self.r > 0 then
 		local s = self.r[1]:split(":")
@@ -56,21 +50,6 @@ function generatorbullet:init(x, y, r)
 		
 		self.regionX = tonumber(self.regionX) + self.x - 1
 		self.regionY = tonumber(self.regionY) + self.y - 1
-		table.remove(self.r, 1)
-	end
-	
-	if #self.r > 0 then
-		local s = self.r[1]:split(":")
-		self.triggerregionX, self.triggerregionY, self.triggerregionwidth, self.triggerregionheight = s[2], s[3], tonumber(s[4]), tonumber(s[5])
-		if string.sub(self.triggerregionX, 1, 1) == "m" then
-			self.triggerregionX = -tonumber(string.sub(self.triggerregionX, 2))
-		end
-		if string.sub(self.triggerregionY, 1, 1) == "m" then
-			self.triggerregionY = -tonumber(string.sub(self.triggerregionY, 2))
-		end
-		
-		self.triggerregionX = tonumber(self.triggerregionX) + self.x - 1
-		self.triggerregionY = tonumber(self.triggerregionY) + self.y - 1
 		table.remove(self.r, 1)
 	end
 end
@@ -99,15 +78,17 @@ function generatorbullet:update(dt)
 				end
 			end
 			
-				if bulletfiringtype == "oneatatime" then
-					local randomfactor = math.random(1, 4)
-					if randomfactor == 1 and self.bulletgentable["left"] == true then
-						table.insert(objects["enemy"], enemy:new(objects["player"][nearestplayer].x+24, math.random(self.triggerregionY, self.triggerregionY+self.triggerregionheight), "bulletbill"))
-					elseif randomfactor == 2 and self.bulletgentable["right"] == true then
-						table.insert(objects["enemy"], enemy:new(objects["player"][nearestplayer].x-24, math.random(self.triggerregionY, self.triggerregionY+self.triggerregionheight), "bulletbill"))
-					else 
-					bulletbilldelay = bulletbilltimer
-					end
+				local randomfactor = math.random(1, 4)
+				if randomfactor == 1 and self.bulletgentable["left"] == true then
+					table.insert(objects["enemy"], enemy:new(objects["player"][nearestplayer].x+24, math.random(self.regionY, self.regionY+self.regionheight), "bulletbill"))
+				elseif randomfactor == 2 and self.bulletgentable["right"] == true then
+					table.insert(objects["enemy"], enemy:new(objects["player"][nearestplayer].x-24, math.random(self.regionY, self.regionY+self.regionheight), "bulletbill"))
+				elseif randomfactor == 3 and self.bulletgentable["up"] == true then
+					table.insert(objects["enemy"], enemy:new(math.random(self.regionX, self.regionX+self.regionwidth), objects["player"][nearestplayer].y+16, "bulletbillvert"))
+				elseif randomfactor == 4 and self.bulletgentable["down"] == true then
+					table.insert(objects["enemy"], enemy:new(math.random(self.regionX, self.regionX+self.regionwidth), objects["player"][nearestplayer].y-16, "bulletbillvert"))
+				else 
+				bulletbilldelay = bulletbilltimer
 				end
 			playsound("bulletbill") --allowed global
 			end
