@@ -4186,6 +4186,8 @@ function savemap2(filename)
 			[1] = {
 				type = "tilelayer",
 				name = "tiles",
+				-- we don't handle offset for x/y yet because
+				-- I can't think of a way to make it make sense to the old engine
 				x = 0,
 				y = 0,
 				width = mapwidth,
@@ -4207,11 +4209,11 @@ function savemap2(filename)
 				opacity = 1,
 				properties = {},
 				
-				data = {}, --a single dimensional array of indexes that refer to tileset ids
+				data = {},
 			},
 			[3] = {
 				type = "objectgroup",
-				name = "ents",
+				name = "entities",
 				visible = true,
 				opacity = 1,
 				properties = {},
@@ -4225,14 +4227,6 @@ function savemap2(filename)
 				properties = {},
 				objects = {},
 			},
-			[5] = {
-				type = "objectgroup",
-				name = "gels",
-				visible = true,
-				opacity = 1,
-				properties = {},
-				objects = {},
-			},
 		},
 	}
 	--JSON:encode_pretty(lua_table_or_value)
@@ -4241,16 +4235,18 @@ function savemap2(filename)
 	
 	for y = 0, mapheight-1 do
 		for x = 0, mapwidth-1 do
+			local dex = y*mapwidth+x+1 --plus one because the 0 index is true twice and would be invalid
+			--print("NEWDEX: ", dex, x, y)
 			local tile = map[x+1][y+1]
 			
 			-- tile ID
-			tmap.layers[1].data[y+x] = tile[1]
+			tmap.layers[1].data[dex] = tile[1]
 			
 			-- is there a coin here
 			if coinmap[x+1][y+1] then
-				tmap.layers[2].data[y+x] = 116
+				tmap.layers[2].data[dex] = 1
 			else
-				tmap.layers[2].data[y+x] = 0
+				tmap.layers[2].data[dex] = 0
 			end
 			
 			-- entities
@@ -4271,8 +4267,8 @@ function savemap2(filename)
 					shape = "rectangle",
 					
 					type = tile[2], --supposed to be a string, but we can't reverse entity names yet
-					x = (x+1)*tmap.tilewidth,
-					y = (y+1)*tmap.tileheight,
+					x = x*tmap.tilewidth,
+					y = y*tmap.tileheight,
 					-- since we can't manage object size yet, we'll stub these
 					width = tmap.tilewidth,
 					height = tmap.tileheight,
@@ -4286,10 +4282,11 @@ function savemap2(filename)
 				while i <= #tile do
 					if tile[i] == "link" then
 						-- i+1 = link name; +2, +3 = link coords
-						nent.properties["link_"..tostring(tile[i+1])] = {tile[i+2], tile[i+3]}
+						-- serialized because alternate data types aren't processed by tiled
+						nent.properties["link_"..tostring(tile[i+1])] = tostring(tile[i+2])..","..tostring(tile[i+3])
 						i = i + 4
 					else
-						nent.properties["r_"..tostring(i)] = tile[i]
+						nent.properties["r_"..tostring(i)] = tostring(tile[i])
 						i = i + 1
 					end
 				end
@@ -4311,8 +4308,10 @@ function savemap2(filename)
 		end
 	end
 	
+	--print("FULL CABOOSE: ", #tmap.layers[1].data, 3360)
+	
 	--options
-	tmap.properties.background = background --r, g, b
+	tmap.properties.backgroundcolor = background --r, g, b
 	tmap.properties.spriteset = spriteset
 	tmap.properties.music = musicname --conditional
 	tmap.properties.intermission = intermission --conditional, bool

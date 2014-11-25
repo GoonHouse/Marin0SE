@@ -403,6 +403,8 @@ function love.load(args)
 	reloadGraphics()
 	reloadSounds()
 	
+	spritebatches = {} --global spritebatch array, keyed by tileset name
+	
 	fontglyphs = "0123456789abcdefghijklmnopqrstuvwxyz.:/,\"C-_A* !{}?'()+=><#%"
 	fontquads = {}
 	for i = 1, string.len(fontglyphs) do
