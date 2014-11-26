@@ -549,6 +549,7 @@ function game_update(dt)
 				table.insert(portalparticles, portalparticle:new(x2, y2, v.portal2color, v.facing2))
 			end
 		end
+	end
 	
 	--Editor
 	if editormode then
