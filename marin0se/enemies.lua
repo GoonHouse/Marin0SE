@@ -1,4 +1,5 @@
 function enemies_load()
+	print("LOADING: enemies_load")
 	defaultvalues = {quadcount=1, quadno=1}
 
 	enemiesdata = {}

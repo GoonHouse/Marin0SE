@@ -312,7 +312,7 @@ function love.load(args)
 		"laserdetector", "gel", "geldispenser", "pushbutton",
 		"cubedispenser", "platform", "castlefire", "platformspawner",
 		"bowser", "spring", "seesawplatform", "checkpoint", "seesaw",
-		"ceilblocker", "funnel", "panel", "scaffold", "axe",
+		"ceilblocker", "funnel", "panel", "scaffold", "axe", "screenboundary",
 		"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody", "weapon",
 		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
@@ -402,6 +402,7 @@ function love.load(args)
 	require "gui.maptree"
 	require "gui.tiletree"
 	
+	require "dmap"
 	require "world"
 	
 	reloadGraphics()
@@ -496,7 +497,6 @@ function love.load(args)
 	require "bighatconfigs"
 	require "customhats"
 	require "coinblockanimation"
-	require "screenboundary"
 	require "gui"
 	require "musicloader"
 	require "rightclickmenu"
@@ -1012,7 +1012,7 @@ function love.update(dt)
 		if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" or gamestate == "lobby" then
 			menu_update(dt)
 		elseif gamestate == "levelscreen" or gamestate == "gameover" or gamestate == "sublevelscreen" or gamestate == "mappackfinished" then
-			levelscreen_update(dt)
+			--levelscreen_update(dt)
 		elseif gamestate == "game" then
 			game_update(dt)	
 		elseif gamestate == "intro" then
@@ -1047,7 +1047,7 @@ function love.draw()
 	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" or gamestate == "lobby" then
 		menu_draw()
 	elseif gamestate == "levelscreen" or gamestate == "gameover" or gamestate == "mappackfinished" then
-		levelscreen_draw()
+		--levelscreen_draw() --@DEV: stubbed because we don't need it
 	elseif gamestate == "game" then
 		game_draw()
 	elseif gamestate == "intro" then

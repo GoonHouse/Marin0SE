@@ -14,21 +14,44 @@ local chatmessageoriginaldeletetimer = 0
 local chatmessagedeletecharactertimer = 0
 
 function game_load(suspended)
-	--LINK STUFF
+	print("inside game_load")
+	collectgarbage("collect")
+	love.audio.stop()
+	animationsystem_load()
+	enemies_load()
 	
-	--objects = {}
+	--[[
+	if replaysystem then
+		for i = 1, #replaydata do
+			replaytimer[i] = 0
+			replayi[i] = 1
+			replaychar[i] = characters.mario
+		end
+	end
+	]]
+	
+	-- initialize the world
 	w = world:new()
-	
-	--currentmap = "1-1"
+	print("opening map")
+	local tabla = w:getMapOrOpen(w.mappackSets.firstmap)
+	print("starting map")
+	print(tabla)
+	tabla:start()
+	print("changing to game")
+	gamestate = "game"
 	--[[if suspended == true then
 		continuegame()
 	elseif suspended then
 		marioworld = suspended
 	end]]
 	
-	--FINALLY LOAD THE DAMN LEVEL
-	print("from game_load to levelscreen_load")
-	levelscreen_load("initial")
+	generatespritebatch()
+	
+	--@DEBUG: load editor
+	--editor_load() --commented out because it doesn't make sense to run this routine if not editing
+	
+	--do some theatrics, then initialize the level to load
+	--w:levelscreen_load("initial")
 end
 
 function game_update(dt)
@@ -491,7 +514,7 @@ function game_update(dt)
 	--SPRITEBATCH UPDATE and CASTLEREPEATS
 	if math.floor(xscroll) ~= spritebatchX[1] then
 		if not editormode then
-			for currentx = w.lastrepeat+1+width, math.floor(xscroll)+1+width do
+			for currentx = w.currentMap.lastrepeat+1+width, math.floor(xscroll)+1+width do
 				reachedx(currentx)
 			end
 		end
@@ -508,7 +531,7 @@ function game_update(dt)
 	while portalparticletimer > portalparticletime do
 		portalparticletimer = portalparticletimer - portalparticletime
 		
-		for i, v in pairs(w.objects.portal) do
+		for i, v in pairs(w.currentMap.objects.portal) do
 			if v.facing1 and v.x1 and v.y1 then
 				local x1, y1
 				
@@ -1424,35 +1447,8 @@ function game_draw()
 	end
 	
 	currentscissor = {0, 0,love.window.getWidth(), love.window.getHeight()}
-	--This is just silly
-	if w.earthquake > 0 and #objects["rainboom"] > 0 then
-		for i = 1, rainboom.effectstripes do
-			local r, g, b = unpack(rainboom.colortable[math.mod(i-1, 6)+1])
-			local a = earthquake/rainboom.effectearthquake*255
-			
-			love.graphics.setColor(r, g, b, a)
-			
-			local alpha = math.rad((i/rainboom.effectstripes + math.mod(sunrot/5, 1)) * 360)
-			local point1 = {width*8*scale+300*scale*math.cos(alpha), 112*scale+300*scale*math.sin(alpha)}
-			
-			local alpha = math.rad(((i+1)/rainboom.effectstripes + math.mod(sunrot/5, 1)) * 360)
-			local point2 = {width*8*scale+300*scale*math.cos(alpha), 112*scale+300*scale*math.sin(alpha)}
-			
-			love.graphics.polygon("fill", width*8*scale, 112*scale, point1[1], point1[2], point2[1], point2[2])
-		end
-	end
 	
 	love.graphics.setColor(255, 255, 255, 255)
-	--tremoooor!
-	if w.earthquake > 0 then
-		tremorx = (math.random()-.5)*2*earthquake
-		tremory = (math.random()-.5)*2*earthquake
-		
-		love.graphics.translate(round(tremorx), round(tremory))
-	end
-	
-	love.graphics.setColor(255, 255, 255, 255)
-	
 	--THIS IS WHERE MAP DRAWING AND SHIT BEGINS
 	
 	
@@ -2078,52 +2074,53 @@ function drawplayer(i, x, y, cscale,     offsetX, offsetY, rotation, quadcenterX
 end
 
 function reachedx(currentx)
-	if not currentx or currentx <= w.lastrepeat+width then
+	if not currentx or currentx <= w.currentMap.lastrepeat+width then
 		return
 	end
 	
-	w.lastrepeat = math.floor(currentx)-width
+	w.currentMap.lastrepeat = math.floor(currentx)-width
 	--castlerepeat?
 	--get mazei
 	local mazei = 0
 	
-	for j = 1, #w.mazeends do
-		if w.mazeends[j] < currentx then
+	for j = 1, #w.currentMap.mazeends do
+		if w.currentMap.mazeends[j] < currentx then
 			mazei = j
 		end
 	end
 	
 	--check if maze was solved!
 	for i = 1, players do
-		if w.objects.player[i].mazevar == w.mazegates[mazei] then
+		if w.currentMap.objects.player[i].mazevar == w.currentMap.mazegates[mazei] then
 			local actualmaze = 0
-			for j = 1, #w.mazestarts do
-				if w.objects.player[i].x > w.mazestarts[j] then
+			for j = 1, #w.currentMap.mazestarts do
+				if w.currentMap.objects.player[i].x > w.currentMap.mazestarts[j] then
 					actualmaze = j
 				end
 			end
-			w.mazesolved[actualmaze] = true
+			w.currentMap.mazesolved[actualmaze] = true
 			for j = 1, players do
-				w.objects.player[j].mazevar = 0
+				w.currentMap.objects.player[j].mazevar = 0
 			end
 			break
 		end
 	end
 	
-	if not w.mazesolved[mazei] or w.mazeinprogress then --get if inside maze
-		if not w.mazesolved[mazei] then
-			w.mazeinprogress = true
+	if not w.currentMap.mazesolved[mazei] or w.currentMap.mazeinprogress then --get if inside maze
+		print("CRITICAL: Dead branch of maze code ran, not sure what to do now.")
+		if not w.currentMap.mazesolved[mazei] then
+			w.currentMap.mazeinprogress = true
 		end
 		
 		local x = math.ceil(currentx)
 		
-		if w.repeatX == 0 then
-			w.repeatX = w.mazestarts[mazei]
+		if w.currentMap.repeatX == 0 then
+			w.currentMap.repeatX = w.currentMap.mazestarts[mazei]
 		end
 		
-		table.insert(w.map, x, {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}})
-		table.insert(w.coinmap, x, {})
-		for y = 1, mapheight do
+		table.insert(w.currentMap.map, x, {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}})
+		table.insert(w.currentMap.coinmap, x, {})
+		for y = 1, w.currentMap.map.height do
 			for j = 1, #map[repeatX][y] do
 				map[x][y][j] = map[repeatX][y][j]
 				coinmap[x][y] = coinmap[repeatX][y]
@@ -3260,7 +3257,7 @@ function insideportal(x, y, width, height) --returns whether an object is in, an
 	if height == nil then
 		height = 12/16
 	end
-	for i, v in pairs(w.objects.portal) do
+	for i, v in pairs(w.currentMap.objects.portal) do
 		if v.x1 ~= false and v.x2 ~= false then
 			for j = 1, 2 do				
 				local portalx, portaly, portalfacing
@@ -3997,17 +3994,6 @@ function drawrectangle(x, y, width, height)
 	love.graphics.rectangle("fill", (x+width-1)*scale, y*scale, scale, height*scale)
 end
 
-function inmap(x, y)
-	if not x or not y then
-		return false
-	end
-	if x >= 1 and x <= mapwidth and y >= 1 and y <= mapheight then
-		return true
-	else
-		return false
-	end
-end
-
 function playmusic()
 	if not editormode and musicname then
 		if mariotime <= 99 and mariotime > 0 then
@@ -4029,6 +4015,7 @@ function stopmusic()
 end
 
 function updatesizes()
+	print("WARNING: outdated method `updatesizes` called, please localize this to the world")
 	mariosizes = {}
 	if not objects then
 		for i = 1, players do
@@ -4160,5 +4147,17 @@ function checkportalremove(x, y)
 				v:removeportal(2)
 			end
 		end
+	end
+end
+
+function inmap(x, y)
+	--print("WARNING: Used global inmap function.")
+	if not x or not y then
+		return false
+	end
+	if x >= 1 and x <= mapwidth and y >= 1 and y <= mapheight then
+		return true
+	else
+		return false
 	end
 end

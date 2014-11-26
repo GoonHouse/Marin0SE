@@ -51,6 +51,11 @@ gameplaytypelist = {"na", "vanilla", "oddjob"}
 fontheight = 8
 fontwidth = 8
 
+enum_dmap_states = {
+	"init", --initialized, ready to go
+	"spawn", --players and objects have spawned
+}
+
 help_tips = { 
 	"i love men",
 	"this is a helpful tip i promise",
@@ -493,6 +498,7 @@ invincibletime = 3.2
 
 blinktime = 0.5
 
+skiplevelscreen = true
 levelscreentime = 2.4 --2.4
 gameovertime = 7
 blacktimesub = 0.1
