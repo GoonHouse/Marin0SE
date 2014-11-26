@@ -1,5 +1,13 @@
 --[[
 	The purpose of this is to document / list variables in the global scope.
+	
+	varname		type	units		desc
+	====================================
+	width		number	blocks		the screen width, constant (25), multiply this by `16` and `scale` to
+									get the screenwidth
+	height		number	blocks		the screen height, constant (14), multiply this by `16` and `scale` to
+									get the screenheight
+	scale		number	n/a			the factor by which all graphics are upscaled
 ]]
 
 soundsearchdirs = {

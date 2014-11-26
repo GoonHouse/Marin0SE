@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="25" height="15" tilewidth="16" tileheight="16">
+ <properties>
+  <property name="backgroundcolor" value=""/>
+  <property name="bonusstage" value="false"/>
+  <property name="custombackground" value="false"/>
+  <property name="customforeground" value="false"/>
+  <property name="fscrollfactor" value="0"/>
+  <property name="haswarpzone" value="true"/>
+  <property name="intermission" value="false"/>
+  <property name="music" value="underground.ogg"/>
+  <property name="scrollfactor" value="0"/>
+  <property name="spriteset" value="2"/>
+  <property name="timelimit" value="0"/>
+  <property name="underwater" value="false"/>
+ </properties>
+ <tileset firstgid="1" name="smbtiles" tilewidth="16" tileheight="16" spacing="1">
+  <image source="../../graphics/DEFAULT/smbtiles.png" width="374" height="119"/>
+ </tileset>
+ <layer name="tiles" width="25" height="15">
+  <data encoding="base64" compression="zlib">
+   eJxjZGBgYBzFo3gUj+JRDMZMwwQDAGeUAao=
+  </data>
+ </layer>
+ <layer name="coins" width="25" height="15">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMNwAAAXcAAE=
+  </data>
+ </layer>
+ <objectgroup name="ents"/>
+ <objectgroup name="enemies"/>
+</map>

@@ -1,13 +1,24 @@
 function levelscreen_load(reason, i)
+	help_tipi = math.random(1,#help_tips)
+	
 	--check if lives left
-  help_tipi = math.random(1,#help_tips)
-	livesleft = true
-	--[[for i = 1, players do
-		if mariolivecount == false or objects["player"][i].lives > 0 then
+	livesleft = false
+	if w.startinglives > 0 then
+		if w.objects["players"] then
+			for i = 1, players do
+				if w.objects["player"][i].lives > 0 then
+					livesleft = true
+				end
+			end
+		else
+			print("WARNING: Levelscreen tried to process player live count, but no players existed.")
 			livesleft = true
 		end
-	end]]
+	else
+		livesleft = true
+	end
 	
+	-- process gamestate
 	if reason == "sublevel" then
 		gamestate = "sublevelscreen"
 		blacktime = sublevelscreentime
@@ -20,13 +31,13 @@ function levelscreen_load(reason, i)
 		gamestate = "levelscreen"
 		blacktime = levelscreentime
 		if reason == "next" then --next level
-			checkpointsub = false
-			checkpointx = {}
-			checkpointy = {}
-			respawnsublevel = 0
+			w.checkpointsub = false
+			w.checkpointx = {}
+			w.checkpointy = {}
+			w.respawnsublevel = 0
 			
 			--check if next level doesn't exist
-			if not love.filesystem.exists("mappacks/" .. mappack .. "/" .. marioworld .. "-" .. mariolevel .. ".txt") then
+			if not love.filesystem.exists("mappacks/" .. mappack .. "/" .. w.gworld .. "-" .. w.glevel .. ".txt") then
 				gamestate = "mappackfinished"
 				blacktime = gameovertime
 				music:play("princessmusic.ogg")
@@ -38,7 +49,7 @@ function levelscreen_load(reason, i)
 		playsound("gameover") --no players loaded at this point, allowed global
 	end
 	
-	if editormode then
+	if editormode or true then --@DEV: doing stuff for reasons
 		blacktime = 0
 	end
 	
@@ -46,7 +57,7 @@ function levelscreen_load(reason, i)
 		updatesizes()
 	end
 	
-	if marioworld == 1 or mariolevel == 1 then
+	if w.gworld == 1 or w.glevel == 1 then
 		blacktime = blacktime * 1.5
 	end
 	
@@ -62,8 +73,8 @@ function levelscreen_load(reason, i)
 		reachedworlds[mappack] = {}
 	end
 	
-	if marioworld ~= "M" and not reachedworlds[mappack][marioworld] then
-		reachedworlds[mappack][marioworld] = true
+	if w.gworld ~= "M" and not reachedworlds[mappack][w.gworld] then
+		reachedworlds[mappack][w.gworld] = true
 		updated = true
 	end
 	
@@ -74,10 +85,12 @@ function levelscreen_load(reason, i)
 	--Load the level
 	
 	if gamestate == "levelscreen" then
-		if respawnsublevel ~= 0 then
-			loadlevel(marioworld .. "-" .. mariolevel .. "_" .. respawnsublevel)
+		if w.respawnsublevel ~= 0 then
+			--loadlevel(w.gworld .. "-" .. w.glevel .. "_" .. w.respawnsublevel)
 		else
-			loadlevel(marioworld .. "-" .. mariolevel)
+			w:loadLevel(w.mappackSets.firstmap)
+			
+			--loadlevel(w.gworld .. "-" .. w.glevel)
 		end
 	elseif gamestate == "sublevelscreen" then
 		loadlevel(sublevelscreen_level)
@@ -85,6 +98,7 @@ function levelscreen_load(reason, i)
 	
 	if skiplevelscreen and gamestate ~= "gameover" and gamestate ~= "mappackfinished" then
 		startlevel(gamestate == "levelscreen")
+		--w:startLevel(gamestate == "levelscreen")
 	end
 end
 

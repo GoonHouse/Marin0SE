@@ -14,57 +14,17 @@ local chatmessageoriginaldeletetimer = 0
 local chatmessagedeletecharactertimer = 0
 
 function game_load(suspended)
-	checkpointx = {}
-	checkpointy = {}
-	checkpointsub = false
-	
-	scrollfactor = 0
-	fscrollfactor = 0
-	love.graphics.setBackgroundColor(backgroundcolor[1])
-
-	
 	--LINK STUFF
 	
-	--get mariolives
-	mariolivecount = 3
-	if love.filesystem.exists("mappacks/" .. mappack .. "/settings.txt") then
-		local s = love.filesystem.read( "mappacks/" .. mappack .. "/settings.txt" )
-		local s1 = s:split("\n")
-		for j = 1, #s1 do
-			local s2 = s1[j]:split("=")
-			if s2[1] == "lives" then
-				mariolivecount = tonumber(s2[2])
-			end
-		end
-	end
-	
-	if mariolivecount == 0 then
-		mariolivecount = false
-	end
-	
-	mariosizes = {}
-	for i = 1, players do
-		mariosizes[i] = 1
-	end
-	
-	autoscroll = true
-	
-	jumpitems = { "mushroom", "oneup" }
+	--objects = {}
+	w = world:new()
 	
 	--currentmap = "1-1"
-	marioworld = 1
-	mariolevel = 1
-	mariosublevel = 0
-	respawnsublevel = 0
-	
-	objects = nil
 	--[[if suspended == true then
 		continuegame()
 	elseif suspended then
 		marioworld = suspended
 	end]]
-	
-	musicname = nil
 	
 	--FINALLY LOAD THE DAMN LEVEL
 	print("from game_load to levelscreen_load")
@@ -92,13 +52,6 @@ function game_update(dt)
 	--animationS
 	animationsystem_update(dt)
 	
-	
-	--earthquake reset
-	if earthquake > 0 then
-		earthquake = math.max(0, earthquake-dt*earthquake*2-0.001)
-		sunrot = sunrot + dt
-	end
-	
 	--pausemenu
 	if pausemenuopen then
 		return
@@ -120,14 +73,6 @@ function game_update(dt)
 	end	
 	
 	coinframe = math.floor(coinanimation)
-
-	--redcoinanimation
-	redcoinanimation = redcoinanimation + dt*6.75
-	while redcoinanimation >= 5 do
-		redcoinanimation = redcoinanimation - 4
-	end	
-	
-	redcoinframe = math.floor(redcoinanimation)
 	
 	if replaysystem then
 		for j = 1, #replaydata do
@@ -217,56 +162,12 @@ function game_update(dt)
 		portaldotstimer = portaldotstimer - portaldotstime
 	end
 	
-	--portalgundelay
-	for i = 1, players do
-		if portaldelay[i] > 0 then
-			portaldelay[i] = math.max(0, portaldelay[i] - dt/speed)
-		end
-	end
-	
 	--check if updates are blocked for whatever reason
 	if noupdate then
 		for i, v in pairs(objects["player"]) do --But update players anyway.
 			v:update(dt)
 		end
 		return
-	end
-	
-	--blockbounce
-	local delete = {}
-	
-	for i, v in pairs(blockbouncetimer) do
-		if blockbouncetimer[i] < blockbouncetime then
-			blockbouncetimer[i] = blockbouncetimer[i] + dt
-			if blockbouncetimer[i] > blockbouncetime then
-				blockbouncetimer[i] = blockbouncetime
-				if blockbouncecontent then
-					item(blockbouncecontent[i], blockbouncex[i], blockbouncey[i], blockbouncecontent2[i])
-				end
-				table.insert(delete, i)
-			end
-		end
-	end
-	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(blockbouncetimer, v)
-		table.remove(blockbouncex, v)
-		table.remove(blockbouncey, v)
-		table.remove(blockbouncecontent, v)
-		table.remove(blockbouncecontent2, v)
-	end
-	
-	if #delete >= 1 then
-		generatespritebatch()
-	end
-	
-	--coinblocktimer things
-	for i, v in pairs(coinblocktimers) do
-		if v[3] > 0 then
-			v[3] = v[3] - dt
-		end
 	end
 	
 	--UPDATE STUFFFFF
@@ -566,7 +467,7 @@ function game_update(dt)
 			
 			for x = xstart, xend do
 				for y = round(yscroll)-1, round(yscroll)+height+1 do
-					spawnenemy(x, y)
+					w:spawnEnemy(x, y)
 				end
 			end
 		end
@@ -581,7 +482,7 @@ function game_update(dt)
 			
 			for y = ystart, yend do
 				for x = round(xscroll)-1, round(xscroll)+width+1 do
-					spawnenemy(x, y)
+					w:spawnEnemy(x, y)
 				end
 			end
 		end
@@ -590,7 +491,7 @@ function game_update(dt)
 	--SPRITEBATCH UPDATE and CASTLEREPEATS
 	if math.floor(xscroll) ~= spritebatchX[1] then
 		if not editormode then
-			for currentx = lastrepeat+1+width, math.floor(xscroll)+1+width do
+			for currentx = w.lastrepeat+1+width, math.floor(xscroll)+1+width do
 				reachedx(currentx)
 			end
 		end
@@ -602,17 +503,12 @@ function game_update(dt)
 		spritebatchY[1] = math.floor(yscroll)
 	end
 	
-	--portal update
-	for i, v in pairs(portals) do
-		v:update(dt)
-	end
-	
 	--portal particles
 	portalparticletimer = portalparticletimer + dt
 	while portalparticletimer > portalparticletime do
 		portalparticletimer = portalparticletimer - portalparticletime
 		
-		for i, v in pairs(portals) do
+		for i, v in pairs(w.objects.portal) do
 			if v.facing1 and v.x1 and v.y1 then
 				local x1, y1
 				
@@ -653,35 +549,6 @@ function game_update(dt)
 				table.insert(portalparticles, portalparticle:new(x2, y2, v.portal2color, v.facing2))
 			end
 		end
-	end
-	
-	delete = {}
-	
-	for i, v in pairs(portalparticles) do
-		if v:update(dt) == true then
-			table.insert(delete, i)
-		end
-	end
-	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(portalparticles, v) --remove
-	end
-	
-	--PORTAL PROJECTILES
-	delete = {}
-	
-	for i, v in pairs(portalprojectiles) do
-		if v:update(dt) == true then
-			table.insert(delete, i)
-		end
-	end
-	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(portalprojectiles, v) --remove
 	end
 	
 	--Editor
@@ -1155,6 +1022,397 @@ function drawforeground()
 	end
 end
 
+function scenedraw()
+	drawlevel()
+	
+	if bdrawui then
+		drawui()
+	end
+	
+	--@WARNING: These draws are partially redundant. Objects handled by the master handler are sometimes drawn twice and there's not much I can do about it until I get my hands in it and start managing it.
+	-- We're going to buck draw depth for now.
+	for _, entname in pairs(saneents) do
+		love.graphics.setColor(255, 255, 255)
+		for k,v in pairs(objects[entname]) do
+			if v.draw then v:draw() end
+		end
+	end
+	
+	-- same, but #based
+	for _, entname in pairs(basedents) do
+		love.graphics.setColor(255, 255, 255)
+		for k,v in pairs(objects[entname]) do
+			if v.draw then v:draw() end
+		end
+	end
+
+	love.graphics.setColor(255, 255, 255)
+	--warpzonetext
+	if displaywarpzonetext then
+		properprint("welcome to warp zone!", (mapwidth-14-1/16-xscroll)*16*scale, (5.5-yscroll)*16*scale)
+		for i, v in pairs(warpzonenumbers) do
+			properprint(v[3], math.floor((v[1]-xscroll-1-9/16)*16*scale), (v[2]-3-yscroll)*16*scale)
+		end
+	end
+	
+	love.graphics.setColor(255, 255, 255)
+	--flag
+	if flagx then
+		love.graphics.draw(flagimg, math.floor((flagimgx-1-xscroll)*16*scale), ((flagimgy-yscroll)*16-8)*scale, 0, scale, scale)
+		if levelfinishtype == "flag" then
+			properprint2(flagscore, math.floor((flagimgx+4/16-xscroll)*16*scale), ((14-flagimgy-yscroll+(flagy-13)*2)*16-8)*scale, 0, scale, scale)
+		end
+	end
+	
+	love.graphics.setColor(255, 255, 255)
+	--levelfinish text and toad
+	local lastaxe = objects["axe"][#objects["axe"]]
+	if levelfinished and levelfinishtype == "castle" then
+		if marioworld ~= 8 then
+			love.graphics.draw(toadimg, math.floor((mapwidth-7-xscroll)*16*scale), (lastaxe.coy+2.0625-yscroll)*16*scale, 0, scale, scale)
+		else
+			print(math.floor((mapwidth-7-xscroll)*16*scale), (lastaxe.y+2.0625-yscroll)*16*scale)
+			love.graphics.draw(peachimg, math.floor((mapwidth-7-xscroll)*16*scale), (lastaxe.coy+2.0625-yscroll)*16*scale, 0, scale, scale)
+		end
+	
+		if levelfinishedmisc2 == 1 then
+			if levelfinishedmisc >= 1 then
+				properprint("thank you " .. characters[mariocharacter[1]].name .. "!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (lastaxe.coy-4.5-yscroll)*16*scale)
+			end
+			if levelfinishedmisc == 2 then
+				properprint("but our princess is in", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (lastaxe.coy-2.5-yscroll)*16*scale) --say what
+				properprint("another castle!", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (lastaxe.coy-1.5-yscroll)*16*scale) --bummer.
+			end
+		else
+			if levelfinishedmisc >= 1 then	
+				properprint("thank you mario!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (lastaxe.coy-4.5-yscroll)*16*scale)
+			end
+			if levelfinishedmisc >= 2 then
+				properprint("your quest is over.", math.floor(((mapwidth-12.5-xscroll)*16-1)*scale), (lastaxe.coy-3-yscroll)*16*scale)
+			end
+			
+			--todo
+			if levelfinishedmisc >= 3 then
+				properprint("we present you a new quest.", math.floor(((mapwidth-14.5-xscroll)*16-1)*scale), (lastaxe.coy-2-yscroll)*16*scale)
+			end
+			if levelfinishedmisc >= 4 then
+				properprint("push button b", math.floor(((mapwidth-11-xscroll)*16-1)*scale), (lastaxe.coy-.5-yscroll)*16*scale)
+			end
+			if levelfinishedmisc == 5 then
+				properprint("to play as steve", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (lastaxe.coy+.5-yscroll)*16*scale)
+			end
+		end
+	end
+	
+	love.graphics.setColor(255, 255, 255)
+	
+	--@DEV: THE GREAT BIG DRAW HANDLER
+	for j, w in pairs(objects) do
+		if j ~= "tile" then
+			for i, v in pairs(w) do
+				if v.drawable and v.graphic and v.quad then
+					love.graphics.setScissor()
+					love.graphics.setColor(255, 255, 255)
+					local dirscale
+					
+					if j == "player" then
+						if (v.portalsavailable[1] or v.portalsavailable[2]) then
+							if (v.pointingangle+math.pi*2 > -v.rotation+math.pi*2 and (not (v.pointingangle > -v.rotation+math.pi))) or v.pointingangle < -v.rotation-math.pi then
+								dirscale = -scale
+							else
+								dirscale = scale
+							end
+						else
+							if v.animationdirection == "right" then
+								dirscale = scale
+							else
+								dirscale = -scale
+							end
+						end
+						
+						if bigmario then
+							dirscale = dirscale * scalefactor
+						end
+					else
+						if v.animationdirection == "left" then
+							dirscale = -scale
+						else
+							dirscale = scale
+						end
+					end
+					
+					if v.mirror then
+						dirscale = -dirscale
+					end
+					
+					local horscale = scale
+					if v.shot or v.upsidedown then
+						horscale = -scale
+					end
+					
+					if j == "player" and bigmario then
+						horscale = horscale * scalefactor
+					end
+					
+					if v.customscale then
+						horscale = horscale * v.customscale
+						dirscale = dirscale * v.customscale
+					end
+					
+					local portal, portaly = insideportal(v.x, v.y, v.width, v.height)
+					local entryX, entryY, entryfacing, exitX, exitY, exitfacing
+					
+					--SCISSOR FOR ENTRY
+					if v.customscissor and v.portalable ~= false then
+						local t = "setStencil"
+						if v.invertedscissor then
+							t = "setInvertedStencil"
+						end
+						love.graphics[t](function() love.graphics.rectangle("fill", math.floor((v.customscissor[1]-xscroll)*16*scale), math.floor((v.customscissor[2]-.5-yscroll)*16*scale), v.customscissor[3]*16*scale, v.customscissor[4]*16*scale) end)
+					end
+						
+					if v.moves and v.portalable ~= false then
+						if not v.customscissor and portal ~= false and (v.active or v.portaloverride) then
+							if portaly == 1 then
+								entryX, entryY, entryfacing = portal.x1, portal.y1, portal.facing1
+								exitX, exitY, exitfacing = portal.x2, portal.y2, portal.facing2
+							else
+								entryX, entryY, entryfacing = portal.x2, portal.y2, portal.facing2
+								exitX, exitY, exitfacing = portal.x1, portal.y1, portal.facing1
+							end
+							
+							if entryfacing == "right" then
+								love.graphics.setScissor(math.floor((entryX-xscroll)*16*scale), math.floor(((entryY-3.5-yscroll)*16)*scale), 64*scale, 96*scale)
+							elseif entryfacing == "left" then
+								love.graphics.setScissor(math.floor((entryX-xscroll-5)*16*scale), math.floor(((entryY-4.5-yscroll)*16)*scale), 64*scale, 96*scale)
+							elseif entryfacing == "up" then
+								love.graphics.setScissor(math.floor((entryX-xscroll-3)*16*scale), math.floor(((entryY-5.5-yscroll)*16)*scale), 96*scale, 64*scale)
+							elseif entryfacing == "down" then
+								love.graphics.setScissor(math.floor((entryX-xscroll-4)*16*scale), math.floor(((entryY-0.5-yscroll)*16)*scale), 96*scale, 64*scale)
+							end
+						end
+					end
+					
+					if type(v.graphic) == "table" then
+						for k = 1, #v.graphic do
+							if v.colors[k] then
+								love.graphics.setColor(v.colors[k])
+							else
+								love.graphics.setColor(255, 255, 255)
+							end
+							love.graphics.draw(v.graphic[k], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+						end
+					else
+						if v.graphic and v.quad then
+							love.graphics.draw(v.graphic, v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+						end
+					end
+					
+					--HATS
+					if v.drawhat then
+						local offsets = gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking)
+						
+						if offsets and #v.hats > 0 then
+							local yadd = 0
+							for i = 1, #v.hats do
+								if v.hats[i] ~= 0 then
+									if v.hats[i] == 1 then
+										love.graphics.setColor(v.colors[1])
+									else
+										love.graphics.setColor(255, 255, 255)
+									end
+									if v.graphic == v.biggraphic or v.animationstate == "grow" then
+										love.graphics.draw(bighat[v.hats[i]].graphic, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - bighat[v.hats[i]].x + offsets[1], v.quadcenterY - bighat[v.hats[i]].y + offsets[2] + yadd)
+										yadd = yadd + bighat[v.hats[i]].height
+									else
+										love.graphics.draw(hat[v.hats[i]].graphic, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - hat[v.hats[i]].x + offsets[1], v.quadcenterY - hat[v.hats[i]].y + offsets[2] + yadd)
+										yadd = yadd + hat[v.hats[i]].height
+									end
+								end
+							end
+						end
+						love.graphics.setColor(255, 255, 255)
+					end
+					
+					if type(v.graphic) == "table" then
+						if v.graphic[0] then
+							love.graphics.setColor(255, 255, 255)
+							love.graphics.draw(v.graphic[0], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+						end
+						if v.graphic.dot then
+							love.graphics.setColor(unpack(v["portal" .. (v.lastportal or 1) .. "color"]))
+							love.graphics.draw(v.graphic["dot"], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+						end	
+					end
+					
+					--portal duplication
+					if v.customscissor and v.portalable ~= false then
+						local t = "setStencil"
+						if v.invertedscissor then
+							t = "setInvertedStencil"
+						end
+						love.graphics[t](function() love.graphics.rectangle("fill", math.floor((v.customscissor[1]-xscroll)*16*scale), math.floor((v.customscissor[2]-.5-yscroll)*16*scale), v.customscissor[3]*16*scale, v.customscissor[4]*16*scale) end)
+					end
+					
+					if v.moves and (v.active or v.portaloverride) and v.portalable ~= false then
+						if not v.customscissor and portal ~= false then
+							love.graphics.setScissor(unpack(currentscissor))
+							local px, py, pw, ph, pr, pad = v.x, v.y, v.width, v.height, v.rotation, v.animationdirection
+							px, py, d, d, pr, pad = portalcoords(px, py, 0, 0, pw, ph, pr, pad, entryX, entryY, entryfacing, exitX, exitY, exitfacing)
+							
+							if pad ~= v.animationdirection then
+								dirscale = -dirscale
+							end
+							
+							horscale = scale
+							if v.shot or v.upsidedown then
+								horscale = -scale
+							end
+							
+							if exitfacing == "right" then
+								love.graphics.setScissor(math.floor((exitX-xscroll)*16*scale), math.floor(((exitY-yscroll-3.5)*16)*scale), 64*scale, 96*scale)
+							elseif exitfacing == "left" then
+								love.graphics.setScissor(math.floor((exitX-xscroll-5)*16*scale), math.floor(((exitY-yscroll-4.5)*16)*scale), 64*scale, 96*scale)
+							elseif exitfacing == "up" then
+								love.graphics.setScissor(math.floor((exitX-xscroll-3)*16*scale), math.floor(((exitY-yscroll-5.5)*16)*scale), 96*scale, 64*scale)
+							elseif exitfacing == "down" then
+								love.graphics.setScissor(math.floor((exitX-xscroll-4)*16*scale), math.floor(((exitY-yscroll-0.5)*16)*scale), 96*scale, 64*scale)
+							end
+							
+							if type(v.graphic) == "table" then
+								for k = 1, #v.graphic do
+									if v.colors[k] then
+										love.graphics.setColor(v.colors[k])
+									else
+										love.graphics.setColor(255, 255, 255)
+									end
+									love.graphics.draw(v.graphic[k], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+								end
+							else
+								love.graphics.draw(v.graphic, v.quad, math.ceil(((px-xscroll)*16+v.offsetX)*scale), math.ceil(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+							end
+							
+							--HAAAATS
+							if v.drawhat then
+								local offsets = gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking)
+						
+								if offsets and #v.hats > 0 then
+									local yadd = 0
+									for i = 1, #v.hats do
+										if v.hats[i] ~= 0 then
+											if v.hats[i] == 1 then
+												love.graphics.setColor(v.colors[1])
+											else
+												love.graphics.setColor(255, 255, 255)
+											end
+											if v.graphic == v.biggraphic or v.animationstate == "grow" then
+												love.graphics.draw(bighat[v.hats[i]].graphic, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX - bighat[v.hats[i]].x + offsets[1], v.quadcenterY - bighat[v.hats[i]].y + offsets[2] + yadd)
+												yadd = yadd + bighat[v.hats[i]].height
+											else
+												love.graphics.draw(hat[v.hats[i]].graphic, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX - hat[v.hats[i]].x + offsets[1], v.quadcenterY - hat[v.hats[i]].y + offsets[2] + yadd)
+												yadd = yadd + hat[v.hats[i]].height
+											end
+										end
+									end
+								end
+							end
+							
+							if type(v.graphic) == "table" then
+								if v.graphic[0] then
+									love.graphics.setColor(255, 255, 255)
+									love.graphics.draw(v.graphic[0], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+								end
+								if v.graphic.dot and v.lastportal then
+									love.graphics.setColor(unpack(v["portal" .. v.lastportal .. "color"]))
+									love.graphics.draw(v.graphic["dot"], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+								end
+							end
+						end
+					end
+					love.graphics.setScissor(unpack(currentscissor))
+					love.graphics.setStencil()
+				end
+			end
+		end
+	end
+	
+	local minex, miney, minecox, minecoy
+	
+	--PORTAL UI STUFF
+	if levelfinished == false then
+		for pl = 1, players do
+			if objects["player"][pl].controlsenabled and objects["player"][pl].t == "portalgun" and objects["player"][pl].vine == false and (objects["player"][pl].portalsavailable[1] or objects["player"][pl].portalsavailable[2]) then
+				local sourcex, sourcey = objects["player"][pl].x+6/16, objects["player"][pl].y+6/16
+				--@DEV: Working on this. Disregard.
+				local cox, coy, side, tend, x, y = 0, 0, 1, 1, 0, 0
+				--local cox, coy, side, tend, x, y = traceline(sourcex, sourcey, objects["player"][pl].pointingangle)
+				
+				local portalpossible = true
+				if cox == false or getportalposition(1, cox, coy, side, tend) == false then
+					portalpossible = false
+				end
+				
+				love.graphics.setColor(255, 255, 255, 255)
+				
+				local dist = math.sqrt(((x-xscroll)*16*scale - (sourcex-xscroll)*16*scale)^2 + ((y-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)^2)/16/scale
+				
+				for i = 1, dist/portaldotsdistance+1 do
+					if((i-1+portaldotstimer/portaldotstime)/(dist/portaldotsdistance)) < 1 then
+						local xplus = ((x-xscroll)*16*scale - (sourcex-xscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/portaldotsdistance))
+						local yplus = ((y-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/portaldotsdistance))
+					
+						local dotx = (sourcex-xscroll)*16*scale + xplus
+						local doty = (sourcey-.5-yscroll)*16*scale + yplus
+					
+						local radius = math.sqrt(xplus^2 + yplus^2)/scale
+						
+						local alpha = 255
+						if radius < portaldotsouter then
+							alpha = (radius-portaldotsinner) * (255/(portaldotsouter-portaldotsinner))
+							if alpha < 0 then
+								alpha = 0
+							end
+						end
+						
+						
+						if portalpossible == false then
+							love.graphics.setColor(255, 0, 0, alpha)
+						else
+							love.graphics.setColor(0, 255, 0, alpha)
+						end
+					
+						love.graphics.draw(portaldotimg, math.floor(dotx-0.25*scale), math.floor(doty-0.25*scale), 0, scale, scale)
+					end
+				end
+			
+				love.graphics.setColor(255, 255, 255, 255)
+				
+				if cox ~= false then
+					if portalpossible == false then
+						love.graphics.setColor(255, 0, 0)
+					else
+						love.graphics.setColor(0, 255, 0)
+					end
+					
+					local rotation = 0
+					if side == "right" then
+						rotation = math.pi/2
+					elseif side == "down" then
+						rotation = math.pi
+					elseif side == "left" then
+						rotation = math.pi/2*3
+					end
+					love.graphics.draw(portalcrosshairimg, math.floor((x-xscroll)*16*scale), math.floor((y-.5-yscroll)*16*scale), rotation, scale, scale, 4, 8)
+				end
+			end
+		end
+	end
+	
+	love.graphics.setColor(255, 255, 255)
+	
+	drawforeground()
+end --SCENE DRAW FUNCTION END
+
 function game_draw()
 	if not objects then return end
 	if firstpersonview and firstpersonrotate then
@@ -1167,7 +1425,7 @@ function game_draw()
 	
 	currentscissor = {0, 0,love.window.getWidth(), love.window.getHeight()}
 	--This is just silly
-	if earthquake > 0 and #objects["rainboom"] > 0 then
+	if w.earthquake > 0 and #objects["rainboom"] > 0 then
 		for i = 1, rainboom.effectstripes do
 			local r, g, b = unpack(rainboom.colortable[math.mod(i-1, 6)+1])
 			local a = earthquake/rainboom.effectearthquake*255
@@ -1186,7 +1444,7 @@ function game_draw()
 	
 	love.graphics.setColor(255, 255, 255, 255)
 	--tremoooor!
-	if earthquake > 0 then
+	if w.earthquake > 0 then
 		tremorx = (math.random()-.5)*2*earthquake
 		tremory = (math.random()-.5)*2*earthquake
 		
@@ -1197,419 +1455,7 @@ function game_draw()
 	
 	--THIS IS WHERE MAP DRAWING AND SHIT BEGINS
 	
-	function scenedraw()
-		drawlevel()
-		
-		if bdrawui then
-			drawui()
-		end
-		
-		--@WARNING: These draws are partially redundant. Objects handled by the master handler are sometimes drawn twice and there's not much I can do about it until I get my hands in it and start managing it.
-		-- We're going to buck draw depth for now.
-		for _, entname in pairs(saneents) do
-			love.graphics.setColor(255, 255, 255)
-			for k,v in pairs(objects[entname]) do
-				if v.draw then v:draw() end
-			end
-		end
-		
-		-- same, but #based
-		for _, entname in pairs(basedents) do
-			love.graphics.setColor(255, 255, 255)
-			for k,v in pairs(objects[entname]) do
-				if v.draw then v:draw() end
-			end
-		end
-
-		love.graphics.setColor(255, 255, 255)
-		--warpzonetext
-		if displaywarpzonetext then
-			properprint("welcome to warp zone!", (mapwidth-14-1/16-xscroll)*16*scale, (5.5-yscroll)*16*scale)
-			for i, v in pairs(warpzonenumbers) do
-				properprint(v[3], math.floor((v[1]-xscroll-1-9/16)*16*scale), (v[2]-3-yscroll)*16*scale)
-			end
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--flag
-		if flagx then
-			love.graphics.draw(flagimg, math.floor((flagimgx-1-xscroll)*16*scale), ((flagimgy-yscroll)*16-8)*scale, 0, scale, scale)
-			if levelfinishtype == "flag" then
-				properprint2(flagscore, math.floor((flagimgx+4/16-xscroll)*16*scale), ((14-flagimgy-yscroll+(flagy-13)*2)*16-8)*scale, 0, scale, scale)
-			end
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--levelfinish text and toad
-		local lastaxe = objects["axe"][#objects["axe"]]
-		if levelfinished and levelfinishtype == "castle" then
-			if marioworld ~= 8 then
-				love.graphics.draw(toadimg, math.floor((mapwidth-7-xscroll)*16*scale), (lastaxe.coy+2.0625-yscroll)*16*scale, 0, scale, scale)
-			else
-				print(math.floor((mapwidth-7-xscroll)*16*scale), (lastaxe.y+2.0625-yscroll)*16*scale)
-				love.graphics.draw(peachimg, math.floor((mapwidth-7-xscroll)*16*scale), (lastaxe.coy+2.0625-yscroll)*16*scale, 0, scale, scale)
-			end
-		
-			if levelfinishedmisc2 == 1 then
-				if levelfinishedmisc >= 1 then
-					properprint("thank you " .. characters[mariocharacter[1]].name .. "!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (lastaxe.coy-4.5-yscroll)*16*scale)
-				end
-				if levelfinishedmisc == 2 then
-					properprint("but our princess is in", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (lastaxe.coy-2.5-yscroll)*16*scale) --say what
-					properprint("another castle!", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (lastaxe.coy-1.5-yscroll)*16*scale) --bummer.
-				end
-			else
-				if levelfinishedmisc >= 1 then	
-					properprint("thank you mario!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (lastaxe.coy-4.5-yscroll)*16*scale)
-				end
-				if levelfinishedmisc >= 2 then
-					properprint("your quest is over.", math.floor(((mapwidth-12.5-xscroll)*16-1)*scale), (lastaxe.coy-3-yscroll)*16*scale)
-				end
-				
-				--todo
-				if levelfinishedmisc >= 3 then
-					properprint("we present you a new quest.", math.floor(((mapwidth-14.5-xscroll)*16-1)*scale), (lastaxe.coy-2-yscroll)*16*scale)
-				end
-				if levelfinishedmisc >= 4 then
-					properprint("push button b", math.floor(((mapwidth-11-xscroll)*16-1)*scale), (lastaxe.coy-.5-yscroll)*16*scale)
-				end
-				if levelfinishedmisc == 5 then
-					properprint("to play as steve", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (lastaxe.coy+.5-yscroll)*16*scale)
-				end
-			end
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		
-		--@DEV: THE GREAT BIG DRAW HANDLER
-		for j, w in pairs(objects) do
-			if j ~= "tile" then
-				for i, v in pairs(w) do
-					if v.drawable and v.graphic and v.quad then
-						love.graphics.setScissor()
-						love.graphics.setColor(255, 255, 255)
-						local dirscale
-						
-						if j == "player" then
-							if (v.portalsavailable[1] or v.portalsavailable[2]) then
-								if (v.pointingangle+math.pi*2 > -v.rotation+math.pi*2 and (not (v.pointingangle > -v.rotation+math.pi))) or v.pointingangle < -v.rotation-math.pi then
-									dirscale = -scale
-								else
-									dirscale = scale
-								end
-							else
-								if v.animationdirection == "right" then
-									dirscale = scale
-								else
-									dirscale = -scale
-								end
-							end
-							
-							if bigmario then
-								dirscale = dirscale * scalefactor
-							end
-						else
-							if v.animationdirection == "left" then
-								dirscale = -scale
-							else
-								dirscale = scale
-							end
-						end
-						
-						if v.mirror then
-							dirscale = -dirscale
-						end
-						
-						local horscale = scale
-						if v.shot or v.upsidedown then
-							horscale = -scale
-						end
-						
-						if j == "player" and bigmario then
-							horscale = horscale * scalefactor
-						end
-						
-						if v.customscale then
-							horscale = horscale * v.customscale
-							dirscale = dirscale * v.customscale
-						end
-						
-						local portal, portaly = insideportal(v.x, v.y, v.width, v.height)
-						local entryX, entryY, entryfacing, exitX, exitY, exitfacing
-						
-						--SCISSOR FOR ENTRY
-						if v.customscissor and v.portalable ~= false then
-							local t = "setStencil"
-							if v.invertedscissor then
-								t = "setInvertedStencil"
-							end
-							love.graphics[t](function() love.graphics.rectangle("fill", math.floor((v.customscissor[1]-xscroll)*16*scale), math.floor((v.customscissor[2]-.5-yscroll)*16*scale), v.customscissor[3]*16*scale, v.customscissor[4]*16*scale) end)
-						end
-							
-						if v.moves and v.portalable ~= false then
-							if not v.customscissor and portal ~= false and (v.active or v.portaloverride) then
-								if portaly == 1 then
-									entryX, entryY, entryfacing = portal.x1, portal.y1, portal.facing1
-									exitX, exitY, exitfacing = portal.x2, portal.y2, portal.facing2
-								else
-									entryX, entryY, entryfacing = portal.x2, portal.y2, portal.facing2
-									exitX, exitY, exitfacing = portal.x1, portal.y1, portal.facing1
-								end
-								
-								if entryfacing == "right" then
-									love.graphics.setScissor(math.floor((entryX-xscroll)*16*scale), math.floor(((entryY-3.5-yscroll)*16)*scale), 64*scale, 96*scale)
-								elseif entryfacing == "left" then
-									love.graphics.setScissor(math.floor((entryX-xscroll-5)*16*scale), math.floor(((entryY-4.5-yscroll)*16)*scale), 64*scale, 96*scale)
-								elseif entryfacing == "up" then
-									love.graphics.setScissor(math.floor((entryX-xscroll-3)*16*scale), math.floor(((entryY-5.5-yscroll)*16)*scale), 96*scale, 64*scale)
-								elseif entryfacing == "down" then
-									love.graphics.setScissor(math.floor((entryX-xscroll-4)*16*scale), math.floor(((entryY-0.5-yscroll)*16)*scale), 96*scale, 64*scale)
-								end
-							end
-						end
-						
-						if type(v.graphic) == "table" then
-							for k = 1, #v.graphic do
-								if v.colors[k] then
-									love.graphics.setColor(v.colors[k])
-								else
-									love.graphics.setColor(255, 255, 255)
-								end
-								love.graphics.draw(v.graphic[k], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
-							end
-						else
-							if v.graphic and v.quad then
-								love.graphics.draw(v.graphic, v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
-							end
-						end
-						
-						--HATS
-						if v.drawhat then
-							local offsets = gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking)
-							
-							if offsets and #v.hats > 0 then
-								local yadd = 0
-								for i = 1, #v.hats do
-									if v.hats[i] ~= 0 then
-										if v.hats[i] == 1 then
-											love.graphics.setColor(v.colors[1])
-										else
-											love.graphics.setColor(255, 255, 255)
-										end
-										if v.graphic == v.biggraphic or v.animationstate == "grow" then
-											love.graphics.draw(bighat[v.hats[i]].graphic, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - bighat[v.hats[i]].x + offsets[1], v.quadcenterY - bighat[v.hats[i]].y + offsets[2] + yadd)
-											yadd = yadd + bighat[v.hats[i]].height
-										else
-											love.graphics.draw(hat[v.hats[i]].graphic, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - hat[v.hats[i]].x + offsets[1], v.quadcenterY - hat[v.hats[i]].y + offsets[2] + yadd)
-											yadd = yadd + hat[v.hats[i]].height
-										end
-									end
-								end
-							end
-							love.graphics.setColor(255, 255, 255)
-						end
-						
-						if type(v.graphic) == "table" then
-							if v.graphic[0] then
-								love.graphics.setColor(255, 255, 255)
-								love.graphics.draw(v.graphic[0], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
-							end
-							if v.graphic.dot then
-								love.graphics.setColor(unpack(v["portal" .. (v.lastportal or 1) .. "color"]))
-								love.graphics.draw(v.graphic["dot"], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
-							end	
-						end
-						
-						--portal duplication
-						if v.customscissor and v.portalable ~= false then
-							local t = "setStencil"
-							if v.invertedscissor then
-								t = "setInvertedStencil"
-							end
-							love.graphics[t](function() love.graphics.rectangle("fill", math.floor((v.customscissor[1]-xscroll)*16*scale), math.floor((v.customscissor[2]-.5-yscroll)*16*scale), v.customscissor[3]*16*scale, v.customscissor[4]*16*scale) end)
-						end
-						
-						if v.moves and (v.active or v.portaloverride) and v.portalable ~= false then
-							if not v.customscissor and portal ~= false then
-								love.graphics.setScissor(unpack(currentscissor))
-								local px, py, pw, ph, pr, pad = v.x, v.y, v.width, v.height, v.rotation, v.animationdirection
-								px, py, d, d, pr, pad = portalcoords(px, py, 0, 0, pw, ph, pr, pad, entryX, entryY, entryfacing, exitX, exitY, exitfacing)
-								
-								if pad ~= v.animationdirection then
-									dirscale = -dirscale
-								end
-								
-								horscale = scale
-								if v.shot or v.upsidedown then
-									horscale = -scale
-								end
-								
-								if exitfacing == "right" then
-									love.graphics.setScissor(math.floor((exitX-xscroll)*16*scale), math.floor(((exitY-yscroll-3.5)*16)*scale), 64*scale, 96*scale)
-								elseif exitfacing == "left" then
-									love.graphics.setScissor(math.floor((exitX-xscroll-5)*16*scale), math.floor(((exitY-yscroll-4.5)*16)*scale), 64*scale, 96*scale)
-								elseif exitfacing == "up" then
-									love.graphics.setScissor(math.floor((exitX-xscroll-3)*16*scale), math.floor(((exitY-yscroll-5.5)*16)*scale), 96*scale, 64*scale)
-								elseif exitfacing == "down" then
-									love.graphics.setScissor(math.floor((exitX-xscroll-4)*16*scale), math.floor(((exitY-yscroll-0.5)*16)*scale), 96*scale, 64*scale)
-								end
-								
-								if type(v.graphic) == "table" then
-									for k = 1, #v.graphic do
-										if v.colors[k] then
-											love.graphics.setColor(v.colors[k])
-										else
-											love.graphics.setColor(255, 255, 255)
-										end
-										love.graphics.draw(v.graphic[k], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
-									end
-								else
-									love.graphics.draw(v.graphic, v.quad, math.ceil(((px-xscroll)*16+v.offsetX)*scale), math.ceil(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
-								end
-								
-								--HAAAATS
-								if v.drawhat then
-									local offsets = gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking)
-							
-									if offsets and #v.hats > 0 then
-										local yadd = 0
-										for i = 1, #v.hats do
-											if v.hats[i] ~= 0 then
-												if v.hats[i] == 1 then
-													love.graphics.setColor(v.colors[1])
-												else
-													love.graphics.setColor(255, 255, 255)
-												end
-												if v.graphic == v.biggraphic or v.animationstate == "grow" then
-													love.graphics.draw(bighat[v.hats[i]].graphic, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX - bighat[v.hats[i]].x + offsets[1], v.quadcenterY - bighat[v.hats[i]].y + offsets[2] + yadd)
-													yadd = yadd + bighat[v.hats[i]].height
-												else
-													love.graphics.draw(hat[v.hats[i]].graphic, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX - hat[v.hats[i]].x + offsets[1], v.quadcenterY - hat[v.hats[i]].y + offsets[2] + yadd)
-													yadd = yadd + hat[v.hats[i]].height
-												end
-											end
-										end
-									end
-								end
-								
-								if type(v.graphic) == "table" then
-									if v.graphic[0] then
-										love.graphics.setColor(255, 255, 255)
-										love.graphics.draw(v.graphic[0], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
-									end
-									if v.graphic.dot and v.lastportal then
-										love.graphics.setColor(unpack(v["portal" .. v.lastportal .. "color"]))
-										love.graphics.draw(v.graphic["dot"], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
-									end
-								end
-							end
-						end
-						love.graphics.setScissor(unpack(currentscissor))
-						love.graphics.setStencil()
-					end
-				end
-			end
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		--particles
-		for j, w in pairs(portalparticles) do
-			w:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		
-		--portals
-		for i, v in pairs(portals) do
-			v:draw()
-		end		
-		
-		love.graphics.setColor(255, 255, 255)
-		
-		--COINBLOCKanimation
-		for i, v in pairs(coinblockanimations) do
-			love.graphics.draw(coinblockanimationimg, coinblockanimationquads[coinblockanimations[i].frame], math.floor((coinblockanimations[i].x - xscroll)*16*scale), math.floor(((coinblockanimations[i].y-yscroll)*16-8)*scale), 0, scale, scale, 4, 54)
-		end
-		
-		local minex, miney, minecox, minecoy
-		
-		--PORTAL UI STUFF
-		if levelfinished == false then
-			for pl = 1, players do
-				if objects["player"][pl].controlsenabled and objects["player"][pl].t == "portalgun" and objects["player"][pl].vine == false and (objects["player"][pl].portalsavailable[1] or objects["player"][pl].portalsavailable[2]) then
-					local sourcex, sourcey = objects["player"][pl].x+6/16, objects["player"][pl].y+6/16
-					local cox, coy, side, tend, x, y = traceline(sourcex, sourcey, objects["player"][pl].pointingangle)
-					
-					local portalpossible = true
-					if cox == false or getportalposition(1, cox, coy, side, tend) == false then
-						portalpossible = false
-					end
-					
-					love.graphics.setColor(255, 255, 255, 255)
-					
-					local dist = math.sqrt(((x-xscroll)*16*scale - (sourcex-xscroll)*16*scale)^2 + ((y-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)^2)/16/scale
-					
-					for i = 1, dist/portaldotsdistance+1 do
-						if((i-1+portaldotstimer/portaldotstime)/(dist/portaldotsdistance)) < 1 then
-							local xplus = ((x-xscroll)*16*scale - (sourcex-xscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/portaldotsdistance))
-							local yplus = ((y-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/portaldotsdistance))
-						
-							local dotx = (sourcex-xscroll)*16*scale + xplus
-							local doty = (sourcey-.5-yscroll)*16*scale + yplus
-						
-							local radius = math.sqrt(xplus^2 + yplus^2)/scale
-							
-							local alpha = 255
-							if radius < portaldotsouter then
-								alpha = (radius-portaldotsinner) * (255/(portaldotsouter-portaldotsinner))
-								if alpha < 0 then
-									alpha = 0
-								end
-							end
-							
-							
-							if portalpossible == false then
-								love.graphics.setColor(255, 0, 0, alpha)
-							else
-								love.graphics.setColor(0, 255, 0, alpha)
-							end
-						
-							love.graphics.draw(portaldotimg, math.floor(dotx-0.25*scale), math.floor(doty-0.25*scale), 0, scale, scale)
-						end
-					end
-				
-					love.graphics.setColor(255, 255, 255, 255)
-					
-					if cox ~= false then
-						if portalpossible == false then
-							love.graphics.setColor(255, 0, 0)
-						else
-							love.graphics.setColor(0, 255, 0)
-						end
-						
-						local rotation = 0
-						if side == "right" then
-							rotation = math.pi/2
-						elseif side == "down" then
-							rotation = math.pi
-						elseif side == "left" then
-							rotation = math.pi/2*3
-						end
-						love.graphics.draw(portalcrosshairimg, math.floor((x-xscroll)*16*scale), math.floor((y-.5-yscroll)*16*scale), rotation, scale, scale, 4, 8)
-					end
-				end
-			end
-		end
-		
-		--Portal projectile
-		for i, v in pairs(portalprojectiles) do
-			v:draw()
-		end
-		
-		love.graphics.setColor(255, 255, 255)
-		
-		drawforeground()
-	end --SCENE DRAW FUNCTION END
+	
 	
 	if players == 1 and love.graphics.isSupported("canvas") and seethroughportals then
 		--what's this all about
@@ -1919,14 +1765,6 @@ function game_draw()
 				end
 			end
 		end
-	end
-	
-	for i, v in pairs(dialogboxes) do
-		v:draw()
-	end
-	
-	if earthquake > 0 then
-		love.graphics.translate(-round(tremorx), -round(tremory))
 	end
 	
 	if editormode then
@@ -2240,51 +2078,51 @@ function drawplayer(i, x, y, cscale,     offsetX, offsetY, rotation, quadcenterX
 end
 
 function reachedx(currentx)
-	if not currentx or currentx <= lastrepeat+width then
+	if not currentx or currentx <= w.lastrepeat+width then
 		return
 	end
 	
-	lastrepeat = math.floor(currentx)-width
+	w.lastrepeat = math.floor(currentx)-width
 	--castlerepeat?
 	--get mazei
 	local mazei = 0
 	
-	for j = 1, #mazeends do
-		if mazeends[j] < currentx then
+	for j = 1, #w.mazeends do
+		if w.mazeends[j] < currentx then
 			mazei = j
 		end
 	end
 	
 	--check if maze was solved!
 	for i = 1, players do
-		if objects["player"][i].mazevar == mazegates[mazei] then
+		if w.objects.player[i].mazevar == w.mazegates[mazei] then
 			local actualmaze = 0
-			for j = 1, #mazestarts do
-				if objects["player"][i].x > mazestarts[j] then
+			for j = 1, #w.mazestarts do
+				if w.objects.player[i].x > w.mazestarts[j] then
 					actualmaze = j
 				end
 			end
-			mazesolved[actualmaze] = true
+			w.mazesolved[actualmaze] = true
 			for j = 1, players do
-				objects["player"][j].mazevar = 0
+				w.objects.player[j].mazevar = 0
 			end
 			break
 		end
 	end
 	
-	if not mazesolved[mazei] or mazeinprogress then --get if inside maze
-		if not mazesolved[mazei] then
-			mazeinprogress = true
+	if not w.mazesolved[mazei] or w.mazeinprogress then --get if inside maze
+		if not w.mazesolved[mazei] then
+			w.mazeinprogress = true
 		end
 		
 		local x = math.ceil(currentx)
 		
-		if repeatX == 0 then
-			repeatX = mazestarts[mazei]
+		if w.repeatX == 0 then
+			w.repeatX = w.mazestarts[mazei]
 		end
 		
-		table.insert(map, x, {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}})
-		table.insert(coinmap, x, {})
+		table.insert(w.map, x, {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}})
+		table.insert(w.coinmap, x, {})
 		for y = 1, mapheight do
 			for j = 1, #map[repeatX][y] do
 				map[x][y][j] = map[repeatX][y][j]
@@ -2376,386 +2214,6 @@ function reachedx(currentx)
 			end
 		end
 	end--]]
-end
-
-function loadlevel(level, is_sublevel)
-	print("inside loadlevel")
-	collectgarbage("collect")
-	love.audio.stop()
-	animationsystem_load()
-	
-	if replaysystem then
-		for i = 1, #replaydata do
-			replaytimer[i] = 0
-			replayi[i] = 1
-			replaychar[i] = characters.mario
-		end
-	end
-
-	if is_sublevel then
-		prevsublevel = mariosublevel
-		mariosublevel = level
-		level = level
-		currentmap = level
-	else
-		mariosublevel = 0
-		prevsublevel = currentmap
-		mariotime = 400
-		
-		--check for checkpoint!
-		if checkpointsub then
-			mariosublevel = checkpointsub
-			level = level
-			-- assign "checkpointsub" to something I guess? I don't know
-		end
-	end
-	
-	--MISC VARS; Misc Global Variables
-	gameplaytype = "oddjob" --List over in variables.lua
-	everyonedead = false
-	levelfinished = false
-	coinanimation = 1
-	redcoinanimation = 1
-	flagx = false
-	levelfinishtype = nil
-	firedelay = math.random(4)
-	flyingfishdelay = 1
-	bulletbilldelay = 1
-	windtimer = 0.1
-	firetimer = firedelay
-	flyingfishtimer = flyingfishdelay
-	bulletbilltimer = bulletbilldelay
-	lakitoendx = false
-	lakitoend = false
-	noupdate = false
-	xscroll = 0
-	repeatX = 0
-	lastrepeat = 0
-	ylookmodifier = 0
-	displaywarpzonetext = false
-	mazestarts = {}
-	mazeends = {}
-	mazesolved = {}
-	mazesolved[0] = true
-	mazeinprogress = false
-	earthquake = 0
-	sunrot = 0
-	gelcannontimer = 0
-	pausemenuselected = 1
-	coinblocktimers = {}
-
-	switchtimeout = false
-	pswitchactive = {blue = false, grey = false}
-	pswitchtimers = {blue = 0, grey = 0}
-		
-	givemestuff = {lives = 0, times = 0, coinage = 0}
-	
-	portaldelay = {}
-	for i = 1, players do
-		portaldelay[i] = 0
-	end
-	
-	--class tables
-	coinblockanimations = {}
-	portalparticles = {}
-	portalprojectiles = {}
-	dialogboxes = {}
-	inventory = {}
-	for i = 1, 9 do
-		inventory[i] = {}
-	end
-	mccurrentblock = 1
-	itemanimations = {}
-	
-	blockbouncetimer = {}
-	blockbouncex = {}
-	blockbouncey = {}
-	blockbouncecontent = {}
-	blockbouncecontent2 = {}
-	warpzonenumbers = {}
-	
-	portals = {}
-	
-	objects = {}
-	-- Initialize all registered object arrays.
-	for _,v in pairs(basedents) do
-		objects[v]={}
-	end
-	for _,v in pairs(saneents) do
-		objects[v]={}
-	end
-	
-	xscroll = 0
-	yscroll = 0
-	ylookmodifier = 0
-	
-	startx = {3, 3, 3, 3, 3}
-	starty = {13, 13, 13, 13, 13}
-	pipestartx = nil
-	pipestarty = nil
-	globalanimation = nil
-	
-	enemiesspawned = {}
-	
-	intermission = false
-	haswarpzone = false
-	underwater = false
-	bonusstage = false
-	custombackground = false
-	customforeground = false
-	mariotimelimit = 400
-	spriteset = 1
-	
-	--LOAD THE MAP
-	if not loadmap(level, true) then --make one up
-		mapwidth = width
-		background = {unpack(backgroundcolor[1])}
-		mapheight = 15
-		portalsavailable = {true, true}
-		musicname = "overworld.ogg"
-		map = {}
-		coinmap = {}
-		for x = 1, width do
-			map[x] = {}
-			coinmap[x] = {}
-			for y = 1, mapheight do
-				if y > 13 then
-					map[x][y] = {2}
-					objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1)
-					map[x][y]["gels"] = {}
-					map[x][y]["portaloverride"] = {}
-				else
-					map[x][y] = {1}
-					map[x][y]["gels"] = {}
-					map[x][y]["portaloverride"] = {}
-				end
-			end
-		end
-		
-		
-		smbspritebatch = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
-		smbspritebatchfront = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
-		portalspritebatch = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
-		portalspritebatchfront = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
-		if customtiles then
-			customspritebatch = love.graphics.newSpriteBatch( customtilesimg, 10000 )
-			customspritebatchfront = love.graphics.newSpriteBatch( customtilesimg, 10000 )
-		end
-		spritebatchX = {}
-		spritebatchY = {}
-	end
-	
-	
-	enemies_load()
-	print("did load enemies")
-	
-	
-	objects["screenboundary"] = {}
-	objects["screenboundary"]["left"] = screenboundary:new(0)
-	
-	objects["screenboundary"]["right"] = screenboundary:new(mapwidth)
-	
-	if flagx then
-		objects["screenboundary"]["flag"] = screenboundary:new(flagx+6/16)
-	end
-	
-	if objects["axe"] and objects["axe"][#objects["axe"]] then
-		objects["screenboundary"]["axe"] = screenboundary:new(objects["axe"][#objects["axe"]].cox)
-	end
-	
-	if intermission then
-		globalanimation = "intermission"
-	end
-	
-	if not is_sublevel then
-		mariotime = mariotimelimit
-	end
-	
-	--Maze setup
-	--check every block between every start/end pair to see how many gates it contains
-	if #mazestarts == #mazeends then
-		mazegates = {}
-		for i = 1, #mazestarts do
-			local maxgate = 1
-			for x = mazestarts[i], mazeends[i] do
-				for y = 1, mapheight do
-					if map[x][y][2] and entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "mazegate" then
-						if tonumber(map[x][y][3]) > maxgate then
-							maxgate = tonumber(map[x][y][3])
-						end
-					end
-				end
-			end
-			mazegates[i] = maxgate
-		end
-	else
-		print("Mazenumber doesn't fit!")
-	end
-	
-	--check if it's a bonusstage (boooooooonus!)
-	if bonusstage then
-		globalanimation = "vinestart"
-	end
-		
-	--set startx to pipestart
-	
-	--@NOTE: Here's where we overload to set the position of pipers! Yee.
-	if warpdestid then
-		local foundit=false
-		local thepipex, thepipey, thepipe
-		for lxi,lxa in pairs(map) do
-			for lyi,lya in pairs(lxa) do
-				if lya[3] == warpdestid then
-					foundit=true
-					pipestartx = lxi
-					pipestarty = lyi
-					thepipe = map[lxi][lyi]
-					break
-				end
-			end
-			if foundit then
-				break
-			end
-		end
-		
-		if foundit then
-			
-			local pipeoffx, pipeoffy
-			if thepipe[7] == "up" then
-				pipeoffx = 1
-				pipeoffy = 0
-			elseif thepipe[7] == "down" then
-				pipeoffx = 1
-				pipeoffy = -1
-			elseif thepipe[7] == "left" then
-				pipeoffx = -1
-				pipeoffy = 0
-			elseif thepipe[7] == "right" then
-				pipeoffx = 0
-				pipeoffy = 0
-			end
-			
-			globalanimation = "pipe_"..thepipe[7].."_out"
-			
-			startx = {pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx}
-			starty = {pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy}
-			
-			--check if startpos is a colliding block
-			--if tilequads[map[startx[1]][starty[1]][1]]:getproperty("collision", startx[1], starty[1]) then
-			--	animation = "pipeup2"
-			--end
-		else
-			print("WARNING: Tried to take a pipe to a level that did not have corresponding destination pipe (",warpdestid,")")
-		end
-		--clear warpdestid because it would never get cleared otherwise
-		warpdestid = nil
-	end
-	
-	--set starts to checkpoint
-	--@NOTE: I goofed with these. Don't tell anyone.
-	if not is_sublevel and checkpointsub then
-		for i = 1, checkpointsub do
-			if checkpointx[i] then
-				startx[i] = checkpointx[i]
-			end
-			if checkpointy[i] then
-				starty[i] = checkpointy[i]
-			end
-		end
-	end
-	
-	--Adjust start X scroll
-	xscroll = startx[1]-scrollingleftcomplete-2
-	if xscroll > mapwidth - width then
-		xscroll = mapwidth - width
-	end
-	
-	if xscroll < 0 then
-		xscroll = 0
-	end
-	
-	--and Y too
-	yscroll = starty[1]-height+downscrollborder
-	if yscroll > mapheight - height - 1 then
-		yscroll = mapheight - height - 1
-	end
-	
-	if yscroll < 0 then
-		yscroll = 0
-	end
-	
-	spawnrestrictions = {}
-	
-	--Clear spawn area from enemies
-	for i = 1, #startx do
-		if startx[i] == checkpointx[i] and starty[i] == checkpointy[i] then
-			table.insert(spawnrestrictions, {startx[i], starty[i]})
-		end
-	end
-	
-	--add the players
-	--@NOTE: I just don't feel like messing with this.
-	local mul = 0.5
-	if mariosublevel ~= 0 or prevsublevel ~= false then
-		mul = 2/16
-	end
-	
-	objects["player"] = {}
-	local spawns = {}
-	for i = 1, players do
-		local lanimation = globalanimation
-		
-		local astartx, astarty
-		if i > 4 then
-			astartx = startx[5]
-			astarty = starty[5]
-		else
-			astartx = startx[i]
-			astarty = starty[i]
-		end
-		
-		if astartx then
-			local add = -6/16
-			for j, v in pairs(spawns) do
-				if v.x == astartx and v.y == astarty then
-					add = add + mul
-				end
-			end
-			
-			table.insert(spawns, {x=astartx, y=astarty})
-			
-			objects["player"][i] = player:new(astartx+add, astarty-1, i, lanimation, mariosizes[i], playertype)
-		else
-			objects["player"][i] = player:new(1.5 + (i-1)*mul-6/16+1.5, 13, i, lanimation, mariosizes[i], playertype)
-		end
-	end
-	
-	--ADD ENEMIES ON START SCREEN
-	if editormode == false then
-		local xtodo = width+1
-		if mapwidth < width+1 then
-			xtodo = mapwidth
-		end
-		
-		local ytodo = height+1
-		if mapheight < height+1 then
-			ytodo = mapheight
-		end
-			
-		for x = math.floor(xscroll), math.floor(xscroll)+xtodo do
-			for y = math.floor(yscroll), math.floor(yscroll)+ytodo do
-				spawnenemy(x, y)
-			end
-		end
-	end
-	
-	--load editor
-	editor_load()
-	
-	updateranges()
-	
-	generatespritebatch()
-	print("finished loadlevel without problems")
 end
 
 function startlevel(levelstart)
@@ -3480,66 +2938,6 @@ function game_controlupdate(dt)
 	end
 end
 
-function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
-	if objects["player"][plnumber].portalgundisabled then
-		return
-	end
-	
-	--check if available
-	if not objects["player"][plnumber].portalsavailable[i] then
-		return
-	end
-	
-	--box
-	if objects["player"][plnumber].pickup then
-		return
-	end
-	--portalgun delay
-	if portaldelay[plnumber] > 0 then
-		return
-	else
-		portaldelay[plnumber] = portalgundelay
-	end
-	
-	local otheri = 1
-	local color = objects["player"][plnumber].portal2color
-	if i == 1 then
-		otheri = 2
-		color = objects["player"][plnumber].portal1color
-	end
-	
-	if not mirrored then
-		objects["player"][plnumber].lastportal = i
-	end
-	local mirror = false
-	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
-	if cox then
-		mirror = tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy)
-		if map[cox][coy]["gels"] and map[cox][coy]["gels"][side] then
-			local gelstat = map[cox][coy]["gels"][side]
-			if mirror and table.contains(gelsthattarnishmirrors, enum_gels[gelstat]) then
-				mirror = false
-			end
-		--	elseif mirror and enum_gels[gelstat] == "white" then
-		--		mirror = false
-		--	end
-		end
-	end
-	
-	objects["player"][plnumber].lastportal = i
-	
-	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {objects["player"][plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
-	if not mirrored and portalknockback then
-		local xadd = math.sin(objects["player"][plnumber].pointingangle)*30
-		local yadd = math.cos(objects["player"][plnumber].pointingangle)*30
-		objects["player"][plnumber].speedx = objects["player"][plnumber].speedx + xadd
-		objects["player"][plnumber].speedy = objects["player"][plnumber].speedy + yadd
-		objects["player"][plnumber].falling = true
-		objects["player"][plnumber].animationstate = "falling"
-		objects["player"][plnumber]:setquad()
-	end
-end
-
 function modifyportalwalls()
 	--Create and remove new stuff
 	for a, b in pairs(portals) do
@@ -3684,7 +3082,9 @@ function modifyportaltiles(x, y, xplus, yplus, portal, i, mode)
 	end
 end
 
-function getportalposition(i, x, y, side, tendency) --returns the "optimal" position according to the parsed arguments (or false if no possible position was found)
+getportalposition = nop --@DEV: this is being called before the player even fires a portal, which is weird
+
+function getportalposition2(i, x, y, side, tendency) --returns the "optimal" position according to the parsed arguments (or false if no possible position was found)
 	local xplus, yplus = 0, 0
 	if side == "up" then
 		yplus = -1
@@ -3759,140 +3159,6 @@ function getportalposition(i, x, y, side, tendency) --returns the "optimal" posi
 	end
 	
 	return false
-end
-
-function getTile(x, y, portalable, portalcheck, facing, ignoregrates, dir) --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
-	if portalcheck then
-		for i, v in pairs(portals) do
-			--Get the extra block of each portal
-			local portal1xplus, portal1yplus, portal2xplus, portal2yplus = 0, 0, 0, 0
-			if v.facing1 == "up" then
-				portal1xplus = 1
-			elseif v.facing1 == "right" then
-				portal1yplus = 1
-			elseif v.facing1 == "down" then
-				portal1xplus = -1
-			elseif v.facing1 == "left" then
-				portal1yplus = -1
-			end
-			
-			if v.facing2 == "up" then
-				portal2xplus = 1
-			elseif v.facing2 == "right" then
-				portal2yplus = 1
-			elseif v.facing2 == "down" then
-				portal2xplus = -1
-			elseif v.facing2 == "left" then
-				portal2yplus = -1
-			end
-			
-			if v.x1 ~= false then
-				if (x == v.x1 or x == v.x1+portal1xplus) and (y == v.y1 or y == v.y1+portal1yplus) and (facing == nil or v.facing1 == facing) then
-					return false
-				end
-			end
-		
-			if v.x2 ~= false then
-				if (x == v.x2 or x == v.x2+portal2xplus) and (y == v.y2 or y == v.y2+portal2yplus) and (facing == nil or v.facing2 == facing) then
-					return false
-				end
-			end
-		end
-	end
-	
-	--check for tubes
-	for i, v in pairs(objects["geldispenser"]) do
-		if (x == v.cox or x == v.cox+1) and (y == v.coy or y == v.coy+1) then
-			if portalcheck then
-				return false
-			else
-				return true
-			end
-		end
-	end
-	
-	for i, v in pairs(objects["cubedispenser"]) do
-		if (x == v.cox or x == v.cox+1) and (y == v.coy or y == v.coy+1) then
-			if portalcheck then
-				return false
-			else
-				return true
-			end
-		end
-	end
-	
-	--bonusstage thing for keeping it from fucking up by allowing portals to be shot next to the vine in 4-2_2 for example
-	if bonusstage then
-		if y == mapheight and (x == 4 or x == 6) then
-			if portalcheck then
-				return false
-			else
-				return true
-			end
-		end
-	end
-	
-	if x <= 0 or y <= 0 or y >= mapheight+1 or x > mapwidth then
-		return false, 1
-	end
-	
-	if tilequads[map[x][y][1]]:getproperty("invisible", x, y) then
-		return false
-	end
-	
-	if portalcheck then
-		local side
-		if facing == "up" then
-			side = "top"
-		elseif facing == "right" then
-			side = "right"
-		elseif facing == "down" then
-			side = "bottom"
-		elseif facing == "left" then
-			side = "left"
-		end
-		local conditions = {
-			not_mirror = not tilequads[map[x][y][1]]:getproperty("mirror", x, y),
-			collision = tilequads[map[x][y][1]]:getproperty("collision", x, y),
-			portalable = tilequads[map[x][y][1]]:getproperty("portalable", x, y),
-			not_grate = not tilequads[map[x][y][1]]:getproperty("grate", x, y), --not a fan of grates either
-		}
-		-- this is used for named condition checks so there's no ambiguity
-		if map[x][y]["gels"] and map[x][y]["gels"][side] then
-			local gelstat = map[x][y]["gels"][side]
-			if enum_gels[gelstat] == "black" then
-				conditions["portalable"] = false
-			end
-			if not conditions["not_mirror"] and table.contains(gelsthattarnishmirrors, enum_gels[gelstat]) then
-				conditions["portalable"] = false
-			end
-			if not conditions["portalable"] and enum_gels[gelstat] == "white" then
-				conditions["portalable"] = true
-				conditions["not_mirror"] = true
-			end
-		end
-		
-		
-		--To stop people from portalling under the vine, which caused problems, but was fixed elsewhere (and betterer)
-		--[[for i, v in pairs(objects["vine"]) do
-			if x == v.cox and y == v.coy and side == "top" then
-				return false, 1
-			end
-		end--]]
-		
-		if map[x][y]["portaloverride"][side] then
-			return true, map[x][y][1]
-		end
-		
-		-- if anything in the conditions table is false, then it's a no-go and we give a false
-		return (not table.contains(conditions, false)) or conditions["not_mirror"], map[x][y][1]
-	else
-		if ignoregrates then
-			return tilequads[map[x][y][1]]:getproperty("collision", x, y) and tilequads[map[x][y][1]]:getproperty("grate", x, y) == false, map[x][y][1]
-		else
-			return tilequads[map[x][y][1]]:getproperty("collision", x, y), map[x][y][1]
-		end
-	end
 end
 
 function getPortal(x, y, dir) --returns the block where you'd come out when you'd go in the argument's block
@@ -3994,7 +3260,7 @@ function insideportal(x, y, width, height) --returns whether an object is in, an
 	if height == nil then
 		height = 12/16
 	end
-	for i, v in pairs(portals) do
+	for i, v in pairs(w.objects.portal) do
 		if v.x1 ~= false and v.x2 ~= false then
 			for j = 1, 2 do				
 				local portalx, portaly, portalfacing
@@ -4353,151 +3619,6 @@ function savemap2(filename)
 	notice.new("Map saved!", notice.white, 2)
 end
 
-function savemap(filename)
-	local s = ""
-	
-	--mapheight
-	local s = s .. mapheight .. CATEGORYDELIMITER
-	
-	local mul = 1
-	local prev = nil
-	
-	for y = 1, mapheight do
-		for x = 1, mapwidth do
-			local current = map[x][y][1] .. (coinmap[x][y] and "c" or "")
-			
-			--check if previous is the same
-			if #map[x][y] == 1 then
-				if prev == current and (y ~= mapheight or x ~= mapwidth) then
-					mul = mul + 1
-				elseif prev == current and y == mapheight and x == mapwidth then
-					mul = mul + 1
-					s = s .. prev .. MULTIPLYDELIMITER .. mul
-				else
-					if prev then
-						if mul > 1 then
-							s = s .. prev .. MULTIPLYDELIMITER .. mul
-						else
-							s = s .. prev
-						end
-						
-						if y ~= mapheight or x ~= mapwidth then
-							s = s .. BLOCKDELIMITER
-						end
-					end
-					prev = current
-					mul = 1
-					if y == mapheight and x == mapwidth then
-						if prev then
-							s = s .. BLOCKDELIMITER
-						end
-						s = s .. prev
-					end
-				end
-			else
-				if prev then
-					if mul > 1 then
-						s = s .. prev .. MULTIPLYDELIMITER .. mul
-					else
-						s = s .. prev
-					end
-					
-					s = s .. BLOCKDELIMITER
-				end
-				prev = nil
-				mul = 1
-				
-				for i = 1, #map[x][y] do
-					if tonumber(map[x][y][i]) and tonumber(map[x][y][i]) < 0 then
-						s = s .. "m" .. math.abs(tostring(map[x][y][i]))
-					else
-						s = s .. tostring(map[x][y][i])
-					end
-					
-					if i == 1 and coinmap[x][y] then
-						s = s .. "c"
-					end
-					
-					if i ~= #map[x][y] then
-						s = s .. LAYERDELIMITER
-					end
-				end
-				
-				if y ~= mapheight or x ~= mapwidth then
-					s = s .. BLOCKDELIMITER
-				end
-			end
-		end
-	end
-	
-	--options
-	s = s .. CATEGORYDELIMITER .. "backgroundr" .. EQUALSIGN ..  background[1]
-	s = s .. CATEGORYDELIMITER .. "backgroundg" .. EQUALSIGN ..  background[2]
-	s = s .. CATEGORYDELIMITER .. "backgroundb" .. EQUALSIGN ..  background[3]
-	s = s .. CATEGORYDELIMITER .. "spriteset" .. EQUALSIGN ..  spriteset
-	if musicname then
-		s = s .. CATEGORYDELIMITER .. "music" .. EQUALSIGN ..  musicname
-	end
-	if intermission then
-		s = s .. CATEGORYDELIMITER .. "intermission"
-	end
-	if bonusstage then
-		s = s .. CATEGORYDELIMITER .. "bonusstage"
-	end
-	if haswarpzone then
-		s = s .. CATEGORYDELIMITER .. "haswarpzone"
-	end
-	if underwater then
-		s = s .. CATEGORYDELIMITER .. "underwater"
-	end
-	if custombackground then
-		if custombackground == true then
-			s = s .. CATEGORYDELIMITER .. "custombackground"
-		else
-			s = s .. CATEGORYDELIMITER .. "custombackground" .. EQUALSIGN ..  custombackground
-		end
-	end
-	if customforeground then
-		if customforeground == true then
-			s = s .. CATEGORYDELIMITER .. "customforeground"
-		else
-			s = s .. CATEGORYDELIMITER .. "customforeground" .. EQUALSIGN ..  customforeground
-		end
-	end
-	s = s .. CATEGORYDELIMITER .. "timelimit" .. EQUALSIGN ..  mariotimelimit
-	s = s .. CATEGORYDELIMITER .. "scrollfactor" .. EQUALSIGN ..  scrollfactor
-	s = s .. CATEGORYDELIMITER .. "fscrollfactor" .. EQUALSIGN ..  fscrollfactor
-	if not portalsavailable[1] or not portalsavailable[2] then
-		local ptype = "none"
-		if portalsavailable[1] then
-			ptype = "blue"
-		elseif portalsavailable[2] then
-			ptype = "orange"
-		end
-		
-		s = s .. CATEGORYDELIMITER .. "portalgun" .. EQUALSIGN ..  ptype
-	end
-	
-	if levelscreenbackname then
-		s = s .. CATEGORYDELIMITER .. "levelscreenback" .. EQUALSIGN ..  levelscreenbackname
-	end
-	
-	--tileset
-	
-	love.filesystem.createDirectory( "mappacks" )
-	love.filesystem.createDirectory( "mappacks/" .. mappack )
-	
-	love.filesystem.write("mappacks/" .. mappack .. "/" .. filename .. ".txt", s)
-	
-	--preview
-	
-	previewimg = renderpreview()
-	previewimg:encode("mappacks/" .. mappack .. "/" .. filename .. ".png")
-	
-	print("Map saved as " .. "mappacks/" .. filename .. ".txt")
-	notice.new("Map saved!", notice.white, 2)
-end
-
 function renderpreview()
 	local out = love.image.newImageData(mapwidth, height+1)
 	
@@ -4537,7 +3658,9 @@ function savelevel()
 	end
 end
 
-function traceline(sourcex, sourcey, radians, reportal)
+traceline = nop --@DEV: we do this because traceline isn't working ATM
+
+function traceline2(sourcex, sourcey, radians, reportal)
 	local currentblock = {}
 	local x, y = sourcex, sourcey
 	currentblock[1] = math.floor(x)
@@ -4683,69 +3806,6 @@ function traceline(sourcex, sourcey, radians, reportal)
 		return currentblock[1]+1, currentblock[2], side, tendency, x, y
 	else
 		return false, false, false, false, x, y
-	end
-end
-
-function spawnenemy(x, y)
-	if not inmap(x, y) then
-		return
-	end
-	
-	--don't spawn when on a coinblock or breakable block
-	if tilequads[map[x][y][1] ]:getproperty("breakable", x, y) or tilequads[map[x][y][1] ]:getproperty("coinblock", x, y) then
-		table.insert(enemiesspawned, {x, y})
-		return
-	end
-
-	for i = 1, #enemiesspawned do
-		if x == enemiesspawned[i][1] and y == enemiesspawned[i][2] then
-			return
-		end
-	end
-	
-	--spawnrestriction
-	allowenemy = true
-	for i = 1, #spawnrestrictions do
-		if x > spawnrestrictions[i][1]-6 and x < spawnrestrictions[i][1]+6 and y > spawnrestrictions[i][2]-6 and y < spawnrestrictions[i][2]+6 then
-			allowenemy = false
-		end
-	end
-	
-	local r = map[x][y]
-	if #r > 1 then 
-		local wasenemy = false
-		if allowenemy and table.contains(enemies, r[2]) and not editormode then
-			if not tilequads[map[x][y][1] ]:getproperty("breakable", x, y) and not tilequads[map[x][y][1] ]:getproperty("coinblock", x, y) then
-				table.insert(objects["enemy"], enemy:new(x, y, r[2], r))
-				wasenemy = true
-			end
-		elseif entitylist[r[2]] then
-			local t = entitylist[r[2]].t
-			if allowenemy and t == "cheepcheep" then
-				if math.random(2) == 1 then
-					table.insert(objects["enemy"], enemy:new(x, y, "cheepcheepwhite", r))
-				else
-					table.insert(objects["enemy"], enemy:new(x, y, "cheepcheepred", r))
-				end
-				wasenemy = true
-				
-			elseif t == "platformfall" then
-				table.insert(objects["platform"], platform:new(x, y, {0, 0, r[3]}, "fall")) --Platform fall
-				
-			elseif t == "platformbonus" then
-				table.insert(objects["platform"], platform:new(x, y, {0, 0, 3}, "justright"))
-			end
-		end
-		
-		table.insert(enemiesspawned, {x, y})
-		
-		if wasenemy then
-			--spawn enemies in 5x1 line so they spawn as a unit and not alone.
-			spawnenemy(x-2, y)
-			spawnenemy(x-1, y)
-			spawnenemy(x+1, y)
-			spawnenemy(x+2, y)
-		end
 	end
 end
 

@@ -262,7 +262,7 @@
                                                        },
                                            "rotation": 0,
                                               "shape": "rectangle",
-                                               "type": 100,
+                                               "type": 0,
                                             "visible": true,
                                               "width": 16,
                                                   "x": 1312,

@@ -15,7 +15,9 @@ function portalgun:draw()
 	local ply = self.parent
 	if ply and ply.controlsenabled and ply.activeweapon == self and not ply.vine and table.contains(ply.portalsavailable, true) then
 		local sourcex, sourcey = ply.x+6/16, ply.y+6/16
-		local cox, coy, side, tend, x, y = traceline(sourcex, sourcey, ply.pointingangle)
+		--@DEV: commented out because stuff
+		local cox, coy, side, tend, x, y = 0, 0, 1, 1, 0, 0
+		--local cox, coy, side, tend, x, y = traceline(sourcex, sourcey, ply.pointingangle)
 		local portalpossible = true
 		if cox == false or getportalposition(1, cox, coy, side, tend) == false then
 			portalpossible = false
@@ -77,6 +79,63 @@ end
 
 function portalgun:shootPortal(i)
 	shootportal(self.parent.playernumber, i, self.parent.x+6/16, self.parent.y+6/16, self.parent.pointingangle, false)
+	if objects["player"][plnumber].portalgundisabled then
+		return
+	end
+	
+	--check if available
+	if not objects["player"][plnumber].portalsavailable[i] then
+		return
+	end
+	
+	--box
+	if objects["player"][plnumber].pickup then
+		return
+	end
+	--portalgun delay
+	if portaldelay[plnumber] > 0 then
+		return
+	else
+		portaldelay[plnumber] = portalgundelay
+	end
+	
+	local otheri = 1
+	local color = objects["player"][plnumber].portal2color
+	if i == 1 then
+		otheri = 2
+		color = objects["player"][plnumber].portal1color
+	end
+	
+	if not mirrored then
+		objects["player"][plnumber].lastportal = i
+	end
+	local mirror = false
+	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
+	if cox then
+		mirror = tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy)
+		if map[cox][coy]["gels"] and map[cox][coy]["gels"][side] then
+			local gelstat = map[cox][coy]["gels"][side]
+			if mirror and table.contains(gelsthattarnishmirrors, enum_gels[gelstat]) then
+				mirror = false
+			end
+		--	elseif mirror and enum_gels[gelstat] == "white" then
+		--		mirror = false
+		--	end
+		end
+	end
+	
+	objects["player"][plnumber].lastportal = i
+	
+	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {objects["player"][plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
+	if not mirrored and portalknockback then
+		local xadd = math.sin(objects["player"][plnumber].pointingangle)*30
+		local yadd = math.cos(objects["player"][plnumber].pointingangle)*30
+		objects["player"][plnumber].speedx = objects["player"][plnumber].speedx + xadd
+		objects["player"][plnumber].speedy = objects["player"][plnumber].speedy + yadd
+		objects["player"][plnumber].falling = true
+		objects["player"][plnumber].animationstate = "falling"
+		objects["player"][plnumber]:setquad()
+	end
 end
 
 function portalgun:primaryFire()
@@ -92,5 +151,65 @@ function portalgun:secondaryFire()
 		self:shootPortal(2)
 	else
 		print("DEBUG: Tried to shoot portal with orphaned weapon?!")
+	end
+end
+
+function portalgun:oldShootPortal(i)
+	if self.parent.portalgundisabled then
+		return
+	end
+	
+	--check if available
+	if not self.parent.portalsavailable[i] then
+		return
+	end
+	
+	--box
+	if self.parent.pickup then
+		return
+	end
+	--portalgun delay
+	if self.parent.portaldelay > 0 then
+		return
+	else
+		self.parent.portaldelay = portalgundelay
+	end
+	
+	local otheri = 1
+	local color = self.parent.portal2color
+	if i == 1 then
+		otheri = 2
+		color = self.parent.portal1color
+	end
+	
+	if not mirrored then
+		self.parent.lastportal = i
+	end
+	local mirror = false
+	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
+	if cox then
+		mirror = tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy)
+		if map[cox][coy]["gels"] and map[cox][coy]["gels"][side] then
+			local gelstat = map[cox][coy]["gels"][side]
+			if mirror and table.contains(gelsthattarnishmirrors, enum_gels[gelstat]) then
+				mirror = false
+			end
+		--	elseif mirror and enum_gels[gelstat] == "white" then
+		--		mirror = false
+		--	end
+		end
+	end
+	
+	objects["player"][plnumber].lastportal = i
+	
+	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {objects["player"][plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
+	if not mirrored and portalknockback then
+		local xadd = math.sin(objects["player"][plnumber].pointingangle)*30
+		local yadd = math.cos(objects["player"][plnumber].pointingangle)*30
+		objects["player"][plnumber].speedx = objects["player"][plnumber].speedx + xadd
+		objects["player"][plnumber].speedy = objects["player"][plnumber].speedy + yadd
+		objects["player"][plnumber].falling = true
+		objects["player"][plnumber].animationstate = "falling"
+		objects["player"][plnumber]:setquad()
 	end
 end

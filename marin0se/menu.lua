@@ -1972,31 +1972,35 @@ end
 
 function keypromptstart()
 	keyprompt = true
-	buttonerror = false
-	axiserror = false
 	
-	--save number of stuff
-	prompt = {}
-	prompt.joystick = {}
-	prompt.joysticks = love.joystick.getJoystickCount()
-	
-	for i = 1, prompt.joysticks do
-		prompt.joystick[i] = {}
-		prompt.joystick[i].hats = love.joystick.getHatCount(i)
-		prompt.joystick[i].axes = love.joystick.getAxisCount(i)
+	-- this is is commented out because control stuff got changed
+	--[[
+		buttonerror = false
+		axiserror = false
 		
-		prompt.joystick[i].validhats = {}
-		for j = 1, prompt.joystick[i].hats do
-			if love.joystick.getHat(i, j) == "c" then
-				table.insert(prompt.joystick[i].validhats, j)
+		--save number of stuff
+		prompt = {}
+		prompt.joystick = {}
+		prompt.joysticks = love.joystick.getJoysticks()
+		
+		for k,v in pairs(prompt.joysticks) do
+			prompt.joystick[k].hats = v:getHatCount()
+			prompt.joystick[k].axes = v:getAxisCount()
+			prompt.joystick[k].butts = v:getButtonCount()
+			
+			prompt.joystick[i].validhats = {}
+			for i=1,prompt.joystick[k].hats do
+				if v:getHat(i) == "c" then
+					table.insert(prompt.joystick[i].validhats, j)
+				end
+			end
+			
+			prompt.joystick[i].axisposition = {}
+			for j = 1, prompt.joystick[i].axes do
+				table.insert(prompt.joystick[i].axisposition, love.joystick.getAxis(i, j))
 			end
 		end
-		
-		prompt.joystick[i].axisposition = {}
-		for j = 1, prompt.joystick[i].axes do
-			table.insert(prompt.joystick[i].axisposition, love.joystick.getAxis(i, j))
-		end
-	end
+	]]
 end
 
 function downloadfile(url, target, checksum)

@@ -47,6 +47,10 @@ gellifetime = 2
 bulletbilllifetime = 20
 playertypelist = {"portalgun", "gelcannon"}
 gameplaytypelist = {"na", "vanilla", "oddjob"}
+
+fontheight = 8
+fontwidth = 8
+
 help_tips = { 
 	"i love men",
 	"this is a helpful tip i promise",

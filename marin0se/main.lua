@@ -316,7 +316,8 @@ function love.load(args)
 		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody", "weapon",
 		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
 		"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames",
-		"pswitch", "smokepuff", "emancipateanimation", "userect"
+		"pswitch", "smokepuff", "emancipateanimation", "userect", "portal",
+		"portalparticle", "portalprojectile", "dialogbox"
 	}
 	-- we made weapon a saneent because tracing mario's draw is REALLY TOUGH
 	-- testing removal of "fireball",
@@ -399,6 +400,8 @@ function love.load(args)
 	require "gui.nodetree"
 	require "gui.maptree"
 	require "gui.tiletree"
+	
+	require "world"
 	
 	reloadGraphics()
 	reloadSounds()
@@ -505,11 +508,7 @@ function love.load(args)
 	require "imgurupload"
 	
 	require "player"
-	require "portalparticle"
-	require "portalprojectile"
 	require "fire"
-	require "portal"
-	require "dialogbox"
 	require "itemanimation"
 	
 	require "enemies"

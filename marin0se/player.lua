@@ -1,10 +1,12 @@
 player = class("player")
 
-function player:init(x, y, i, animation, size, t)
+function player:init(world, x, y, i, animation, size, t)
 	print("DEBUG: Player was initialized.")
 	if (SERVER or CLIENT) and i ~= netplayernumber then
 		self.remote = true
 	end
+	
+	self.world = world
 	
 	self.alwaysactive = true
 	self.char = characters[mariocharacter[i]]
@@ -184,10 +186,16 @@ function player:init(x, y, i, animation, size, t)
 		stomp = 1,
 		shell = 1,
 	}
-	if not portals[self.playernumber] then
-		portals[self.playernumber] = portal:new(self.playernumber, self.portal1color, self.portal2color, self)
+	
+	--@DEV: Not sure why these aren't made children but y'know whatever.
+	if not self.world.objects.portal[self.playernumber] then
+		self.world.objects.portal[self.playernumber] = portal:new(self.playernumber, self.portal1color, self.portal2color, self)
 	end
-	self.portal = portals[self.playernumber]
+	self.portal = self.world.objects.portal[self.playernumber]
+	
+	self.portaldelay = 0
+	
+	
 	self.rotation = 0 --for portals
 	self.pointingangle = -math.pi/2
 	self.animationdirection = "right"
@@ -358,6 +366,8 @@ function player:init(x, y, i, animation, size, t)
 		end
 	end
 	self:setquad()
+	
+	table.insert(self.world.objects.tile, tile:new(self.x, self.y+self.height+.12))
 end
 
 
@@ -508,6 +518,11 @@ function player:update(dt)
 	
 	self.passivemoved = false
 	self.rotation = unrotate(self.rotation, self.gravitydirection, dt)
+	
+	--@DEV: This is probably handled by our weapon code, but just in case, here this is.
+	if self.portaldelay > 0 then
+		self.portaldelay = math.max(0, self.portaldelay - dt/speed)
+	end
 	
 	--Tailwag!
 	if self.char.raccoon and (self.tailwag or self.tailwagtimer > 0) then
@@ -3385,7 +3400,7 @@ function player:hitblock(x, y)
 end
 
 function hitblock(x, y, t, koopa)	
-	for i, v in pairs(portals) do
+	for i, v in pairs(t.world.objects.portals) do
 		if v.x1 and v.x2 and v.y1 and v.y2 then
 			local x1 = v.x1
 			local y1 = v.y1

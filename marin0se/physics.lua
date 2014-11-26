@@ -866,7 +866,7 @@ function inportal(self)
 	if self.mask[2] then
 		return
 	end
-	for i, v in pairs(portals) do
+	for i, v in pairs(w.objects.portal) do
 		if v.x1 ~= false and v.x2 ~= false then
 			local portal1xplus = 0
 			local portal2xplus = 0
@@ -935,7 +935,7 @@ function inportal(self)
 end
 
 function checkportalHOR(self, nextY) --handles horizontal (up- and down facing) portal teleportation
-	for i, v in pairs(portals) do
+	for i, v in pairs(w.objects.portal) do
 		if v.x1 ~= false and v.x2 ~= false then
 		
 			local portal1xplus = 0
@@ -1038,7 +1038,7 @@ function checkportalHOR(self, nextY) --handles horizontal (up- and down facing) 
 end
 
 function checkportalVER(self, nextX) --handles vertical (left- and right facing) portal teleportation
-	for i, v in pairs(portals) do
+	for i, v in pairs(w.objects.portal) do
 		if v.x1 ~= false and v.x2 ~= false then
 			local portal1yplus = 0
 			local portal2yplus = 0
