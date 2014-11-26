@@ -630,7 +630,7 @@ function game_update(dt)
 					y1 = v.y1 + math.random(1, 30)/16-1
 				end
 				
-				table.insert(portalparticles, portalparticle:new(x1, y1, v.portal1color, v.facing1))
+				table.insert(objects["portalparticle"], portalparticle:new(x1, y1, v.portal1color, v.facing1))
 			end
 			
 			if v.facing2 ~= nil and v.x2 and v.y2 then
@@ -655,34 +655,6 @@ function game_update(dt)
 		end
 	end
 	
-	delete = {}
-	
-	for i, v in pairs(portalparticles) do
-		if v:update(dt) == true then
-			table.insert(delete, i)
-		end
-	end
-	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(portalparticles, v) --remove
-	end
-	
-	--PORTAL PROJECTILES
-	delete = {}
-	
-	for i, v in pairs(portalprojectiles) do
-		if v:update(dt) == true then
-			table.insert(delete, i)
-		end
-	end
-	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(portalprojectiles, v) --remove
-	end
 	
 	--Editor
 	if editormode then
@@ -1600,12 +1572,6 @@ function game_draw()
 				end
 			end
 		end
-		
-		--Portal projectile
-		for i, v in pairs(portalprojectiles) do
-			v:draw()
-		end
-		
 		love.graphics.setColor(255, 255, 255)
 		
 		drawforeground()
@@ -2458,7 +2424,6 @@ function loadlevel(level, is_sublevel)
 	--class tables
 	coinblockanimations = {}
 	portalparticles = {}
-	portalprojectiles = {}
 	dialogboxes = {}
 	inventory = {}
 	for i = 1, 9 do
@@ -3528,7 +3493,7 @@ function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 	
 	objects["player"][plnumber].lastportal = i
 	
-	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {objects["player"][plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
+	table.insert(objects["portalprojectile"], portalprojectile:new(sourcex, sourcey, x, y, color, true, {objects["player"][plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
 	if not mirrored and portalknockback then
 		local xadd = math.sin(objects["player"][plnumber].pointingangle)*30
 		local yadd = math.cos(objects["player"][plnumber].pointingangle)*30

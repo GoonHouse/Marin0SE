@@ -3841,7 +3841,7 @@ function player:emancipate(a)
 	
 	local delete = {}
 	
-	for i, v in pairs(portalprojectiles) do
+	for i, v in pairs(objects["portalprojectile"]) do
 		if v.payload[1] == self.playernumber then
 			table.insert(delete, i)
 		end
@@ -3850,7 +3850,7 @@ function player:emancipate(a)
 	table.sort(delete, function(a,b) return a>b end)
 	
 	for i, v in pairs(delete) do
-		table.remove(portalprojectiles, v) --remove
+		table.remove(objects["portalprojectile"], v) --remove
 	end
 	
 	if self.pickup then

@@ -8,27 +8,31 @@ function noportal:init(x, y, r)
 	
 	self.checktable = "all"
 	self.outtable = {}
-	self.lighttime = 5
-	self.lighttimer = 0
+	self.input1state = "off"
+	self.power = true
 	
 	--Input list
 	self.r = {unpack(r)}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
+	self.checktable = {}
 	
-	--self.checktable = {"player", "portalprojectile"}
-	self.allowshootingwithin = false
-	
-	--ALLOW SHOOTING WITHIN?
+	--TRIGGER ON PROJECTILE?
 	if #self.r > 0 and self.r[1] ~= "link" then
 		if self.r[1] == "true" then
-			self.allowshootingwithin = true
+			table.insert(self.checktable, "portalprojectile")
 		end			
 		table.remove(self.r, 1)
 	end
 	
+	--POWER
+	if #self.r > 0 and self.r[1] ~= "link" then
+		self.power = self.r[1] == "true"
+		table.remove(self.r, 1)
+	end
+	
 	--REGION
-	if #self.r > 0 then
+	if #self.r > 0 and self.r[1] ~= "link" then
 		local s = self.r[1]:split(":")
 		self.regionX, self.regionY, self.regionwidth, self.regionheight = s[2], s[3], tonumber(s[4]), tonumber(s[5])
 		if string.sub(self.regionX, 1, 1) == "m" then
@@ -46,43 +50,62 @@ function noportal:init(x, y, r)
 	self.out = "off"
 end
 
-function noportal:getTileInvolved(x, y)
-	if x >= self.regionX and x <= self.regionX+self.regionwidth then
-		print("PASS X")
-		if y <= self.regionY and y >= self.regionY+self.regionheight then
-			print("PASS Y")
-			return true
+function noportal:link()
+	print("DEBUG: noportal was linked")
+	while #self.r > 3 do
+		for j, w in pairs(outputs) do
+			for i, v in pairs(objects[w]) do
+				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
+					v:addoutput(self, self.r[2])
+				end
+			end
 		end
+		table.remove(self.r, 1)
+		table.remove(self.r, 1)
+		table.remove(self.r, 1)
+		table.remove(self.r, 1)
+	end
+end
+
+function noportal:input(t, input)
+	--print("contact")
+	if input == "power" then
+		if t == "on" and self.input1state == "off" then
+			--print("the first one")
+			self.power = not self.power
+		elseif t == "off" and self.input1state == "on" then
+			--print("the second one")
+			self.power = not self.power
+		elseif t == "toggle" then
+			--print("the last one")
+			self.power = not self.power
+		end
+		
+		self.input1state = t
+	else
+		--print("what")
 	end
 end
 
 function noportal:update(dt)
-	--local ply = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, {"player"})
-	local ports = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, {"portalprojectile"})
-	
-	--[[if #ply > 0 then
+	if self.power then
+		local col = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, self.checktable)
 		
-	end]]
-	
-	if #ports > 0 then
-		print("sweet baby jesus")
-		for k,v in pairs(ports) do
-			objects["portalprojectile"][k] = nil
-		end
-		self.out = "on"
-		self.lighttimer = self.lighttime
-		for i = 1, #self.outtable do
-			if self.outtable[i][1].input then
-				self.outtable[i][1]:input(self.out, self.outtable[i][2])
+		if self.out == "off" and #col > 0 then
+			for i=1,#col,2 do
+				objects[col[i]][col[i+1]].destroy = true
+				--print("DEBUG: caught item", i, col[i], col[i+1])
+				--v.delete = true
+			end
+			self.out = "on"
+			for i = 1, #self.outtable do
+				if self.outtable[i][1].input then
+					self.outtable[i][1]:input(self.out, self.outtable[i][2])
+				end
 			end
 		end
 	end
-	
-	if self.lighttimer > 0 then
-		self.lighttimer = self.lighttimer - dt
-	end
-	
-	if self.lighttimer <= 0 and self.out == "on" then
+	if self.out == "on" then
 		self.out = "off"
 		for i = 1, #self.outtable do
 			if self.outtable[i][1].input then

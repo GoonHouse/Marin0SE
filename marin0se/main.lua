@@ -307,7 +307,8 @@ function love.load(args)
 		"groundlight", "wallindicator", "animatedtiletrigger", "delayer",
 		"walltimer", "notgate", "rsflipflop", "orgate", "andgate",
 		"musicentity", "enemyspawner", "squarewave", "lightbridge",
-		"faithplate", "laser", "noportal", "bulletbill", "animationtarget",
+		"faithplate", "laser", "noportal", "bulletbill", "animationtarget", 
+		"portalprojectile", "portalprojectileparticle", "portalparticle",
 		"laserdetector", "gel", "geldispenser", "pushbutton",
 		"cubedispenser", "platform", "castlefire", "platformspawner",
 		"bowser", "spring", "seesawplatform", "checkpoint", "seesaw",
@@ -505,8 +506,6 @@ function love.load(args)
 	require "imgurupload"
 	
 	require "player"
-	require "portalparticle"
-	require "portalprojectile"
 	require "fire"
 	require "portal"
 	require "dialogbox"
