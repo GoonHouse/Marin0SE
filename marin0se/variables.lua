@@ -5,6 +5,8 @@ CATEGORYDELIMITER = "¸"
 MULTIPLYDELIMITER = "·"
 EQUALSIGN = "¨"
 
+
+
 --SETABLE VARS--	
 --almost all vars are in "blocks", "blocks per second" or just "seconds". Should be obvious enough what's what.
 -- I couldn't think of a way to draw 
@@ -38,6 +40,8 @@ alert_show_types = { -- entries in this list will allow the user to see alerts o
 
 uiscale = 2 --sometimes the ui is too big for higher resolutions, this is independent from the HUD
 
+spritebatchsize = 10000
+
 portalgundelay = 0.2
 gellifetime = 2
 bulletbilllifetime = 20
@@ -68,7 +72,30 @@ help_tips = {
 	"doge gonnit",
 	"ol feshioned hamburge",
 	"error: failed to load paid ad",
-	"this is just like dark souls"
+	"this is just like dark souls",
+	"have you ever exhaled and shot a booger out of your nose like cannon?",
+	"oh gross, don't touch me",
+	"knock knock, it’s ya main man knuckles!",
+	"i saw a drawing of mario and luigi kissing. Please don't do this.",
+	"put it all the way in if that's the new normal",
+	"quit gettin' mad at video games",
+	"guys, the thermal drill, go get it",
+	"enemy boat spotted!",
+	"i have altered the sandwich. pray i do not alter it further",
+	"wwhy shrek is piss. why shrek is piss #italiano",
+	"hp and mp restored! but you're still hungry",
+	"i do not move out of the way",
+	"sometimes you gotta make a silent takedown",
+	"don't believe me? it's all in the numbers",
+	"busting makes me feel good",
+	"bleh, my name is seedywizard, and i love cum",
+	"it is like a ball pit, but full of dicks",
+	"people are allowed to be as ineloquent as they want",
+	"i'm not racist but all pugs look the same",
+	"white people are ignorant as fuck",
+	"try to touch all booty",
+	"never go on reddit",
+	"corn",
 }
 help_tipi = 1
 
