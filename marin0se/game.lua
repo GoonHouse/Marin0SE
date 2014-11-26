@@ -526,7 +526,7 @@ function game_update(dt)
 					y1 = v.y1 + math.random(1, 30)/16-1
 				end
 				
-				table.insert(portalparticles, portalparticle:new(x1, y1, v.portal1color, v.facing1))
+				table.insert(objects["portalparticle"], portalparticle:new(x1, y1, v.portal1color, v.facing1))
 			end
 			
 			if v.facing2 ~= nil and v.x2 and v.y2 then
@@ -549,7 +549,6 @@ function game_update(dt)
 				table.insert(portalparticles, portalparticle:new(x2, y2, v.portal2color, v.facing2))
 			end
 		end
-	end
 	
 	--Editor
 	if editormode then
@@ -1407,7 +1406,7 @@ function scenedraw()
 			end
 		end
 	end
-	
+		
 	love.graphics.setColor(255, 255, 255)
 	
 	drawforeground()
