@@ -309,7 +309,7 @@ function love.load(args)
 		"musicentity", "enemyspawner", "squarewave", "lightbridge",
 		"faithplate", "laser", "noportal", "bulletbill", "animationtarget", 
 		"portalprojectile", "portalprojectileparticle", "portalparticle",
-		"laserdetector", "gel", "geldispenser", "pushbutton",
+		"laserdetector", "gel", "geldispenser", "pushbutton", "pseudoblock",
 		"cubedispenser", "platform", "castlefire", "platformspawner",
 		"bowser", "spring", "seesawplatform", "checkpoint", "seesaw",
 		"ceilblocker", "funnel", "panel", "scaffold", "axe", "screenboundary",
@@ -318,7 +318,7 @@ function love.load(args)
 		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
 		"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames",
 		"pswitch", "smokepuff", "emancipateanimation", "userect", "portal",
-		"portalparticle", "portalprojectile", "dialogbox"
+		"portalparticle", "portalprojectile", "dialogbox", "coinblockanimation"
 	}
 	-- we made weapon a saneent because tracing mario's draw is REALLY TOUGH
 	-- testing removal of "fireball",
@@ -496,7 +496,6 @@ function love.load(args)
 	require "hatconfigs"
 	require "bighatconfigs"
 	require "customhats"
-	require "coinblockanimation"
 	require "gui"
 	require "musicloader"
 	require "rightclickmenu"

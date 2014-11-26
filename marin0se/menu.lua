@@ -1135,9 +1135,6 @@ function loadbackground(backgroundlevel)
 	loadcustomtiles()
 	loadlevelscreens()
 	
-	blockbouncex = {}
-	blockbouncey = {}
-	
 	marioworld = 1
 	mariolevel = 1
 	mariotime = ""

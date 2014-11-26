@@ -23,3 +23,7 @@ function coinblockanimation:update(dt)
 	
 	return false
 end
+
+function coinblockanimation:draw()
+	love.graphics.draw(coinblockanimationimg, coinblockanimationquads[self.frame], math.floor((self.x - xscroll)*16*scale), math.floor(((self.y-yscroll)*16-8)*scale), 0, scale, scale, 4, 54)
+end

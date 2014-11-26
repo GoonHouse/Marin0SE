@@ -23,6 +23,18 @@ debugflags = {
 	--incognito
 	--physicsdebug
 }
+enum_itemblock_invisible = { --keyed by spriteset
+	113,
+	118,
+	112,
+	112
+}
+enum_itemblock_visible = {
+	113,
+	114,
+	117,
+	117
+}
 enum_errors = { --setting error_level to one of these
 	debug = {},
 	note = {}, 

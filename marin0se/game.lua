@@ -688,14 +688,16 @@ function drawlevel()
 		for x = 1, xtodraw do
 			if inmap(flooredxscroll+x, flooredyscroll+y) then
 				local bounceyoffset = 0
-				for i, v in pairs(blockbouncex) do
-					if blockbouncex[i] == flooredxscroll+x and blockbouncey[i] == flooredyscroll+y then
-						if blockbouncetimer[i] < blockbouncetime/2 then
-							bounceyoffset = blockbouncetimer[i] / (blockbouncetime/2) * blockbounceheight
-						else
-							bounceyoffset = (2 - blockbouncetimer[i] / (blockbouncetime/2)) * blockbounceheight
-						end
-					end	
+				if objects then
+					for i, v in pairs(objects.pseudoblock) do
+						if v.x == flooredxscroll+x and v.y == flooredyscroll+y then
+							if timer.TimeLeft(v) < blockbouncetime/2 then
+								bounceyoffset = timer.TimeLeft(v) / (blockbouncetime/2) * blockbounceheight
+							else
+								bounceyoffset = (2 - timer.TimeLeft(v) / (blockbouncetime/2)) * blockbounceheight
+							end
+						end	
+					end
 				end
 				
 				local cox, coy = flooredxscroll+x, flooredyscroll+y
@@ -2712,11 +2714,14 @@ function generatespritebatch()
 				local bounceyoffset = 0
 				
 				local draw = true
-				for i, v in pairs(blockbouncex) do
-					if blockbouncex[i] == flooredxscroll+x and blockbouncey[i] == math.min(flooredyscroll+y+1, mapheight) then
-						draw = false
+				if objects then
+					for i, v in pairs(objects.pseudoblock) do
+						-- this controls block displacement
+						if v.x == flooredxscroll+x and v.y == math.min(flooredyscroll+y+1, mapheight) then
+							draw = false
+						end
 					end
-				end	
+				end
 				if draw == true then
 					local cox, coy = flooredxscroll+x, math.min(flooredyscroll+y+1, mapheight)
 					local t = lmap[cox][coy]
