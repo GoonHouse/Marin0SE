@@ -132,7 +132,7 @@ function player:init(world, x, y, i, animation, size, t)
 		self.height = 24/16
 		
 		if self.size == 3 then
-			self.colors = self.char.flowercolor or flowercolor
+			self.colors = self.char.flowercolor or self.profile.flowercolors
 		end
 	end
 	
@@ -1193,13 +1193,13 @@ function player:update(dt)
 		self.animationtimer = self.animationtimer + dt
 		--set frame lol
 		local frame = math.ceil(math.mod(self.animationtimer, growframedelay*3)/growframedelay)
-		self.colors = starcolors[frame]
+		self.colors = self.profile.starcolors[frame]
 		
 		if self.animationtimer - dt < growtime and self.animationtimer > growtime then
 			self.animation = false
 			noupdate = false
 			self.animationtimer = 0
-			self.colors = self.char.flowercolor or flowercolor
+			self.colors = self.char.flowercolor or self.profile.flowercolors
 		end
 		return
 	end
@@ -2404,7 +2404,7 @@ function player:getpowerup(poweruptype, powerdowntarget, reason)
 			self.y = self.y - 12/16
 			animationtodo = "grow1"
 		elseif self.size > 2 then
-			self.colors = mariocolors[self.playernumber]
+			self.colors = self.profile.colors
 			makeinvincible = true
 			soundtoplay = "shrink"
 		end
@@ -2425,12 +2425,12 @@ function player:getpowerup(poweruptype, powerdowntarget, reason)
 		self.offsetY = self.char.bigoffsetY
 		self.graphic = self.biggraphic
 		self.height = 24/16
-		self.colors = self.char.flowercolor or flowercolor
+		self.colors = self.char.flowercolor or self.profile.flowercolors
 	elseif poweruptype == "small" then
 		--@WARNING: incomplete
 		makeinvincible = true
 		self.graphic = self.smallgraphic
-		self.colors = mariocolors[self.playernumber]
+		self.colors = self.profile.colors
 		self.size = 1
 		self.height = 12/16
 		soundtoplay = "shrink"
@@ -4191,7 +4191,7 @@ function player:respawn()
 		end
 	end
 	
-	self.colors = mariocolors[self.playernumber]
+	self.colors = self.profile.colors
 	self.speedy = 0
 	self.speedx = 0
 	self.dead = false

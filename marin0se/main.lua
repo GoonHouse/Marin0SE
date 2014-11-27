@@ -101,9 +101,7 @@ end
 
 function love.load(args)
 	hook.Call("LovePreLoad", args)
-	game = {}
-	debugmode = "none"
-	userectdebug = true
+	
 	args = args or {}
 	for k,v in pairs(args) do
 		if v=="-zbs" then
@@ -132,7 +130,6 @@ function love.load(args)
 			objects["player"][1].controlsenabled = false
 		end
 	end)
-	expectedconnections = 2
 	if debugmode=="client" or debugmode=="server" then
 		uploadoncrash = false
 		hook.Add("GameLoaded", "DebugImmediate", function()
@@ -153,8 +150,6 @@ function love.load(args)
 			end
 		end)
 	end
-	marioversion = 1107
-	versionstring = "version 1.0se"
 	
 	--version check by checking for a const that was added in 0.8.0 --todo: change to 0.9.0
 	if love._version_major == nil or (love._version_minor and love._version_minor < 9) then 
@@ -174,176 +169,13 @@ function love.load(args)
 	print("=======================")
 	lastline = debug.getinfo(1).currentline
 	starttime = love.timer.getTime()
-	totaltime = 0
-	JSON = require("libs.JSON")
-	require "timer"
-	require "notice"
-	add("Core Libraries")
+	
 	require "variables"
 	add("Variables")
 	
-	--Get biggest screen size
-	
-	local sizes = love.window.getFullscreenModes()
-	desktopsize = sizes[1]
-	
-	for i = 2, #sizes do
-		if sizes[i].width > desktopsize.width or sizes[i].height > desktopsize.height then
-			desktopsize = sizes[i]
-		end
-	end
-	
-	recordtarget = 1/40
-	recordskip = 1
-	recordframe = 1
-	
-	shaderlist = love.filesystem.getDirectoryItems( "shaders/" )
-	local rem
-	for i, v in pairs(shaderlist) do
-		if v == "init.lua" then
-			rem = i
-		else
-			shaderlist[i] = string.sub(v, 1, string.len(v)-5)
-		end
-	end
-	
-	table.remove(shaderlist, rem)
-	table.insert(shaderlist, 1, "none")
-	
-	love.graphics.setDefaultFilter("nearest", "nearest")
-	
-	add("Shaders")
-	
-	overwrittenimages = {}
-	imagelist = {"coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", "oddjobhud", "redcoin", "redcointall", "redcoinbig", "firework",
-	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "flag", "castleflag", "bubble", "emanceparticle", "emanceside", "doorpiece", "doorcenter", "pswitch",
-	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
-	"excursionfunnel2end", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase", "cursorarea", 
-	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "sfxentity", "animationtarget", "musicentity", "smbtiles", "portaltiles", "transparency", "smokepuff",
-	"animatedtiletrigger", "delayer", "leaf", "groundlight"}
-	
-	graphicspacki = 1
-	graphicspack = "DEFAULT"
-	graphicspacklist = {}
-	--@WARNING: This will be inaccurate for any mappacks that provide a namespaced graphicspack or potential mods.
-	for k,v in pairs(love.filesystem.getDirectoryItems( "graphics" )) do
-		if love.filesystem.isDirectory("graphics/"..v) and string.upper(v)==v then
-			table.insert(graphicspacklist, v)
-		end
-	end
-	
-	add("Graphicspacks")
-	
-	soundpacki = 1
-	soundpack = "DEFAULT"
-	soundpacklist = {}
-	--@WARNING: Same goes for me.
-	for k,v in pairs(love.filesystem.getDirectoryItems( "sounds" )) do
-		if love.filesystem.isDirectory("graphics/"..v) and string.upper(v)==v then
-			table.insert(soundpacklist, v)
-		end
-	end
-	
-	add("Soundpacks")
-	
-	loadconfig()
-	
-	add("User Config")
-	
-	--@DEBUG: here are some vars that are used elsewhere, maybe
-	
-	--Calculate relative scaling factor
-	touchfrominsidescaling = math.min(desktopsize.width/(width*16), desktopsize.height/(height*16))
-	touchfrominsidemissing = desktopsize.height-height*16*touchfrominsidescaling
-	
-	add("Video Settings")
-	changescale(scale, true)
-	add("Resolution Change")
-	require "characterloader"
-	add("Character Loader")
-	
-	dlclist = {}
-	
-	hatcount = #love.filesystem.getDirectoryItems("graphics/standardhats")
-	love.window.setTitle( "Marin0 SE" )
-	
-	love.graphics.setBackgroundColor(0, 0, 0)
-	
-	cursorareaquads = {}
-	for i = 1, 4 do
-		cursorareaquads[i] = love.graphics.newQuad((i-1)*18, 0, 18, 18, 72, 18)
-	end
-	
-	--[[@DEV:
-		I'm getting really tired of |nonstandard global containers| for entities, so
-		to reduce the number of crazy all-over-the-place codepoints I'm creating an
-		iterable whitelist of entities that adhere to a specific standard.
-		Those being:
-			* **being located in** _"/entities/classname.lua"_
-			* **a classname that matches the filename, ex:** `classname = class:("classname")`
-			* **a function creation signature of** `classname:init(x, y, r)`
-				* if not placable in maps, then this isn't entirely necessary, but it helps
-			* **having instances stored in the array** `objects["classname"]`
-	]]
-	saneents = {
-		"sfxentity", "portalwall", "tile", "vine", "door", "button",
-		"groundlight", "wallindicator", "animatedtiletrigger", "delayer",
-		"walltimer", "notgate", "rsflipflop", "orgate", "andgate",
-		"musicentity", "enemyspawner", "squarewave", "lightbridge",
-		"faithplate", "laser", "noportal", "bulletbill", "animationtarget", 
-		"portalprojectile", "portalprojectileparticle", "portalparticle",
-		"laserdetector", "gel", "geldispenser", "pushbutton", "pseudoblock",
-		"cubedispenser", "platform", "castlefire", "platformspawner",
-		"bowser", "spring", "seesawplatform", "checkpoint", "seesaw",
-		"ceilblocker", "funnel", "panel", "scaffold", "axe", "screenboundary",
-		"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
-		"portalent", "actionblock", "leaf", "enemy", "lightbridgebody", "weapon",
-		"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
-		"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames",
-		"pswitch", "smokepuff", "emancipateanimation", "userect", "portal",
-		"portalparticle", "portalprojectile", "dialogbox", "coinblockanimation"
-	}
-	-- we made weapon a saneent because tracing mario's draw is REALLY TOUGH
-	-- testing removal of "fireball",
-	
-	--[[ here are a list of entities that have BROKEN THE LAW ]]
-	insaneents = {
-		"player", --discrepency in class names
-		"warppipe", --this doesn't have any code, it's just a marker
-		"spawn", --"  "
-		"manycoins", --"  "
-		"pipespawn", --"  "
-		"axe", --"  "
-		"flag", --"  "
-		
-		"mazestart", "mazeend", --doesn't have its own logic, is implicit and global
-		"firestart", "fireend", --"  "
-		"flyingfishstart", "flyingfishend", --"  "
-		"bulletbillstart", "bulletbillend", --"  "
-		"windstart", "windend", --"  "
-		"lakitoend", --"  ", except it doesn't even have a start?!
-		
-		"gel", --this alters the map when loaded, which is an extreme anomoly
-	}
-	
-	-- this is for global allocation of images + quads
-	globalimages = {}
-	--[[structure:{
-			imagename = {
-				dims = {xdim, ydim}, --size of a single graphic
-				frames = num, --how many times dims fits in the image
-				quads = {},
-				img = imgdata,
-			}
-		}
-		
-		if errors ever arise in reference to this, it's because an entity
-		is trying to reach this when its assets have been unloaded for mysterious reasons
-	]]
-	
-	add("Explicit Globals")
-	
-	--require ALL the files!
+	JSON = require("libs.JSON")
+	require "timer"
+	require "notice"
 	require("libs.lube")
 	class = require("libs.middleclass")
 	require("libs.neubind")
@@ -358,6 +190,67 @@ function love.load(args)
 		debugToggle = 'f1',
 		filesToWatch = {}
 	})
+	http = require("socket.http")
+	http.PORT = 55555
+	http.TIMEOUT = 1
+	http.TIMEOUT = 4
+	require("imgurupload")
+	require("libs.sha1")
+	add("Core Libraries")
+	
+	--Get biggest screen size
+	local sizes = love.window.getFullscreenModes()
+	desktopsize = sizes[1]
+	
+	for i = 2, #sizes do
+		if sizes[i].width > desktopsize.width or sizes[i].height > desktopsize.height then
+			desktopsize = sizes[i]
+		end
+	end
+	touchfrominsidescaling = math.min(desktopsize.width/(width*16), desktopsize.height/(height*16))
+	touchfrominsidemissing = desktopsize.height-height*16*touchfrominsidescaling
+	
+	shaderlist = love.filesystem.getDirectoryItems( "shaders/" )
+	local rem
+	for i, v in pairs(shaderlist) do
+		if v == "init.lua" then
+			rem = i
+		else
+			shaderlist[i] = string.sub(v, 1, string.len(v)-5)
+		end
+	end
+	table.remove(shaderlist, rem)
+	table.insert(shaderlist, 1, "none")
+	love.graphics.setDefaultFilter("nearest", "nearest")
+	add("Shaders")
+	
+	--@WARNING: This will be inaccurate for any mappacks that provide a namespaced graphicspack or potential mods.
+	for k,v in pairs(love.filesystem.getDirectoryItems( "graphics" )) do
+		if love.filesystem.isDirectory("graphics/"..v) and string.upper(v)==v then
+			table.insert(graphicspacklist, v)
+		end
+	end
+	add("Graphicspacks")
+	
+	--@WARNING: Same goes for me.
+	for k,v in pairs(love.filesystem.getDirectoryItems( "sounds" )) do
+		if love.filesystem.isDirectory("graphics/"..v) and string.upper(v)==v then
+			table.insert(soundpacklist, v)
+		end
+	end
+	add("Soundpacks")
+	
+	loadconfig()
+	add("User Config")
+	
+	changescale(scale, true)
+	add("Resolution Change")
+	
+	love.window.setTitle( "Marin0 SE" )
+	love.graphics.setBackgroundColor(0, 0, 0)
+	
+	--HERE COMES, HERE COMES REQUIREMENT RACER
+	
 	--[[watchfunction = function()
 		local str = "n/a"
 		if activeeditortool then
@@ -369,10 +262,10 @@ function love.load(args)
 	--Monocle.watch("misc", watchfunction)
 	add("System Libs")
 	
-	require("libs.von")
+	--require("libs.von")
 	--require "netplay2"
 	require "netplay"
-	--require "client"
+	--require "_client"
 	require "server"
 	require "lobby"
 	require "shaders"
@@ -394,19 +287,8 @@ function love.load(args)
 	add("Initializing Graphics")
 	reloadSounds()
 	add("Initializing Sounds")
-	
-	spritebatches = {} --global spritebatch array, keyed by tileset name
-	
-	fontglyphs = "0123456789abcdefghijklmnopqrstuvwxyz.:/,\"C-_A* !{}?'()+=><#%"
-	fontquads = {}
-	for i = 1, string.len(fontglyphs) do
-		fontquads[string.sub(fontglyphs, i, i)] = love.graphics.newQuad((i-1)*8, 0, 8, 8, fontimage:getWidth(), fontimage:getHeight())
-	end
-	fontquadsback = {}
-	for i = 1, string.len(fontglyphs) do
-		fontquadsback[string.sub(fontglyphs, i, i)] = love.graphics.newQuad((i-1)*10, 0, 10, 10, fontimageback:getWidth(), fontimageback:getHeight())
-	end
-	add("Fonts")
+	reloadFonts()
+	add("Initializing Fonts")
 	
 	-- injecting this here, I'm sorry
 		love.graphics.clear()
@@ -430,15 +312,9 @@ function love.load(args)
 		love.graphics.present()
 	add("Logo Draw")
 	-- whew, that's over with
-	require("libs.sha1")
-	require "magic"
-	require "camera"
-	require "baseentity"
-	require "entity"
-	add("Entity Classes")
 	
+	require "baseentity"
 	local mixins = love.filesystem.getDirectoryItems("basedmixins")
-
 	for k,v in pairs(mixins) do
 		require("basedmixins."..v:sub(0,-5))
 		
@@ -447,7 +323,7 @@ function love.load(args)
 		--	allocate_image(k2, v2[1], v2[2])
 		--end]]
 	end
-	add("BasedEntity Mixins")
+	add("BasedEntity & Mixins")
 	
 	-- basedents are used for the transition from saneents to entities that actually inherit and have some common ground
 	-- this is very confusing and I'm sorry for that but it's what must be done
@@ -464,8 +340,6 @@ function love.load(args)
 	end
 	add("BasedEntity Classes")
 	
-	
-	
 	-- we don't use the saneents list here because entity name weirdness 
 	--for _,v in pairs(love.filesystem.getDirectoryItems("entities")) do
 	for _,v in pairs(saneents) do
@@ -481,12 +355,17 @@ function love.load(args)
 	
 	require "animatedquad"
 	require "intro"
-	require "menu"
 	require "levelscreen"
-	require "game"
 	require "editor"
-	require "animationguiline"
+	require "menu"
+	require "game"
 	require "physics"
+	require "player"
+	require "enemies"
+	require "camera"
+	require "entity"
+	require "characterloader"
+	require "animationguiline"
 	require "quad"
 	require "hatconfigs"
 	require "bighatconfigs"
@@ -500,60 +379,17 @@ function love.load(args)
 	require "animatedtimer"
 	require "entitylistitem"
 	require "entitytooltip"
-	require "imgurupload"
-	
-	require "player"
-	require "fire"
 	require "itemanimation"
 	
-	require "enemies"
+	--things that should be sane/based
+	require "fire"
+	require "magic"
 	add("Engine Libs")
 	
-	http = require("socket.http")
-	http.PORT = 55555
-	http.TIMEOUT = 1
-	
-	updatenotification = false
-	if getupdate() then
-		updatenotification = true
-	end
-	http.TIMEOUT = 4
-	add("Update Check")
-	
-	playertypei = 1
-	playertype = playertypelist[playertypei] --portal, gelcannon
-	
-	if volume == 0 then
-		soundenabled = false
-	else
-		soundenabled = true
-	end
 	love.filesystem.createDirectory( "mappacks" )
-	editormode = false
-	yoffset = 0
 	love.graphics.setPointSize(3*scale)
 	love.graphics.setLineWidth(2*scale)
-	
-	uispace = math.floor(width*16*scale/4)
-	guielements = {}
 	add("Graphics Settings")
-	
-	--Backgroundcolors
-	backgroundcolor = {
-						{92, 148, 252},
-						{0, 0, 0},
-						{32, 56, 236},
-						{158, 219, 248},
-						{210, 159, 229},
-						{237, 241, 243},
-						{244, 178, 92},
-						{253, 246, 175},
-						{249, 183, 206},
-					}
-	
-	--tiles
-	tilequads = {}
-	rgblist = {}
 	
 	--add smb tiles
 	local imgwidth, imgheight = smbtilesimg:getWidth(), smbtilesimg:getHeight()
@@ -607,308 +443,21 @@ function love.load(args)
 	end
 	add("Hardcoded Entities")
 	
-	numberglyphs = "0123456789"
-	font2quads = {}
-	for i = 1, 10 do
-		font2quads[string.sub(numberglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 40, 8)
-	end
-
-	symbolglyphs = "0123"
-	font3quads = {}
-	for i = 1, 4 do
-		font3quads[string.sub(symbolglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 40, 8)
-	end
-	
-	popupfontquads = {}
-	for i = 1, 6 do
-		popupfontquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 8, 96, 8)
-	end
-
-	fireworkquads = {}
-	for i = 1, 4 do
-		fireworkquads[i] = love.graphics.newQuad((i-1)*32, 0, 32, 32, 128, 32)
-	end
-	
-	oddjobhudquads = {}
-	for i = 1, 5 do
-		oddjobhudquads[i] = love.graphics.newQuad((i-1)*8, 0, 8, 8, 40, 8)
-	end
-	
-	coinblockanimationquads = {}
-	for i = 1, 30 do
-		coinblockanimationquads[i] = love.graphics.newQuad((i-1)*8, 0, 8, 52, 256, 64)
-	end
-	
-	coinanimationquads = {}
-	for j = 1, 4 do
-		coinanimationquads[j] = {}
-		for i = 1, 5 do
-			coinanimationquads[j][i] = love.graphics.newQuad((i-1)*5, (j-1)*8, 5, 8, 25, 32)
-		end
-	end
-	
-	--coinblock
-	coinblockquads = {}
-	for j = 1, 4 do
-		coinblockquads[j] = {}
-		for i = 1, 5 do
-			coinblockquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 80, 64)
-		end
-	end
-	
-	--coin
-	coinquads = {}
-	for j = 1, 4 do
-		coinquads[j] = {}
-		for i = 1, 5 do
-			coinquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 80, 64)
-		end
-	end
-
-	--redcoin
-	redcoinquads = {}
-	for i = 1, 4 do
-		redcoinquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
-	end	
-	
-	redcointallquads = {}
-	for i = 1, 4 do
-		redcointallquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 32, 64, 32)
-	end	
-	
-	redcoinbigquads = {}
-	for i = 1, 4 do
-		redcoinbigquads[i] = love.graphics.newQuad((i-1)*32, 0, 32, 32, 128, 32)
-	end	
-	
-	--smoke puff
-	smokepuffquads = {}
-	for i = 1, 4 do
-		smokepuffquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
-	end	
-	
-	--leaf
-	leafquad = {}
-	for y = 1, 4 do
-		leafquad[y] = {}
-		for x = 1, 2 do
-			leafquad[y][x] = love.graphics.newQuad((x-1)*8, (y-1)*8, 8, 8, 16, 32)
-		end
-	end
-	
-	--axe
-	axequads = {}
-	for i = 1, 5 do
-		axequads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 80, 16)
-	end
-	
-	--spring
-	springquads = {}
-	for i = 1, 4 do
-		springquads[i] = {}
-		for j = 1, 3 do
-			springquads[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*32, 16, 32, 48, 128)
-		end
-	end
-	
-	-- pswitch
-	pswitchquads = {}
-	for i = 1, 2 do
-		pswitchquads[i] = {}
-		for j = 1, 4 do
-			pswitchquads[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*16, 16, 16, 64, 32)
-		end	
-	end
-	
-	seesawquad = {}
-	for i = 1, 4 do
-		seesawquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
-	end
-	
-	starquad = {}
-	for i = 1, 4 do
-		starquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
-	end
-	
-	flowerquad = {}
-	for i = 1, 4 do
-		flowerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
-	end
-	
-	vinequad = {}
-	for i = 1, 4 do
-		vinequad[i] = {}
-		for j = 1, 2 do
-			vinequad[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*16, 16, 16, 32, 64) 
-		end
-	end
-	
-	--enemies
-	goombaquad = {}
-	
-	for y = 1, 4 do
-		goombaquad[y] = {}
-		for x = 1, 2 do
-			goombaquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*16, 16, 16, 32, 64)
-		end
-	end
-		
-	spikeyquad = {}
-	for y = 1, 4 do
-		spikeyquad[y] = {}
-		for x = 1, 4 do
-			spikeyquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*16, 16, 16, 64, 64)
-		end
-	end
-	
-	lakitoquad = {}
-	for y = 1, 4 do
-		lakitoquad[y] = {}
-		for x = 1, 2 do
-			lakitoquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*24, 16, 24, 32, 96)
-		end
-	end
-	
-	koopaquad = {}
-	
-	for y = 1, 4 do
-		koopaquad[y] = {}
-		for x = 1, 5 do
-			koopaquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*24, 16, 24, 80, 96)
-		end
-	end
-	
-	singlequad = love.graphics.newQuad(0, 0, 16, 16, 16, 16)
-	
-	cheepcheepquad = {}
-	
-	cheepcheepquad[1] = {}
-	cheepcheepquad[1][1] = love.graphics.newQuad(0, 0, 16, 16, 32, 32)
-	cheepcheepquad[1][2] = love.graphics.newQuad(16, 0, 16, 16, 32, 32)
-	
-	cheepcheepquad[2] = {}
-	cheepcheepquad[2][1] = love.graphics.newQuad(0, 16, 16, 16, 32, 32)
-	cheepcheepquad[2][2] = love.graphics.newQuad(16, 16, 16, 16, 32, 32)
-	
-	squidquad = {}
-	for x = 1, 2 do
-		squidquad[x] = love.graphics.newQuad((x-1)*16, 0, 16, 24, 32, 24)
-	end
-	
-	bulletbillquad = {}
-	
-	for y = 1, 4 do
-		bulletbillquad[y] = love.graphics.newQuad(0, (y-1)*16, 16, 16, 16, 64)
-	end
-	
-	hammerbrosquad = {}
-	for y = 1, 4 do
-		hammerbrosquad[y] = {}
-		for x = 1, 4 do
-			hammerbrosquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*34, 16, 34, 64, 136)
-		end
-	end	
-	
-	hammerquad = {}
-	for j = 1, 4 do
-		hammerquad[j] = {}
-		for i = 1, 4 do
-			hammerquad[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 64, 64)
-		end
-	end
-	
-	plantquads = {}
-	for j = 1, 4 do
-		plantquads[j] = {}
-		for i = 1, 2 do
-			plantquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*23, 16, 23, 32, 92)
-		end
-	end
-	
-	firequad = {love.graphics.newQuad(0, 0, 24, 8, 48, 8), love.graphics.newQuad(24, 0, 24, 8, 48, 8)}
-	
-	
-	bowserquad = {}
-	bowserquad[1] = {love.graphics.newQuad(0, 0, 32, 32, 64, 64), love.graphics.newQuad(32, 0, 32, 32, 64, 64)}
-	bowserquad[2] = {love.graphics.newQuad(0, 32, 32, 32, 64, 64), love.graphics.newQuad(32, 32, 32, 32, 64, 64)}
-	
-	decoysquad = {}
-	for y = 1, 7 do
-		decoysquad[y] = love.graphics.newQuad(0, (y-1)*32, 32, 32, 64, 256)
-	end
-	
-	--magic!
-	magicquad = {}
-	for x = 1, 6 do
-		magicquad[x] = love.graphics.newQuad((x-1)*9, 0, 9, 9, 54, 9)
-	end
-	
-	--GUI
-	checkboxquad = {{love.graphics.newQuad(0, 0, 9, 9, 18, 18), love.graphics.newQuad(9, 0, 9, 9, 18, 18)}, {love.graphics.newQuad(0, 9, 9, 9, 18, 18), love.graphics.newQuad(9, 9, 9, 9, 18, 18)}}
-	
-	--portals
-	portalquad = {}
-	for i = 0, 7 do
-		portalquad[i] = love.graphics.newQuad(0, i*4, 32, 4, 32, 28)
-	end
-	
-	--Portal props	
-	buttonquad = {love.graphics.newQuad(0, 0, 32, 5, 64, 5), love.graphics.newQuad(32, 0, 32, 5, 64, 5)}
-	
-	pushbuttonquad = {love.graphics.newQuad(0, 0, 16, 16, 32, 16), love.graphics.newQuad(16, 0, 16, 16, 32, 16)}
-	
-	wallindicatorquad = {love.graphics.newQuad(0, 0, 16, 16, 32, 16), love.graphics.newQuad(16, 0, 16, 16, 32, 16)}
-	
-	walltimerquad = {}
-	for i = 1, 10 do
-		walltimerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 160, 16)
-	end
-	
-	groundlightquad = {}
-	for i = 1, 6 do
-		groundlightquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 96, 16)
-	end
-	
-	directionsquad = {}
-	for x = 1, 6 do
-		directionsquad[x] = love.graphics.newQuad((x-1)*7, 0, 7, 7, 42, 7)
-	end
-	
-	excursionquad = {}
-	for x = 1, 8 do
-		excursionquad[x] = love.graphics.newQuad((x-1)*8, 0, 8, 32, 64, 32)
-	end
-	
-	faithplatequad = {love.graphics.newQuad(0, 0, 32, 16, 32, 32), love.graphics.newQuad(0, 16, 32, 16, 32, 32)}
-	
-	gelquad = {love.graphics.newQuad(0, 0, 12, 12, 36, 12), love.graphics.newQuad(12, 0, 12, 12, 36, 12), love.graphics.newQuad(24, 0, 12, 12, 36, 12)}
-	
-	panelquad = {}
-	for x = 1, 2 do
-		panelquad[x] = love.graphics.newQuad((x-1)*16, 0, 16, 16, 32, 16)
-	end
-	
+	reloadQuads()
 	add("Stranded Quad Definitions")
-	
-	--AUDIO
-	delaylist = {}
-	delaylist["blockhit"] = 0.2
-	
-	musicname = "overworld.ogg"
 	
 	shaders:init()
 	add("Shader Initialization")
 	
-	for i, v in pairs(dlclist) do
-		delete_mappack(v)
-	end
-	add("Deleting Mappacks?")
-	
-	firstload = true
+	--for i, v in pairs(dlclist) do
+	--	delete_mappack(v)
+	--end
+	--add("Deleting Mappacks?")
 	
 	--@DEV: Copied this over, too. Probably making a mess.
 	magicdns_session_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	magicdns_session = ""
+	local rand
 	for i = 1, 8 do
 		rand = math.random(string.len(magicdns_session_chars))
 		magicdns_session = magicdns_session .. string.sub(magicdns_session_chars, rand, rand)
@@ -1840,6 +1389,303 @@ function loadcustomtiles()
 	else
 		customtiles = false
 		customtilecount = 0
+	end
+end
+
+function reloadFonts()
+	fontquads = {}
+	for i = 1, string.len(fontglyphs) do
+		fontquads[string.sub(fontglyphs, i, i)] = love.graphics.newQuad((i-1)*8, 0, 8, 8, fontimage:getWidth(), fontimage:getHeight())
+	end
+	fontquadsback = {}
+	for i = 1, string.len(fontglyphs) do
+		fontquadsback[string.sub(fontglyphs, i, i)] = love.graphics.newQuad((i-1)*10, 0, 10, 10, fontimageback:getWidth(), fontimageback:getHeight())
+	end
+end
+
+function reloadQuads()
+	font2quads = {}
+	for i = 1, 10 do
+		font2quads[string.sub(numberglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 40, 8)
+	end
+
+	font3quads = {}
+	for i = 1, 4 do
+		font3quads[string.sub(symbolglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 40, 8)
+	end
+	
+	cursorareaquads = {}
+	for i = 1, 4 do
+		cursorareaquads[i] = love.graphics.newQuad((i-1)*18, 0, 18, 18, 72, 18)
+	end
+	
+	popupfontquads = {}
+	for i = 1, 6 do
+		popupfontquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 8, 96, 8)
+	end
+
+	fireworkquads = {}
+	for i = 1, 4 do
+		fireworkquads[i] = love.graphics.newQuad((i-1)*32, 0, 32, 32, 128, 32)
+	end
+	
+	oddjobhudquads = {}
+	for i = 1, 5 do
+		oddjobhudquads[i] = love.graphics.newQuad((i-1)*8, 0, 8, 8, 40, 8)
+	end
+	
+	coinblockanimationquads = {}
+	for i = 1, 30 do
+		coinblockanimationquads[i] = love.graphics.newQuad((i-1)*8, 0, 8, 52, 256, 64)
+	end
+	
+	coinanimationquads = {}
+	for j = 1, 4 do
+		coinanimationquads[j] = {}
+		for i = 1, 5 do
+			coinanimationquads[j][i] = love.graphics.newQuad((i-1)*5, (j-1)*8, 5, 8, 25, 32)
+		end
+	end
+	
+	--coinblock
+	coinblockquads = {}
+	for j = 1, 4 do
+		coinblockquads[j] = {}
+		for i = 1, 5 do
+			coinblockquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 80, 64)
+		end
+	end
+	
+	--coin
+	coinquads = {}
+	for j = 1, 4 do
+		coinquads[j] = {}
+		for i = 1, 5 do
+			coinquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 80, 64)
+		end
+	end
+
+	--redcoin
+	redcoinquads = {}
+	for i = 1, 4 do
+		redcoinquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
+	end	
+	
+	redcointallquads = {}
+	for i = 1, 4 do
+		redcointallquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 32, 64, 32)
+	end	
+	
+	redcoinbigquads = {}
+	for i = 1, 4 do
+		redcoinbigquads[i] = love.graphics.newQuad((i-1)*32, 0, 32, 32, 128, 32)
+	end	
+	
+	--smoke puff
+	smokepuffquads = {}
+	for i = 1, 4 do
+		smokepuffquads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
+	end	
+	
+	--leaf
+	leafquad = {}
+	for y = 1, 4 do
+		leafquad[y] = {}
+		for x = 1, 2 do
+			leafquad[y][x] = love.graphics.newQuad((x-1)*8, (y-1)*8, 8, 8, 16, 32)
+		end
+	end
+	
+	--axe
+	axequads = {}
+	for i = 1, 5 do
+		axequads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 80, 16)
+	end
+	
+	--spring
+	springquads = {}
+	for i = 1, 4 do
+		springquads[i] = {}
+		for j = 1, 3 do
+			springquads[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*32, 16, 32, 48, 128)
+		end
+	end
+	
+	-- pswitch
+	pswitchquads = {}
+	for i = 1, 2 do
+		pswitchquads[i] = {}
+		for j = 1, 4 do
+			pswitchquads[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*16, 16, 16, 64, 32)
+		end	
+	end
+	
+	seesawquad = {}
+	for i = 1, 4 do
+		seesawquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
+	end
+	
+	starquad = {}
+	for i = 1, 4 do
+		starquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
+	end
+	
+	flowerquad = {}
+	for i = 1, 4 do
+		flowerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
+	end
+	
+	vinequad = {}
+	for i = 1, 4 do
+		vinequad[i] = {}
+		for j = 1, 2 do
+			vinequad[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*16, 16, 16, 32, 64) 
+		end
+	end
+	
+	--enemies
+	goombaquad = {}
+	
+	for y = 1, 4 do
+		goombaquad[y] = {}
+		for x = 1, 2 do
+			goombaquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*16, 16, 16, 32, 64)
+		end
+	end
+		
+	spikeyquad = {}
+	for y = 1, 4 do
+		spikeyquad[y] = {}
+		for x = 1, 4 do
+			spikeyquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*16, 16, 16, 64, 64)
+		end
+	end
+	
+	lakitoquad = {}
+	for y = 1, 4 do
+		lakitoquad[y] = {}
+		for x = 1, 2 do
+			lakitoquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*24, 16, 24, 32, 96)
+		end
+	end
+	
+	koopaquad = {}
+	
+	for y = 1, 4 do
+		koopaquad[y] = {}
+		for x = 1, 5 do
+			koopaquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*24, 16, 24, 80, 96)
+		end
+	end
+	
+	singlequad = love.graphics.newQuad(0, 0, 16, 16, 16, 16)
+	
+	cheepcheepquad = {}
+	
+	cheepcheepquad[1] = {}
+	cheepcheepquad[1][1] = love.graphics.newQuad(0, 0, 16, 16, 32, 32)
+	cheepcheepquad[1][2] = love.graphics.newQuad(16, 0, 16, 16, 32, 32)
+	
+	cheepcheepquad[2] = {}
+	cheepcheepquad[2][1] = love.graphics.newQuad(0, 16, 16, 16, 32, 32)
+	cheepcheepquad[2][2] = love.graphics.newQuad(16, 16, 16, 16, 32, 32)
+	
+	squidquad = {}
+	for x = 1, 2 do
+		squidquad[x] = love.graphics.newQuad((x-1)*16, 0, 16, 24, 32, 24)
+	end
+	
+	bulletbillquad = {}
+	
+	for y = 1, 4 do
+		bulletbillquad[y] = love.graphics.newQuad(0, (y-1)*16, 16, 16, 16, 64)
+	end
+	
+	hammerbrosquad = {}
+	for y = 1, 4 do
+		hammerbrosquad[y] = {}
+		for x = 1, 4 do
+			hammerbrosquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*34, 16, 34, 64, 136)
+		end
+	end	
+	
+	hammerquad = {}
+	for j = 1, 4 do
+		hammerquad[j] = {}
+		for i = 1, 4 do
+			hammerquad[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 64, 64)
+		end
+	end
+	
+	plantquads = {}
+	for j = 1, 4 do
+		plantquads[j] = {}
+		for i = 1, 2 do
+			plantquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*23, 16, 23, 32, 92)
+		end
+	end
+	
+	firequad = {love.graphics.newQuad(0, 0, 24, 8, 48, 8), love.graphics.newQuad(24, 0, 24, 8, 48, 8)}
+	
+	
+	bowserquad = {}
+	bowserquad[1] = {love.graphics.newQuad(0, 0, 32, 32, 64, 64), love.graphics.newQuad(32, 0, 32, 32, 64, 64)}
+	bowserquad[2] = {love.graphics.newQuad(0, 32, 32, 32, 64, 64), love.graphics.newQuad(32, 32, 32, 32, 64, 64)}
+	
+	decoysquad = {}
+	for y = 1, 7 do
+		decoysquad[y] = love.graphics.newQuad(0, (y-1)*32, 32, 32, 64, 256)
+	end
+	
+	--magic!
+	magicquad = {}
+	for x = 1, 6 do
+		magicquad[x] = love.graphics.newQuad((x-1)*9, 0, 9, 9, 54, 9)
+	end
+	
+	--GUI
+	checkboxquad = {{love.graphics.newQuad(0, 0, 9, 9, 18, 18), love.graphics.newQuad(9, 0, 9, 9, 18, 18)}, {love.graphics.newQuad(0, 9, 9, 9, 18, 18), love.graphics.newQuad(9, 9, 9, 9, 18, 18)}}
+	
+	--portals
+	portalquad = {}
+	for i = 0, 7 do
+		portalquad[i] = love.graphics.newQuad(0, i*4, 32, 4, 32, 28)
+	end
+	
+	--Portal props	
+	buttonquad = {love.graphics.newQuad(0, 0, 32, 5, 64, 5), love.graphics.newQuad(32, 0, 32, 5, 64, 5)}
+	
+	pushbuttonquad = {love.graphics.newQuad(0, 0, 16, 16, 32, 16), love.graphics.newQuad(16, 0, 16, 16, 32, 16)}
+	
+	wallindicatorquad = {love.graphics.newQuad(0, 0, 16, 16, 32, 16), love.graphics.newQuad(16, 0, 16, 16, 32, 16)}
+	
+	walltimerquad = {}
+	for i = 1, 10 do
+		walltimerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 160, 16)
+	end
+	
+	groundlightquad = {}
+	for i = 1, 6 do
+		groundlightquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 96, 16)
+	end
+	
+	directionsquad = {}
+	for x = 1, 6 do
+		directionsquad[x] = love.graphics.newQuad((x-1)*7, 0, 7, 7, 42, 7)
+	end
+	
+	excursionquad = {}
+	for x = 1, 8 do
+		excursionquad[x] = love.graphics.newQuad((x-1)*8, 0, 8, 32, 64, 32)
+	end
+	
+	faithplatequad = {love.graphics.newQuad(0, 0, 32, 16, 32, 32), love.graphics.newQuad(0, 16, 32, 16, 32, 32)}
+	
+	gelquad = {love.graphics.newQuad(0, 0, 12, 12, 36, 12), love.graphics.newQuad(12, 0, 12, 12, 36, 12), love.graphics.newQuad(24, 0, 12, 12, 36, 12)}
+	
+	panelquad = {}
+	for x = 1, 2 do
+		panelquad[x] = love.graphics.newQuad((x-1)*16, 0, 16, 16, 32, 16)
 	end
 end
 

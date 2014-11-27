@@ -6,14 +6,135 @@ MULTIPLYDELIMITER = "·"
 EQUALSIGN = "¨"
 
 --IMPORTED FROM MAIN.LUA
+game = {}
+debugmode = "none"
+userectdebug = true
+marioversion = 1107
+versionstring = "version 1.0se"
+versionerror = false
+lastline = 0
+starttime = 0
+totaltime = 0
+uploadoncrash = true
+expectedconnections = 2
+
+--font stuff
+symbolglyphs = "0123"
+numberglyphs = "0123456789"
+
+backgroundcolor = {
+	{92, 148, 252},
+	{0, 0, 0},
+	{32, 56, 236},
+	{158, 219, 248},
+	{210, 159, 229},
+	{237, 241, 243},
+	{244, 178, 92},
+	{253, 246, 175},
+	{249, 183, 206},
+}
+
+entitylist = {}
+
+--[[@DEV:
+		I'm getting really tired of |nonstandard global containers| for entities, so
+		to reduce the number of crazy all-over-the-place codepoints I'm creating an
+		iterable whitelist of entities that adhere to a specific standard.
+		Those being:
+			* **being located in** _"/entities/classname.lua"_
+			* **a classname that matches the filename, ex:** `classname = class:("classname")`
+			* **a function creation signature of** `classname:init(x, y, r)`
+				* if not placable in maps, then this isn't entirely necessary, but it helps
+			* **having instances stored in the array** `objects["classname"]`
+	]]
+saneents = {
+	"sfxentity", "portalwall", "tile", "vine", "door", "button",
+	"groundlight", "wallindicator", "animatedtiletrigger", "delayer",
+	"walltimer", "notgate", "rsflipflop", "orgate", "andgate",
+	"musicentity", "enemyspawner", "squarewave", "lightbridge",
+	"faithplate", "laser", "noportal", "bulletbill", "animationtarget", 
+	"portalprojectile", "portalprojectileparticle", "portalparticle",
+	"laserdetector", "gel", "geldispenser", "pushbutton", "pseudoblock",
+	"cubedispenser", "platform", "castlefire", "platformspawner",
+	"bowser", "spring", "seesawplatform", "checkpoint", "seesaw",
+	"ceilblocker", "funnel", "panel", "scaffold", "axe", "screenboundary",
+	"regiontrigger", "animationtrigger", "castlefirefire", "portalent",
+	"portalent", "actionblock", "leaf", "enemy", "lightbridgebody", "weapon",
+	"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
+	"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames",
+	"pswitch", "smokepuff", "emancipateanimation", "userect", "portal",
+	"portalparticle", "portalprojectile", "dialogbox", "coinblockanimation"
+}
+insaneents = {
+	"player", --discrepency in class names
+	"warppipe", --this doesn't have any code, it's just a marker
+	"spawn", --"  "
+	"manycoins", --"  "
+	"pipespawn", --"  "
+	"axe", --"  "
+	"flag", --"  "
+	
+	"mazestart", "mazeend", --doesn't have its own logic, is implicit and global
+	"firestart", "fireend", --"  "
+	"flyingfishstart", "flyingfishend", --"  "
+	"bulletbillstart", "bulletbillend", --"  "
+	"windstart", "windend", --"  "
+	"lakitoend", --"  ", except it doesn't even have a start?!
+	
+	"gel", --this alters the map when loaded, which is an extreme anomoly
+}
+globalimages = {}
+--[[structure:{
+		imagename = {
+			dims = {xdim, ydim}, --size of a single graphic
+			frames = num, --how many times dims fits in the image
+			quads = {},
+			img = imgdata,
+		}
+	}
+	
+	if errors ever arise in reference to this, it's because an entity
+	is trying to reach this when its assets have been unloaded for mysterious reasons
+]]
+
+
+editormode = false
+yoffset = 0
+guielements = {}
 maxplayers = 4
 players = 1
 physicsdebug = false
 incognito = false
 portalwalldebug = false
 speeddebug = false
+graphicspacki = 1
+graphicspack = "DEFAULT"
+graphicspacklist = {}
+soundpacki = 1
+soundpack = "DEFAULT"
+soundpacklist = {}
+dlclist = {}
+hatcount = #love.filesystem.getDirectoryItems("graphics/standardhats")
+imagelist = {"coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "springhigh", "toad", "peach", "platform", "oddjobhud", "redcoin", "redcointall", "redcoinbig", "firework",
+	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "flag", "castleflag", "bubble", "emanceparticle", "emanceside", "doorpiece", "doorcenter", "pswitch",
+	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
+	"excursionfunnel2end", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel6", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "gel5ground", "gel6ground", "geldispenser", "cubedispenser", "panel", "pedestalbase", "cursorarea", 
+	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "sfxentity", "animationtarget", "musicentity", "smbtiles", "portaltiles", "transparency", "smokepuff",
+	"animatedtiletrigger", "delayer", "leaf", "groundlight"}
+overwrittenimages = {}
+shaderlist = {}
+recordtarget = 1/40
+recordskip = 1
+recordframe = 1
 
 frameskip = false -- false/0     true is not valid, so stop accidentally writing that.
+
+delaylist = {blockhit = 0.2}
+musicname = "overworld.ogg"
+firstload = true
+
+tilequads = {}
+rgblist = {}
 
 replaysystem = false
 drawreplays = false
@@ -24,6 +145,16 @@ skippedframes = 0
 width = 25	--! default 25
 height = 14
 fsaa = 0
+scale = 2
+uispace = math.floor(width*16*scale/4)
+volume = 1
+soundenabled = true
+playertypei = 1
+playertypelist = {"portalgun", "gelcannon"}
+playertype = playertypelist[playertypei] --portal, gelcannon
+updatenotification = false
+spritebatches = {} --global spritebatch array, keyed by tileset name
+fontglyphs = "0123456789abcdefghijklmnopqrstuvwxyz.:/,\"C-_A* !{}?'()+=><#%"
 
 steptimer = 0
 targetdt = 1/60
@@ -195,7 +326,6 @@ spritebatchsize = 10000
 portalgundelay = 0.2
 gellifetime = 2
 bulletbilllifetime = 20
-playertypelist = {"portalgun", "gelcannon"}
 gameplaytypelist = {"na", "vanilla", "oddjob"}
 
 fontheight = 8

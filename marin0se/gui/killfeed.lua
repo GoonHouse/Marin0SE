@@ -39,9 +39,14 @@ function killfeed.glob(glob)
 		return "world"
 	end
 	--fallbackname = tostring(glob):split("class ")[2].."?"
-	local name = glob.class.name or "homo"
+	local name 
+	if glob.class and glob.class.name then
+		name = glob.class.name
+	else
+		name = "homo"
+	end
 	
-	if objects~=nil then
+	if objects~=nil and objects[name] then
 		for k,v in pairs(objects[name]) do
 			if glob == v then
 				if name=="enemy" then
@@ -66,7 +71,7 @@ function killfeed.new(attackers, dtype, victims, ex)
 	local attackername = killfeed.glob(attackers) or nil
 	local victimname = killfeed.glob(victims)
 	
-	if attackers.playernumber == 1 or victims.playernumber == 1 then
+	if (attackers and attackers.playernumber == 1) or (victims and victims.playernumber == 1) then
 		theme = "light"
 	end
 	
