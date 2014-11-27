@@ -32,7 +32,7 @@ function portal:createportal(i, cox, coy, side, tendency)
 			self.x2, self.y2 = false, false
 		end
 		
-		local newx, newy = getportalposition(i, cox, coy, side, tendency)
+		local newx, newy = self.parent.activeweapon:getportalposition(i, cox, coy, side, tendency)
 		
 		if newx and (newx ~= oldx or newy ~= oldy or side ~= oldfacing) then
 			if i == 1 then

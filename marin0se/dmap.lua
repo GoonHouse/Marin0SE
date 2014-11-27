@@ -67,7 +67,6 @@ function dmap:init(mapName, world)
 	--@DEV: COMPATIBILITY ASSIGNMENTS FROM GLOBALS
 	objects = self.objects
 	
-	self.ylookmodifier = 0
 	
 	self.startx = {3, 3, 3, 3, 3}
 	self.starty = {13, 13, 13, 13, 13}
@@ -841,3 +840,7 @@ end
 function dmap:getTilePropertyAt(x, y, property)
 	return tilequads[self.map[x][y][1]]:getproperty(property)
 end
+
+
+
+-- PORTAL SPECIFIC OBJECT MANIPULATION CODE

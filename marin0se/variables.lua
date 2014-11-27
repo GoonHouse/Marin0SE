@@ -5,7 +5,13 @@ CATEGORYDELIMITER = "¸"
 MULTIPLYDELIMITER = "·"
 EQUALSIGN = "¨"
 
+engine = { --vars that control engine settings, mainly for stubbing behaviors or experimenting with them
+	
+}
 
+gamesets = { --vars that should be controlled by the gamemode but live here for my own sake
+	
+}
 
 --SETABLE VARS--	
 --almost all vars are in "blocks", "blocks per second" or just "seconds". Should be obvious enough what's what.

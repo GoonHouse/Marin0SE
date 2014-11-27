@@ -20,6 +20,11 @@ function game_load(suspended)
 	animationsystem_load()
 	enemies_load()
 	
+	-- variables that came from the loadmap function, presently unsuitable as globals
+	autoscroll = true
+	ylookmodifier = 0
+	everyonedead = false --workaround for resetting global state
+	noupdate = false --" "
 	--[[
 	if replaysystem then
 		for i = 1, #replaydata do
@@ -187,6 +192,7 @@ function game_update(dt)
 	
 	--check if updates are blocked for whatever reason
 	if noupdate then
+		print("update blocked")
 		for i, v in pairs(objects["player"]) do --But update players anyway.
 			v:update(dt)
 		end
@@ -246,7 +252,7 @@ function game_update(dt)
 	local oldyscroll = yscroll
 	
 	-- abandon hope all who enter: scrollhandler
-	if autoscroll and minimapdragging == false then
+	if autoscroll --[[and minimapdragging == false]] then --snubbed because this var is nil when editor is unloaded
 		--scrolling
 		local i = 1
 		while i <= players and (objects["player"][i].dead or objects["player"][i].remote) do
@@ -490,7 +496,7 @@ function game_update(dt)
 			
 			for x = xstart, xend do
 				for y = round(yscroll)-1, round(yscroll)+height+1 do
-					w:spawnEnemy(x, y)
+					w.currentMap:spawnEnemy(x, y)
 				end
 			end
 		end
@@ -569,7 +575,7 @@ function game_update(dt)
 					y2 = v.y2 + math.random(1, 30)/16-1
 				end
 				
-				table.insert(portalparticles, portalparticle:new(x2, y2, v.portal2color, v.facing2))
+				table.insert(objects["portalparticle"], portalparticle:new(x2, y2, v.portal2color, v.facing2))
 			end
 		end
 	end
@@ -1363,76 +1369,6 @@ function scenedraw()
 	
 	local minex, miney, minecox, minecoy
 	
-	--PORTAL UI STUFF
-	if levelfinished == false then
-		for pl = 1, players do
-			if objects["player"][pl].controlsenabled and objects["player"][pl].t == "portalgun" and objects["player"][pl].vine == false and (objects["player"][pl].portalsavailable[1] or objects["player"][pl].portalsavailable[2]) then
-				local sourcex, sourcey = objects["player"][pl].x+6/16, objects["player"][pl].y+6/16
-				--@DEV: Working on this. Disregard.
-				local cox, coy, side, tend, x, y = 0, 0, 1, 1, 0, 0
-				--local cox, coy, side, tend, x, y = traceline(sourcex, sourcey, objects["player"][pl].pointingangle)
-				
-				local portalpossible = true
-				if cox == false or getportalposition(1, cox, coy, side, tend) == false then
-					portalpossible = false
-				end
-				
-				love.graphics.setColor(255, 255, 255, 255)
-				
-				local dist = math.sqrt(((x-xscroll)*16*scale - (sourcex-xscroll)*16*scale)^2 + ((y-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)^2)/16/scale
-				
-				for i = 1, dist/portaldotsdistance+1 do
-					if((i-1+portaldotstimer/portaldotstime)/(dist/portaldotsdistance)) < 1 then
-						local xplus = ((x-xscroll)*16*scale - (sourcex-xscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/portaldotsdistance))
-						local yplus = ((y-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/portaldotsdistance))
-					
-						local dotx = (sourcex-xscroll)*16*scale + xplus
-						local doty = (sourcey-.5-yscroll)*16*scale + yplus
-					
-						local radius = math.sqrt(xplus^2 + yplus^2)/scale
-						
-						local alpha = 255
-						if radius < portaldotsouter then
-							alpha = (radius-portaldotsinner) * (255/(portaldotsouter-portaldotsinner))
-							if alpha < 0 then
-								alpha = 0
-							end
-						end
-						
-						
-						if portalpossible == false then
-							love.graphics.setColor(255, 0, 0, alpha)
-						else
-							love.graphics.setColor(0, 255, 0, alpha)
-						end
-					
-						love.graphics.draw(portaldotimg, math.floor(dotx-0.25*scale), math.floor(doty-0.25*scale), 0, scale, scale)
-					end
-				end
-			
-				love.graphics.setColor(255, 255, 255, 255)
-				
-				if cox ~= false then
-					if portalpossible == false then
-						love.graphics.setColor(255, 0, 0)
-					else
-						love.graphics.setColor(0, 255, 0)
-					end
-					
-					local rotation = 0
-					if side == "right" then
-						rotation = math.pi/2
-					elseif side == "down" then
-						rotation = math.pi
-					elseif side == "left" then
-						rotation = math.pi/2*3
-					end
-					love.graphics.draw(portalcrosshairimg, math.floor((x-xscroll)*16*scale), math.floor((y-.5-yscroll)*16*scale), rotation, scale, scale, 4, 8)
-				end
-			end
-		end
-	end
-		
 	love.graphics.setColor(255, 255, 255)
 	
 	drawforeground()
@@ -2942,58 +2878,59 @@ end
 
 function modifyportalwalls()
 	--Create and remove new stuff
-	for a, b in pairs(portals) do
+	local worldobjs = w.currentMap.objects
+	for a, b in pairs(worldobjs.portal) do
 		for i = 1, 2 do
 			if b["x" .. i] then
 				if b["facing" .. i] == "up" then
-					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(b["x" .. i]-1, b["y" .. i], 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(b["x" .. i], b["y" .. i], 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(b["x" .. i]+1, b["y" .. i]-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-1, 0, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(b["x" .. i]+1, b["y" .. i]-1, 0, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-1"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-1, 0, 1, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-2"] = portalwall:new(b["x" .. i]-1, b["y" .. i], 1, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-3"] = portalwall:new(b["x" .. i], b["y" .. i], 1, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-4"] = portalwall:new(b["x" .. i]+1, b["y" .. i]-1, 0, 1, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-5"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-1, 0, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-6"] = portalwall:new(b["x" .. i]+1, b["y" .. i]-1, 0, 0, true)
 					
-					modifyportaltiles(b["x" .. i], b["y" .. i], 1, 0, portals[a], i, "remove")
+					modifyportaltiles(b["x" .. i], b["y" .. i], 1, 0, b, i, "remove") --b == portal object
 				elseif b["facing" .. i] == "down" then
-					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(b["x" .. i]-2, b["y" .. i]-1, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-1, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(b["x" .. i]-2, b["y" .. i]-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(b["x" .. i], b["y" .. i]-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(b["x" .. i]-2, b["y" .. i], 0, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(b["x" .. i], b["y" .. i], 0, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-1"] = portalwall:new(b["x" .. i]-2, b["y" .. i]-1, 1, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-2"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-1, 1, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-3"] = portalwall:new(b["x" .. i]-2, b["y" .. i]-1, 0, 1, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-4"] = portalwall:new(b["x" .. i], b["y" .. i]-1, 0, 1, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-5"] = portalwall:new(b["x" .. i]-2, b["y" .. i], 0, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-6"] = portalwall:new(b["x" .. i], b["y" .. i], 0, 0, true)
 					
-					modifyportaltiles(b["x" .. i], b["y" .. i], -1, 0, portals[a], i, "remove")
+					modifyportaltiles(b["x" .. i], b["y" .. i], -1, 0, b, i, "remove")
 				elseif b["facing" .. i] == "left" then
-					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(b["x" .. i], b["y" .. i]-2, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(b["x" .. i], b["y" .. i]-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-2, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(b["x" .. i]-1, b["y" .. i], 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(b["x" .. i]-1, b["y" .. i], 0, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-2, 0, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-1"] = portalwall:new(b["x" .. i], b["y" .. i]-2, 0, 1, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-2"] = portalwall:new(b["x" .. i], b["y" .. i]-1, 0, 1, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-3"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-2, 1, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-4"] = portalwall:new(b["x" .. i]-1, b["y" .. i], 1, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-5"] = portalwall:new(b["x" .. i]-1, b["y" .. i], 0, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-6"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-2, 0, 0, true)
 					
-					modifyportaltiles(b["x" .. i], b["y" .. i], 0, -1, portals[a], i, "remove")
+					modifyportaltiles(b["x" .. i], b["y" .. i], 0, -1, b, i, "remove")
 				elseif b["facing" .. i] == "right" then
-					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(b["x" .. i]-1, b["y" .. i], 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-1, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(b["x" .. i]-1, b["y" .. i]+1, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(b["x" .. i], b["y" .. i]-1, 0, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(b["x" .. i], b["y" .. i]+1, 0, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-1"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-1, 0, 1, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-2"] = portalwall:new(b["x" .. i]-1, b["y" .. i], 0, 1, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-3"] = portalwall:new(b["x" .. i]-1, b["y" .. i]-1, 1, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-4"] = portalwall:new(b["x" .. i]-1, b["y" .. i]+1, 1, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-5"] = portalwall:new(b["x" .. i], b["y" .. i]-1, 0, 0, true)
+					worldobjs.portalwall[a .. "-" .. i .. "-6"] = portalwall:new(b["x" .. i], b["y" .. i]+1, 0, 0, true)
 					
-					modifyportaltiles(b["x" .. i], b["y" .. i], 0, 1, portals[a], i, "remove")
+					modifyportaltiles(b["x" .. i], b["y" .. i], 0, 1, b, i, "remove")
 				end
 			end
 		end
 	end
 	
 	--remove conflicting portalwalls (only exist when both portals exists!)
-	for a, b in pairs(portals) do
+	for a, b in pairs(worldobjs.portal) do
 		for j = 1, 2 do
 			local otherj = 1
 			if j == 1 then
 				otherj = 2
 			end
-			for c, d in pairs(portals) do
+			for c, d in pairs(worldobjs.portal) do
 				for i = 1, 2 do
 					local otheri = 1
 					if i == 1 then
@@ -3005,47 +2942,47 @@ function modifyportalwalls()
 						local conside, conx, cony = b["facing" .. j], b["x" .. j], b["y" .. j]
 						
 						for k = 1, 4 do
-							local w = objects["portalwall"][c .. "-" .. i .. "-" .. k]
+							local w = worldobjs.portalwall[c .. "-" .. i .. "-" .. k]
 							if w then
 								if conside == "right" then
 									if w.x == conx and w.y == cony-1 and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 									if w.x == conx and w.y == cony and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 									if w.x == conx-1 and w.y == cony and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 								elseif conside == "left" then
 									if w.x == conx-1 and w.y == cony-2 and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 									if w.x == conx-1 and w.y == cony-1 and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 									if w.x == conx-1 and w.y == cony-1 and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 								elseif conside == "up" then
 									if w.x == conx-1 and w.y == cony-1 and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 									if w.x == conx and w.y == cony-1 and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 									if w.x == conx and w.y == cony-1 and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 								else
 									if w.x == conx-2 and w.y == cony and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 									if w.x == conx-1 and w.y == cony and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 									if w.x == conx-1 and w.y == cony-1 and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										worldobjs.portalwall[c .. "-" .. i .. "-" .. k] = nil
 									end
 								end
 							end
@@ -3061,110 +2998,37 @@ function modifyportaltiles(x, y, xplus, yplus, portal, i, mode)
 	if not x or not y then
 		return
 	end
+	local world = portal.parent.world
 	if i == 1 then
 		if portal.facing2 ~= false then
 			if mode == "add" then
-				objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1)
-				objects["tile"][x+xplus .. "-" .. y+yplus] = tile:new(x-1+xplus, y-1+yplus)
+				world.objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1)
+				world.objects["tile"][x+xplus .. "-" .. y+yplus] = tile:new(x-1+xplus, y-1+yplus)
 			else
-				objects["tile"][x .. "-" .. y] = nil
-				objects["tile"][x+xplus .. "-" .. y+yplus] = nil
+				world.objects["tile"][x .. "-" .. y] = nil
+				world.objects["tile"][x+xplus .. "-" .. y+yplus] = nil
 			end
 		end
 	else
 		if portal.facing1 ~= false then
 			if mode == "add" then
-				objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1)
-				objects["tile"][x+xplus .. "-" .. y+yplus] = tile:new(x-1+xplus, y-1+yplus)
+				world.objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1)
+				world.objects["tile"][x+xplus .. "-" .. y+yplus] = tile:new(x-1+xplus, y-1+yplus)
 			else
-				objects["tile"][x .. "-" .. y] = nil
-				objects["tile"][x+xplus .. "-" .. y+yplus] = nil
+				world.objects["tile"][x .. "-" .. y] = nil
+				world.objects["tile"][x+xplus .. "-" .. y+yplus] = nil
 			end
 		end
 	end
-end
-
-getportalposition = nop --@DEV: this is being called before the player even fires a portal, which is weird
-
-function getportalposition2(i, x, y, side, tendency) --returns the "optimal" position according to the parsed arguments (or false if no possible position was found)
-	local xplus, yplus = 0, 0
-	if side == "up" then
-		yplus = -1
-	elseif side == "right" then
-		xplus = 1
-	elseif side == "down" then
-		yplus = 1
-	elseif side == "left" then
-		xplus = -1
-	end
-	
-	if side == "up" or side == "down" then
-		if tendency == -1 then
-			if getTile(x-1, y, true, true, side) == true and getTile(x, y, true, true, side) == true and getTile(x-1, y+yplus, nil, false, side, true) == false and getTile(x, y+yplus, nil, false, side, true) == false then
-				if side == "up" then
-					return x-1, y
-				else
-					return x, y
-				end
-			elseif getTile(x, y, true, true, side) == true and getTile(x+1, y, true, true, side) == true and getTile(x, y+yplus, nil, false, side, true) == false and getTile(x+1, y+yplus, nil, false, side, true) == false then
-				if side == "up" then
-					return x, y
-				else
-					return x+1, y
-				end
-			end
-		else
-			if getTile(x, y, true, true, side) == true and getTile(x+1, y, true, true, side) == true and getTile(x, y+yplus, nil, false, side, true) == false and getTile(x+1, y+yplus, nil, false, side, true) == false then
-				if side == "up" then
-					return x, y
-				else
-					return x+1, y
-				end
-			elseif getTile(x-1, y, true, true, side) == true and getTile(x, y, true, true, side) == true and getTile(x-1, y+yplus, nil, false, side, true) == false and getTile(x, y+yplus, nil, false, side, true) == false then
-				if side == "up" then
-					return x-1, y
-				else
-					return x, y
-				end
-			end
-		end
-	else
-		if tendency == -1 then
-			if getTile(x, y-1, true, true, side) == true and getTile(x, y, true, true, side) == true and getTile(x+xplus, y-1, nil, false, side, true) == false and getTile(x+xplus, y, nil, false, side, true) == false then
-				if side == "right" then
-					return x, y-1
-				else
-					return x, y
-				end
-			elseif getTile(x, y, true, true, side) == true and getTile(x, y+1, true, true, side) == true and getTile(x+xplus, y, nil, false, side, true) == false and getTile(x+xplus, y+1, nil, false, side, true) == false then
-				if side == "right" then
-					return x, y
-				else
-					return x, y+1
-				end
-			end
-		else
-			if getTile(x, y, true, true, side) == true and getTile(x, y+1, true, true, side) == true and getTile(x+xplus, y, nil, false, side, true) == false and getTile(x+xplus, y+1, nil, false, side, true) == false then
-				if side == "right" then
-					return x, y
-				else
-					return x, y+1
-				end
-			elseif getTile(x, y-1, true, true, side) == true and getTile(x, y, true, true, side) == true and getTile(x+xplus, y-1, nil, false, side, true) == false and getTile(x+xplus, y, nil, false, side, true) == false then
-				if side == "right" then
-					return x, y-1
-				else
-					return x, y
-				end
-			end
-		end
-	end
-	
-	return false
 end
 
 function getPortal(x, y, dir) --returns the block where you'd come out when you'd go in the argument's block
-	for i, v in pairs(portals) do
+	--[[@NOTE:
+		this is sometimes called when blocks are being broken, but only if
+		jumping while duck-sliding under a block (think: minus world trick)
+		I don't fully understand it, I'm just telling myself in the event future me is confused
+	]]
+	for i, v in pairs(w.currentMap.objects.portal) do
 		if v.x1 ~= false and v.x2 ~= false then
 			--Get the extra block of each portal
 			local portal1xplus, portal1yplus, portal2xplus, portal2yplus = 0, 0, 0, 0
@@ -3286,23 +3150,24 @@ function insideportal(x, y, width, height) --returns whether an object is in, an
 				
 				if portalfacing == "right" then
 					if (math.floor(y) == portaly or math.floor(y) == portaly-1) and inrange(x, portalx-width, portalx, false) then
-						return portals[i], j
+						return v, j --v= portal object
 					end
 				elseif portalfacing == "left" then
 					if (math.floor(y) == portaly-1 or math.floor(y) == portaly-2) and inrange(x, portalx-1-width, portalx-1, false) then
-						return portals[i], j
+						return v, j --v= portal object
 					end
 				elseif portalfacing == "up" then
 					if inrange(y, portaly-height-1, portaly-1, false) and inrange(x, portalx-1.5-.2, portalx+.5+.2, true) then
-						return portals[i], j
+						return v, j --v= portal object
 					end	
 				elseif portalfacing == "down" then
 					if inrange(y, portaly-height, portaly, false) and inrange(x, portalx-2, portalx-.5, true) then
-						return portals[i], j
+						return v, j --v= portal object
 					end	
 				end
 				
 				--widen rect by 3 pixels?
+				--@DEV: I dunno what this is here for.
 				
 			end
 		end
@@ -3312,7 +3177,8 @@ function insideportal(x, y, width, height) --returns whether an object is in, an
 end
 
 function moveoutportal() --pushes objects out of the portal i in.
-	for i, v in pairs(objects) do
+	local b = w --w is used, be weary of this
+	for i, v in pairs(b.currentMap.objects) do
 		if i ~= "tile" and i ~= "portalwall" then
 			for j, w in pairs(v) do
 				if w.active and w.moves then
@@ -3660,157 +3526,6 @@ function savelevel()
 	end
 end
 
-traceline = nop --@DEV: we do this because traceline isn't working ATM
-
-function traceline2(sourcex, sourcey, radians, reportal)
-	local currentblock = {}
-	local x, y = sourcex, sourcey
-	currentblock[1] = math.floor(x)
-	currentblock[2] = math.floor(y+1)
-		
-	local emancecollide = false
-	for i, v in pairs(objects["emancipationgrill"]) do
-		if v:getTileInvolved(currentblock[1]+1, currentblock[2]) then
-			emancecollide = true
-		end
-	end
-	
-	local doorcollide = false
-	for i, v in pairs(objects["door"]) do
-		if v.dir == "hor" then
-			if v.open == false and (v.cox == currentblock[1] or v.cox == currentblock[1]+1) and v.coy == currentblock[2] then
-				doorcollide = true
-			end
-		else
-			if v.open == false and v.cox == currentblock[1]+1 and (v.coy == currentblock[2] or v.coy == currentblock[2]+1) then
-				doorcollide = true
-			end
-		end
-	end
-	
-	if emancecollide or doorcollide then
-		return false, false, false, false, x, y
-	end
-	
-	local side
-	local lastaxe = objects["axe"][#objects["axe"]]
-	while currentblock[1]+1 > 0 and
-	currentblock[1]+1 <= mapwidth and
-	-- we'll just get rid of this and see what happens
-	(flagx == false or currentblock[1]+1 <= flagx or radians > 0) and
-	(not lastaxe or currentblock[1]+1 <= lastaxe.cox) and 
-	(currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5)) and 
-	currentblock[2] < mapheight+1 do --while in map range
-		local oldy = y
-		local oldx = x
-		
-		--calculate X and Y diff..
-		local ydiff, xdiff
-		local side1, side2
-		
-		if inrange(radians, -math.pi/2, math.pi/2, true) then --up
-			ydiff = (y-(currentblock[2]-1)) / math.cos(radians)
-			y = currentblock[2]-1
-			side1 = "down"
-		else
-			ydiff = (y-(currentblock[2])) / math.cos(radians)
-			y = currentblock[2]
-			side1 = "up"
-		end
-		
-		if inrange(radians, 0, math.pi, true) then --left
-			xdiff = (x-(currentblock[1])) / math.sin(radians)
-			x = currentblock[1]
-			side2 = "right"
-		else
-			xdiff = (x-(currentblock[1]+1)) / math.sin(radians)
-			x = currentblock[1]+1
-			side2 = "left"
-		end
-		
-		--smaller diff wins
-		
-		if xdiff < ydiff then
-			y = oldy - math.cos(radians)*xdiff
-			side = side2
-		else
-			x = oldx - math.sin(radians)*ydiff
-			side = side1
-		end
-		
-		if side == "down" then
-			currentblock[2] = currentblock[2]-1
-		elseif side == "up" then
-			currentblock[2] = currentblock[2]+1
-		elseif side == "left" then
-			currentblock[1] = currentblock[1]+1
-		elseif side == "right" then
-			currentblock[1] = currentblock[1]-1
-		end
-		
-		local collide, tileno = getTile(currentblock[1]+1, currentblock[2])
-		local emancecollide = false
-		for i, v in pairs(objects["emancipationgrill"]) do
-			if v:getTileInvolved(currentblock[1]+1, currentblock[2]) then
-				emancecollide = true
-			end
-		end
-		
-		local doorcollide = false
-		for i, v in pairs(objects["door"]) do
-			if v.dir == "hor" then
-				if v.open == false and (v.cox == currentblock[1] or v.cox == currentblock[1]+1) and v.coy == currentblock[2] then
-					doorcollide = true
-				end
-			else
-				if v.open == false and v.cox == currentblock[1]+1 and (v.coy == currentblock[2] or v.coy == currentblock[2]+1) then
-					doorcollide = true
-				end
-			end
-		end
-		
-		-- < 0 rechts
-		
-		--Check for ceilblocker
-		if y < 0 then
-			if entitylist[map[currentblock[1]][1][2]] and entitylist[map[currentblock[1]][1][2]].t == "ceilblocker" then
-				return false, false, false, false, x, y
-			end
-		end
-		
-		if collide == true and tilequads[map[currentblock[1]+1][currentblock[2]][1]]:getproperty("grate", currentblock[1]+1, currentblock[2]) == false then
-			break
-		elseif emancecollide or doorcollide then
-			return false, false, false, false, x, y
-		elseif (radians <= 0 and x > xscroll + width) or (radians >= 0 and x < xscroll) then
-			return false, false, false, false, x, y
-		end
-	end
-	
-	if currentblock[1]+1 > 0 and currentblock[1]+1 <= mapwidth and (currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5))  and currentblock[2] < mapheight+1 and currentblock[1] ~= nil then
-		local tendency
-	
-		--get tendency
-		if side == "down" or side == "up" then
-			if math.mod(x, 1) > 0.5 then
-				tendency = 1
-			else
-				tendency = -1
-			end
-		elseif side == "left" or side == "right" then
-			if math.mod(y, 1) > 0.5 then
-				tendency = 1
-			else
-				tendency = -1
-			end
-		end
-		
-		return currentblock[1]+1, currentblock[2], side, tendency, x, y
-	else
-		return false, false, false, false, x, y
-	end
-end
-
 function item(i, x, y, size)
 	if i == "powerup" then
 		if size == 1 then
@@ -4118,7 +3833,7 @@ function createdialogbox(text, speaker)
 end
 
 function checkportalremove(x, y)
-	for i, v in pairs(portals) do
+	for i, v in pairs(w.currentMap.objects.portal) do
 		--Get the extra block of each portal
 		local portal1xplus, portal1yplus, portal2xplus, portal2yplus = 0, 0, 0, 0
 		if v.facing1 == "up" then

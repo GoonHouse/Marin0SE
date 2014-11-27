@@ -4,7 +4,10 @@ pseudoblock = class("pseudoblock")
 	This is here to replace blockbounce timer, or any other blocks that are emancipated from the spritebatch.
 	If it looks and acts like a block but isn't on the grid, it's this guy.
 	
-	The body of this code's update lives in world.lua for now.
+]]
+
+--[[@BUGS:
+	* If little mario hits something with his head, the block will remain but the spritebatch will be updated to remove it.
 ]]
 
 
@@ -31,6 +34,7 @@ end
 --table.insert(blockbouncecontent2, t.size)
 
 function pseudoblock:coinblockTimeout()
+	print("conblockTimeout")
 	self.destroy = true
 	self:changeBlock(enum_itemblock_visible[spriteset])
 end
@@ -95,7 +99,7 @@ function pseudoblock:hit(ply, do_destroy)
 	end
 	
 	if do_destroy then
-		destroyblock(self.x, self.y, ply)
+		--destroyblock(self.x, self.y, ply)
 		batchUpdate = true
 	end
 	
@@ -136,6 +140,7 @@ function pseudoblock:hit(ply, do_destroy)
 end
 
 function pseudoblock:bounceCallback(content, size)
+	print("bounceCallback")
 	item(content, self.x, self.y, size)
 end
 
