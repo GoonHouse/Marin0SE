@@ -127,6 +127,12 @@ function world:init(mapName)
 	self.timescale = 2.5 --for use with converting magic nintendo units into real people time
 end
 
+function world:start()
+	-- begin processing world state
+	self:playmusic()
+	self.currentMap:start()
+end
+
 function world:openMap(mapName)
 	self.maps[mapName] = dmap:new(mapName, self)
 	return self:switchToMap(mapName) --@DEV: temporary workaround b/c we can only handle a single map atm
@@ -375,6 +381,28 @@ function world:update(dt)
 end
 
 
+-- Why is music scoped to world? Because the game.lua is too big and we have no client object.
+function world:playmusic(song)
+	local musicname = song or self.currentMap.music
+	if self.currentMap.music then
+		if self.time <= self.lowtime and self.time > 0 then
+			music:play(musicname, true)
+		else
+			music:play(musicname)
+		end
+	end
+end
+
+function world:stopmusic(song)
+	local musicname = song or self.currentMap.music
+	if self.currentMap.timelimit then
+		if self.time <= self.lowtime and self.time > 0 then
+			music:stop(musicname, true)
+		else
+			music:stop(musicname)
+		end
+	end
+end
 
 
 

@@ -6,6 +6,7 @@ dmap = class("dmap")
 ]]
 
 function dmap:init(mapName, world)
+	print("dmap init")
 	self.world = world
 	self.mapName = mapName
 	self.state = "init" --
@@ -535,7 +536,7 @@ function dmap:spawnOnMapLayer(layer)
 	--@WARNING: For now, objects are unaware of their spawn conditions
 	for k,v in pairs(layer) do
 		if tonumber(v.type) ~= nil and entitylist[tonumber(v.type)] then --this is an entity
-			local t = entitylist[v.type].t -- the name of the entity
+			local t = entitylist[tonumber(v.type)].t -- the name of the entity
 			--print("MAPLOAD: Processing a ",t,"#",v.type)
 			if t == "spawn" then
 				--[[@NOTE: commenting these out because I'm not sure how they translate

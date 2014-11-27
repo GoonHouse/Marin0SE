@@ -5,12 +5,144 @@ CATEGORYDELIMITER = "¸"
 MULTIPLYDELIMITER = "·"
 EQUALSIGN = "¨"
 
+--IMPORTED FROM MAIN.LUA
+maxplayers = 4
+players = 1
+physicsdebug = false
+incognito = false
+portalwalldebug = false
+speeddebug = false
+
+frameskip = false -- false/0     true is not valid, so stop accidentally writing that.
+
+replaysystem = false
+drawreplays = false
+drawalllinks = false
+bdrawui = true
+skippedframes = 0
+
+width = 25	--! default 25
+height = 14
+fsaa = 0
+
+steptimer = 0
+targetdt = 1/60
+
+
 engine = { --vars that control engine settings, mainly for stubbing behaviors or experimenting with them
 	
 }
 
 gamesets = { --vars that should be controlled by the gamemode but live here for my own sake
 	
+}
+
+--[[legacy controls
+oldcontrols = {}
+	
+	local i = 1
+	oldcontrols[i] = {}
+	oldcontrols[i]["right"] = {"d"}
+	oldcontrols[i]["left"] = {"a"}
+	oldcontrols[i]["down"] = {"s"}
+	oldcontrols[i]["up"] = {"w"}
+	oldcontrols[i]["run"] = {"lshift"}
+	oldcontrols[i]["jump"] = {" "}
+	oldcontrols[i]["aimx"] = {""} --mouse aiming, so no need
+	oldcontrols[i]["aimy"] = {""}
+	oldcontrols[i]["portal1"] = {""}
+	oldcontrols[i]["portal2"] = {""}
+	oldcontrols[i]["reload"] = {"r"}
+	oldcontrols[i]["use"] = {"e"}
+	
+	for i = 2, 4 do
+		oldcontrols[i] = {}		
+		oldcontrols[i]["right"] = {"joy", i-1, "hat", 1, "r"}
+		oldcontrols[i]["left"] = {"joy", i-1, "hat", 1, "l"}
+		oldcontrols[i]["down"] = {"joy", i-1, "hat", 1, "d"}
+		oldcontrols[i]["up"] = {"joy", i-1, "hat", 1, "u"}
+		oldcontrols[i]["run"] = {"joy", i-1, "but", 3}
+		oldcontrols[i]["jump"] = {"joy", i-1, "but", 1}
+		oldcontrols[i]["aimx"] = {"joy", i-1, "axe", 5, "neg"}
+		oldcontrols[i]["aimy"] = {"joy", i-1, "axe", 4, "neg"}
+		oldcontrols[i]["portal1"] = {"joy", i-1, "but", 5}
+		oldcontrols[i]["portal2"] = {"joy", i-1, "but", 6}
+		oldcontrols[i]["reload"] = {"joy", i-1, "but", 4}
+		oldcontrols[i]["use"] = {"joy", i-1, "but", 2}
+	end
+]]
+
+default_player_profile = {
+	name = "mario",
+	character = "mario",
+	portalhues = {0, 0.125}, --{(i-1)*(1/players), (i-1)*(1/players)+0.5/players}
+	portalcolor = {{0,0,0},{1,1,1}},--{getrainbowcolor(portalhues[i][1]), getrainbowcolor(portalhues[i][2])}
+	
+	
+	hats = {1},
+	colors = {
+		{224,  32,   0},
+		{136, 112,   0},
+		{252, 152,  56},
+	},
+	flowercolors = {
+		{252, 216, 168},
+		{216,  40,   0},
+		{252, 152,  56}
+	},
+	starcolors = {
+		{{  0,   0,   0}, {200,  76,  12}, {252, 188, 176}},
+		{{  0, 168,   0}, {252, 152,  56}, {252, 252, 252}},
+		{{252, 216, 168}, {216,  40,   0}, {252, 152,  56}},
+		{{216,  40,   0}, {252, 152,  56}, {252, 252, 252}}
+	}
+	--1: hat, pants (red)
+	--2: shirt, shoes (brown-green)
+	--3: skin (yellow-orange)
+	
+	
+}
+
+--[[ hat limits:
+--limit hats
+	for playerno = 1, players do
+		for i = 1, #mariohats[playerno] do
+			if mariohats[playerno][i] > hatcount then
+				mariohats[playerno][i] = hatcount
+			end
+		end
+	end
+]]
+
+--[[
+	flowercolor = 
+	
+	starcolors = {}
+	]]
+--[[mariocolors[2] = {{255, 255, 255}, {  0, 160,   0}, {252, 152,  56}}
+	mariocolors[3] = {{  0,   0,   0}, {200,  76,  12}, {252, 188, 176}}
+	mariocolors[4] = {{ 32,  56, 236}, {  0, 128, 136}, {252, 152,  56}}]]
+default_settings = {
+	mouseowner = 1,
+	scale = 3,
+	volume = 0.7,
+	mappack = "smb",
+	vsync = false,
+	shader1 = "none",
+	shader2 = "none",
+	currentshaderi1 = 1,
+	currentshaderi2 = 1,
+	graphicspacki = 1,
+	graphicspack = "DEFAULT",
+	soundpacki = 1,
+	soundpack = "DEFAULT",
+	firstpersonview = false,
+	firstpersonrotate = false,
+	seethroughportals = false,
+	fullscreen = false,
+	fullscreenmode = "letterbox",
+	reachedworlds = {}, --table of worlds reached
+	playerprofiles = {default_player_profile, default_player_profile, default_player_profile, default_player_profile}
 }
 
 --SETABLE VARS--	

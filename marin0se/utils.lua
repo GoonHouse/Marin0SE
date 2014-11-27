@@ -22,6 +22,7 @@ function table.find(t, k)
 end
 
 function table.print(t)
+	print("~=table.print(", t, ")")
 	--print(Tserial.pack(t, true, true))
 	-- the above causes a stack overflow, so we are doing this the dumb way
 	if t~=nil then
@@ -29,6 +30,7 @@ function table.print(t)
 	else
 		print("nothing, got a nil")
 	end
+	print("=~table.print(", t, ")")
 end
 
 -- this code was originally from TLbind, also works to clone

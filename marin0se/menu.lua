@@ -217,8 +217,8 @@ function menu_draw()
 	drawlevel()
 	drawui()
 	
-	for j = 1, players do
-		local v = characters[mariocharacter[j]]
+	--[[for j = 1, players do
+		local v = characters[ mariocharacter[j] ]
 		local angle = 3
 		if v.nopointing then
 			angle = 1
@@ -235,8 +235,9 @@ function menu_draw()
 			portalcolor1, portalcolor2 = {60, 188, 252}, {232, 130, 30}
 		end
 		
-		drawplayer(nil, ((startx[pid]-xscroll)*16)+8*(j-1), ((starty[pid]-yscroll)*16-12), scale,     v.smalloffsetX, v.smalloffsetY, 0, v.smallquadcenterX, v.smallquadcenterY, "idle", false, false, mariohats[j], v.animations, v.idle[angle], 0, false, false, mariocolors[j], 1, portalcolor1, portalcolor2, nil, nil, nil, nil, nil, nil, characters[mariocharacter[j]])
+		drawplayer(nil, ((startx[pid]-xscroll)*16)+8*(j-1), ((starty[pid]-yscroll)*16-12), scale,     v.smalloffsetX, v.smalloffsetY, 0, v.smallquadcenterX, v.smallquadcenterY, "idle", false, false, mariohats[j], v.animations, v.idle[angle], 0, false, false, mariocolors[j], 1, portalcolor1, portalcolor2, nil, nil, nil, nil, nil, nil, characters[ mariocharacter[j] ])
 	end
+	]]
 	
 	love.graphics.setColor(255, 255, 255, 255)
 	drawforeground()
@@ -2081,6 +2082,10 @@ function resetconfig()
 end
 
 function selectworld()
+	game_load()
+end
+
+function selectworld2()
 	if not reachedworlds[mappack] then
 		game_load()
 	end

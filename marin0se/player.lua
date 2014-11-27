@@ -9,7 +9,9 @@ function player:init(world, x, y, i, animation, size, t)
 	self.world = world
 	
 	self.alwaysactive = true
-	self.char = characters[mariocharacter[i]]
+	
+	self.profile = playerprofiles[i]
+	self.char = characters[self.profile.character]
 	
 	self.playernumber = i or 1
 	if bigmario then
@@ -109,7 +111,7 @@ function player:init(world, x, y, i, animation, size, t)
 	self.outofboundstimer = 0
 	self.drawable = true
 	self.quad = self.char.idle[3]
-	self.colors = mariocolors[self.playernumber]
+	self.colors = self.profile.colors
 	self.customscale = self.char.customscale
 	if self.size == 1 then
 		self.offsetX = self.char.smalloffsetX
@@ -140,7 +142,7 @@ function player:init(world, x, y, i, animation, size, t)
 	end
 	
 	--hat
-	self.hats = mariohats[self.playernumber]
+	self.hats = self.profile.hats
 	self.drawhat = true
 	
 	--Change height according to hats
@@ -565,12 +567,13 @@ function player:update(dt)
 			lmariostarblinkrate = mariostarblinkrateslow
 		end
 
+		--@TODO: Refactor instances of this weirdass antipattern.
 		while self.starblinktimer > lmariostarblinkrate do
 			self.starcolori = self.starcolori + 1
-			if self.starcolori > 4 then
-				self.starcolori = self.starcolori - 4
+			if self.starcolori > #self.profile.starcolors then
+				self.starcolori = self.starcolori - #self.profile.starcolors
 			end
-			self.colors = starcolors[self.starcolori]
+			self.colors = self.profile.starcolors[self.starcolori]
 			
 			self.starblinktimer = self.starblinktimer - lmariostarblinkrate
 		end
@@ -579,22 +582,22 @@ function player:update(dt)
 			--check if another starman is playing
 			local starstill = false
 			for i = 1, players do
-				if i ~= self.playernumber and objects["player"][i].starred then
+				if i ~= self.playernumber and self.world.objects.player[i].starred then
 					starstill = true
 				end
 			end
 			
 			if not starstill and not levelfinished then
-				playmusic()
-				music:stop("starmusic.ogg")
+				w:stopmusic("starmusic.ogg")
+				w:playmusic()
 			end
 		end
 		
 		if self.startimer >= mariostarduration then
 			if self.size == 3 then --flower colors
-				self.colors = self.char.flowercolor or flowercolor
+				self.colors = self.char.flowercolor or self.profile.flowercolors
 			else
-				self.colors = mariocolors[self.playernumber]
+				self.colors = self.char.colors or self.profile.colors
 			end
 			self.starred = false
 			self.startimer = mariostarduration
@@ -980,8 +983,8 @@ function player:update(dt)
 			
 			if self.animationtimer - dt < endanimationtextsecondline and self.animationtimer >= endanimationtextsecondline then
 				levelfinishedmisc = 2
-				love.audio.stop()
-				music:play("princessmusic.ogg")
+				w:stopmusic()
+				w:playmusic("princessmusic.ogg")
 			end
 		
 			if self.animationtimer - dt < endanimationtextthirdline and self.animationtimer >= endanimationtextthirdline then
@@ -4016,10 +4019,10 @@ end
 function player:star()
 	self:getscore(score_enum.collect_star)
 	self.startimer = 0
-	self.colors = starcolors[1]
+	self.colors = self.profile.starcolors[1]
 	self.starred = true
-	stopmusic()
-	music:play("starmusic.ogg")
+	w:stopmusic()
+	w:playmusic("starmusic.ogg")
 end
 
 function player:fire()

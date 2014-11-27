@@ -37,11 +37,8 @@ function game_load(suspended)
 	
 	-- initialize the world
 	w = world:new()
-	print("opening map")
-	local tabla = w:getMapOrOpen(w.mappackSets.firstmap)
-	print("starting map")
-	print(tabla)
-	tabla:start()
+	w:openMap(w.mappackSets.firstmap)
+	w:start()
 	print("changing to game")
 	gamestate = "game"
 	--[[if suspended == true then
@@ -175,12 +172,12 @@ function game_update(dt)
 	
 	if not was_anyone_outofbounds and anyone_outofbounds then
 		print("TRIGGER: OB!")
-		stopmusic()
-		music:play("outofbounds.ogg")
+		w:stopmusic()
+		w:playmusic("outofbounds.ogg")
 	elseif was_anyone_outofbounds and not anyone_outofbounds then
 		print("TRIGGER: Welcome back to earth.")
-		music:stop("outofbounds.ogg")
-		playmusic()
+		w:stopmusic("outofbounds.ogg")
+		w:playmusic()
 	end
 	was_anyone_outofbounds = anyone_outofbounds
 	
@@ -825,7 +822,9 @@ function drawlevel()
 	end
 end
 
-function drawui(hidetime)
+drawui = nop
+
+function drawui2(hidetime)
 	local printfunction = properprint
 	if custombackground then
 		printfunction = properprintbackground
@@ -3712,26 +3711,6 @@ function drawrectangle(x, y, width, height)
 	love.graphics.rectangle("fill", x*scale, y*scale, scale, height*scale)
 	love.graphics.rectangle("fill", x*scale, (y+height-1)*scale, width*scale, scale)
 	love.graphics.rectangle("fill", (x+width-1)*scale, y*scale, scale, height*scale)
-end
-
-function playmusic()
-	if not editormode and musicname then
-		if mariotime <= 99 and mariotime > 0 then
-			music:play(musicname, true)
-		else
-			music:play(musicname)
-		end
-	end
-end
-
-function stopmusic()
-	if musicname then
-		if mariotime <= 99 and mariotime > 0 then
-			music:stop(musicname, true)
-		else
-			music:stop(musicname)
-		end
-	end
 end
 
 function updatesizes()

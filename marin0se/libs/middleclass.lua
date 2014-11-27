@@ -1,6 +1,7 @@
 local middleclass = {
-  _VERSION     = 'middleclass v3.0.0',
+  _VERSION     = 'middleclass v3.0.1',
   _DESCRIPTION = 'Object Orientation for Lua',
+  _URL         = 'https://github.com/kikito/middleclass',
   _LICENSE     = [[
     MIT LICENSE
 
@@ -98,8 +99,9 @@ end
 
 local Object = _createClass("Object", nil)
 
-Object.static.__metamethods = { '__add', '__call', '__concat', '__div', '__le', '__lt',
-                                '__mod', '__mul', '__pow', '__sub', '__tostring', '__unm' }
+Object.static.__metamethods = { '__add', '__call', '__concat', '__div', '__ipairs', '__le',
+                                '__len', '__lt', '__mod', '__mul', '__pairs', '__pow', '__sub',
+                                '__tostring', '__unm'}
 
 function Object.static:allocate()
   assert(type(self) == 'table', "Make sure that you are using 'Class:allocate' instead of 'Class.allocate'")
@@ -172,13 +174,7 @@ end
 
 function middleclass.class(name, super, ...)
   super = super or Object
-  local theclass = super:subclass(name, ...)
-  if debugclasses then
-      theclass.__tostring = function(self) return self end
-      theclass.__concat = function(self,other) return tostring(self)..tostring(other) end
-  end
-  --getmetatable(theclass).__tostring = function(t) return von.serialize(t) end
-  return theclass
+  return super:subclass(name, ...)
 end
 
 middleclass.Object = Object

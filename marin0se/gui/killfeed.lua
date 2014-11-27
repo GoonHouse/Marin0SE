@@ -36,74 +36,49 @@ killfeed.fadetime = 0.5
 
 function killfeed.glob(glob)
 	if glob == nil then
-		return ""
+		return "world"
 	end
-	local fallbackname = tostring(glob):split("class ")[2].."?"
-	local name = ""
+	--fallbackname = tostring(glob):split("class ")[2].."?"
+	local name = glob.class.name or "homo"
 	
 	if objects~=nil then
-		for k,v in pairs(objects) do
-			for k2,v2 in pairs(v) do
-				if glob == v2 then
-					local subclass=tostring(k)
-					if subclass=="enemy" then
-						subclass = glob.t
-					end
-					name = subclass.."#"..tostring(k2)
+		for k,v in pairs(objects[name]) do
+			if glob == v then
+				if name=="enemy" then
+					name = glob.t.."#"..tostring(k)
+				elseif name=="player" then
+					name = glob.profile.name.."#"..tostring(k)
+				else
+					name = name.."#"..tostring(k)
 				end
 			end
 		end
-		
-		if name=="" then
-			name=fallbackname
-		end
 		return name
 	else
-		return fallbackname
+		return "mystery thing"
 	end
-end
-
-function killfeed.process_dtypes(dtype)
-	
 end
 
 function killfeed.new(attackers, dtype, victims, ex)
 	local duration = duration or killfeed.duration
 	local theme = "dark"
 	
-	local trashname = tostring(attackers):split("class ")[2]
-	local attackername = ""
-	if attackers and attackers.isInstanceOf and attackers:isInstanceOf(_G[trashname]) then
-		if attackers.playernumber == 1 then
-			theme = "light"
-		end
-		attackername = killfeed.glob(attackers)
-	elseif attackers then
-		for k,v in pairs(attackers) do
-			if v.playernumber == 1 then
-				theme = "light"
-			end
-			attackername = attackername .. killfeed.glob(v)
-			if k<#attackers then
-				attackername = attackername.." + "
-			end
-		end
-	else
-		attackername = "world"
+	local attackername = killfeed.glob(attackers) or nil
+	local victimname = killfeed.glob(victims)
+	
+	if attackers.playernumber == 1 or victims.playernumber == 1 then
+		theme = "light"
 	end
+	
+	if attackers==victims or (type(attackers)=="table" and table.contains(attackers, victims)) then
+		theme = "humiliation"
+	end
+	
 	dtype = dtype or "mystery"
 	if killfeed.icons[dtype] then
 		dicon = killfeed.icons[dtype]
 	else
 		dicon = killfeed.icons["mystery"]
-	end
-	local victimname = killfeed.glob(victims)
-	
-	if (victims and victims.playernumber == 1) then
-		theme = "light"
-	end
-	if attackers==victims or (type(attackers)=="table" and table.contains(attackers, victims)) then
-		theme = "humiliation"
 	end
 	
 	table.insert(killfeed.killfeeds, {
@@ -112,7 +87,6 @@ function killfeed.new(attackers, dtype, victims, ex)
 		icon=dicon,
 		victim=victimname:lower(),
 		theme=theme,
-		--text=attackername:lower().." "..dtype:lower().."ed "..victimname:lower(),
 		life=duration,
 		duration=duration,
 	})
