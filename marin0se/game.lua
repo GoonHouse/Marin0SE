@@ -189,7 +189,7 @@ function game_update(dt)
 	
 	--check if updates are blocked for whatever reason
 	if noupdate then
-		print("update blocked")
+		--print("update blocked")
 		for i, v in pairs(objects["player"]) do --But update players anyway.
 			v:update(dt)
 		end
@@ -665,7 +665,7 @@ function drawlevel()
 	end
 	
 	--TILES
-	love.graphics.draw(smbspritebatch, math.floor(-math.mod(xscroll, 1)*16*scale), math.floor(-math.mod(yscroll, 1)*16*scale))
+	love.graphics.draw(smbspritebatch, math.floor(-math.fmod(xscroll, 1)*16*scale), math.floor(-math.fmod(yscroll, 1)*16*scale))
 	love.graphics.draw(portalspritebatch, math.floor(-math.mod(xscroll, 1)*16*scale), math.floor(-math.mod(yscroll, 1)*16*scale))
 	if customtiles then
 		love.graphics.draw(customspritebatch, math.floor(-math.mod(xscroll, 1)*16*scale), math.floor(-math.mod(yscroll, 1)*16*scale))

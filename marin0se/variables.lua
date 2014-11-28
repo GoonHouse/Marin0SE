@@ -6,7 +6,15 @@ MULTIPLYDELIMITER = "·"
 EQUALSIGN = "¨"
 
 --IMPORTED FROM MAIN.LUA
-game = {}
+game = {
+	console = {
+		-- -1 = no limit
+		scrollback_limit = 5,
+		-- -1 = no limit
+		history_limit = 50
+	},
+}
+networkclientnumber = 0
 debugmode = "none"
 userectdebug = true
 marioversion = 1107
@@ -73,14 +81,14 @@ insaneents = {
 	"pipespawn", --"  "
 	"axe", --"  "
 	"flag", --"  "
-	
+
 	"mazestart", "mazeend", --doesn't have its own logic, is implicit and global
 	"firestart", "fireend", --"  "
 	"flyingfishstart", "flyingfishend", --"  "
 	"bulletbillstart", "bulletbillend", --"  "
 	"windstart", "windend", --"  "
 	"lakitoend", --"  ", except it doesn't even have a start?!
-	
+
 	"gel", --this alters the map when loaded, which is an extreme anomoly
 }
 globalimages = {}
@@ -135,14 +143,18 @@ firstload = true
 
 tilequads = {}
 rgblist = {}
-
+any_frames_visible = false
 replaysystem = false
 drawreplays = false
 drawalllinks = false
 bdrawui = true
 skippedframes = 0
-
+itemanimations={}
+xscroll = 0
+yscroll = 0
 width = 25	--! default 25
+mapwidth = 0
+mapheight = 0
 height = 14
 fsaa = 0
 scale = 2
@@ -161,11 +173,11 @@ targetdt = 1/60
 
 
 engine = { --vars that control engine settings, mainly for stubbing behaviors or experimenting with them
-	
+
 }
 
 gamesets = { --vars that should be controlled by the gamemode but live here for my own sake
-	
+
 }
 
 --[[legacy controls
@@ -208,8 +220,8 @@ default_player_profile = {
 	character = "mario",
 	portalhues = {0, 0.125}, --{(i-1)*(1/players), (i-1)*(1/players)+0.5/players}
 	portalcolor = {{0,0,0},{1,1,1}},--{getrainbowcolor(portalhues[i][1]), getrainbowcolor(portalhues[i][2])}
-	
-	
+
+
 	hats = {1},
 	colors = {
 		{224,  32,   0},
@@ -230,8 +242,8 @@ default_player_profile = {
 	--1: hat, pants (red)
 	--2: shirt, shoes (brown-green)
 	--3: skin (yellow-orange)
-	
-	
+
+
 }
 
 --[[ hat limits:
@@ -280,7 +292,7 @@ default_settings = {
 --almost all vars are in "blocks", "blocks per second" or just "seconds". Should be obvious enough what's what.
 -- I couldn't think of a way to draw 
 uiscales = {
-	
+
 }
 
 debugflags = {
@@ -470,14 +482,14 @@ damage_types = {
 	"mystery",		--this is here as a fallback for the killicons, I'm a very disorganized person
 	"toilet",		--if this happens, something had an undefined kill type, mostly for bug finding
 	"kill",			--generic, this happens as a fallback for icon purposes (skull & crossbones)
-	
+
 	"physics",		--box crushes enemy, or other deaths caused by inaction
-	
+
 	"stomp",		--when feet land on something's head, sometimes side-kicks
 	"shell",		--shells from koopas
 	"star",			--reflective rampage man
 	"fireball",		--the projectiles that come out of the player's hands
-	
+
 	"touch",		--goombas and any other oddly threatining simpletons
 	"bump", 		--hit by the underside of a block
 	"suicide",		--generic self-kill

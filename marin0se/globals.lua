@@ -88,7 +88,7 @@ controlTable = {
 		
 		kp4 = "editorPreviousLevel",
 		kp6 = "editorNextLevel",
-		
+		["`"] = "consoleToggle",
 		
 		f1 = "editorTabMain",
 		--f2 = "editorTabTiles",

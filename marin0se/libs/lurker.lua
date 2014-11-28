@@ -26,6 +26,7 @@ local lovecallbacknames = {
   "mousereleased",
   "keypressed",
   "keyreleased",
+  "textinput",
   "focus",
   "quit",
 }
@@ -115,6 +116,8 @@ function lurker.onerror(e, nostacktrace)
     if k == "escape" then
       lurker.print("Exiting...")
       love.event.quit()
+    elseif k == "f11" then
+      screenshotUploadWrap("crash.png",love.graphics.newScreenshot())
     end
   end
 

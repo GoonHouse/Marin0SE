@@ -3,6 +3,13 @@ function table.pack(...)
 	return { n = select("#", ...), ... }
 end
 
+-- for when # isn't good
+function table.length(T)
+	local count = 0
+	for _ in pairs(T) do count = count + 1 end
+	return count
+end
+
 function table.contains(t, entry)
 	for i, v in pairs(t) do
 		if v == entry then
@@ -54,6 +61,10 @@ function string:split(delimiter) --Not by me
 	return result
 end
 
+function string:countlines()
+	return select(2, self:gsub('\n', '\n'))+1
+end
+
 local function interp(s, tab)
 	return (s:gsub('%%%((%a%w*)%)([-0-9%.]*[cdeEfgGiouxXsq])',
 			function(k, fmt) return tab[k] and ("%"..fmt):format(tab[k]) or
@@ -84,5 +95,24 @@ function table.fdelete(tbl, filterfunc, ex)
 	
 	for i, v in pairs(delete) do
 		table.remove(tbl, v) --remove
+	end
+end
+
+-- this came from the evolve gmod plugin framework because I liked it.
+function formatTime( t )
+	if ( t < 0 ) then
+		return "Forever"
+	elseif ( t < 60 ) then
+		if ( t == 1 ) then return "one second" else return t .. " seconds" end
+	elseif ( t < 3600 ) then
+		if ( math.ceil( t / 60 ) == 1 ) then return "one minute" else return math.ceil( t / 60 ) .. " minutes" end
+	elseif ( t < 24 * 3600 ) then
+		if ( math.ceil( t / 3600 ) == 1 ) then return "one hour" else return math.ceil( t / 3600 ) .. " hours" end
+	elseif ( t < 24 * 3600 * 7 ) then
+		if ( math.ceil( t / ( 24 * 3600 ) ) == 1 ) then return "one day" else return math.ceil( t / ( 24 * 3600 ) ) .. " days" end
+	elseif ( t < 24 * 3600 * 30 ) then
+		if ( math.ceil( t / ( 24 * 3600 * 7 ) ) == 1 ) then return "one week" else return math.ceil( t / ( 24 * 3600 * 7 ) ) .. " weeks" end
+	else
+		if ( math.ceil( t / ( 24 * 3600 * 30 ) ) == 1 ) then return "one month" else return math.ceil( t / ( 24 * 3600 * 30 ) )	.. " months" end
 	end
 end
