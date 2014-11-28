@@ -229,3 +229,35 @@ function openImage(img)
 	os.execute(cmdstr:format(img))
 	return cmdstr~=nil
 end
+
+function getrainbowcolor(i)
+	local whiteness = 255
+	local r, g, b
+	if i < 1/6 then
+		r = 1
+		g = i*6
+		b = 0
+	elseif i >= 1/6 and i < 2/6 then
+		r = (1/6-(i-1/6))*6
+		g = 1
+		b = 0
+	elseif i >= 2/6 and i < 3/6 then
+		r = 0
+		g = 1
+		b = (i-2/6)*6
+	elseif i >= 3/6 and i < 4/6 then
+		r = 0
+		g = (1/6-(i-3/6))*6
+		b = 1
+	elseif i >= 4/6 and i < 5/6 then
+		r = (i-4/6)*6
+		g = 0
+		b = 1
+	else
+		r = 1
+		g = 0
+		b = (1/6-(i-5/6))*6
+	end
+	
+	return {round(r*whiteness), round(g*whiteness), round(b*whiteness), 255}
+end
