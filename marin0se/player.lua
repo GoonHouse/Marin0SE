@@ -392,7 +392,7 @@ function player:controlPress(control, fromnetwork)
 		--killfeed.new({objects["enemy"][1],objects["enemy"][2]}, "physics", objects["enemy"][3])
 		--savemap2(currentmap)
 		--debugbox()
-		print("oh boy I'm a test")
+		playerDebug()
 	elseif control=="playerRun" then
 		self:fire()
 	elseif control=="playerReload" then

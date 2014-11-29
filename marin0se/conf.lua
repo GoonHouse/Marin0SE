@@ -4,6 +4,8 @@ function love.conf(t)
 	t.console = true
 	
 	t.window.title = t.identity
+	t.window.width = 1200
+	t.window.height = 672
 	
 	t.modules.physics = false
 end

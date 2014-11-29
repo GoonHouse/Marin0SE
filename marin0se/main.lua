@@ -36,8 +36,11 @@ function love.load(args)
 	end
 	
 	lastline = debug.getinfo(1).currentline
-	starttime = love.timer.getTime()
-	lasttime = starttime
+	lasttime = 0
+	
+	love.graphics.setBackgroundColor(0, 0, 0)
+	love.audio.setDistanceModel("exponent clamped")
+	love.graphics.setDefaultFilter("nearest", "nearest")
 	
 	require("helpers")
 	
@@ -49,7 +52,6 @@ function love.load(args)
 		exponent: like inverse, except happens quicker
 		x clamped: gain gets clamped
 	]]
-	love.audio.setDistanceModel("exponent clamped")
 	--love.keyboard.setKeyRepeat(false)
 	
 	--IT BEGINS
@@ -58,14 +60,25 @@ function love.load(args)
 	--@todo: require significant components here
 	require("globals")
 	require("variables")
-	add("Variables")
+	require("loveutils")
+	add("Variables + Love Overloads")
+	
+	--register some resources to draw the intro screen ASAP
+	logo = love.graphics.newImage("stabyourself.png")
+	fontimage = love.graphics.newImageFont("fontimageexample.png",
+					" abcdefghijklmnopqrstuvwxyz" ..
+					"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
+					"123456789.,!?-+/():;%&`'*#=[]\"")
+	
+	logoPresent()
+	add("Logo Presented")
 
 	--@todo: third party library stuff
-	require("loveutils")
 	tween = require("libs.tween")
 	class = require("libs.middleclass")
 	lurker = require("libs.lurker")
 	lurker.interval = 30 --seconds
+	lurker.quiet = false --set to true to stop reload errors
 	require("libs.loveframes")
 	JSON = require("libs.JSON")
 	require("timer")
@@ -145,7 +158,6 @@ function love.load(args)
 	end
 	table.remove(shaderlist, rem)
 	table.insert(shaderlist, 1, "none")
-	love.graphics.setDefaultFilter("nearest", "nearest")
 	require "shaders"
 	add("Shaders")
 	
@@ -176,9 +188,7 @@ function love.load(args)
 	changescale(scale, true)
 	add("Resolution Change")
 	
-	logoPresent()
-	add("Logo Presented")
-	
+	require "entity" --preceed baseentity so the loading classes can be used
 	require "baseentity"
 	local mixins = love.filesystem.getDirectoryItems("basedmixins")
 	for k,v in pairs(mixins) do
@@ -224,7 +234,6 @@ function love.load(args)
 	require "player"
 	require "enemies"
 	require "camera"
-	require "entity"
 	require "characterloader"
 	require "animationguiline"
 	require "quad"
@@ -333,15 +342,15 @@ function love.load(args)
 
 	--@todo: gui elements load
 	require("gui.debug_bar")
-	debug_bar.func()
-	require("console")
+	debug_bar:func()
 
 	--@todo: assets
 	bg = love.graphics.newImage("graphics/DEFAULT/bg.png")
 	bgscalex = love.graphics.getWidth()/bg:getWidth()
 	bgscaley = love.graphics.getHeight()/bg:getHeight()
 	
-	print("TOTAL: " .. formatTime((love.timer.getTime()-starttime)/1000))
+	dertotal = os.clock()-starttime
+	print("TOTAL: " .. tostring(os.clock()).."s")
 	if skipintro then
 		menu_load()
 	else
@@ -464,7 +473,8 @@ function love.draw()
 	elseif gamestate == "game" then
 		game_draw()
 	elseif gamestate == "intro" then
-		intro_draw()
+		--@DEV: don't actually draw the intro because it broked
+		--intro_draw()
 	end
 	--mycamera:detach()
 	shaders:postdraw()

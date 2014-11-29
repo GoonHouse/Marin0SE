@@ -26,7 +26,7 @@ function controlsUpdate(dt)
 		if controls.tap.debugLua then
 			lurker.scan()
 		elseif controls.tap.consoleToggle then
-			debug_bar.ToggleConsole()
+			debug_bar:ToggleConsole()
 		end
 	end 
 	
@@ -158,4 +158,8 @@ function exMousereleased(ox, oy, button)
 	if rightclickm then
 		rightclickm:mousereleased(x, y, button)
 	end
+end
+
+function bind(key, func)
+	
 end

@@ -1,7 +1,7 @@
 function add(desc)
-	print((desc or "") .. "\n" .. round((love.timer.getTime()-lasttime)*1000) .. "ms\tlines " .. lastline+1 .. " - " .. debug.getinfo(2).currentline-1 .. "\n")
+	print((desc or "") .. "\n" .. round(os.clock()-lasttime) .. "s\tlines " .. lastline+1 .. " - " .. debug.getinfo(2).currentline-1 .. "\n")
 	lastline = debug.getinfo(2).currentline
-	lasttime = love.timer.getTime()
+	lasttime = os.clock()
 end
 
 function screenshotUploadWrap(iname, idata)
@@ -22,8 +22,7 @@ end
 function logoPresent()
 	love.graphics.clear()
 	love.graphics.setColor(100, 100, 100)
-	loadingtext = loadingtexts[math.random(1,#loadingtexts)]
-	
+	local loadingtext = loadingtexts[love.math.random(1,#loadingtexts)]
 	local logoscale = scale
 	if logoscale <= 1 then
 		logoscale = 0.5
@@ -35,9 +34,25 @@ function logoPresent()
 	
 	love.graphics.draw(logo, love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0, logoscale, logoscale, 142, 150)
 	love.graphics.setColor(150, 150, 150)
-	properprint(loading_header, love.graphics.getWidth()/2-string.len(loading_header)*4*scale, love.graphics.getHeight()/2-170*logoscale-7*scale)
+	printfwithfont(fontimage, loading_header, 
+		0,
+		love.graphics.getHeight()/2-170*logoscale-7*scale,
+		love.graphics.getWidth()/(scale-1),
+		'center',
+		0, 
+		scale-1, 
+		scale-1
+	)
 	love.graphics.setColor(50, 50, 50)
-	properprint(loadingtext, love.graphics.getWidth()/2-string.len(loadingtext)*4*scale, love.graphics.getHeight()/2+165*logoscale)
+	printfwithfont(fontimage, loadingtext, 
+		0,
+		love.graphics.getHeight()/2+165*logoscale,
+		love.graphics.getWidth()/(scale-1),
+		'center',
+		0,
+		scale-1,
+		scale-1
+	)
 	love.graphics.present()
 end
 
@@ -159,6 +174,18 @@ function properprint(s, x, y, sc)
 		end
 	end
 end
+function printfwithfont(font, ...)
+	local of = love.graphics.getFont()
+	love.graphics.setFont(font)
+	love.graphics.printf(...)
+	love.graphics.setFont(of)
+end
+function printwithfont(font, ...)
+	local of = love.graphics.getFont()
+	love.graphics.setFont(font)
+	love.graphics.print(...)
+	love.graphics.setFont(of)
+end
 function getaveragecolor(imgdata, cox, coy)	
 	local xstart = (cox-1)*17
 	local ystart = (coy-1)*17
@@ -260,4 +287,23 @@ function getrainbowcolor(i)
 	end
 	
 	return {round(r*whiteness), round(g*whiteness), round(b*whiteness), 255}
+end
+
+function setMouseContext(context)
+	local customCursor = resources.cursor[context]
+	if customCursor then
+		love.mouse.setCursor(customCursor)
+	else
+		local ok, cursor = pcall(love.mouse.getSystemCursor, context)
+		if ok then
+			love.mouse.setCursor(cursor)
+		else
+			print("CRITICAL: Tried to apply a cursor of type '"..tostring(context).."' that didn't exist.")
+		end
+	end
+end
+
+--this is meant to be overwritten by the console to do stuff on command
+function playerDebug()
+	nop()
 end

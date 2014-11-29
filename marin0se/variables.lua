@@ -14,6 +14,18 @@ game = {
 		history_limit = 50
 	},
 }
+--[[
+	this is where all (image/sound)s [or lua data of type userdata] will go
+	this way we can stub references and encapsulate things easier
+]]
+resources = {
+	image = {},
+	imagedata = {},
+	cursor = {
+		levelball = love.mouse.newCursor("graphics/DEFAULT/levelball.png", 8, 8),
+	},
+}
+
 networkclientnumber = 0
 debugmode = "none"
 userectdebug = true
@@ -157,7 +169,7 @@ mapwidth = 0
 mapheight = 0
 height = 14
 fsaa = 0
-scale = 2
+scale = 3
 uispace = math.floor(width*16*scale/4)
 volume = 1
 soundenabled = true

@@ -1677,6 +1677,14 @@ function newobject:GetLines()
 	return self.lines
 	
 end
+--[[---------------------------------------------------------
+	- func: SetLines()
+	- desc: sets the object's lines
+--]]---------------------------------------------------------
+function newobject:SetLines(lines)
+	self.lines = lines
+	return lines
+end
 
 --[[---------------------------------------------------------
 	- func: GetOffsetX()

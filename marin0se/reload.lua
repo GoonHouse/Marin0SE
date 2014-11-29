@@ -303,9 +303,6 @@ function reloadGraphics()
 	fontimage = love.graphics.newImage("font.png")
 	fontimageback = love.graphics.newImage("fontback.png")
 	
-	logo = love.graphics.newImage("stabyourself.png")
-	logoblood = love.graphics.newImage("stabyourselfblood.png")
-	
 	for _, v in pairs(imagelist) do
 		_G[v .. "img"] = love.graphics.newImage( v .. ".png")
 	end
