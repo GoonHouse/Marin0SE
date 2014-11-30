@@ -26,6 +26,16 @@ resources = {
 	},
 }
 
+--THESE VARS CAME FROM THE EDITOR
+rightclickm = nil
+rightclicka = 0
+minimapheight = 0
+minimapwidth = 0
+mariolivecount = 0
+
+-- i love lasagna
+displaywarpzonetext = false
+warpzonenumbers = {}
 networkclientnumber = 0
 debugmode = "none"
 userectdebug = true

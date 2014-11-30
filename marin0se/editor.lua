@@ -1179,9 +1179,9 @@ function editor_controlupdate(dt)
 				editormode = true
 				
 				if mariosublevel > 0 then
-					loadlevel(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
+					game_load(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
 				else
-					loadlevel(marioworld .. "-" .. mariolevel)
+					game_load(marioworld .. "-" .. mariolevel)
 				end
 				startlevel()
 				--editor_load()
@@ -1665,9 +1665,9 @@ function test_level()
 	testlevellevel = mariolevel
 	autoscroll = true
 	if mariosublevel ~= 0 then
-		loadlevel(currentmap)
+		game_load(currentmap)
 	else
-		loadlevel(currentmap)
+		game_load(currentmap)
 	end
 	startlevel()
 end

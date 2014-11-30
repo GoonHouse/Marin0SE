@@ -237,12 +237,16 @@ function debug_bar:ToggleConsole()
 		tween(0.10, self.debug_panel, {y = (0)})
 		self.console_input:SetFocus(true)
 	else
-		any_frames_visible = false  
-		tween(0.10, self.debug_panel, {y = (0 - panelheight)})
+		tween(0.10, self.debug_panel, {y = (0 - panelheight)}, nil, debug_bar.slideUp)
+		self.console_input:SetFocus(false)
 	end
 	local textos = self.console_input:GetText()
 	if textos:sub(-1) == "`" then
 		self.console_input:SetText(textos:sub(1, -2))
 	end
 	self.toggle = not self.toggle
+end
+
+function debug_bar:slideUp()
+	any_frames_visible = false
 end

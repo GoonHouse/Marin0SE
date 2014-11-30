@@ -1533,6 +1533,7 @@ function menu_controlupdate(dt)
 				editormode = true
 				players = 1
 				game_load()
+				editor_load()
 			elseif selection == 3 then
 				gamestate = "onlinemenu"
 				--@DEV: Throwing this in here to cover bases.

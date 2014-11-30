@@ -8,6 +8,11 @@ function checkpoint:init(x, y, r)
 	
 	self.r = {unpack(r)}
 	
+	self.regionX = 0
+	self.regionY = 0
+	self.regionwidth = 0
+	self.regionheight = 0
+	
 	self.all = true
 	self.p = {false, false, false, false}
 	self.rest = false

@@ -69,7 +69,7 @@ function maptree:changemap(mapname)
 	mariosublevel = 0
 	editorloadopen = false
 	self.elements["mapname"].value = mapname
-	loadlevel(mapname)
+	game_load(mapname)
 	startlevel()
 end
 

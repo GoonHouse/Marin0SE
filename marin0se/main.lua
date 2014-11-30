@@ -461,8 +461,8 @@ end
 
 function love.draw()
 	hook.Call("LovePreDraw")
-	love.graphics.setColor(255, 255, 255, 255)
-	love.graphics.draw(bg, 0, 0, 0, bgscalex, bgscaley)
+	--love.graphics.setColor(255, 255, 255, 255)
+	--love.graphics.draw(bg, 0, 0, 0, bgscalex, bgscaley)
 	
 	shaders:predraw()
 	--mycamera:attach()

@@ -13,7 +13,7 @@ chatmessagegradient = 0
 local chatmessageoriginaldeletetimer = 0
 local chatmessagedeletecharactertimer = 0
 
-function game_load(suspended)
+function game_load(maptoload)
 	print("inside game_load")
 	collectgarbage("collect")
 	love.audio.stop()
@@ -37,7 +37,8 @@ function game_load(suspended)
 	
 	-- initialize the world
 	w = world:new()
-	w:openMap(w.mappackSets.firstmap)
+	maptoload = maptoload or w.mappackSets.firstmap
+	w:openMap(maptoload)
 	w:start()
 	print("changing to game")
 	gamestate = "game"
@@ -3220,7 +3221,7 @@ function nextlevel()
 		editormode = true
 		testlevel = false
 		currentmap = marioworld .. "-" .. mariolevel .. (mariosublevel > 0 and ("_" .. mariosubevel) or "") --@WARNING: This will eventually not work.
-		loadlevel(marioworld .. "-" .. mariolevel .. (mariosublevel > 0 and ("_" .. mariosubevel) or ""))
+		game_load(marioworld .. "-" .. mariolevel .. (mariosublevel > 0 and ("_" .. mariosubevel) or ""))
 		startlevel()
 		return
 	end
@@ -3280,7 +3281,7 @@ function getMouseTile(x, y)
 	return xout, yout
 end
 
-function savemap2(filename)
+function savemap(filename)
 	local tmap = {
 		version = 1,
 		tilewidth = 16,
@@ -3757,7 +3758,7 @@ function endgame()
 		mariolevel = testlevellevel
 		testlevel = false
 		editormode = true
-		loadlevel(marioworld .. "-" .. mariolevel)
+		game_load(marioworld .. "-" .. mariolevel)
 		startlevel()
 	else
 		love.audio.stop()

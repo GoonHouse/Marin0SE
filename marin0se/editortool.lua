@@ -14,9 +14,7 @@ end
 
 -- change parameters
 function editortool:change(...)
-	local arg={...}
-	print("change called with:")
-	print(Tserial.pack(arg, true, true))
+	print("editortool.change():", ...)
 	--for k,v in pairs(arg) do print(k, "=", v) end
 end
 
