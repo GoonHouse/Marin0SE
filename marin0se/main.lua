@@ -38,8 +38,9 @@ function love.load(args)
 	lastline = debug.getinfo(1).currentline
 	lasttime = 0
 	
-	love.graphics.setBackgroundColor(0, 0, 0)
 	love.audio.setDistanceModel("exponent clamped")
+	love.graphics.setLineJoin("miter") --@DEV: This fixes a bug in love 0.9.1 with calling lg.getLineJoin before init, remove this when you upgrade.
+	love.graphics.setBackgroundColor(0, 0, 0)
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	
 	require("helpers")
@@ -88,6 +89,16 @@ function love.load(args)
 	nb = neubind:new(neuControlTable)
 	TLbind = require("libs.TLbind")
 	binds, controls = TLbind.giveInstance(controlTable)
+	require("libs.grapher")
+	local i=1
+	for k,v in pairs(graphs) do
+		local g = grapher.Create(k, v)
+		g.x = love.graphics.getWidth()-g.width
+		g.y = love.graphics.getHeight()-(g.height*i)
+		g.font = fontimage
+		i = i + 1
+	end
+	--graphs.tick = fpsgraph.createGraph(love.graphics.getWidth()-50,love.graphics.getHeight()-90, 50, 30, 0.5, false)
 	--[[
 	require("libs.monocle")
 	Monocle.new({
@@ -367,6 +378,9 @@ function love.update(dt)
 		music:update()
 	end
 	timer.Update(dt)
+	
+	grapher.update(dt)
+	
 	nb:update(dt)
 	TLbind:update()
 	binds:update()
@@ -485,6 +499,10 @@ function love.draw()
 	--@todo: entity draw
 	if any_frames_visible then
 		loveframes.draw()
+	end
+	
+	if game.graphs.draw then
+		grapher.draw()
 	end
 	
 	--[[

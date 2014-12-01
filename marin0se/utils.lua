@@ -48,6 +48,9 @@ function table.combine(a, b)
 	return t
 end
 
+-- alias
+table.copy = table.combine
+
 function string:split(delimiter) --Not by me
 	local result = {}
 	local from  = 1
@@ -96,6 +99,19 @@ function table.fdelete(tbl, filterfunc, ex)
 	for i, v in pairs(delete) do
 		table.remove(tbl, v) --remove
 	end
+end
+
+-- shave the remainder and see how many times 'a' can fit 'b' inside it
+function math.fits(a, b)
+	return (a - (a % b))/b
+end
+
+function math.scale(value, omin, omax, nmin, nmax)
+	return (
+		(
+			(nmax-nmin)*(value-omin)
+		)/(omax-omin)
+	)+nmin
 end
 
 -- this came from the evolve gmod plugin framework because I liked it.

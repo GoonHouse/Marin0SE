@@ -131,3 +131,27 @@ love.image.newImageData = function(img, ex)
 	end
 	return love.image.oldImageData(img, ex)
 end
+
+local thingsToSnap = {}
+for k,v in pairs(love.graphics) do
+	if type(v) == "function" and k:sub(1,3) == "get" and type(love.graphics["set"..k:sub(4,-1)]) == "function" then
+		print("building", k:sub(4,-1))
+		table.insert(thingsToSnap,k:sub(4,-1))
+	end
+end
+function love.graphics.takeSnapShot()
+	local t = {}
+	for k,v in pairs(thingsToSnap) do
+		t[v] = {love.graphics["get"..tostring(v)]()}
+	end
+	return t
+end
+function love.graphics.applySnapShot(snap)
+	for k,v in pairs(snap) do
+		if type(love.graphics["set"..k]) == "function" then
+			love.graphics["set"..k](unpack(v))
+		else
+			print("WARNING: Something terrible happened!")
+		end
+	end
+end

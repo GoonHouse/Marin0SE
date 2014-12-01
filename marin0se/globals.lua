@@ -96,6 +96,7 @@ controlTable = {
 		f3 = "editorTabMaps",
 		f4 = "editorTabAnimations",
 		
+		f8 = "debugGraph",
 		f9 = "debugLua",
 		f10 = "debugCrash",
 		f11 = "gameScreenshot",

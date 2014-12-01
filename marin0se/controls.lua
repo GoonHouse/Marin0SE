@@ -9,7 +9,6 @@ function controlsUpdate(dt)
 	end
 	
 	if controls.debugModifier then
-		
 		if controls.tap.recordToggle then
 			recording = not recording
 		end
@@ -23,7 +22,9 @@ function controlsUpdate(dt)
 			totallynonexistantfunction()
 		end
 	else
-		if controls.tap.debugLua then
+		if controls.tap.debugGraph then
+			game.graphs.draw = not game.graphs.draw
+		elseif controls.tap.debugLua then
 			lurker.scan()
 		elseif controls.tap.consoleToggle then
 			debug_bar:ToggleConsole()

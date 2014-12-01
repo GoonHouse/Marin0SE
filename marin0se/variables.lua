@@ -13,6 +13,9 @@ game = {
 		-- -1 = no limit
 		history_limit = 50
 	},
+	graphs = {
+		draw = false,
+	}
 }
 --[[
 	this is where all (image/sound)s [or lua data of type userdata] will go
@@ -23,6 +26,51 @@ resources = {
 	imagedata = {},
 	cursor = {
 		levelball = love.mouse.newCursor("graphics/DEFAULT/levelball.png", 8, 8),
+	},
+	spritebatch = {},
+}
+
+enum_graph_types = {
+	"voice", --1c003a
+	"stringtables", --2d680c
+	"stringcmds", --700800
+	"entmessages", --386d65
+	"usermessages", --8f7923
+	"events", --76c3b9
+	"sounds", --fcde58
+	"entities", --c31d11
+	"otherplayers", --60b735
+	"localplayer",--0e0c94
+}
+
+graphs = {
+	fps = {
+		func = love.timer.getFPS,
+		width = 400,
+		height = 100,
+		--font = love.graphics.newFont(16),
+		lcolor = {0, 200, 0},
+		points = 100,
+	},
+	mem = {
+		func = function(g, dt)
+			local mem = collectgarbage("count")
+			return math.floor(mem*10)/10
+		end,
+		width = 400,
+		height = 100,
+		--font = love.graphics.newFont(16),
+		lcolor = {0, 0, 80},
+		points = 100,
+		drawmode = "scale"
+	},
+	time = {
+		func = os.clock,
+		width = 400,
+		height = 100,
+		--font = love.graphics.newFont(16),
+		lcolor = {80, 0, 80},
+		points = 100,
 	},
 }
 
