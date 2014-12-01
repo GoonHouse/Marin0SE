@@ -988,7 +988,7 @@ function skin.DrawTextInput(object)
         -- last line of selection, backside overhang
         slstr = str:sub(0, textselectionpoints.stop.x)
         offstr_post = str:sub(textselectionpoints.stop.x+1)
-        --cprint("1: "..tostring(0).."; 2: "..tostring(textselectionpoints.stop.x))
+        --_print("1: "..tostring(0).."; 2: "..tostring(textselectionpoints.stop.x))
       elseif h==textselectionpoints.start.y and h==textselectionpoints.stop.y then
         -- mid-string selection, both sides overhang
         offstr_pre = str:sub(0, textselectionpoints.start.x)
@@ -1046,10 +1046,10 @@ function skin.DrawTextInput(object)
     --[[if #lines == 1 and lines[1] == "" then
       love.graphics.setColor(textplaceholdercolor)
       offstr_pre = placeholder or ""]]
-    --[[cprint('pre : "'..offstr_pre..'"')
-    cprint('the : "'..slstr..'"')
-    cprint('post: "'..offstr_post..'"')
-    cprint(inspect(textselectionpoints))]]
+    --[[_print('pre : "'..offstr_pre..'"')
+    _print('the : "'..slstr..'"')
+    _print('post: "'..offstr_post..'"')
+    _print(inspect(textselectionpoints))]]
     if hastextselection then
       if slstr ~= '' then
         love.graphics.setColor(highlightbarcolor)

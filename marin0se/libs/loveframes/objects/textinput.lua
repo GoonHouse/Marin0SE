@@ -14,7 +14,7 @@ function newobject:initialize()
 	
 	self.type = "textinput"
 	self.keydown = "none"
-	self.tabreplacement = "        "
+	self.tabreplacement = "    "
 	self.maskchar = "*"
 	self.font = loveframes.basicfont
 	self.width = 200
@@ -55,17 +55,17 @@ function newobject:initialize()
 	self.multiline = false
 	self.vbar = false
 	self.hbar = false
-  self.hastextselection = false
-  self.textselectionpoints = {
-    start = {
-      x = nil,
-      y = nil,
-    },
-    stop = {
-      x = nil,
-      y = nil,
-    }
-  }
+	self.hastextselection = false
+	self.textselectionpoints = {
+		start = {
+			x = nil,
+			y = nil,
+		},
+		stop = {
+			x = nil,
+			y = nil,
+		}
+	}
 	self.linenumbers = true
 	self.linenumberspanel = false
 	self.editable = true
@@ -492,7 +492,7 @@ function newobject:keypressed(key, unicode)
 	self.delay = time + repeatdelay
 	self.keydown = key
 	if (loveframes.util.IsCtrlDown()) and focus then
-    -- @TODO: Put a hook here for ctrl+shift+arrow
+		-- @TODO: Put a hook here for ctrl+shift+arrow
 		if key == "a" then
 			self:Select('all')
 		elseif key == "c" and hastextselection and version(">0.8.0") then
@@ -509,7 +509,7 @@ function newobject:keypressed(key, unicode)
 			if oncut then
 				oncut(self, text)
 			else
-        -- @TODO: Send a signal for nothing so the handler removes the text
+				-- @TODO: Send a signal for nothing so the handler removes the text
 				self:SetText("")
 			end
 		elseif key == "v" and version(">0.8.0") and editable then
@@ -604,27 +604,27 @@ function newobject:RunKey(key, unicode, is_text)
 	local ontextchanged = self.OnTextChanged
 	local onenter = self.OnEnter
 	
-  --[[if key == "q" then
-    self:DebugSelection('q')
-  end]]
+	--[[if key == "q" then
+		self:DebugSelection('q')
+	end]]
 	if key == "left" then
 		indicatornum = self.indicatornum
 		if not multiline then
-      if loveframes.util.IsShiftDown() then
-        self:UpdateSelectionPoints('left_sl')
-      elseif self.hastextselection then
-        self.indicatornum = self.textselectionpoints.start.x
-        self.line = self.textselectionpoints.start.y
-        self:ResetSelection()
-      else
-        cprint("heyo")
-        self:MoveIndicator(-1)
-      end
-      --[[if loveframes.util.IsShiftDown() then
-        self:SetSelectionStart()
-        self:DebugSelection()
-        cprint(self:GetSelectedText())
-      end]]
+			if loveframes.util.IsShiftDown() then
+				self:UpdateSelectionPoints('left_sl')
+			elseif self.hastextselection then
+				self.indicatornum = self.textselectionpoints.start.x
+				self.line = self.textselectionpoints.start.y
+				self:ResetSelection()
+			else
+				_print("heyo")
+				self:MoveIndicator(-1)
+			end
+			--[[if loveframes.util.IsShiftDown() then
+				self:SetSelectionStart()
+				self:DebugSelection()
+				_print(self:GetSelectedText())
+			end]]
 			local indicatorx = self.indicatorx
 			if indicatorx <= x and indicatornum ~= 0 then
 				local width = font:getWidth(text:sub(indicatornum, indicatornum + 1))
@@ -633,28 +633,28 @@ function newobject:RunKey(key, unicode, is_text)
 				self.offsetx = 0
 			end
 		else
-      if loveframes.util.IsShiftDown() then
-        self:UpdateSelectionPoints('left_ml')
-        cprint("doin' it")
-      elseif self.hastextselection then
-        cprint("selection clearing")
-        self.indicatornum = self.textselectionpoints.start.x
-        self.line = self.textselectionpoints.start.y
-        self:ResetSelection()
-      else
-        cprint("heyo")
-        local numchars = -1
-        if indicatornum == 0 then
-          if line > 1 then
-            self.line = line - 1
-            numchars = #lines[self.line]
-          else
-            numchars = 0
-          end
-        end
-        cprint("no select "..tostring(numchars))
-        self:MoveIndicator(numchars)
-      end
+			if loveframes.util.IsShiftDown() then
+				self:UpdateSelectionPoints('left_ml')
+				_print("doin' it")
+			elseif self.hastextselection then
+				_print("selection clearing")
+				self.indicatornum = self.textselectionpoints.start.x
+				self.line = self.textselectionpoints.start.y
+				self:ResetSelection()
+			else
+				_print("heyo")
+				local numchars = -1
+				if indicatornum == 0 then
+					if line > 1 then
+						self.line = line - 1
+						numchars = #lines[self.line]
+					else
+						numchars = 0
+					end
+				end
+				_print("no select "..tostring(numchars))
+				self:MoveIndicator(numchars)
+			end
 		end
 		--[[if hastextselection then
 			self.line = 1
@@ -666,15 +666,15 @@ function newobject:RunKey(key, unicode, is_text)
 		indicatornum = self.indicatornum
 		if not multiline then
 			if loveframes.util.IsShiftDown() then
-        self:UpdateSelectionPoints('right_sl')
-      elseif self.hastextselection then
-        self.indicatornum = self.textselectionpoints.stop.x
-        self.line = self.textselectionpoints.stop.y
-        self:ResetSelection()
-      else
-        cprint("oyeh")
-        self:MoveIndicator(1)
-      end
+				self:UpdateSelectionPoints('right_sl')
+			elseif self.hastextselection then
+				self.indicatornum = self.textselectionpoints.stop.x
+				self.line = self.textselectionpoints.stop.y
+				self:ResetSelection()
+			else
+				_print("oyeh")
+				self:MoveIndicator(1)
+			end
 			local indicatorx = self.indicatorx
 			if indicatorx >= (x + swidth) and indicatornum ~= #text then
 				local width = font:getWidth(text:sub(indicatornum, indicatornum))
@@ -683,25 +683,25 @@ function newobject:RunKey(key, unicode, is_text)
 				self.offsetx = ((font:getWidth(text)) - swidth + 10)
 			end
 		else
-      if loveframes.util.IsShiftDown() then
-        self:UpdateSelectionPoints('right_ml')
-        cprint("doin' it")
-      elseif self.hastextselection then
-        cprint("selection clearing")
-        self.indicatornum = self.textselectionpoints.stop.x
-        self.line = self.textselectionpoints.stop.y
-        self:ResetSelection()
-      else
-        cprint("heyo")
-        if indicatornum == #text then
-          if line < numlines then
-            self.line = line + 1
-            self:MoveIndicator(0, true)
-          end
-        else
-          self:MoveIndicator(1)
-        end
-      end
+			if loveframes.util.IsShiftDown() then
+				self:UpdateSelectionPoints('right_ml')
+				_print("doin' it")
+			elseif self.hastextselection then
+				_print("selection clearing")
+				self.indicatornum = self.textselectionpoints.stop.x
+				self.line = self.textselectionpoints.stop.y
+				self:ResetSelection()
+			else
+				_print("heyo")
+				if indicatornum == #text then
+					if line < numlines then
+						self.line = line + 1
+						self:MoveIndicator(0, true)
+					end
+				else
+					self:MoveIndicator(1)
+				end
+			end
 		end
 		if alltextselected then
 			self.line = #lines
@@ -711,94 +711,94 @@ function newobject:RunKey(key, unicode, is_text)
 		return
 	elseif key == "up" then
 		if multiline then
-      if loveframes.util.IsShiftDown() and (not self.hastextselection) then
-        self:SetSelectionStop()
-      end
-      if self.line > 1 then
-        self.line = self.line - 1
-        if indicatornum > #lines[self.line] then
-          self.indicatornum = #lines[self.line]
-        end
-      end
-      if loveframes.util.IsShiftDown() then
-        if self.hastextselection and self.line == self.textselectionpoints.stop.y-1 then
-          cprint("what's the")
-          self:SetSelectionStop()
-        else
-          cprint("gub gub gub")
-          self:SetSelectionStart()
-        end
-        --self:SelectionFlip()
-        self.hastextselection = true
-      else
-        self:ResetSelection()
-      end
-    end
-    if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
-      self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
-      self.hastextselection = false
-    end
-    return
+			if loveframes.util.IsShiftDown() and (not self.hastextselection) then
+				self:SetSelectionStop()
+			end
+			if self.line > 1 then
+				self.line = self.line - 1
+				if indicatornum > #lines[self.line] then
+					self.indicatornum = #lines[self.line]
+				end
+			end
+			if loveframes.util.IsShiftDown() then
+				if self.hastextselection and self.line == self.textselectionpoints.stop.y-1 then
+					_print("what's the")
+					self:SetSelectionStop()
+				else
+					_print("gub gub gub")
+					self:SetSelectionStart()
+				end
+				--self:SelectionFlip()
+				self.hastextselection = true
+			else
+				self:ResetSelection()
+			end
+		end
+		if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
+			self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
+			self.hastextselection = false
+		end
+		return
 	elseif key == "down" then
 		if multiline then
-      if loveframes.util.IsShiftDown() and (not self.hastextselection) then
-        cprint("in start")
-        self:SetSelectionStart()
-      end
-      if self.line < #lines then
-        self.line = self.line + 1
-        if self.indicatornum > #lines[self.line] then
-          self.indicatornum = #lines[self.line]
-        end
-      end
-      if loveframes.util.IsShiftDown() then
-        if self.hastextselection and self.line == self.textselectionpoints.start.y+1 then
-          self:SetSelectionStart()
-        else
-          self:SetSelectionStop()
-        end
-        --self:SelectionFlip()
-        self.hastextselection = true
-      else
-        self:ResetSelection()
-      end
+			if loveframes.util.IsShiftDown() and (not self.hastextselection) then
+				_print("in start")
+				self:SetSelectionStart()
+			end
+			if self.line < #lines then
+				self.line = self.line + 1
+				if self.indicatornum > #lines[self.line] then
+					self.indicatornum = #lines[self.line]
+				end
+			end
+			if loveframes.util.IsShiftDown() then
+				if self.hastextselection and self.line == self.textselectionpoints.start.y+1 then
+					self:SetSelectionStart()
+				else
+					self:SetSelectionStop()
+				end
+				--self:SelectionFlip()
+				self.hastextselection = true
+			else
+				self:ResetSelection()
+			end
 		end
-    if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
-      self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
-      self.hastextselection = false
-    end
+		if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
+			self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
+			self.hastextselection = false
+		end
 		return
 	elseif key == "home" then
-    if loveframes.util.IsShiftDown() then
-      if hastextselection then
-        self.indicatornum = 0
-        self:SetSelectionStart()
-      else
-        self:SetSelectionStop()
-        self.indicatornum = 0
-        self:SetSelectionStart()
-        self.hastextselection = true
-      end
-    else
-      self.indicatornum = 0
-    end
+		if loveframes.util.IsShiftDown() then
+			if hastextselection then
+				self.indicatornum = 0
+				self:SetSelectionStart()
+			else
+				self:SetSelectionStop()
+				self.indicatornum = 0
+				self:SetSelectionStart()
+				self.hastextselection = true
+			end
+		else
+			self.indicatornum = 0
+		end
 		return
-  elseif key == "end" then
-    if loveframes.util.IsShiftDown() then
-      if hastextselection then
-        self.indicatornum = #lines[self.line]
-        self:SetSelectionStop()
-      else
-        self:SetSelectionStart()
-        self.indicatornum = #lines[self.line]
-        self:SetSelectionStop()
-        self.hastextselection = true
-      end
-    else
-      self.indicatornum = #lines[self.line]
-    end
+	elseif key == "end" then
+		if loveframes.util.IsShiftDown() then
+			if hastextselection then
+				self.indicatornum = #lines[self.line]
+				self:SetSelectionStop()
+			else
+				self:SetSelectionStart()
+				self.indicatornum = #lines[self.line]
+				self:SetSelectionStop()
+				self.hastextselection = true
+			end
+		else
+			self.indicatornum = #lines[self.line]
+		end
 		return
-  end
+	end
 	
 	if not editable then
 		return
@@ -951,7 +951,7 @@ function newobject:RunKey(key, unicode, is_text)
 				line = self.line
 			end
 			if indicatornum ~= 0 and indicatornum ~= #text then
-        -- @TODO: Hook for potentially paste-overwrite.
+				-- @TODO: Hook for potentially paste-overwrite.
 				text = self:AddIntoText(unicode, indicatornum)
 				lines[line] = text
 				self:MoveIndicator(1)
@@ -2032,8 +2032,8 @@ function newobject:Paste()
 			local last = lines[line]:sub(indicatornum + 1)
 			if numparts > 1 then
 				for i=1, numparts do
-					local part = parts[i]:gsub(string.char(13),  "")
-					part = part:gsub(string.char(9), "    ")
+					local part = parts[i]:gsub(string.char(13),	"")
+					part = part:gsub(string.char(9), "		")
 					if i ~= 1 then
 						table.insert(oldlinedata, lines[line])
 						lines[line] = part
@@ -2180,8 +2180,8 @@ end
 	- desc: gets the object's placeholder text
 --]]---------------------------------------------------------
 function newobject:SetSelection()
-  -- @WARNING: STUBBED FUNCTIONALITY
-  
+	-- @WARNING: STUBBED FUNCTIONALITY
+	
 end
 
 --[[---------------------------------------------------------
@@ -2189,10 +2189,10 @@ end
 	- desc: sets the beginning of the selection
 --]]---------------------------------------------------------
 function newobject:SetSelectionStart(x, y)
-  x = x or self.indicatornum
-  y = y or self.line
-  self.textselectionpoints.start.x = x
-  self.textselectionpoints.start.y = y
+	x = x or self.indicatornum
+	y = y or self.line
+	self.textselectionpoints.start.x = x
+	self.textselectionpoints.start.y = y
 end
 
 --[[---------------------------------------------------------
@@ -2200,272 +2200,272 @@ end
 	- desc: sets the beginning of the selection
 --]]---------------------------------------------------------
 function newobject:SetSelectionStop(x, y)
-  x = x or self.indicatornum
-  y = y or self.line
-  self.textselectionpoints.stop.x = x
-  self.textselectionpoints.stop.y = y
+	x = x or self.indicatornum
+	y = y or self.line
+	self.textselectionpoints.stop.x = x
+	self.textselectionpoints.stop.y = y
 end
 
 function newobject:HasTextSelection()
-  --self:ValidateSelection()
-  return self.hastextselection
+	--self:ValidateSelection()
+	return self.hastextselection
 end
 
 function newobject:GetTextSelectionPoints()
-  return self.textselectionpoints
+	return self.textselectionpoints
 end
 
 function newobject:SelectionFlip()
-  if self.textselectionpoints.start.y > self.textselectionpoints.stop.y then
-    local x1, x2 = self.textselectionpoints.start.x, self.textselectionpoints.stop.x
-    local y1, y2 = self.textselectionpoints.start.y, self.textselectionpoints.stop.y
-    self.textselectionpoints.start.x = x2
-    self.textselectionpoints.stop.x = x1
-    self.textselectionpoints.start.y = y2
-    self.textselectionpoints.stop.y = y1
-  elseif self.textselectionpoints.start.y == self.textselectionpoints.stop.y and
-    self.textselectionpoints.start.x > self.textselectionpoints.stop.y then
-    local x1, x2 = self.textselectionpoints.start.x, self.textselectionpoints.stop.x
-    local y1, y2 = self.textselectionpoints.start.y, self.textselectionpoints.stop.y
-    self.textselectionpoints.start.x = x2
-    self.textselectionpoints.stop.x = x1
-    self.textselectionpoints.start.y = y2
-    self.textselectionpoints.stop.y = y1
-  else
-    cprint("text didn't need to flip")
-  end
-    
+	if self.textselectionpoints.start.y > self.textselectionpoints.stop.y then
+		local x1, x2 = self.textselectionpoints.start.x, self.textselectionpoints.stop.x
+		local y1, y2 = self.textselectionpoints.start.y, self.textselectionpoints.stop.y
+		self.textselectionpoints.start.x = x2
+		self.textselectionpoints.stop.x = x1
+		self.textselectionpoints.start.y = y2
+		self.textselectionpoints.stop.y = y1
+	elseif self.textselectionpoints.start.y == self.textselectionpoints.stop.y and
+		self.textselectionpoints.start.x > self.textselectionpoints.stop.y then
+		local x1, x2 = self.textselectionpoints.start.x, self.textselectionpoints.stop.x
+		local y1, y2 = self.textselectionpoints.start.y, self.textselectionpoints.stop.y
+		self.textselectionpoints.start.x = x2
+		self.textselectionpoints.stop.x = x1
+		self.textselectionpoints.start.y = y2
+		self.textselectionpoints.stop.y = y1
+	else
+		_print("text didn't need to flip")
+	end
+		
 end
 
 function newobject:ValidateSelection()
-  if self.textindicatorstartx ~= nil and self.textindicatorstarty ~= nil and 
-    self.textindicatorstopx ~= nil and self.textindicatorstopy ~= nil then
-    -- none of the points are unset, validate their positions
-    -- selection start should be higher than the stop
-    if self.textindicatorstarty > self.textindicatorstopy then
-      -- @TODO: Validate X
-      self.hastextselection = true
-    elseif self.textindicatorstarty == self.textindicatorstopy then
-      if self.textindicatorstartx < self.textindicatorstopx then
-        self.hastextselection = true
-      elseif self.textindicatorstartx > self.textindicatorstopx then
-        local x1, x2 = self.textindicatorstartx, self.textindicatorstopx
-        self.textindicatorstartx = x2
-        self.textindicatorstopx = x1
-        self.hastextselection = true
-      else
-        self:ResetSelection()
-      end
-    else 
-      local x1, x2 = self.textindicatorstartx, self.textindicatorstopx
-      local y1, y2 = self.textindicatorstarty, self.textindicatorstopy
-      self.textindicatorstartx = x2
-      self.textindicatorstopx = x1
-      self.textindicatorstarty = y2
-      self.textindicatorstopy = y1
-      self.hastextselection = true
-    end
-  else
-    self:ResetSelection()
-  end
+	if self.textindicatorstartx ~= nil and self.textindicatorstarty ~= nil and 
+		self.textindicatorstopx ~= nil and self.textindicatorstopy ~= nil then
+		-- none of the points are unset, validate their positions
+		-- selection start should be higher than the stop
+		if self.textindicatorstarty > self.textindicatorstopy then
+			-- @TODO: Validate X
+			self.hastextselection = true
+		elseif self.textindicatorstarty == self.textindicatorstopy then
+			if self.textindicatorstartx < self.textindicatorstopx then
+				self.hastextselection = true
+			elseif self.textindicatorstartx > self.textindicatorstopx then
+				local x1, x2 = self.textindicatorstartx, self.textindicatorstopx
+				self.textindicatorstartx = x2
+				self.textindicatorstopx = x1
+				self.hastextselection = true
+			else
+				self:ResetSelection()
+			end
+		else 
+			local x1, x2 = self.textindicatorstartx, self.textindicatorstopx
+			local y1, y2 = self.textindicatorstarty, self.textindicatorstopy
+			self.textindicatorstartx = x2
+			self.textindicatorstopx = x1
+			self.textindicatorstarty = y2
+			self.textindicatorstopy = y1
+			self.hastextselection = true
+		end
+	else
+		self:ResetSelection()
+	end
 end
 
 
-      
+			
 function newobject:ResetSelection()
-  self.hastextselection = false
-  self.textselectionpoints.start.x = nil
-  self.textselectionpoints.start.y = nil
-  self.textselectionpoints.stop.x = nil
-  self.textselectionpoints.stop.y = nil
+	self.hastextselection = false
+	self.textselectionpoints.start.x = nil
+	self.textselectionpoints.start.y = nil
+	self.textselectionpoints.stop.x = nil
+	self.textselectionpoints.stop.y = nil
 end
 
 function newobject:GetSelectedText()
-  local str = ''
-  local textselectionpoints = self:GetTextSelectionPoints()
-  for i=textselectionpoints.start.y, textselectionpoints.stop.y do
-    if i==textselectionpoints.start.y and i~=textselectionpoints.stop.y then
-      str = str .. self.lines[i]:sub(textselectionpoints.start.x+1) .. "\n"
-    elseif i~=textselectionpoints.start.y and i==textselectionpoints.stop.y then
-      str = str .. self.lines[i]:sub(0, textselectionpoints.stop.x)
-    elseif i==textselectionpoints.start.y and i==textselectionpoints.stop.y then
-      str = str .. self.lines[i]:sub(textselectionpoints.start.x+1, textselectionpoints.stop.x)
-    else
-      str = str .. self.lines[i] .. "\n"
-    end
-  end
-  return str
+	local str = ''
+	local textselectionpoints = self:GetTextSelectionPoints()
+	for i=textselectionpoints.start.y, textselectionpoints.stop.y do
+		if i==textselectionpoints.start.y and i~=textselectionpoints.stop.y then
+			str = str .. self.lines[i]:sub(textselectionpoints.start.x+1) .. "\n"
+		elseif i~=textselectionpoints.start.y and i==textselectionpoints.stop.y then
+			str = str .. self.lines[i]:sub(0, textselectionpoints.stop.x)
+		elseif i==textselectionpoints.start.y and i==textselectionpoints.stop.y then
+			str = str .. self.lines[i]:sub(textselectionpoints.start.x+1, textselectionpoints.stop.x)
+		else
+			str = str .. self.lines[i] .. "\n"
+		end
+	end
+	return str
 end
 
 function newobject:GetSelectedTextLines()
-  local lines = {}
-  for i=textselectionpoints.start.y, textselectionpoints.stop.y do
-    if i==textselectionpoints.start.y and i~=textselectionpoints.stop.y then
-      table.insert(lines, self.lines[i]:sub(textselectionpoints.start.x))
-    elseif i~=textselectionpoints.start.y and i==textselectionpoints.stop.y then
-      table.insert(lines, self.lines[i]:sub(0, textselectionpoints.stop.x))
-    elseif i==textselectionpoints.start.y and i==textselectionpoints.stop.y then
-      table.insert(lines, self.lines[i]:sub(textselectionpoints.start.x, textselectionpoints.stop.x))
-    else
-      table.insert(lines, self.lines[i])
-    end
-  end
-  return lines
+	local lines = {}
+	for i=textselectionpoints.start.y, textselectionpoints.stop.y do
+		if i==textselectionpoints.start.y and i~=textselectionpoints.stop.y then
+			table.insert(lines, self.lines[i]:sub(textselectionpoints.start.x))
+		elseif i~=textselectionpoints.start.y and i==textselectionpoints.stop.y then
+			table.insert(lines, self.lines[i]:sub(0, textselectionpoints.stop.x))
+		elseif i==textselectionpoints.start.y and i==textselectionpoints.stop.y then
+			table.insert(lines, self.lines[i]:sub(textselectionpoints.start.x, textselectionpoints.stop.x))
+		else
+			table.insert(lines, self.lines[i])
+		end
+	end
+	return lines
 end
 
 function newobject:Select(mode)
-  if mode=='all' then
-    self.hastextselection = true
-    self.textselectionpoints.start.x = 0
-    self.textselectionpoints.start.y = 1
-    self.textselectionpoints.stop.x = self.lines[#self.lines]:len()
-    self.textselectionpoints.stop.y = #self.lines
-  end
+	if mode=='all' then
+		self.hastextselection = true
+		self.textselectionpoints.start.x = 0
+		self.textselectionpoints.start.y = 1
+		self.textselectionpoints.stop.x = self.lines[#self.lines]:len()
+		self.textselectionpoints.stop.y = #self.lines
+	end
 end
 
 function newobject:UpdateSelectionPoints(mode)
-  if mode == 'left_ml' then
-    local numchars = -1
-    if self.indicatornum == 0 then
-      if self.line > 1 then
-        self.line = self.line - 1
-        numchars = #self.lines[self.line]
-      else
-        numchars = 0
-      end
-    end
-    if self.hastextselection then 
-      if self.textselectionpoints.start.x == self.indicatornum and
-        self.textselectionpoints.start.y == self.line then
-        self:MoveIndicator(numchars)
-        self:SetSelectionStart()
-      elseif self.textselectionpoints.stop.x == self.indicatornum and
-        self.textselectionpoints.stop.y == self.line then
-        self:MoveIndicator(numchars)
-        self:SetSelectionStop()
-      else
-        self:MoveIndicator(numchars)
-        self:SetSelectionStart()
-        --[[
-        self:ResetSelection()
-        self:UpdateSelectionPoints('left_sl')]]
-      end
-      if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
-        self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
-        self.hastextselection = false
-      end
-    else
-      self:SetSelectionStop()
-      self:MoveIndicator(numchars)
-      self:SetSelectionStart()
-    end
-    self.hastextselection = true
-    if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
-      self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
-      self.hastextselection = false
-    end
-  elseif mode == 'right_ml' then
-    local movetype = nil
-    if self.indicatornum == #self.lines[self.line] then
-      if self.line < #self.lines then
-        movetype = 'abs'
-      end
-    else
-      movetype = 'inc'
-    end
-    
-    if self.hastextselection then 
-      if self.textselectionpoints.start.x == self.indicatornum and
-        self.textselectionpoints.start.y == self.line then
-        if movetype == 'inc' then
-          self:MoveIndicator(1)
-        elseif movetype == 'abs' then
-          self.line = self.line + 1
-          self:MoveIndicator(0, true)
-        end
-        self:SetSelectionStart()
-      elseif self.textselectionpoints.stop.x == self.indicatornum and
-        self.textselectionpoints.stop.y == self.line then
-        if movetype == 'inc' then
-          self:MoveIndicator(1)
-        elseif movetype == 'abs' then
-          self.line = self.line + 1
-          self:MoveIndicator(0, true)
-        end
-        self:SetSelectionStop()
-      else
-        self.indicatornum = 0
-        self.line = self.line + 1
-        self:SetSelectionStart()
-        --[[
-        self:ResetSelection()
-        self:UpdateSelectionPoints('left_sl')]]
-      end
-    else
-      self:SetSelectionStart()
-      if movetype == 'inc' then
-        self:MoveIndicator(1)
-      elseif movetype == 'abs' then
-        self.line = self.line + 1
-        self:MoveIndicator(0, true)
-      end
-      self:SetSelectionStop()
-    end
-    self.hastextselection = true
-    if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
-      self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
-      self.hastextselection = false
-    end
-  elseif mode == 'left_sl' then
-    if self.hastextselection then 
-      if self.textselectionpoints.start.x == self.indicatornum and
-        self.textselectionpoints.start.y == self.line then
-        self:MoveIndicator(-1)
-        self:SetSelectionStart()
-      elseif self.textselectionpoints.stop.x == self.indicatornum and
-        self.textselectionpoints.stop.y == self.line then
-        self:MoveIndicator(-1)
-        self:SetSelectionStop()
-      else
-        self:ResetSelection()
-        self:UpdateSelectionPoints('left_sl')
-      end
-      if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
-        self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
-        self.hastextselection = false
-      end
-    else
-      self:SetSelectionStop()
-      self:MoveIndicator(-1)
-      self:SetSelectionStart()
-    end
-    self.hastextselection = true
-  elseif mode == 'right_sl' then
-    if self.hastextselection then 
-      if self.textselectionpoints.stop.x == self.indicatornum and
-        self.textselectionpoints.stop.y == self.line then
-        -- if we are at the end of a text selection, extend it
-        self:MoveIndicator(1)
-        self:SetSelectionStop()
-      elseif self.textselectionpoints.start.x == self.indicatornum and
-        self.textselectionpoints.start.y == self.line then
-        -- we are at the beginning move the selection 
-        self:MoveIndicator(1)
-        self:SetSelectionStart()
-      else
-        self:ResetSelection()
-        self:UpdateSelectionPoints('right_sl')
-        print("goodness")
-      end
-      if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
-        self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
-        self.hastextselection = false
-      end
-    else
-      self:SetSelectionStart()
-      self:MoveIndicator(1)
-      self:SetSelectionStop()
-    end
-    self.hastextselection = true
-  end
+	if mode == 'left_ml' then
+		local numchars = -1
+		if self.indicatornum == 0 then
+			if self.line > 1 then
+				self.line = self.line - 1
+				numchars = #self.lines[self.line]
+			else
+				numchars = 0
+			end
+		end
+		if self.hastextselection then 
+			if self.textselectionpoints.start.x == self.indicatornum and
+				self.textselectionpoints.start.y == self.line then
+				self:MoveIndicator(numchars)
+				self:SetSelectionStart()
+			elseif self.textselectionpoints.stop.x == self.indicatornum and
+				self.textselectionpoints.stop.y == self.line then
+				self:MoveIndicator(numchars)
+				self:SetSelectionStop()
+			else
+				self:MoveIndicator(numchars)
+				self:SetSelectionStart()
+				--[[
+				self:ResetSelection()
+				self:UpdateSelectionPoints('left_sl')]]
+			end
+			if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
+				self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
+				self.hastextselection = false
+			end
+		else
+			self:SetSelectionStop()
+			self:MoveIndicator(numchars)
+			self:SetSelectionStart()
+		end
+		self.hastextselection = true
+		if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
+			self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
+			self.hastextselection = false
+		end
+	elseif mode == 'right_ml' then
+		local movetype = nil
+		if self.indicatornum == #self.lines[self.line] then
+			if self.line < #self.lines then
+				movetype = 'abs'
+			end
+		else
+			movetype = 'inc'
+		end
+		
+		if self.hastextselection then 
+			if self.textselectionpoints.start.x == self.indicatornum and
+				self.textselectionpoints.start.y == self.line then
+				if movetype == 'inc' then
+					self:MoveIndicator(1)
+				elseif movetype == 'abs' then
+					self.line = self.line + 1
+					self:MoveIndicator(0, true)
+				end
+				self:SetSelectionStart()
+			elseif self.textselectionpoints.stop.x == self.indicatornum and
+				self.textselectionpoints.stop.y == self.line then
+				if movetype == 'inc' then
+					self:MoveIndicator(1)
+				elseif movetype == 'abs' then
+					self.line = self.line + 1
+					self:MoveIndicator(0, true)
+				end
+				self:SetSelectionStop()
+			else
+				self.indicatornum = 0
+				self.line = self.line + 1
+				self:SetSelectionStart()
+				--[[
+				self:ResetSelection()
+				self:UpdateSelectionPoints('left_sl')]]
+			end
+		else
+			self:SetSelectionStart()
+			if movetype == 'inc' then
+				self:MoveIndicator(1)
+			elseif movetype == 'abs' then
+				self.line = self.line + 1
+				self:MoveIndicator(0, true)
+			end
+			self:SetSelectionStop()
+		end
+		self.hastextselection = true
+		if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
+			self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
+			self.hastextselection = false
+		end
+	elseif mode == 'left_sl' then
+		if self.hastextselection then 
+			if self.textselectionpoints.start.x == self.indicatornum and
+				self.textselectionpoints.start.y == self.line then
+				self:MoveIndicator(-1)
+				self:SetSelectionStart()
+			elseif self.textselectionpoints.stop.x == self.indicatornum and
+				self.textselectionpoints.stop.y == self.line then
+				self:MoveIndicator(-1)
+				self:SetSelectionStop()
+			else
+				self:ResetSelection()
+				self:UpdateSelectionPoints('left_sl')
+			end
+			if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
+				self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
+				self.hastextselection = false
+			end
+		else
+			self:SetSelectionStop()
+			self:MoveIndicator(-1)
+			self:SetSelectionStart()
+		end
+		self.hastextselection = true
+	elseif mode == 'right_sl' then
+		if self.hastextselection then 
+			if self.textselectionpoints.stop.x == self.indicatornum and
+				self.textselectionpoints.stop.y == self.line then
+				-- if we are at the end of a text selection, extend it
+				self:MoveIndicator(1)
+				self:SetSelectionStop()
+			elseif self.textselectionpoints.start.x == self.indicatornum and
+				self.textselectionpoints.start.y == self.line then
+				-- we are at the beginning move the selection 
+				self:MoveIndicator(1)
+				self:SetSelectionStart()
+			else
+				self:ResetSelection()
+				self:UpdateSelectionPoints('right_sl')
+				print("goodness")
+			end
+			if self.textselectionpoints.start.x == self.textselectionpoints.stop.x and
+				self.textselectionpoints.start.y == self.textselectionpoints.stop.y then
+				self.hastextselection = false
+			end
+		else
+			self:SetSelectionStart()
+			self:MoveIndicator(1)
+			self:SetSelectionStop()
+		end
+		self.hastextselection = true
+	end
 end

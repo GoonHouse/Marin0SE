@@ -6,7 +6,7 @@ debug_bar = {
 }
 
 -- overload print to pipe it to the textbox in addition to here
-local _print = print
+_print = print
 function print(...)
 	local strings = {}
 	for k,v in pairs({...}) do

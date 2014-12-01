@@ -34,6 +34,7 @@ minimapwidth = 0
 mariolivecount = 0
 
 -- i love lasagna
+pausemenuselected=1
 displaywarpzonetext = false
 warpzonenumbers = {}
 networkclientnumber = 0

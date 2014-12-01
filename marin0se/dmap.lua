@@ -497,12 +497,12 @@ end
 
 function dmap:dummyMap()
 	self.background = {unpack(backgroundcolor[1])}
+	self.map = {}
+	self.coinmap = {}
 	self.map.height = 15
 	self.map.width = 25
 	self.portalsavailable = {true, true}
 	self.music = "overworld.ogg"
-	self.map = {}
-	self.coinmap = {}
 	for x = 1, self.map.width do
 		self.map[x] = {}
 		self.coinmap[x] = {}

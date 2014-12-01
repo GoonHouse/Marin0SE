@@ -403,7 +403,11 @@ function lume.hotswap(modname)
   local updated = {}
   local function update(old, new)
     if updated[old] then return end
-    updated[old] = true
+    _print("lh", old, new)
+    if not old then
+        old = new
+    end
+    updated[old or new] = true
     local oldmt, newmt = getmetatable(old), getmetatable(new)
     if oldmt and newmt then update(oldmt, newmt) end
     for k, v in pairs(new) do
