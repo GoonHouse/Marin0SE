@@ -107,6 +107,11 @@ function math.fits(a, b)
 end
 
 function math.scale(value, omin, omax, nmin, nmax)
+	value = value or 0
+	omin = omin or 0
+	omax = omax or 1
+	nmin = nmin or 0
+	nmax = nmax or 1
 	return (
 		(
 			(nmax-nmin)*(value-omin)

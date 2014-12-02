@@ -14,8 +14,77 @@ game = {
 		history_limit = 50
 	},
 	graphs = {
-		draw = false,
-	}
+		mem = {
+			func = function(g, dt, ...)
+				local mem = collectgarbage("count")
+				return math.floor(mem*10)/10
+			end,
+			width = 400,
+			height = 100,
+			--font = love.graphics.newFont(16),
+			lcolor = {120, 40, 40},
+			fcolor = {120, 40, 40},
+			points = 100,
+			drawmode = "scale"
+		},
+		fps = {
+			func = love.timer.getFPS,
+			width = 400,
+			height = 100,
+			--font = love.graphics.newFont(16),
+			lcolor = {103,50,103},
+			fcolor = {103,50,103},
+			points = 100,
+		},
+	},
+	debug = {
+		profile = {
+			draw = false,
+			pad = 20,
+			sizex = 300,
+			--sizey = 600,
+			dropoff = 1, 
+		},
+	},
+	probes = {
+		items = {}, -- this is where we put them after we build them
+		signatures = {
+			updates = {
+				func = function(g, dt, ...)
+					local gop = {...}
+					return gop[1]
+				end,
+				upol = 60,
+				width = 400,
+				height = 100,
+				points = 100,
+				cscalemin = 0,
+				cscalemax = 1,
+				--pollmode = "single",
+				drawmode = "relative", --relative
+				lcolor = {0, 180, 0},
+				lblformat = "%(name)s: %(val).3f ( %(vmax).3f / %(vmin).3f )",
+				dlabel = false,
+			},
+			draws = {
+				func = function(g, dt, ...)
+					local gop = {...}
+					return gop[1]
+				end,
+				upol = 60,
+				width = 400,
+				height = 100,
+				points = 100,
+				cscalemin = 0,
+				cscalemax = 1,
+				--pollmode = "single",
+				drawmode = "relative", --relative
+				lcolor = {30, 30, 255},
+				lblformat = "%(name)s: %(val).3f ( %(vmax).3f / %(vmin).3f )",
+				dlabel = false,
+			},
+		},
+	},
 }
 --[[
 	this is where all (image/sound)s [or lua data of type userdata] will go
@@ -30,7 +99,8 @@ resources = {
 	spritebatch = {},
 }
 
-enum_graph_types = {
+
+enum_graph_types = { --netgraph colors and junk
 	"voice", --1c003a
 	"stringtables", --2d680c
 	"stringcmds", --700800
@@ -43,36 +113,6 @@ enum_graph_types = {
 	"localplayer",--0e0c94
 }
 
-graphs = {
-	fps = {
-		func = love.timer.getFPS,
-		width = 400,
-		height = 100,
-		--font = love.graphics.newFont(16),
-		lcolor = {0, 200, 0},
-		points = 100,
-	},
-	mem = {
-		func = function(g, dt)
-			local mem = collectgarbage("count")
-			return math.floor(mem*10)/10
-		end,
-		width = 400,
-		height = 100,
-		--font = love.graphics.newFont(16),
-		lcolor = {0, 0, 80},
-		points = 100,
-		drawmode = "scale"
-	},
-	time = {
-		func = os.clock,
-		width = 400,
-		height = 100,
-		--font = love.graphics.newFont(16),
-		lcolor = {80, 0, 80},
-		points = 100,
-	},
-}
 
 --THESE VARS CAME FROM THE EDITOR
 rightclickm = nil
@@ -82,6 +122,7 @@ minimapwidth = 0
 mariolivecount = 0
 
 -- i love lasagna
+globaldt = 0
 pausemenuselected=1
 displaywarpzonetext = false
 warpzonenumbers = {}

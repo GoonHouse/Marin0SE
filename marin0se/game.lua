@@ -76,7 +76,9 @@ function game_update(dt)
 	--------
 	
 	--animationS
+	game.probes.items.updates:pushEvent("animationsystem")
 	animationsystem_update(dt)
+	game.probes.items.updates:popEvent("animationsystem")
 	
 	--pausemenu
 	if pausemenuopen then
@@ -84,23 +86,29 @@ function game_update(dt)
 	end
 	
 	--Animate animated tiles because I say so
+	game.probes.items.updates:pushEvent("animatedtiles")
 	for i = 1, #animatedtiles do
 		animatedtiles[i]:update(dt)
 	end
+	game.probes.items.updates:popEvent("animatedtiles")
 	
+	game.probes.items.updates:pushEvent("animatedtimers")
 	for i = 1, #animatedtimerlist do
 		animatedtimerlist[i]:update(dt)
 	end
+	game.probes.items.updates:popEvent("animatedtimers")
 	
 	--coinanimation
+	game.probes.items.updates:pushEvent("coinanimation")
 	coinanimation = coinanimation + dt*6.75
 	while coinanimation >= 6 do
 		coinanimation = coinanimation - 5
-	end	
-	
+	end
 	coinframe = math.floor(coinanimation)
+	game.probes.items.updates:popEvent("coinanimation")
 	
 	if replaysystem then
+		game.probes.items.updates:pushEvent("replaysystem")
 		for j = 1, #replaydata do
 			if replaydata[j].data then
 				replaytimer[j] = replaytimer[j] + dt
@@ -109,19 +117,23 @@ function game_update(dt)
 				end
 			end
 		end
+		game.probes.items.updates:popEvent("replaysystem")
 	end
 	
 	--If everyone's dead, just update the players and coinblock timer.
 	if everyonedead then
+		game.probes.items.updates:pushEvent("everyonedead")
 		for i, v in pairs(objects["player"]) do
 			v:update(dt)
 		end
+		game.probes.items.updates:popEvent("everyonedead")
 		
 		return
 	end
 	
 	--timer	
 	if editormode == false then
+		game.probes.items.updates:pushEvent("game_timer")
 		--get if any player has their controls disabled
 		local notime = false
 		for i = 1, players do
@@ -160,9 +172,11 @@ function game_update(dt)
 				end
 			end
 		end
+		game.probes.items.updates:popEvent("game_timer")
 	end
 	
 	--out of bounds
+	game.probes.items.updates:pushEvent("outofbounds")
 	local anyone_outofbounds = false
 	for i, v in pairs(objects["player"]) do
 		if v.outofboundstimer > outofboundstime then
@@ -181,19 +195,24 @@ function game_update(dt)
 		w:playmusic()
 	end
 	was_anyone_outofbounds = anyone_outofbounds
+	game.probes.items.updates:popEvent("outofbounds")
 	
 	--Portaldots
+	game.probes.items.updates:pushEvent("portaldots")
 	portaldotstimer = portaldotstimer + dt
 	while portaldotstimer > portaldotstime do
 		portaldotstimer = portaldotstimer - portaldotstime
 	end
+	game.probes.items.updates:popEvent("portaldots")
 	
 	--check if updates are blocked for whatever reason
 	if noupdate then
 		--print("update blocked")
+		game.probes.items.updates:pushEvent("noupdate")
 		for i, v in pairs(objects["player"]) do --But update players anyway.
 			v:update(dt)
 		end
+		game.probes.items.updates:popEvent("noupdate")
 		return
 	end
 	
@@ -214,6 +233,7 @@ function game_update(dt)
 	
 	
 	-- the big update
+	game.probes.items.updates:pushEvent("main_update")
 	for i, v in pairs(updatetable) do
 		delete = {}
 		
@@ -238,10 +258,13 @@ function game_update(dt)
 			end
 		end
 	end
+	game.probes.items.updates:popEvent("main_update")
 	
 	
 	--PHYSICS
+	game.probes.items.updates:pushEvent("physics")
 	physicsupdate(dt)
+	game.probes.items.updates:popEvent("physics")
 	
 	
 	--SCROLLING
@@ -251,6 +274,7 @@ function game_update(dt)
 	
 	-- abandon hope all who enter: scrollhandler
 	if autoscroll --[[and minimapdragging == false]] then --snubbed because this var is nil when editor is unloaded
+		game.probes.items.updates:pushEvent("scrollhandler")
 		--scrolling
 		local i = 1
 		while i <= players and (objects["player"][i].dead or objects["player"][i].remote) do
@@ -410,6 +434,7 @@ function game_update(dt)
 		if yscroll < 0 then
 			yscroll = 0
 		end
+		game.probes.items.updates:popEvent("scrollhandler")
 	end
 	
 	if firstpersonview then
@@ -485,6 +510,7 @@ function game_update(dt)
 	--enemy spawning
 	if not editormode then
 		if round(xscroll) ~= round(oldxscroll) then
+			game.probes.items.updates:pushEvent("enemyspawnx")
 			local xstart, xend
 			if xscroll > oldxscroll then
 				xstart, xend = round(oldxscroll)+1+math.ceil(width), round(xscroll)+math.ceil(width)
@@ -497,9 +523,11 @@ function game_update(dt)
 					w.currentMap:spawnEnemy(x, y)
 				end
 			end
+			game.probes.items.updates:popEvent("enemyspawnx")
 		end
 		
 		if round(yscroll) ~= round(oldyscroll) then
+			game.probes.items.updates:pushEvent("enemyspawny")
 			local ystart, yend
 			if yscroll > oldyscroll then
 				ystart, yend = round(oldyscroll)+1+math.ceil(height), round(yscroll)+math.ceil(height)
@@ -512,10 +540,12 @@ function game_update(dt)
 					w:spawnEnemy(x, y)
 				end
 			end
+			game.probes.items.updates:popEvent("enemyspawny")
 		end
 	end
 	
 	--SPRITEBATCH UPDATE and CASTLEREPEATS
+	game.probes.items.updates:pushEvent("spritebatch_biggun")
 	if math.floor(xscroll) ~= spritebatchX[1] then
 		if not editormode then
 			for currentx = w.currentMap.lastrepeat+1+width, math.floor(xscroll)+1+width do
@@ -529,8 +559,10 @@ function game_update(dt)
 		generatespritebatch()
 		spritebatchY[1] = math.floor(yscroll)
 	end
+	game.probes.items.updates:popEvent("spritebatch_biggun")
 	
 	--portal particles
+	game.probes.items.updates:pushEvent("portalparticles")
 	portalparticletimer = portalparticletimer + dt
 	while portalparticletimer > portalparticletime do
 		portalparticletimer = portalparticletimer - portalparticletime
@@ -577,24 +609,30 @@ function game_update(dt)
 			end
 		end
 	end
+	game.probes.items.updates:popEvent("portalparticles")
 	
 	--Editor
 	if editormode then
+		game.probes.items.updates:pushEvent("editor_update")
 		editor_update(dt)
+		game.probes.items.updates:popEvent("editor_update")
 	end
 	
 	--Update pointing angle of players
+	game.probes.items.updates:pushEvent("player_angles")
 	for i, v in pairs(objects.player) do
 		if not v.disableaiming then
 			v:updateangle()
 		end
 	end
+	game.probes.items.updates:popEvent("player_angles")
 end
 
 function drawlevel()
 	if incognito then
 		return
 	end
+	game.probes.items.draws:pushEvent("scene_level_background")
 	love.graphics.setColor(love.graphics.getBackgroundColor())
 	love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)
 	love.graphics.setColor(255, 255, 255, 255)
@@ -619,7 +657,9 @@ function drawlevel()
 			ytodraw = height
 		end
 	end
+	game.probes.items.draws:popEvent("scene_level_background")
 	
+	game.probes.items.draws:pushEvent("scene_level_custom_background")
 	--custom background
 	if custombackground then
 		if custombackground == true then
@@ -654,22 +694,33 @@ function drawlevel()
 			end
 		end
 	end
+	game.probes.items.draws:popEvent("scene_level_custom_background")
 	
 	--castleflag
+	game.probes.items.draws:pushEvent("scene_level_castle_flag")
 	if levelfinished and levelfinishtype == "flag" and not custombackground then
 		love.graphics.draw(castleflagimg, math.floor((flagx+6-xscroll)*16*scale), (flagy-7+10/16)*16*scale+(castleflagy-yscroll)*16*scale, 0, scale, scale)
 	end
+	game.probes.items.draws:popEvent("scene_level_castle_flag")
 	
 	--itemanimations
+	game.probes.items.draws:pushEvent("scene_level_itemanimations")
 	for j, w in pairs(itemanimations) do
 		w:draw()
 	end
+	game.probes.items.draws:popEvent("scene_level_itemanimations")
 	
 	--TILES
+	game.probes.items.draws:pushEvent("scene_level_spritebatch_smb")
 	love.graphics.draw(smbspritebatch, math.floor(-math.fmod(xscroll, 1)*16*scale), math.floor(-math.fmod(yscroll, 1)*16*scale))
+	game.probes.items.draws:popEvent("scene_level_spritebatch_smb")
+	game.probes.items.draws:pushEvent("scene_level_spritebatch_portal")
 	love.graphics.draw(portalspritebatch, math.floor(-math.mod(xscroll, 1)*16*scale), math.floor(-math.mod(yscroll, 1)*16*scale))
+	game.probes.items.draws:popEvent("scene_level_spritebatch_portal")
 	if customtiles then
+		game.probes.items.draws:pushEvent("scene_level_custom")
 		love.graphics.draw(customspritebatch, math.floor(-math.mod(xscroll, 1)*16*scale), math.floor(-math.mod(yscroll, 1)*16*scale))
+		game.probes.items.draws:popEvent("scene_level_custom")
 	end
 	
 	local lmap = map
@@ -688,10 +739,12 @@ function drawlevel()
 		flooredyscroll = math.ceil(yscroll)
 	end
 	
+	game.probes.items.draws:pushEvent("scene_level_giant_handler")
 	for y = 1, ytodraw do
 		for x = 1, xtodraw do
 			if inmap(flooredxscroll+x, flooredyscroll+y) then
 				local bounceyoffset = 0
+				game.probes.items.draws:pushEvent("scene_level_pseudoblocks")
 				if objects then
 					for i, v in pairs(objects.pseudoblock) do
 						if v.x == flooredxscroll+x and v.y == flooredyscroll+y then
@@ -703,11 +756,13 @@ function drawlevel()
 						end	
 					end
 				end
+				game.probes.items.draws:popEvent("scene_level_pseudoblocks")
 				
 				local cox, coy = flooredxscroll+x, flooredyscroll+y
 				local t = lmap[flooredxscroll+x][flooredyscroll+y]
 				
 				local tilenumber = t[1]
+				game.probes.items.draws:pushEvent("scene_level_stray_blocks")
 				if tilequads[tilenumber]:getproperty("coinblock", cox, coy) and tilequads[tilenumber]:getproperty("invisible", cox, coy) == false then --coinblock
 					love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], math.floor((x-1-math.mod(xscroll, 1))*16*scale), math.floor(((y-1-math.mod(yscroll, 1)-bounceyoffset)*16-8)*scale), 0, scale, scale)
 				elseif coinmap[cox][coy] then --coin
@@ -717,9 +772,11 @@ function drawlevel()
 						love.graphics.draw(tilequads[tilenumber].image, tilequads[tilenumber]:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-math.mod(xscroll, 1))*16*scale), math.floor(((y-1-math.mod(yscroll, 1)-bounceyoffset)*16-8)*scale), 0, scale, scale)
 					end
 				end
+				game.probes.items.draws:popEvent("scene_level_stray_blocks")
 				
 				--Gel overlays!
 				if t["gels"] then
+					game.probes.items.draws:pushEvent("scene_level_gels")
 					for i = 1, 4 do
 						local dir = "top"
 						local r = 0
@@ -755,8 +812,10 @@ function drawlevel()
 							end
 						end
 					end
+					game.probes.items.draws:popEvent("scene_level_gels")
 				end
 				
+				game.probes.items.draws:pushEvent("scene_level_editor")
 				if editormode then
 					if tilequads[t[1]]:getproperty("invisible", cox, coy) and t[1] ~= 1 then
 						love.graphics.draw(tilequads[t[1]].image, tilequads[t[1]]:quad(), math.floor((x-1-math.mod(xscroll, 1))*16*scale), ((y-1-math.mod(yscroll, 1))*16-8)*scale, 0, scale, scale)
@@ -818,9 +877,11 @@ function drawlevel()
 						love.graphics.setColor(255, 255, 255, 255)
 					end
 				end
+				game.probes.items.draws:popEvent("scene_level_editor")
 			end
 		end
 	end
+	game.probes.items.draws:popEvent("scene_level_giant_handler")
 end
 
 drawui = nop
@@ -1054,28 +1115,42 @@ function drawforeground()
 end
 
 function scenedraw()
+	game.probes.items.draws:pushEvent("scene_level")
 	drawlevel()
+	game.probes.items.draws:popEvent("scene_level")
 	
 	if bdrawui then
+		game.probes.items.draws:pushEvent("scene_ui")
 		drawui()
+		game.probes.items.draws:popEvent("scene_ui")
 	end
 	
 	--@WARNING: These draws are partially redundant. Objects handled by the master handler are sometimes drawn twice and there's not much I can do about it until I get my hands in it and start managing it.
 	-- We're going to buck draw depth for now.
+	game.probes.items.draws:pushEvent("scene_saneents")
 	for _, entname in pairs(saneents) do
-		love.graphics.setColor(255, 255, 255)
-		for k,v in pairs(objects[entname]) do
-			if v.draw then v:draw() end
+		if entname ~= "tile" then
+			love.graphics.setColor(255, 255, 255)
+			game.probes.items.draws:pushEvent("scene_saneents_"..entname)
+			for k,v in pairs(objects[entname]) do
+				if v.draw then v:draw() end
+			end
+			game.probes.items.draws:popEvent("scene_saneents_"..entname)
 		end
 	end
+	game.probes.items.draws:popEvent("scene_saneents")
 	
 	-- same, but #based
+	game.probes.items.draws:pushEvent("scene_basedents")
 	for _, entname in pairs(basedents) do
 		love.graphics.setColor(255, 255, 255)
+		game.probes.items.draws:pushEvent("scene_basedents_"..entname)
 		for k,v in pairs(objects[entname]) do
 			if v.draw then v:draw() end
 		end
+		game.probes.items.draws:popEvent("scene_basedents_"..entname)
 	end
+	game.probes.items.draws:popEvent("scene_basedents")
 
 	love.graphics.setColor(255, 255, 255)
 	--warpzonetext
@@ -1135,9 +1210,10 @@ function scenedraw()
 		end
 	end
 	
-	love.graphics.setColor(255, 255, 255)
 	
+	love.graphics.setColor(255, 255, 255)
 	--@DEV: THE GREAT BIG DRAW HANDLER
+	game.probes.items.draws:pushEvent("scene_objects")
 	for j, w in pairs(objects) do
 		if j ~= "tile" then
 			for i, v in pairs(w) do
@@ -1366,12 +1442,15 @@ function scenedraw()
 			end
 		end
 	end
+	game.probes.items.draws:popEvent("scene_objects")
 	
 	local minex, miney, minecox, minecoy
 	
 	love.graphics.setColor(255, 255, 255)
 	
+	game.probes.items.draws:pushEvent("scene_foreground")
 	drawforeground()
+	game.probes.items.draws:popEvent("scene_foreground")
 end --SCENE DRAW FUNCTION END
 
 function game_draw()
@@ -1701,8 +1780,11 @@ function game_draw()
 		end
 	end
 	
+	
 	if editormode then
+		game.probes.items.draws:pushEvent("game_editordraw")
 		editor_draw()
+		game.probes.items.draws:popEvent("game_editordraw")
 	end
 	
 	--speed gradient

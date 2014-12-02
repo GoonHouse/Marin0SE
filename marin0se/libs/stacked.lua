@@ -23,7 +23,7 @@
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
-grapher = {
+stacked = {
 	font = love.graphics.newFont(8),
 	graphsToManage = {},
 	graphsUnmanaged = {},
@@ -33,14 +33,14 @@ grapher = {
 		return a.vmin > b.vmin
 	end,
 	graphSort = function()
-		grapher.graphsUnmanaged = {}
-		for k,v in pairs(grapher.graphsToManage) do
-			table.insert(grapher.graphsUnmanaged, v)
+		stacked.graphsUnmanaged = {}
+		for k,v in pairs(stacked.graphsToManage) do
+			table.insert(stacked.graphsUnmanaged, v)
 		end
-		table.sort(grapher.graphsUnmanaged, grapher.graphSortFunc)
+		table.sort(stacked.graphsUnmanaged, stacked.graphSortFunc)
 	end,
 }
-grapher.protoType = {
+stacked.protoType = {
 	x = 0, -- | position of the graph
 	y = 0, -- |
 	width = 50, --  | dimensions of the graph
@@ -52,7 +52,7 @@ grapher.protoType = {
 	--pollmode = "stretch", --stretch, single
 	drawmode = "relative", --"relative", "scale"
 	lwidth = 2,
-	font = grapher.font,
+	font = stacked.font,
 	fcolor = {255, 255, 255},
 	lcolor = {128, 0, 0},
 	draggable = false, -- whether it is draggable or not
@@ -61,7 +61,7 @@ grapher.protoType = {
 	vmin = math.huge, -- the minimum value of the graph
 	cur_time = 0, -- the current time of the graph
 	func = function(g, dt, ...)
-		return dt
+		return dt 
 	end,
 	lblformat = "%(name)s: %(val)s (%(vmax)s / %(vmin)s)",
 	dlabel = true,
@@ -79,38 +79,38 @@ grapher.protoType = {
 }
 
 -- creates a graph table (too lazy to make objects and stuff)
-function grapher.Simple(t)
-	local g = table.combine(grapher.protoType, t)
+function stacked.Simple(t)
+	local g = table.combine(stacked.protoType, t)
 	for i=1, g.points do
 		table.insert(g.vals, 0)
 	end
 	
 	-- return the table
-	table.insert(grapher.simpleGraphs, g)
+	table.insert(stacked.simpleGraphs, g)
 	return g
 end
 
-function grapher.Create(name, t)
-	local g = table.combine(grapher.protoType, t)
+function stacked.Create(name, t)
+	local g = table.combine(stacked.protoType, t)
 	for i=1, g.points do
 		table.insert(g.vals, 0)
 	end
 	g.name = name
 	
 	-- return the table
-	grapher.graphsToManage[name] = g
-	table.insert(grapher.graphsUnmanaged, g)
+	stacked.graphsToManage[name] = g
+	table.insert(stacked.graphsUnmanaged, g)
 	return g 
 end
 
 --fpsGraph.updateGraph(graph, fps, "FPS: " .. fps, dt)
-function grapher.update(dt)
-	for k,v in pairs(grapher.graphsToManage) do
-		grapher.updateGraph(v, dt)
+function stacked.update(dt)
+	for k,v in pairs(stacked.graphsToManage) do
+		stacked.updateGraph(v, dt)
 	end
 end
 
-function grapher.pointUpdate(graph, dt)
+function stacked.pointUpdate(graph, dt)
 	-- for when dt isn't actually dt or we simply don't have one
 	local val = graph.func(graph, dt)
 	table.remove(graph.vals, 1)
@@ -130,7 +130,7 @@ function grapher.pointUpdate(graph, dt)
 	graph.label = graph.lblformat % graph
 end
 
-function grapher.updateGraph(graph, dt, ...)
+function stacked.updateGraph(graph, dt, ...)
 	-- update the current time of the graph
 	graph.cur_time = graph.cur_time + dt
 	local reps = math.floor(graph.cur_time/graph.delay)
@@ -157,13 +157,17 @@ function grapher.updateGraph(graph, dt, ...)
 	graph.label = graph.lblformat % graph
 end
 
+function stacked.xdraw(graph)
+	
+end
+
 -- draws all the graphs in your list
-function grapher.draw(graphs)
+function stacked.draw(graphs)
 	-- set default font
 	local snap = love.graphics.takeSnapShot()
 
 	-- loop through all of the graphs
-	for k,v in pairs(grapher.graphsToManage) do
+	for k,v in pairs(stacked.graphsToManage) do
 		local step = v.width/v.points
 		-- draw graph
 		love.graphics.setLineWidth(v.lwidth)
@@ -199,3 +203,71 @@ function grapher.draw(graphs)
 	
 	love.graphics.applySnapShot(snap)
 end
+
+--[[
+	this is here to sort the labels based on the minimums and then draw them up and down
+]]
+function stacked.exdraw()
+	stacked.draw() --draw the lines
+	stacked.graphSort()
+	for k,v in pairs(stacked.graphsUnmanaged) do
+		local txt = v.lblformat % v
+		love.graphics.setColor(v.lcolor)
+		printfwithfont(v.font, txt, v.x, v.height+v.y-v.font:getHeight()*k, v.width)
+	end
+end
+
+--[[
+	this function is here to demonstrate snippets of logic necessary to have a stack-graph
+	the idea is that they need to sync min-max values
+]]
+function stamp(bucket)
+	if bucket ~= "init" then
+		local seg
+		if bucketmode == "individual" then
+			seg = os.clock()-bucketsegment
+		elseif bucketmode == "total" then
+			seg = os.clock()-bucketstart
+		end
+		grapher.updateGraph(grapher.graphsToManage[bucket], globaldt, seg*1000)
+		if bucketmode == "total" then
+			-- sync the min/max values to prevent scaling forming inaccurate draws
+			local min, max = 0, 0
+			for k,v in pairs(enum_draw_types) do
+				local g = grapher.graphsToManage[v]
+				if g.vmax > max then max = g.vmax end
+				if g.vmin < min then min = g.vmin end
+			end
+			
+			--if I were a smarter man, I'd know how to use a sort function to avoid a second pass
+			for k,v in pairs(enum_draw_types) do
+				local g = grapher.graphsToManage[v]
+				g.vmin = min
+				g.vmax = max
+				g.pmax = max
+			end
+		end
+		bucketsegment = os.clock()
+	else
+		bucketstart = os.clock()
+		bucketsegment = bucketstart
+	end
+end
+
+--[[
+bucketgraph = {
+	func = function(g, dt, ...)
+		local gob = {...}
+		return gob[1] --dt is not really dt but don't tell nobody
+	end,
+	width = 400,
+	height = 100,
+	points = 100,
+	cscalemin = 0,
+	cscalemax = 1,
+	--pollmode = "single",
+	drawmode = "relative", --relative
+	lblformat = "%(name)s: %(val)1f",
+	dlabel = false,
+}
+]]

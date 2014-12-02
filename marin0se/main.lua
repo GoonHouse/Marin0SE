@@ -77,6 +77,10 @@ function love.load(args)
 	--@todo: third party library stuff
 	tween = require("libs.tween")
 	class = require("libs.middleclass")
+	PROBE = require("libs.PROBE")
+	for k,v in pairs(game.probes.signatures) do
+		game.probes.items[k] = PROBE.new(v.upol)
+	end
 	lurker = require("libs.lurker")
 	lurker.interval = 30 --seconds
 	lurker.quiet = false --set to true to stop reload errors
@@ -90,15 +94,23 @@ function love.load(args)
 	TLbind = require("libs.TLbind")
 	binds, controls = TLbind.giveInstance(controlTable)
 	require("libs.grapher")
-	local i=1
-	for k,v in pairs(graphs) do
+	require("libs.stacked")
+	local i = 2
+	for k,v in pairs(game.graphs) do
 		local g = grapher.Create(k, v)
 		g.x = love.graphics.getWidth()-g.width
 		g.y = love.graphics.getHeight()-(g.height*i)
 		g.font = fontimage
+		--g.lcolor = getrainbowcolor(i/table.length(game.graphs))
 		i = i + 1
 	end
-	--graphs.tick = fpsgraph.createGraph(love.graphics.getWidth()-50,love.graphics.getHeight()-90, 50, 30, 0.5, false)
+	-- do the net graph below everything else
+	for k,v in pairs(game.probes.signatures) do
+		local g = stacked.Create(k, v)
+		g.x = love.graphics.getWidth()-g.width
+		g.y = love.graphics.getHeight()-g.height
+		g.font = fontimage
+	end
 	--[[
 	require("libs.monocle")
 	Monocle.new({
@@ -368,25 +380,45 @@ function love.load(args)
 		intro_load()
 	end
 	
+	--PROBE
+	game.probes.items.draws:hookAll(_G, 'draw', {love, grapher, stacked, lurker})
+	game.probes.items.updates:hookAll(_G, 'update', {love, grapher, stacked, lurker})
+	
 	hook.Call("LovePostLoad", args)
 end
 
 function love.update(dt)
 	hook.Call("LovePreUpdate", dt)
+	-- this is commented out because lurker's scans interfere with performance graphs
+	--game.probes.items.updates:pushEvent("lurker")
 	lurker.update()
+	--game.probes.items.updates:popEvent("lurker")
+	
+	game.probes.items.updates:startCycle()
 	if music then
+		game.probes.items.updates:pushEvent("music")
 		music:update()
+		game.probes.items.updates:popEvent("music")
 	end
+	game.probes.items.updates:pushEvent("timer")
 	timer.Update(dt)
-	
-	grapher.update(dt)
-	
+	game.probes.items.updates:popEvent("timer")
+	game.probes.items.updates:pushEvent("neubind")
 	nb:update(dt)
-	TLbind:update()
+	game.probes.items.updates:popEvent("neubind")
+	game.probes.items.updates:pushEvent("tlbind")
+	--TLbind:update()
 	binds:update()
+	game.probes.items.updates:popEvent("tlbind")
+	game.probes.items.updates:pushEvent("controlsUpdate")
 	controlsUpdate(dt)
+	game.probes.items.updates:popEvent("controlsUpdate")
+	game.probes.items.updates:pushEvent("notice")
 	notice.update(dt)
+	game.probes.items.updates:popEvent("notice")
+	game.probes.items.updates:pushEvent("killfeed")
 	killfeed.update(dt)
+	game.probes.items.updates:popEvent("killfeed")
 	
 	--@WARNING: I can't be certain this is safe.
 	realdt = dt
@@ -441,6 +473,7 @@ function love.update(dt)
 			end
 		end
 		
+		game.probes.items.updates:pushEvent("core")
 		if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" or gamestate == "lobby" then
 			menu_update(dt)
 		elseif gamestate == "levelscreen" or gamestate == "gameover" or gamestate == "sublevelscreen" or gamestate == "mappackfinished" then
@@ -456,29 +489,49 @@ function love.update(dt)
 			end
 			network_update(dt)
 		end
+		game.probes.items.updates:popEvent("core")
 		
+		game.probes.items.updates:pushEvent("guielements")
 		for i, v in pairs(guielements) do
 			v:update(dt)
 		end
+		game.probes.items.updates:popEvent("guielements")
 		
 		--netplay_update(dt)
 		--love.window.setTitle("NCN:"..networkclientnumber.."; FPS:" .. love.timer.getFPS())
 	end
-	love.window.setTitle("Marin0SE; FPS:" .. love.timer.getFPS())
+	--love.window.setTitle("Marin0SE; FPS:" .. love.timer.getFPS())
 	
+	game.probes.items.updates:pushEvent("tween")
 	tween.update(dt)
+	game.probes.items.updates:popEvent("tween")
 	if any_frames_visible then
+		game.probes.items.updates:pushEvent("loveframes")
 		loveframes.update(dt)
+		game.probes.items.updates:popEvent("loveframes")
 	end
+	game.probes.items.updates:endCycle()
+	
+	for k,v in pairs(game.probes.items) do
+		stacked.updateGraph(stacked.graphsToManage[k], dt, v.avg.delta*1000)
+	end
+	for k,v in pairs(game.graphs) do
+		grapher.updateGraph(grapher.graphsToManage[k], dt)
+	end
+	
 	hook.Call("LovePostUpdate", dt)
 end
 
 function love.draw()
 	hook.Call("LovePreDraw")
+	game.probes.items.draws:startCycle()
 	--love.graphics.setColor(255, 255, 255, 255)
 	--love.graphics.draw(bg, 0, 0, 0, bgscalex, bgscaley)
 	
+	game.probes.items.draws:pushEvent("shader_pre")
 	shaders:predraw()
+	game.probes.items.draws:popEvent("shader_pre")
+	game.probes.items.draws:pushEvent("main")
 	--mycamera:attach()
 	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" or gamestate == "lobby" then
 		menu_draw()
@@ -490,20 +543,27 @@ function love.draw()
 		--@DEV: don't actually draw the intro because it broked
 		--intro_draw()
 	end
+	game.probes.items.draws:popEvent("main")
 	--mycamera:detach()
+	game.probes.items.draws:pushEvent("shader_post")
 	shaders:postdraw()
+	game.probes.items.draws:popEvent("shader_post")
 	
+	game.probes.items.draws:pushEvent("notice")
 	notice.draw()
+	game.probes.items.draws:popEvent("notice")
+	game.probes.items.draws:pushEvent("killfeed")
 	killfeed.draw()
+	game.probes.items.draws:popEvent("killfeed")
 	
 	--@todo: entity draw
 	if any_frames_visible then
+		game.probes.items.draws:pushEvent("loveframes")
 		loveframes.draw()
+		game.probes.items.draws:popEvent("loveframes")
 	end
 	
-	if game.graphs.draw then
-		grapher.draw()
-	end
+	game.probes.items.draws:endCycle()
 	
 	--[[
 	if recording then
@@ -517,6 +577,40 @@ function love.draw()
 		end
 	end
 	]]
+	if game.debug.profile.draw then
+		--@TODO: Make all this from the generated profiles.
+		local p = game.debug.profile
+		love.graphics.setLineWidth(1)
+		love.graphics.setColor(0, 0, 0)
+		game.probes.items.draws:draw(p.pad+p.dropoff,p.pad+p.dropoff,p.sizex,love.graphics.getHeight()-p.pad*2, "Draw Profile")
+		game.probes.items.updates:draw(
+			love.graphics.getWidth()-p.pad-p.sizex+p.dropoff,
+			p.pad+p.dropoff,
+			p.sizex,
+			love.graphics.getHeight()-p.pad*2+p.dropoff,
+		"Update Profile")
+		love.graphics.setColor(255,255,255)
+		game.probes.items.draws:draw(p.pad,p.pad,p.sizex,love.graphics.getHeight()-p.pad*2, "Draw Profile")
+		game.probes.items.updates:draw(
+			love.graphics.getWidth()-p.pad-p.sizex,
+			p.pad,
+			p.sizex,
+			love.graphics.getHeight()-p.pad*2,
+		"Update Profile")
+		
+		-- do the graphs, baby
+		grapher.draw()
+		stacked.draw()
+		stacked.graphSort()
+		for k,v in pairs(stacked.graphsUnmanaged) do
+			if v.name == "updates" or v.name == "draws" then
+				local txt = v.lblformat % v
+				love.graphics.setColor(v.lcolor)
+				printfwithfont(v.font, txt, v.x, v.height+v.y-v.font:getHeight()*k, v.width)
+			end
+		end
+	end
+	
 	hook.Call("LovePostDraw")
 end
 
@@ -537,6 +631,15 @@ function love.mousereleased(x, y, button)
 end
 
 function love.keypressed(key, isrepeat)
+	-- these are here because PROBE makes a mess due to the input handler trace/timing
+	if key == "f8" then
+		game.debug.profile.draw = not game.debug.profile.draw
+		--if game.debug.profile.draw then
+		--	nop() --there was something important here, now there isn't
+		--end
+		game.probes.items.draws:enable(game.debug.profile.draw)
+		game.probes.items.updates:enable(game.debug.profile.draw)
+	end
 	exKeypressed(key, isrepeat)
 	if any_frames_visible then
 		loveframes.keypressed(key, isrepeat)
@@ -558,7 +661,7 @@ function love.keyreleased(key)
 				end
 			elseif key == "down" then
 				debug_bar.console_input:ResetSelection()
-				local scrollback_size = utils.tablelength(debug_bar.scrollback)
+				local scrollback_size = table.length(debug_bar.scrollback)
 
 				debug_bar.scrollback_index = debug_bar.scrollback_index + 1
 				if debug_bar.scrollback_index < scrollback_size+1 then
@@ -593,7 +696,7 @@ function love.quit()
 	print("goodbye")
 end
 
-function love.run()
+function love.rungle()
 	love.math.setRandomSeed(os.time())
 	
 	
