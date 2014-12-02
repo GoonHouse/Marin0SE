@@ -69,7 +69,7 @@ function love.load(args)
 	fontimage = love.graphics.newImageFont("fontimageexample.png",
 					" abcdefghijklmnopqrstuvwxyz" ..
 					"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
-					"123456789.,!?-+/():;%&`'*#=[]\"")
+					"123456789.,!?-+/():;%&`'*#=[]\"_")
 	
 	logoPresent()
 	add("Logo Presented")
