@@ -158,6 +158,11 @@ function love.load(args)
 	require("gui.notice")
 	add("Guff Libraries")
 	
+	loadconfig()
+	love.audio.setVolume( volume )
+	--soundenabled = volume > 0 --if we do this here, then music won't play when we load a game and turn the volume up
+	add("User Config")
+	
 	--Get biggest screen size
 	local sizes = love.window.getFullscreenModes()
 	desktopsize = sizes[1]
@@ -204,9 +209,6 @@ function love.load(args)
 	end
 	reloadSounds()
 	add("Initializing Sounds")
-	
-	loadconfig()
-	add("User Config")
 	
 	changescale(scale, true)
 	add("Resolution Change")

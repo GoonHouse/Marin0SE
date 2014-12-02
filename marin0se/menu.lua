@@ -1790,6 +1790,7 @@ function menu_controlupdate(dt)
 						love.audio.setVolume( volume )
 						playsound("coin") --allowed global
 						soundenabled = true
+						saveconfig()
 					end
 				elseif optionsselection == 9 then
 					vsync = not vsync
@@ -1886,6 +1887,7 @@ function menu_controlupdate(dt)
 						end
 						love.audio.setVolume( volume )
 						playsound("coin") --allowed global
+						saveconfig()
 					end
 				elseif optionsselection == 9 then
 					vsync = not vsync
