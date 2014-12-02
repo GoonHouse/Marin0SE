@@ -34,7 +34,7 @@ function logoPresent()
 	
 	love.graphics.draw(logo, love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0, logoscale, logoscale, 142, 150)
 	love.graphics.setColor(150, 150, 150)
-	printfwithfont(fontimage, loading_header, 
+	printfwithfont(imagefont, loading_header, 
 		0,
 		love.graphics.getHeight()/2-170*logoscale-7*scale,
 		love.graphics.getWidth()/(scale-1),
@@ -44,7 +44,7 @@ function logoPresent()
 		scale-1
 	)
 	love.graphics.setColor(50, 50, 50)
-	printfwithfont(fontimage, loadingtext, 
+	printfwithfont(imagefont, loadingtext, 
 		0,
 		love.graphics.getHeight()/2+165*logoscale,
 		love.graphics.getWidth()/(scale-1),

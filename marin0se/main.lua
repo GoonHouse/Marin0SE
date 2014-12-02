@@ -66,7 +66,7 @@ function love.load(args)
 	
 	--register some resources to draw the intro screen ASAP
 	logo = love.graphics.newImage("stabyourself.png")
-	fontimage = love.graphics.newImageFont("fontimageexample.png",
+	imagefont = love.graphics.newImageFont("fontimageexample.png",
 					" abcdefghijklmnopqrstuvwxyz" ..
 					"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
 					"123456789.,!?-+/():;%&`'*#=[]\"_")
@@ -100,7 +100,7 @@ function love.load(args)
 		local g = grapher.Create(k, v)
 		g.x = love.graphics.getWidth()-g.width
 		g.y = love.graphics.getHeight()-(g.height*i)
-		g.font = fontimage
+		g.font = imagefont
 		--g.lcolor = getrainbowcolor(i/table.length(game.graphs))
 		i = i + 1
 	end
@@ -109,7 +109,7 @@ function love.load(args)
 		local g = stacked.Create(k, v)
 		g.x = love.graphics.getWidth()-g.width
 		g.y = love.graphics.getHeight()-g.height
-		g.font = fontimage
+		g.font = imagefont
 	end
 	--[[
 	require("libs.monocle")
@@ -609,6 +609,15 @@ function love.draw()
 				printfwithfont(v.font, txt, v.x, v.height+v.y-v.font:getHeight()*k, v.width)
 			end
 		end
+	end
+	if game.debug.fps.draw then
+		love.graphics.setColor(game.debug.fps.color)
+		printwithfont(
+			imagefont,
+			"FPS: "..tostring(love.timer.getFPS()),
+			0,
+			0
+		)
 	end
 	
 	hook.Call("LovePostDraw")

@@ -45,6 +45,10 @@ game = {
 			--sizey = 600,
 			dropoff = 1, 
 		},
+		fps = {
+			draw = false,
+			color = {103,50,103},
+		}
 	},
 	probes = {
 		items = {}, -- this is where we put them after we build them

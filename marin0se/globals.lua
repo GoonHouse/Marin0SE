@@ -96,6 +96,8 @@ controlTable = {
 		f3 = "editorTabMaps",
 		f4 = "editorTabAnimations",
 		
+		f7 = "debugFPS",
+		--f8 is used in a global context, if you use it, be careful
 		f9 = "debugLua",
 		f10 = "debugCrash",
 		f11 = "gameScreenshot",

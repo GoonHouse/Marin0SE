@@ -22,7 +22,9 @@ function controlsUpdate(dt)
 			totallynonexistantfunction()
 		end
 	else
-		if controls.tap.debugLua then
+		if controls.tap.debugFPS then
+			game.debug.fps.draw = not game.debug.fps.draw
+		elseif controls.tap.debugLua then
 			lurker.scan()
 		elseif controls.tap.consoleToggle then
 			debug_bar:ToggleConsole()
