@@ -3,12 +3,16 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.base"))
+local loveframes = require(path .. ".libraries.common")
+
 -- base object
 local newobject = loveframes.NewObject("base", "loveframes_object_base")
 
 --[[---------------------------------------------------------
 	- func: initialize()
-	- desc: intializes the element
+	- desc: initializes the element
 --]]---------------------------------------------------------
 function newobject:initialize()
 	
@@ -36,6 +40,16 @@ function newobject:update(dt)
 	
 	if state ~= selfstate then
 		return
+	end
+	
+	local width, height = love.graphics.getDimensions()
+	
+	if self.width ~= width then
+		self.width = width
+	end
+	
+	if self.height ~= height then
+		self.height = height
 	end
 	
 	local children = self.children
@@ -151,10 +165,10 @@ function newobject:mousereleased(x, y, button)
 end
 
 --[[---------------------------------------------------------
-	- func: keypressed(key)
+	- func: keypressed(key, isrepeat)
 	- desc: called when the player presses a key
 --]]---------------------------------------------------------
-function newobject:keypressed(key, unicode)
+function newobject:keypressed(key, isrepeat)
 	
 	local state = loveframes.state
 	local selfstate = self.state
@@ -397,7 +411,7 @@ end
 	- desc: centers the object in the game window or in
 			its parent if it has one
 --]]---------------------------------------------------------
-function newobject:Center(area)
+function newobject:Center()
 
 	local base = loveframes.base
 	local parent = self.parent
@@ -405,15 +419,13 @@ function newobject:Center(area)
 	if parent == base then
 		local width = love.graphics.getWidth()
 		local height = love.graphics.getHeight()
-		
-		self.x = width/2 - self.width/2
-		self.y = height/2 - self.height/2
+		self.x = width/2 - self.width * (self.scalex or 1)/2
+		self.y = height/2 - self.height * (self.scaley or 1)/2
 	else
 		local width = parent.width
 		local height = parent.height
-		
-		self.staticx = width/2 - self.width/2
-		self.staticy = height/2 - self.height/2
+		self.staticx = width/2 - self.width * (self.scalex or 1)/2
+		self.staticy = height/2 - self.height * (self.scaley or 1)/2
 	end
 	
 	return self
@@ -431,10 +443,10 @@ function newobject:CenterX()
 	
 	if parent == base then
 		local width = love.graphics.getWidth()
-		self.x = width/2 - self.width/2
+		self.x = width/2 - self.width * (self.scalex or 1)/2
 	else
 		local width = parent.width
-		self.staticx = width/2 - self.width/2
+		self.staticx = width/2 - self.width * (self.scalex or 1)/2
 	end
 	
 	return self
@@ -452,10 +464,10 @@ function newobject:CenterY()
 	
 	if parent == base then
 		local height = love.graphics.getHeight()
-		self.y = height/2 - self.height/2
+		self.y = height/2 - self.height * (self.scaley or 1)/2
 	else
 		local height = parent.height
-		self.staticy = height/2 - self.height/2
+		self.staticy = height/2 - self.height * (self.scaley or 1)/2
 	end
 	
 	return self
@@ -479,36 +491,55 @@ function newobject:CenterWithinArea(x, y, width, height)
 end
 
 --[[---------------------------------------------------------
-	- func: SetSize(width, height)
+	- func: SetSize(width, height, r1, r2)
 	- desc: sets the object's size
 --]]---------------------------------------------------------
-function newobject:SetSize(width, height)
+function newobject:SetSize(width, height, r1, r2)
 
-	self.width = width
-	self.height = height
+	if r1 then
+		self.width = self.parent.width * width
+	else
+		self.width = width
+	end
+	
+	if r2 then
+		self.height = self.parent.height * height
+	else
+		self.height = height
+	end
 	
 	return self
 	
 end
 
 --[[---------------------------------------------------------
-	- func: SetWidth(width)
+	- func: SetWidth(width, relative)
 	- desc: sets the object's width
 --]]---------------------------------------------------------
-function newobject:SetWidth(width)
+function newobject:SetWidth(width, relative)
 
-	self.width = width
+	if relative then
+		self.width = self.parent.width * width
+	else
+		self.width = width
+	end
+	
 	return self
 	
 end
 
 --[[---------------------------------------------------------
-	- func: SetHeight(height)
+	- func: SetHeight(height, relative)
 	- desc: sets the object's height
 --]]---------------------------------------------------------
-function newobject:SetHeight(height)
+function newobject:SetHeight(height, relative)
 
-	self.height = height
+	if relative then
+		self.height = self.parent.height * height
+	else
+		self.height = height
+	end
+	
 	return self
 	
 end
@@ -941,9 +972,11 @@ function newobject:MoveToTop()
 	
 	local internal = false
 	
-	for k, v in ipairs(pinternals) do
-		if v == self then
-			internal = true
+	if pinternals then
+		for k, v in ipairs(pinternals) do
+			if v == self then
+				internal = true
+			end
 		end
 	end
 	
@@ -987,10 +1020,10 @@ function newobject:SetSkin(name)
 end
 
 --[[---------------------------------------------------------
-	- func: GetSkin(name)
+	- func: GetSkin()
 	- desc: gets the object's skin
 --]]---------------------------------------------------------
-function newobject:GetSkin(name)
+function newobject:GetSkin()
 	
 	local skins = loveframes.skins.available
 	local skinindex = loveframes.config["ACTIVESKIN"]

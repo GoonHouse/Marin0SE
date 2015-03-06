@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.form"))
+local loveframes = require(path .. ".libraries.common")
+
 -- form object
 local newobject = loveframes.NewObject("form", "loveframes_object_form", true)
 

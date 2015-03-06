@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.internal.menuoption"))
+local loveframes = require(path .. ".libraries.common")
+
 -- menuoption object
 local newobject = loveframes.NewObject("menuoption", "loveframes_object_menuoption", true)
 

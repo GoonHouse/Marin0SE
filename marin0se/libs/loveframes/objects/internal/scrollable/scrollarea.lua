@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.internal.scrollable.scrollarea"))
+local loveframes = require(path .. ".libraries.common")
+
 -- scrollarea class
 local newobject = loveframes.NewObject("scrollarea", "loveframes_object_scrollarea", true)
 

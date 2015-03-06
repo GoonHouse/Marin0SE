@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.frame"))
+local loveframes = require(path .. ".libraries.common")
+
 -- frame object
 local newobject = loveframes.NewObject("frame", "loveframes_object_frame", true)
 
@@ -71,9 +75,14 @@ function newobject:initialize()
 	close.parent = self
 	close.OnClick = function(x, y, object)
 		local onclose = object.parent.OnClose
-		object.parent:Remove()
 		if onclose then
-			onclose(object.parent)
+			local ret = onclose(object.parent)
+
+			if ret ~= false then
+				object.parent:Remove()
+			end
+		else
+			object.parent:Remove()
 		end
 	end
 	
@@ -497,12 +506,14 @@ function newobject:mousepressed(x, y, button)
 					self.clicky = y - self.staticy
 				end
 				self.dragging = true
+				loveframes.dragobject = self
 			end
 		end
-		if not self.resizing and self.canresize then
+		if not self.resizing and self.canresize and loveframes.hoverobject == self then
 			if loveframes.util.BoundingBox(self.x, x, self.y, y, 5, 1, 5, 1) then
 				self.resizing = true
 				self.dragging = false
+				loveframes.dragobject = false
 				self.resize_mode = "top_left"
 				self.resizex = x
 				self.resizey = y
@@ -532,6 +543,7 @@ function newobject:mousepressed(x, y, button)
 			elseif loveframes.util.BoundingBox(self.x + self.width - 5, x, self.y, y, 5, 1, 5, 1) then
 				self.resizing = true
 				self.dragging = false
+				loveframes.dragobject = false
 				self.resize_mode = "top_right"
 				self.resizex = x
 				self.resizey = y
@@ -547,6 +559,7 @@ function newobject:mousepressed(x, y, button)
 			elseif loveframes.util.BoundingBox(self.x, x, self.y + self.height - 5, y, 5, 1, 5, 1) then
 				self.resizing = true
 				self.dragging = false
+				loveframes.dragobject = false
 				self.resize_mode = "bottom_left"
 				self.resizex = x
 				self.resizey = y
@@ -562,6 +575,7 @@ function newobject:mousepressed(x, y, button)
 			elseif loveframes.util.BoundingBox(self.x + 5, x, self.y, y, self.width - 10, 1, 2, 1) then
 				self.resizing = true
 				self.dragging = false
+				loveframes.dragobject = false
 				self.resize_mode = "top"
 				self.resizex = x
 				self.resizey = y
@@ -574,6 +588,7 @@ function newobject:mousepressed(x, y, button)
 			elseif loveframes.util.BoundingBox(self.x + 5, x, self.y + self.height - 2, y, self.width - 10, 1, 2, 1) then
 				self.resizing = true
 				self.dragging = false
+				loveframes.dragobject = false
 				self.resize_mode = "bottom"
 				self.resizex = x
 				self.resizey = y
@@ -586,6 +601,7 @@ function newobject:mousepressed(x, y, button)
 			elseif loveframes.util.BoundingBox(self.x, x, self.y + 5, y, 2, 1, self.height - 10, 1) then
 				self.resizing = true
 				self.dragging = false
+				loveframes.dragobject = false
 				self.resize_mode = "left"
 				self.resizex = x
 				self.resizey = y
@@ -598,6 +614,7 @@ function newobject:mousepressed(x, y, button)
 			elseif loveframes.util.BoundingBox(self.x + self.width - 2, x, self.y + 5, y, 2, 1, self.height - 10, 1) then
 				self.resizing = true
 				self.dragging = false
+				loveframes.dragobject = false
 				self.resize_mode = "right"
 				self.resizex = x
 				self.resizey = y
@@ -647,6 +664,7 @@ function newobject:mousereleased(x, y, button)
 	local internals = self.internals
 	
 	self.dragging = false
+	loveframes.dragobject = false
 	
 	if self.resizing then
 		self.resizex = 0
@@ -757,30 +775,28 @@ end
 --]]---------------------------------------------------------
 function newobject:MakeTop()
 	
-	local x, y = love.mouse.getPosition()
 	local key = 0
 	local base = loveframes.base
 	local basechildren = base.children
 	local numbasechildren = #basechildren
-	local parent = self.parent
 	
 	-- check to see if the object's parent is not the base object
-	if parent ~= base then
+	if self.parent ~= base then
 		local baseparent = self:GetBaseParent()
 		if baseparent.type == "frame" then
 			baseparent:MakeTop()
 		end
-		return
+		return self
 	end
 	
 	-- check to see if the object is the only child of the base object
 	if numbasechildren == 1 then
-		return
+		return self
 	end
 	
 	-- check to see if the object is already at the top
 	if basechildren[numbasechildren] == self then
-		return
+		return self
 	end
 	
 	-- make this the top object
@@ -1077,6 +1093,50 @@ end
 function newobject:GetMaxHeight()
 
 	return self.maxheight
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetMinSize(width, height)
+	- desc: sets the object's minimum size
+--]]---------------------------------------------------------
+function newobject:SetMinSize(width, height)
+
+	self.minwidth = width
+	self.minheight = height
+	return self
+
+end
+
+--[[---------------------------------------------------------
+	- func: GetMinSize()
+	- desc: gets the object's minimum size
+--]]---------------------------------------------------------
+function newobject:GetMinSize()
+
+	return self.minwidth, self.maxwidth
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetMaxSize(width, height)
+	- desc: sets the object's maximum size
+--]]---------------------------------------------------------
+function newobject:SetMaxSize(width, height)
+
+	self.maxwidth = width
+	self.maxheight = height
+	return self
+
+end
+
+--[[---------------------------------------------------------
+	- func: GetMaxSize()
+	- desc: gets the object's maximum size
+--]]---------------------------------------------------------
+function newobject:GetMaxSize()
+
+	return self.maxwidth, self.maxheight
 	
 end
 

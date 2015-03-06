@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.grid"))
+local loveframes = require(path .. ".libraries.common")
+
 -- grid object
 local newobject = loveframes.NewObject("grid", "loveframes_object_grid", true)
 

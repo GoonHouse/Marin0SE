@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.image"))
+local loveframes = require(path .. ".libraries.common")
+
 -- image object
 local newobject = loveframes.NewObject("image", "loveframes_object_image", true)
 
@@ -24,7 +28,7 @@ function newobject:initialize()
 	self.sheary = 0
 	self.internal = false
 	self.image = nil
-	self.imagecolor = nil
+	self.imagecolor = {255, 255, 255, 255}
 	
 end
 

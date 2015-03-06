@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.checkbox"))
+local loveframes = require(path .. ".libraries.common")
+
 -- checkbox object
 local newobject = loveframes.NewObject("checkbox", "loveframes_object_checkbox", true)
 
@@ -251,6 +255,7 @@ function newobject:SetText(text)
 		end
 		textobject:Remove()
 		textobject.parent = self
+		textobject.state = self.state
 		textobject.collide = false
 		textobject:SetFont(self.font)
 		textobject:SetText(text)
@@ -290,36 +295,55 @@ function newobject:GetText()
 end
 
 --[[---------------------------------------------------------
-	- func: SetSize(width, height)
+	- func: SetSize(width, height, r1, r2)
 	- desc: sets the object's size
 --]]---------------------------------------------------------
-function newobject:SetSize(width, height)
+function newobject:SetSize(width, height, r1, r2)
 
-	self.boxwidth = width
-	self.boxheight = height
+	if r1 then
+		self.boxwidth = self.parent.width * width
+	else
+		self.boxwidth = width
+	end
+	
+	if r2 then
+		self.boxheight = self.parent.height * height
+	else
+		self.boxheight = height
+	end
 	
 	return self
 	
 end
 
 --[[---------------------------------------------------------
-	- func: SetWidth(width)
+	- func: SetWidth(width, relative)
 	- desc: sets the object's width
 --]]---------------------------------------------------------
-function newobject:SetWidth(width)
+function newobject:SetWidth(width, relative)
 
-	self.boxwidth = width
+	if relative then
+		self.boxwidth = self.parent.width * width
+	else
+		self.boxwidth = width
+	end
+	
 	return self
 	
 end
 
 --[[---------------------------------------------------------
-	- func: SetHeight(height)
+	- func: SetHeight(height, relative)
 	- desc: sets the object's height
 --]]---------------------------------------------------------
-function newobject:SetHeight(height)
+function newobject:SetHeight(height, relative)
 
-	self.boxheight = height
+	if relative then
+		self.boxheight = self.parent.height * height
+	else
+		self.boxheight = height
+	end
+	
 	return self
 	
 end

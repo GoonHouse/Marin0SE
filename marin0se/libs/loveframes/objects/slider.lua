@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.slider"))
+local loveframes = require(path .. ".libraries.common")
+
 -- slider object
 local newobject = loveframes.NewObject("slider", "loveframes_object_slider", true)
 

@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.internal.columnlist.columnlistheader"))
+local loveframes = require(path .. ".libraries.common")
+
 -- columnlistheader class
 local newobject = loveframes.NewObject("columnlistheader", "loveframes_object_columnlistheader", true)
 
@@ -16,13 +20,15 @@ function newobject:initialize(name, parent)
 	self.parent = parent
 	self.name = name
 	self.state = parent.state
-	self.width = 80
-	self.height = self.parent.columnheight
+	self.width = parent.defaultcolumnwidth
+	self.height = parent.columnheight
+	self.columnid = 0
 	self.hover = false
 	self.down = false
 	self.clickable = true
 	self.enabled = true
 	self.descending = true
+	self.resizebox = nil
 	self.internal = true
 
 	table.insert(parent.children, self)
@@ -59,19 +65,22 @@ end
 --]]---------------------------------------------------------
 function newobject:update(dt)
 	
-	local visible = self.visible
-	local alwaysupdate = self.alwaysupdate
-	
-	if not visible then
-		if not alwaysupdate then
+	if not self.visible then
+		if not self.alwaysupdate then
 			return
 		end
 	end
 	
-	local parent = self.parent
-	local base   = loveframes.base
 	local update = self.Update
+	local parent = self.parent
+	local list = parent.internals[1]
+	local vbody = list:GetVerticalScrollBody()
+	local width = list.width
+	if vbody then
+		width = width - vbody.width
+	end
 	
+	self.clickbounds = {x = list.x, y = list.y, width = width, height = list.height}
 	self:CheckHover()
 	
 	if not self.hover then
@@ -83,10 +92,29 @@ function newobject:update(dt)
 	end
 	
 	-- move to parent if there is a parent
-	if parent ~= base then
-		self.x = parent.x + self.staticx
+	if parent ~= loveframes.base then
+		self.x = (parent.x + self.staticx) - parent.internals[1].offsetx
 		self.y = parent.y + self.staticy
 	end
+	
+	local resizecolumn = parent.resizecolumn
+	
+	if resizecolumn and resizecolumn == self then
+		local x, y = love.mouse.getPosition()
+		local start = false
+		self.width = x - self.x
+		if self.width < 20 then
+			self.width = 20
+		end
+		parent.startadjustment = true
+		parent.internals[1]:CalculateSize()
+		parent.internals[1]:RedoLayout()
+	elseif resizecolumn and parent.startadjustment then
+		local header = parent.children[self.columnid - 1]
+		self.staticx = header.staticx + header.width
+	end
+	
+	self.resizebox = {x = self.x + (self.width - 2), y = self.y, width = 4, height = self.height}
 	
 	if update then
 		update(self, dt)
@@ -100,9 +128,7 @@ end
 --]]---------------------------------------------------------
 function newobject:draw()
 
-	local visible = self.visible
-	
-	if not visible then
+	if not self.visible then
 		return
 	end
 	
@@ -131,7 +157,16 @@ end
 	- desc: called when the player presses a mouse button
 --]]---------------------------------------------------------
 function newobject:mousepressed(x, y, button)
-
+	
+	if not self.parent.resizecolumn and self.parent.canresizecolumns then
+		local box = self.resizebox
+		local col = loveframes.util.BoundingBox(x, box.x, y, box.y, 1, box.width, 1, box.height)
+		if col then
+			self.resizing = true
+			self.parent.resizecolumn = self
+		end
+	end
+	
 	if self.hover and button == "l" then
 		local baseparent = self:GetBaseParent()
 		if baseparent and baseparent.type == "frame" and button == "l" then
@@ -165,7 +200,23 @@ function newobject:mousereleased(x, y, button)
 		end
 	end
 	
+	local resizecolumn = self.parent.resizecolumn
+	if resizecolumn and resizecolumn == self then
+		self.parent.resizecolumn = nil
+	end
+	
 	self.down = false
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetName(name)
+	- desc: sets the object's name
+--]]---------------------------------------------------------
+function newobject:SetName(name)
+
+	self.name = name
+	return self
 	
 end
 

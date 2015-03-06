@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.button"))
+local loveframes = require(path .. ".libraries.common")
+
 -- button object
 local newobject = loveframes.NewObject("button", "loveframes_object_button", true)
 
@@ -20,6 +24,8 @@ function newobject:initialize()
 	self.down = false
 	self.clickable = true
 	self.enabled = true
+	self.toggleable = false
+	self.toggle = false
 	self.OnClick = nil
 	
 end
@@ -179,6 +185,13 @@ function newobject:mousereleased(x, y, button)
 			if onclick then
 				onclick(self, x, y)
 			end
+			if self.toggleable then
+				local ontoggle = self.OnToggle
+				self.toggle = not self.toggle
+				if ontoggle then
+					ontoggle(self, self.toggle)
+				end
+			end
 		end
 	end
 	
@@ -247,4 +260,36 @@ function newobject:GetEnabled()
 
 	return self.enabled
 	
+end
+
+--[[---------------------------------------------------------
+	- func: GetDown()
+	- desc: gets whether or not the object is currently
+	        being pressed
+--]]---------------------------------------------------------
+function newobject:GetDown()
+
+	return self.down
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetToggleable(bool)
+	- desc: sets whether or not the object is toggleable
+--]]---------------------------------------------------------
+function newobject:SetToggleable(bool)
+
+	self.toggleable = bool
+	return self
+
+end
+
+--[[---------------------------------------------------------
+	- func: GetToggleable()
+	- desc: gets whether or not the object is toggleable
+--]]---------------------------------------------------------
+function newobject:GetToggleable()
+
+	return self.toggleable
+
 end

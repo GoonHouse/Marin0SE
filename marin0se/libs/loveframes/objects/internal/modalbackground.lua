@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.internal.modalbackground"))
+local loveframes = require(path .. ".libraries.common")
+
 -- modalbackground class
 local newobject = loveframes.NewObject("modalbackground", "loveframes_object_modalbackground", true)
 

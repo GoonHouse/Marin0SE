@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".templates"))
+local loveframes = require(path .. ".common")
+
 -- templates library
 loveframes.templates = {}
 

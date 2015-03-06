@@ -1,7 +1,10 @@
 Monocle = {}
 function Monocle.new(initial)
 	Monocle.active = initial.isActive or false
-	Monocle.names = {}
+	Monocle.useerrhand = initial.useErrorHandler or false
+	if Monocle.useerrhand then
+		love.errhand = Monocle.errhand
+	end
 	Monocle.listeners = {}
 	Monocle.results = {}
 
@@ -63,11 +66,11 @@ end
 
 
 function Monocle.update()
-	for key,obj in ipairs(Monocle.listeners) do
+	for name,obj in pairs(Monocle.listeners) do
 		if type(obj) == 'function' then
-			Monocle.results[key] = obj() or 'Error!'
+			Monocle.results[name] = obj() or 'Error!'
 		elseif type(obj) == 'table' then
-			Monocle.results[key] = 'food'
+			Monocle.results[name] = 'food'
 		end
 	end
 
@@ -82,19 +85,18 @@ end
 function Monocle.watch(name,obj)
 	if type(obj) == 'function' then
 		Monocle.print('Watching ' .. name)
-		table.insert(Monocle.listeners,obj)
-		table.insert(Monocle.names,name)
+		Monocle.listeners[name] = obj
 	else
 		Monocle.print('Object to watch is not a string')
 		error('Object to watch is not a string')
 	end
 end
---[[ Out of date
+
 function Monocle.unwatch(name)
 	Monocle.listeners[name] = nil
-	Monocle.results = {}
+	Monocle.results[name] = nil
 end
---]]
+
 function Monocle.draw()
 	if Monocle.active then
 		local oldcolor = {love.graphics.getColor()}
@@ -103,9 +105,9 @@ function Monocle.draw()
 		local draw_y = 0
 		for name,result in pairs(Monocle.results) do
 			if type(result) == 'number' or type(result) == 'string' then
-				love.graphics.print(Monocle.names[name] .. " : " .. result, 0, (draw_y + 1) * 15)
+				love.graphics.print(name .. " : " .. result, 0, (draw_y + 1) * 15)
 			elseif type(result) == 'table' then
-				love.graphics.print(Monocle.names[name] .. " : Table:", 0, (draw_y + 1) * 15)
+				love.graphics.print(name .. " : Table:", 0, (draw_y + 1) * 15)
 				draw_y = draw_y + 1
 				for i,v in pairs(result) do
 					love.graphics.print("      " .. i .. " : " .. v, 0, (draw_y + 1) * 15)
@@ -118,11 +120,11 @@ function Monocle.draw()
 	end -- Monocle.active
 end
 
---[[local function error_printer(msg, layer)
+local function error_printer(msg, layer)
 	print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
 end
 
-function love.errhand(msg)
+function Monocle.errhand(msg)
 	msg = tostring(msg)
 
 	error_printer(msg, 2)
@@ -162,7 +164,7 @@ function love.errhand(msg)
 	local err = {}
 	local mon = {}
 	for i, v in pairs(Monocle.results) do
-		table.insert(mon, Monocle.names[i] .. ": " .. v)
+		table.insert(mon, i .. ": " .. v)
 	end
 	table.insert(err, "[Monocle] An error has occurred! You can either close this and reload the game, or edit your code and come back to this window. The game should automatically reload it's main.lua file when it detects changes in your files (the files specified by 'filesToWatch' in your Monocle.new() parameters\n")
 	table.insert(err, "Error\n")
@@ -216,11 +218,9 @@ function love.errhand(msg)
 			end
 		end
 	end
-
-end]]
+end
 
 
 
 
 return Monocle
-

@@ -81,10 +81,11 @@ function love.load(args)
 	for k,v in pairs(game.probes.signatures) do
 		game.probes.items[k] = PROBE.new(v.upol)
 	end
-	lurker = require("libs.lurker")
+  lume = require("libs.lume.lume")
+	lurker = require("libs.lurker.lurker")
 	lurker.interval = 30 --seconds
 	lurker.quiet = false --set to true to stop reload errors
-	require("libs.loveframes")
+	loveframes = require("libs.loveframes")
 	JSON = require("libs.JSON")
 	require("timer")
 	--require "notice"
@@ -111,20 +112,20 @@ function love.load(args)
 		g.y = love.graphics.getHeight()-g.height
 		g.font = imagefont
 	end
-	--[[
-	require("libs.monocle")
+	Monocle = require("libs.monocle.monocle")
 	Monocle.new({
-		isActive=false,
+		isActive=true,
+		useErrorHandler=false,
 		customPrinter=false,
 		customColor = {0, 128, 0, 255},
 		debugToggle = 'f1',
 		filesToWatch = {}
 	})
+	Monocle.watch("FPS", function() return math.floor(1/love.timer.getDelta()) end)
 	http = require("socket.http")
 	http.PORT = 55555
 	http.TIMEOUT = 1
 	http.TIMEOUT = 4
-	]]
 	require("imgurupload")
 	require("libs.sha1")
 	add("Core Libraries")
@@ -520,7 +521,7 @@ function love.update(dt)
 	for k,v in pairs(game.graphs) do
 		grapher.updateGraph(grapher.graphsToManage[k], dt)
 	end
-	
+	Monocle.update()
 	hook.Call("LovePostUpdate", dt)
 end
 
@@ -621,7 +622,7 @@ function love.draw()
 			0
 		)
 	end
-	
+	Monocle.draw()
 	hook.Call("LovePostDraw")
 end
 
@@ -651,6 +652,9 @@ function love.keypressed(key, isrepeat)
 		game.probes.items.draws:enable(game.debug.profile.draw)
 		game.probes.items.updates:enable(game.debug.profile.draw)
 	end
+  if key == "f10" then
+    totallynonexistantfunction()
+  end
 	exKeypressed(key, isrepeat)
 	if any_frames_visible then
 		loveframes.keypressed(key, isrepeat)

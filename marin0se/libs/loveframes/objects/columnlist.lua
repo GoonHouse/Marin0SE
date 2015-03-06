@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.columnlist"))
+local loveframes = require(path .. ".libraries.common")
+
 -- columnlist object
 local newobject = loveframes.NewObject("columnlist", "loveframes_object_columnlist", true)
 
@@ -15,6 +19,7 @@ function newobject:initialize()
 	self.type = "columnlist"
 	self.width = 300
 	self.height = 100
+	self.defaultcolumnwidth = 100
 	self.columnheight = 16
 	self.buttonscrollamount = 200
 	self.mousewheelscrollamount = 1500
@@ -23,8 +28,11 @@ function newobject:initialize()
 	self.internal = false
 	self.selectionenabled = true
 	self.multiselect = false
+	self.startadjustment = false
+	self.canresizecolumns = true
 	self.children = {}
 	self.internals = {}
+	self.resizecolumn = nil
 	self.OnRowClicked = nil
 	self.OnRowRightClicked = nil
 	self.OnRowSelected = nil
@@ -76,8 +84,11 @@ function newobject:update(dt)
 	end
 	
 	for k, v in ipairs(children) do
+		v.columnid = k
 		v:update(dt)
 	end
+	
+	self.startadjustment = false
 	
 	if update then
 		update(self, dt)
@@ -104,6 +115,21 @@ function newobject:draw()
 		return
 	end
 	
+	local stencilfunc
+	local vbody = self.internals[1]:GetVerticalScrollBody()
+	local hbody = self.internals[1]:GetHorizontalScrollBody()
+	local width = self.width
+	local height = self.height
+	
+	if vbody then
+		width = width - vbody.width
+	end
+	
+	if hbody then
+		height = height - hbody.height
+	end
+	
+	local stencilfunc = function() love.graphics.rectangle("fill", self.x, self.y, width, height) end
 	local children = self.children
 	local internals = self.internals
 	local skins = loveframes.skins.available
@@ -128,9 +154,13 @@ function newobject:draw()
 		v:draw()
 	end
 	
+	love.graphics.setStencil(stencilfunc)
+	
 	for k, v in ipairs(children) do
 		v:draw()
 	end
+	
+	love.graphics.setStencil()
 
 end
 
@@ -207,31 +237,16 @@ function newobject:mousereleased(x, y, button)
 end
 
 --[[---------------------------------------------------------
-	- func: Adjustchildren()
-	- desc: adjusts the width of the object's children
+	- func: PositionColumns()
+	- desc: positions the object's columns
 --]]---------------------------------------------------------
-function newobject:AdjustColumns()
-
-	local width = self.width
-	local bar = self.internals[1].bar
+function newobject:PositionColumns()
 	
-	if bar then
-		width = width - self.internals[1].internals[1].width
-	end
-	
-	local children = self.children
-	local numchildren = #children
-	local columnwidth = width/numchildren
 	local x = 0
 	
-	for k, v in ipairs(children) do
-		if bar then
-			v:SetWidth(columnwidth)
-		else
-			v:SetWidth(columnwidth)
-		end
+	for k, v in ipairs(self.children) do
 		v:SetPos(x, 0)
-		x = x + columnwidth
+		x = x + v.width
 	end
 	
 	return self
@@ -251,7 +266,7 @@ function newobject:AddColumn(name)
 	local height = self.height
 	
 	loveframes.objects["columnlistheader"]:new(name, self)
-	self:AdjustColumns()
+	self:PositionColumns()
 	
 	list:SetSize(width, height)
 	list:SetPos(0, 0)
@@ -296,17 +311,27 @@ function newobject:GetColumnSize()
 end
 
 --[[---------------------------------------------------------
-	- func: SetSize(width, height)
+	- func: SetSize(width, height, r1, r2)
 	- desc: sets the object's size
 --]]---------------------------------------------------------
-function newobject:SetSize(width, height)
+function newobject:SetSize(width, height, r1, r2)
 	
 	local internals = self.internals
 	local list = internals[1]
 	
-	self.width = width
-	self.height = height
-	self:AdjustColumns()
+	if r1 then
+		self.width = self.parent.width * width
+	else
+		self.width = width
+	end
+	
+	if r2 then
+		self.height = self.parent.height * height
+	else
+		self.height = height
+	end
+	
+	self:PositionColumns()
 	
 	list:SetSize(width, height)
 	list:SetPos(0, 0)
@@ -318,16 +343,21 @@ function newobject:SetSize(width, height)
 end
 
 --[[---------------------------------------------------------
-	- func: SetWidth(width)
+	- func: SetWidth(width, relative)
 	- desc: sets the object's width
 --]]---------------------------------------------------------
-function newobject:SetWidth(width)
+function newobject:SetWidth(width, relative)
 	
 	local internals = self.internals
 	local list = internals[1]
 	
-	self.width = width
-	self:AdjustColumns()
+	if relative then
+		self.width = self.parent.width * width
+	else
+		self.width = width
+	end
+	
+	self:PositionColumns()
 	
 	list:SetSize(width)
 	list:SetPos(0, 0)
@@ -339,16 +369,21 @@ function newobject:SetWidth(width)
 end
 
 --[[---------------------------------------------------------
-	- func: SetHeight(height)
+	- func: SetHeight(height, relative)
 	- desc: sets the object's height
 --]]---------------------------------------------------------
-function newobject:SetHeight(height)
+function newobject:SetHeight(height, relative)
 	
 	local internals = self.internals
 	local list = internals[1]
 	
-	self.height = height
-	self:AdjustColumns()
+	if relative then
+		self.height = self.parent.height * height
+	else
+		self.height = height
+	end
+	
+	self:PositionColumns()
 	
 	list:SetSize(height)
 	list:SetPos(0, 0)
@@ -658,6 +693,24 @@ function newobject:SetColumnName(id, name)
 end
 
 --[[---------------------------------------------------------
+	- func: GetColumnName(id)
+	- desc: gets a column's name
+--]]---------------------------------------------------------
+function newobject:GetColumnName(id)
+
+	local children = self.children
+	
+	for k, v in ipairs(children) do
+		if k == id then
+			return v.name
+		end
+	end
+	
+	return false
+	
+end
+
+--[[---------------------------------------------------------
 	- func: SizeToChildren(max)
 	- desc: sizes the object to match the combined height
 			of its children
@@ -682,7 +735,7 @@ function newobject:SizeToChildren(max)
 	end
 	
 	self:SetSize(width, height)
-	self:AdjustColumns()
+	self:PositionColumns()
 	return self
 	
 end
@@ -708,11 +761,10 @@ function newobject:RemoveRow(id)
 end
 
 --[[---------------------------------------------------------
-	- func: SetRowColumnText(text, rowid, columnid)
-	- desc: sets the text of the of specific column in the
-			specified row
+	- func: SetCellText(text, rowid, columnid)
+	- desc: sets a cell's text
 --]]---------------------------------------------------------
-function newobject:SetRowColumnText(text, rowid, columnid)
+function newobject:SetCellText(text, rowid, columnid)
 	
 	local list = self.internals[1]
 	local listchildren = list.children
@@ -723,6 +775,22 @@ function newobject:SetRowColumnText(text, rowid, columnid)
 	end
 	
 	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetCellText(rowid, columnid)
+	- desc: gets a cell's text
+--]]---------------------------------------------------------
+function newobject:GetCellText(rowid, columnid)
+	
+	local row = self.internals[1].children[rowid]
+	
+	if row and row.columndata[columnid] then
+		return row.columndata[columnid]
+	else
+		return false
+	end
 	
 end
 
@@ -740,6 +808,177 @@ function newobject:SetRowColumnData(rowid, columndata)
 		for k, v in ipairs(columndata) do
 			row.columndata[k] = tostring(v)
 		end
+	end
+	
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetTotalColumnWidth()
+	- desc: gets the combined width of the object's columns
+--]]---------------------------------------------------------
+function newobject:GetTotalColumnWidth()
+
+	local width = 0
+	
+	for k, v in ipairs(self.children) do
+		width = width + v.width
+	end
+	
+	return width
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetColumnWidth(id, width)
+	- desc: sets the width of the specified column
+--]]---------------------------------------------------------
+function newobject:SetColumnWidth(id, width)
+
+	local column = self.children[id]
+	if column then
+		column.width = width
+		local x = 0
+		for k, v in ipairs(self.children) do
+			v:SetPos(x)
+			x = x + v.width
+		end
+		self.internals[1]:CalculateSize()
+		self.internals[1]:RedoLayout()
+	end
+	
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetColumnWidth(id)
+	- desc: gets the width of the specified column
+--]]---------------------------------------------------------
+function newobject:GetColumnWidth(id)
+
+	local column = self.children[id]
+	if column then
+		return column.width
+	end
+	
+	return false
+	
+end
+
+--[[---------------------------------------------------------
+	- func: ResizeColumns()
+	- desc: resizes the object's columns to fit within the
+	        width of the object's list area
+--]]---------------------------------------------------------
+function newobject:ResizeColumns()
+
+	local children = self.children
+	local width = 0
+	local vbody = self.internals[1]:GetVerticalScrollBody()
+	
+	if vbody then
+		width = (self:GetWidth() - vbody:GetWidth())/#children
+	else
+		width = self:GetWidth()/#children
+	end
+	
+	for k, v in ipairs(children) do
+		v:SetWidth(width)
+		self:PositionColumns()
+		self.internals[1]:CalculateSize()
+		self.internals[1]:RedoLayout()
+	end
+	
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetDefaultColumnWidth(width)
+	- desc: sets the object's default column width
+--]]---------------------------------------------------------
+function newobject:SetDefaultColumnWidth(width)
+
+	self.defaultcolumnwidth = width
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetDefaultColumnWidth()
+	- desc: gets the object's default column width
+--]]---------------------------------------------------------
+function newobject:GetDefaultColumnWidth()
+
+	return self.defaultcolumnwidth
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetColumnResizeEnabled(bool)
+	- desc: sets whether or not the object's columns can
+			be resized
+--]]---------------------------------------------------------
+function newobject:SetColumnResizeEnabled(bool)
+
+	self.canresizecolumns = bool
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetColumnResizeEnabled()
+	- desc: gets whether or not the object's columns can
+			be resized
+--]]---------------------------------------------------------
+function newobject:GetColumnResizeEnabled()
+
+	return self.canresizecolumns
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SizeColumnToData(columnid)
+	- desc: sizes a column to the width of its largest data
+			string
+--]]---------------------------------------------------------
+function newobject:SizeColumnToData(columnid)
+
+	local column = self.children[columnid]
+	local list = self.internals[1]
+	local largest = 0
+	
+	for k, v in ipairs(list.children) do
+		local width = v:GetFont():getWidth(self:GetCellText(k, columnid))
+		if width > largest then
+			largest = width + v.textx
+		end
+	end
+	
+	if largest <= 0 then
+		largest = 10
+	end
+	
+	self:SetColumnWidth(columnid, largest)
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetColumnOrder(curid, newid)
+	- desc: sets the order of the specified column
+--]]---------------------------------------------------------
+function newobject:SetColumnOrder(curid, newid)
+
+	local column = self.children[curid]
+	local totalcolumns = #self.children
+	
+	if column and totalcolumns > 1 and newid <= totalcolumns and newid >= 1 then
+		column:Remove()
+		table.insert(self.children, newid, column)
+		self:PositionColumns()
 	end
 	
 	return self

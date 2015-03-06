@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.internal.closebutton"))
+local loveframes = require(path .. ".libraries.common")
+
 -- closebutton class
 local newobject = loveframes.NewObject("closebutton", "loveframes_object_closebutton", true)
 

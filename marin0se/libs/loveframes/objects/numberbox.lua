@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.numberbox"))
+local loveframes = require(path .. ".libraries.common")
+
 -- numberbox object
 local newobject = loveframes.NewObject("numberbox", "loveframes_object_numberbox", true)
 
@@ -74,13 +78,8 @@ function newobject:initialize()
 		end
 	end
 	increasebutton.Update = function(object)
-		local loveversion = loveframes.sweetdiversion
 		local time = 0
-		if loveversion("<0.9.0") then
-			time = love.timer.getMicroTime()
-		else
-			time = love.timer.getTime()
-		end
+		time = love.timer.getTime()
 		local delay = self.delay
 		local down = object.down
 		local canmodify = self.canmodify
@@ -114,13 +113,8 @@ function newobject:initialize()
 		end
 	end
 	decreasesbutton.Update = function(object)
-		local loveversion = loveframes.sweetdiversion
 		local time = 0
-		if loveversion("<0.9.0") then
-			time = love.timer.getMicroTime()
-		else
-			time = love.timer.getTime()
-		end
+		time = love.timer.getTime()
 		local delay = self.delay
 		local down = object.down
 		local canmodify = self.canmodify

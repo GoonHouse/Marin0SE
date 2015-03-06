@@ -8,7 +8,7 @@
 --
 
 -- Assumes lume is in the same directory as this file
-local lume = require((...):gsub("[^/.\\]+$", "lume"))
+local lume = lume or require((...):gsub("[^/.\\]+$", "lume"))
 
 local lurker = { _version = "1.0.1" }
 
@@ -39,6 +39,7 @@ function lurker.init()
   lurker.postswap = function() end
   lurker.prescan = function() end
   lurker.postscan = function() end
+  lurker.crashhook = function() end
   lurker.interval = .5
   lurker.protected = true
   lurker.quiet = false
@@ -65,7 +66,7 @@ function lurker.listdir(path, recursive, skipdotfiles)
   for _, f in pairs(lume.map(dir(path), fullpath)) do
     if not skipdotfiles or not f:match("/%.[^/]*$") then
       if recursive and isdir(f) then
-        lume.merge(t, lurker.listdir(f, true, true))
+        t = lume.concat(t, lurker.listdir(f, true, true))
       else
         table.insert(t, lume.trim(f, "/"))
       end
@@ -119,7 +120,7 @@ function lurker.onerror(e, nostacktrace)
       lurker.print("Exiting...")
       love.event.quit()
     elseif k == "f11" then
-      screenshotUploadWrap("crash.png",love.graphics.newScreenshot())
+      lurker.crashhook()
     elseif k == "s" then
       lurker.scan()
     end
@@ -246,7 +247,7 @@ function lurker.scan()
   end
   local changed = lurker.getchanged()
   lume.each(changed, lurker.hotswapfile)
-  lurker.postscan()
+  lurker.postscan(changed)
   return changed
 end
 

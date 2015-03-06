@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".util"))
+local loveframes = require(path .. ".common")
+
 -- util library
 loveframes.util = {}
 
@@ -45,7 +49,7 @@ function loveframes.util.BoundingBox(x1, x2, y1, y2, w1, w2, h1, h2)
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.GetCollisions(object, table)
+	- func: GetCollisions(object, table)
 	- desc: gets all objects colliding with the mouse
 --]]---------------------------------------------------------
 function loveframes.util.GetCollisions(object, t)
@@ -101,7 +105,7 @@ function loveframes.util.GetCollisions(object, t)
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.GetAllObjects(object, table)
+	- func: GetAllObjects(object, table)
 	- desc: gets all active objects
 --]]---------------------------------------------------------
 function loveframes.util.GetAllObjects(object, t)
@@ -136,17 +140,10 @@ end
 --]]---------------------------------------------------------
 function loveframes.util.GetDirectoryContents(dir, t)
 
-	local version = loveframes.sweetdiversion
 	local dir = dir
 	local t = t or {}
 	local dirs = {}
-	local files
-
-	if version("0.9.x") then
-		files = love.filesystem.getDirectoryItems(dir)
-	else
-		files = love.filesystem.enumerate(dir)
-	end
+	local files = love.filesystem.getDirectoryItems(dir)
 	
 	for k, v in ipairs(files) do
 		local isdir = love.filesystem.isDirectory(dir.. "/" ..v)
@@ -154,9 +151,11 @@ function loveframes.util.GetDirectoryContents(dir, t)
 			table.insert(dirs, dir.. "/" ..v)
 		else
 			local parts = loveframes.util.SplitString(v, "([.])")
-			local extension = parts[#parts]
-			parts[#parts] = nil
-			local name = table.concat(parts)
+			local extension = #parts > 1 and parts[#parts]
+			if #parts > 1 then
+				parts[#parts] = nil
+			end
+			local name = table.concat(parts, ".")
 			table.insert(t, {
 				path = dir, 
 				fullpath = dir.. "/" ..v, 
@@ -167,10 +166,8 @@ function loveframes.util.GetDirectoryContents(dir, t)
 		end
 	end
 	
-	if #dirs > 0 then
-		for k, v in ipairs(dirs) do
-			t = loveframes.util.GetDirectoryContents(v, t)
-		end
+	for k, v in ipairs(dirs) do
+		t = loveframes.util.GetDirectoryContents(v, t)
 	end
 	
 	return t
@@ -261,7 +258,7 @@ function loveframes.util.RemoveAll()
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.TableHasValue(table, value)
+	- func: TableHasValue(table, value)
 	- desc: checks to see if a table has a specific value
 --]]---------------------------------------------------------
 function loveframes.util.TableHasValue(table, value)
@@ -277,7 +274,7 @@ function loveframes.util.TableHasValue(table, value)
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.TableHasKey(table, key)
+	- func: TableHasKey(table, key)
 	- desc: checks to see if a table has a specific key
 --]]---------------------------------------------------------
 function loveframes.util.TableHasKey(table, key)
@@ -287,7 +284,7 @@ function loveframes.util.TableHasKey(table, key)
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.Error(message)
+	- func: Error(message)
 	- desc: displays a formatted error message
 --]]---------------------------------------------------------
 function loveframes.util.Error(message)
@@ -297,7 +294,7 @@ function loveframes.util.Error(message)
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.GetCollisionCount()
+	- func: GetCollisionCount()
 	- desc: gets the total number of objects colliding with
 			the mouse
 --]]---------------------------------------------------------
@@ -308,7 +305,7 @@ function loveframes.util.GetCollisionCount()
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.GetHover()
+	- func: GetHover()
 	- desc: returns loveframes.hover, can be used to check
 			if the mouse is colliding with a visible
 			Love Frames object
@@ -332,7 +329,7 @@ function loveframes.util.RectangleCollisionCheck(rect1, rect2)
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.DeepCopy(orig)
+	- func: DeepCopy(orig)
 	- desc: copies a table
 	- note: I take not credit for this function
 --]]---------------------------------------------------------
@@ -352,7 +349,7 @@ function loveframes.util.DeepCopy(orig)
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.GetHoverObject()
+	- func: GetHoverObject()
 	- desc: returns loveframes.hoverobject
 --]]---------------------------------------------------------
 function loveframes.util.GetHoverObject()
@@ -362,7 +359,7 @@ function loveframes.util.GetHoverObject()
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.IsCtrlDown()
+	- func: IsCtrlDown()
 	- desc: checks for ctrl, for use with multiselect, copy,
 			paste, and such. On OS X it actually looks for cmd.
 --]]---------------------------------------------------------
@@ -375,7 +372,7 @@ function loveframes.util.IsCtrlDown()
 end
 
 --[[---------------------------------------------------------
-	- func: loveframes.util.IsShiftDown()
+	- func: IsShiftDown()
 	- desc: checks for shift, for use with text selection
 --]]---------------------------------------------------------
 function loveframes.util.IsShiftDown()

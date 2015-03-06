@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.list"))
+local loveframes = require(path .. ".libraries.common")
+
 -- list object
 local newobject = loveframes.NewObject("list", "loveframes_object_list", true)
 
@@ -60,6 +64,8 @@ function newobject:update(dt)
 		end
 	end
 	
+	self:CheckHover()
+	
 	local internals = self.internals
 	local children = self.children
 	local display = self.display
@@ -74,10 +80,12 @@ function newobject:update(dt)
 		self.y = self.parent.y + self.staticy
 	end
 	
-	self:CheckHover()
-	
 	for k, v in ipairs(internals) do
 		v:update(dt)
+		for _, p in pairs(self:GetParents()) do
+			v.x = v.x - (p.offsetx or 0)
+			v.y = v.y - (p.offsety or 0)
+		end
 	end
 	
 	local x = self.x
@@ -88,13 +96,14 @@ function newobject:update(dt)
 	local offsety = self.offsety
 	
 	for k, v in ipairs(children) do
-		local col = loveframes.util.BoundingBox(x, v.x, y, v.y, width, v.width, height, v.height)
-		if col then
-			v:update(dt)
-		end
+		v:update(dt)
 		v:SetClickBounds(x, y, width, height)
 		v.x = (v.parent.x + v.staticx) - offsetx
 		v.y = (v.parent.y + v.staticy) - offsety
+		for _, p in pairs(self:GetParents()) do
+			v.x = v.x - (p.offsetx or 0)
+			v.y = v.y - (p.offsety or 0)
+		end
 		if display == "vertical" then
 			if v.lastheight ~= v.height then
 				self:CalculateSize()
@@ -133,7 +142,6 @@ function newobject:draw()
 	local width = self.width
 	local height = self.height
 	local stencilfunc = function() love.graphics.rectangle("fill", x, y, width, height) end
-	local loveversion = loveframes.sweetdiversion
 	local internals = self.internals
 	local children = self.children
 	local skins = loveframes.skins.available
@@ -155,12 +163,7 @@ function newobject:draw()
 		drawfunc(self)
 	end
 	
-	if loveversion("<0.9.0") then
-		local stencil = love.graphics.newStencil(stencilfunc)
-		love.graphics.setStencil(stencil)
-	else
-		love.graphics.setStencil(stencilfunc)
-	end
+	love.graphics.setStencil(stencilfunc)
 		
 	for k, v in ipairs(children) do
 		local col = loveframes.util.BoundingBox(x, v.x, y, v.y, width, v.width, height, v.height)
@@ -598,12 +601,17 @@ function newobject:Clear()
 end
 
 --[[---------------------------------------------------------
-	- func: SetWidth(width)
+	- func: SetWidth(width, relative)
 	- desc: sets the object's width
 --]]---------------------------------------------------------
-function newobject:SetWidth(width)
+function newobject:SetWidth(width, relative)
 
-	self.width = width
+	if relative then
+		self.width = self.parent.width * width
+	else
+		self.width = width
+	end
+	
 	self:CalculateSize()
 	self:RedoLayout()
 	
@@ -612,12 +620,17 @@ function newobject:SetWidth(width)
 end
 
 --[[---------------------------------------------------------
-	- func: SetHeight(height)
+	- func: SetHeight(height, relative)
 	- desc: sets the object's height
 --]]---------------------------------------------------------
-function newobject:SetHeight(height)
+function newobject:SetHeight(height, relative)
 
-	self.height = height
+	if relative then
+		self.height = self.parent.height * height
+	else
+		self.height = height
+	end
+	
 	self:CalculateSize()
 	self:RedoLayout()
 	
@@ -626,13 +639,23 @@ function newobject:SetHeight(height)
 end
 
 --[[---------------------------------------------------------
-	- func: GetSize()
-	- desc: gets the object's size
+	- func: SetSize(width, height, r1, r2)
+	- desc: sets the object's size
 --]]---------------------------------------------------------
-function newobject:SetSize(width, height)
+function newobject:SetSize(width, height, r1, r2)
 
-	self.width = width
-	self.height = height
+	if r1 then
+		self.width = self.parent.width * width
+	else
+		self.width = width
+	end
+	
+	if r2 then
+		self.height = self.parent.height * height
+	else
+		self.height = height
+	end
+	
 	self:CalculateSize()
 	self:RedoLayout()
 	
@@ -678,6 +701,18 @@ function newobject:SetAutoScroll(bool)
 	end
 	
 	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetAutoScroll()
+	- desc: gets whether or not the list's scrollbar should
+			auto scroll to the bottom when a new object is
+			added to the list
+--]]---------------------------------------------------------
+function newobject:GetAutoScroll()
+
+	return self.autoscroll
 	
 end
 

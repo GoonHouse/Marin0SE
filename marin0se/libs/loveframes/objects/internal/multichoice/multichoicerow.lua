@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.internal.multichoice.multichoicerow"))
+local loveframes = require(path .. ".libraries.common")
+
 -- multichoicerow class
 local newobject = loveframes.NewObject("multichoicerow", "loveframes_object_multichoicerow", true)
 
@@ -147,10 +151,10 @@ function newobject:mousereleased(x, y, button)
 end
 
 --[[---------------------------------------------------------
-	- func: keypressed(key)
+	- func: keypressed(key, isrepeat)
 	- desc: called when the player presses a key
 --]]---------------------------------------------------------
-function newobject:keypressed(key, unicode)
+function newobject:keypressed(key, isrepeat)
 
 	local text = self.text
 	local selectedobject = loveframes.selectedobject

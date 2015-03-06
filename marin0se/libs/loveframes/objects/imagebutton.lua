@@ -2,6 +2,9 @@
 	-- Love Frames - A GUI library for LOVE --
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.imagebutton"))
+local loveframes = require(path .. ".libraries.common")
 
 -- imagebutton object
 local newobject = loveframes.NewObject("imagebutton", "loveframes_object_imagebutton", true)
@@ -21,6 +24,7 @@ function newobject:initialize()
 	self.clickable = true
 	self.enabled = true
 	self.image = nil
+	self.imagecolor = {255, 255, 255, 255}
 	self.OnClick = nil
 	
 end
@@ -333,5 +337,26 @@ function newobject:GetImageHeight()
 	if image then
 		return image:getHeight()
 	end
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetColor(r, g, b, a)
+	- desc: sets the object's color 
+--]]---------------------------------------------------------
+function newobject:SetColor(r, g, b, a)
+
+	self.imagecolor = {r, g, b, a}
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetColor()
+	- desc: gets the object's color 
+--]]---------------------------------------------------------
+function newobject:GetColor()
+
+	return unpack(self.imagecolor)
 	
 end

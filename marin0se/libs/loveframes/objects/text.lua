@@ -8,6 +8,10 @@
 			 experimental and not final
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.text"))
+local loveframes = require(path .. ".libraries.common")
+
 -- text object
 local newobject = loveframes.NewObject("text", "loveframes_object_text", true)
 
@@ -25,6 +29,7 @@ function newobject:initialize()
 	self.maxw = 0
 	self.shadowxoffset = 1
 	self.shadowyoffset = 1
+	self.lines = 0
 	self.formattedtext = {}
 	self.original = {}
 	self.defaultcolor = {0, 0, 0, 255}
@@ -92,7 +97,6 @@ function newobject:update(dt)
 	
 	local hover = self.hover
 	local linksenabled = self.linksenabled
-	local version = love._version
 	local linkcol = false
 	
 	if hover and linksenabled and not loveframes.resizeobject then
@@ -316,10 +320,10 @@ function newobject:SetText(t)
 			local key = k
 			if width > maxw then
 				table.remove(self.formattedtext, k)
-				for n=1, #data do	
+				for n=1, string.len(data) do	
 					local item = data:sub(n, n)
 					local itemw = v.font:getWidth(item)
-					if n ~= #data then
+					if n ~= string.len(data) then
 						if (curw + itemw) > maxw then
 							table.insert(inserts, {
 								key = key, 
@@ -371,7 +375,7 @@ function newobject:SetText(t)
 	local twidth = 0
 	local drawx = 0
 	local drawy = 0
-	local lines = 0
+	local lines = 1
 	local textwidth = 0
 	local lastwidth = 0
 	local totalwidth = 0
@@ -389,7 +393,7 @@ function newobject:SetText(t)
 		local text = v.text
 		local color = v.color
 		if detectlinks then
-			if #text > 7 and (text:sub(1, 7) == "http://" or text:sub(1, 8) == "https://") then
+			if string.len(text) > 7 and (text:sub(1, 7) == "http://" or text:sub(1, 8) == "https://") then
 				v.link = true
 			end
 		end
@@ -411,11 +415,13 @@ function newobject:SetText(t)
 						drawy = drawy + largestheight
 						largestheight = 0
 						text = ""
+						lines = lines + 1
 					elseif (twidth + width) > maxw then
 						twidth = 0 + width
 						drawx = 0
 						drawy = drawy + largestheight
 						largestheight = 0
+						lines = lines + 1
 					else
 						twidth = twidth + width
 						drawx = drawx + prevtextwidth
@@ -435,6 +441,7 @@ function newobject:SetText(t)
 					drawy = drawy + largestheight
 					largestheight = 0
 					text = ""
+					lines = lines + 1
 					if lastwidth < textwidth then
 						lastwidth = textwidth
 					end
@@ -453,6 +460,8 @@ function newobject:SetText(t)
 			end
 		end
 	end
+	
+	self.lines = lines
 	
 	if lastwidth == 0 then
 		textwidth = totalwidth
@@ -591,12 +600,17 @@ function newobject:GetMaxWidth()
 end
 
 --[[---------------------------------------------------------
-	- func: SetWidth(width)
+	- func: SetWidth(width, relative)
 	- desc: sets the object's width
 --]]---------------------------------------------------------
-function newobject:SetWidth(width)
+function newobject:SetWidth(width, relative)
 
-	self:SetMaxWidth(width)
+	if relative then
+		self:SetMaxWidth(self.parent.width * width)
+	else
+		self:SetMaxWidth(width)
+	end
+	
 	return self
 	
 end
@@ -612,12 +626,17 @@ function newobject:SetHeight(height)
 end
 
 --[[---------------------------------------------------------
-	- func: SetSize()
+	- func: SetSize(width, height, relative)
 	- desc: sets the object's size
 --]]---------------------------------------------------------
-function newobject:SetSize(width, height)
+function newobject:SetSize(width, height, relative)
 
-	self:SetMaxWidth(width)
+	if relative then
+		self:SetMaxWidth(self.parent.width * width)
+	else
+		self:SetMaxWidth(width)
+	end
+	
 	return self
 	
 end

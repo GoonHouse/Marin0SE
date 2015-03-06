@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.collapsiblecategory"))
+local loveframes = require(path .. ".libraries.common")
+
 -- collapsiblecategory object
 local newobject = loveframes.NewObject("collapsiblecategory", "loveframes_object_collapsiblecategory", true)
 
@@ -273,12 +277,17 @@ function newobject:GetObject()
 end
 
 --[[---------------------------------------------------------
-	- func: SetSize(width, height)
+	- func: SetSize(width, height, relative)
 	- desc: sets the object's size
 --]]---------------------------------------------------------
-function newobject:SetSize(width, height)
+function newobject:SetSize(width, height, relative)
 
-	self.width = width
+	if relative then
+		self.width = self.parent.width * width
+	else
+		self.width = width
+	end
+	
 	return self
 	
 end

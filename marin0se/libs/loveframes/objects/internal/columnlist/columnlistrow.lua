@@ -3,6 +3,10 @@
 	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
+-- get the current require path
+local path = string.sub(..., 1, string.len(...) - string.len(".objects.internal.columnlist.columnlistrow"))
+local loveframes = require(path .. ".libraries.common")
+
 -- columnlistrow class
 local newobject = loveframes.NewObject("columnlistrow", "loveframes_object_columnlistrow", true)
 
@@ -40,23 +44,19 @@ end
 --]]---------------------------------------------------------
 function newobject:update(dt)
 	
-	local visible = self.visible
-	local alwaysupdate = self.alwaysupdate
-	
-	if not visible then
-		if not alwaysupdate then
+	if not self.visible then
+		if not self.alwaysupdate then
 			return
 		end
 	end
 	
 	local parent = self.parent
-	local base = loveframes.base
 	local update = self.Update
 	
 	self:CheckHover()
 	
 	-- move to parent if there is a parent
-	if parent ~= base then
+	if parent ~= loveframes.base then
 		self.x = parent.x + self.staticx
 		self.y = parent.y + self.staticy
 	end
@@ -73,9 +73,7 @@ end
 --]]---------------------------------------------------------
 function newobject:draw()
 
-	local visible = self.visible
-	
-	if not visible then
+	if not self.visible then
 		return
 	end
 	
@@ -109,17 +107,12 @@ function newobject:mousepressed(x, y, button)
 		return
 	end
 	
-	local hover = self.hover
-	
-	if hover and button == "l" then
+	if self.hover and button == "l" then
 		local baseparent = self:GetBaseParent()
 		if baseparent and baseparent.type == "frame" then
 			baseparent:MakeTop()
 		end
-		local parent1 = self:GetParent()
-		local parent2 = parent1:GetParent()
-		local ctrldown = loveframes.util.IsCtrlDown()
-		parent2:SelectRow(self, ctrldown)
+		self:GetParent():GetParent():SelectRow(self, loveframes.util.IsCtrlDown())
 	end
 
 end
@@ -135,17 +128,16 @@ function newobject:mousereleased(x, y, button)
 	end
 	
 	if self.hover then
-		local parent1 = self:GetParent()
-		local parent2 = parent1:GetParent()
+		local parent = self:GetParent():GetParent()
 		if button == "l" then
-			local onrowclicked = parent2.OnRowClicked
+			local onrowclicked = parent.OnRowClicked
 			if onrowclicked then
-				onrowclicked(parent2, self, self.columndata)
+				onrowclicked(parent, self, self.columndata)
 			end
 		elseif button == "r" then
-			local onrowrightclicked = parent2.OnRowRightClicked
+			local onrowrightclicked = parent.OnRowRightClicked
 			if onrowrightclicked then
-				onrowrightclicked(parent2, self, self.columndata)
+				onrowrightclicked(parent, self, self.columndata)
 			end
 		end
 	end

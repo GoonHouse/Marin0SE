@@ -4,13 +4,15 @@
 --]]------------------------------------------------
 
 local path = ...
-
--- central library table
-loveframes = {}
+require(path .. ".libraries.util")
+require(path .. ".libraries.skins")
+require(path .. ".libraries.templates")
+require(path .. ".libraries.debug")
+local loveframes = require(path .. ".libraries.common")
 
 -- library info
 loveframes.author = "Kenny Shields"
-loveframes.version = "0.9.8"
+loveframes.version = "0.9.8.1"
 loveframes.stage = "Alpha"
 
 -- library configurations
@@ -20,6 +22,8 @@ loveframes.config["DEFAULTSKIN"] = "Blue"
 loveframes.config["ACTIVESKIN"] = "Blue"
 loveframes.config["INDEXSKINIMAGES"] = true
 loveframes.config["DEBUG"] = false
+loveframes.config["ENABLE_SYSTEM_CURSORS"] = true
+loveframes.config["ENABLE_UTF8_SUPPORT"] = false
 
 -- misc library vars
 loveframes.state = "none"
@@ -31,6 +35,7 @@ loveframes.modalobject = false
 loveframes.inputobject = false
 loveframes.downobject = false
 loveframes.resizeobject = false
+loveframes.dragobject = false
 loveframes.hover = false
 loveframes.input_cursor_set = false
 loveframes.prevcursor = nil
@@ -39,64 +44,22 @@ loveframes.basicfontsmall = love.graphics.newFont(10)
 loveframes.objects = {}
 loveframes.collisions = {}
 
---[[---------------------------------------------------------
-	- func: load()
-	- desc: loads the library
---]]---------------------------------------------------------
-function loveframes.load()
-	
-	-- install directory of the library
-	local dir = loveframes.config["DIRECTORY"] or path
-	
-	loveframes.sweetdiversion = require(dir .. '.third-party.sweetdiversion')
-	local version = loveframes.sweetdiversion
+-- install directory of the library
+local dir = loveframes.config["DIRECTORY"] or path
 
-	if not version('>0.7.0') then
-		error("Love Frames is not compatible with your version of LOVE.")
-	end
-	
-	
-	-- require the internal base libraries
-	loveframes.class = require(dir .. ".third-party.middleclass")
-	require(dir .. ".libraries.util")
-	require(dir .. ".libraries.skins")
-	require(dir .. ".libraries.templates")
-	require(dir .. ".libraries.debug")
-	
-	-- replace all "." with "/" in the directory setting
-	dir = dir:gsub("\\", "/"):gsub("(%a)%.(%a)", "%1/%2")
-	loveframes.config["DIRECTORY"] = dir
-	
-	-- create a list of gui objects, skins and templates
-	local objects = loveframes.util.GetDirectoryContents(dir .. "/objects")
-	local skins = loveframes.util.GetDirectoryContents(dir .. "/skins")
-	local templates = loveframes.util.GetDirectoryContents(dir .. "/templates")
-	
-	-- loop through a list of all gui objects and require them
-	for k, v in ipairs(objects) do
-		if v.extension == "lua" then
-			require(v.requirepath)
-		end
-	end
-	
-	-- loop through a list of all gui templates and require them
-	for k, v in ipairs(templates) do
-		if v.extension == "lua" then
-			require(v.requirepath)
-		end
-	end
-	
-	-- loop through a list of all gui skins and require them
-	for k, v in ipairs(skins) do
-		if v.extension == "lua" then
-			require(v.requirepath)
-		end
-	end
-	
-	-- create the base gui object
-	local base = loveframes.objects["base"]
-	loveframes.base = base:new()
-	
+-- require middleclass
+loveframes.class = require(dir .. ".third-party.middleclass")
+
+-- replace all "." with "/" in the directory setting
+dir = dir:gsub("\\", "/"):gsub("(%a)%.(%a)", "%1/%2")
+loveframes.config["DIRECTORY"] = dir
+
+-- enable key repeat
+love.keyboard.setKeyRepeat(true)
+
+-- check if utf8 support is enabled
+if loveframes.config["ENABLE_UTF8_SUPPORT"] then
+	require(path .. ".libraries.utf8")
 end
 
 --[[---------------------------------------------------------
@@ -107,7 +70,6 @@ function loveframes.update(dt)
 
 	local base = loveframes.base
 	local input_cursor_set = loveframes.input_cursor_set
-	local version = loveframes.sweetdiversion
 	
 	loveframes.collisioncount = 0
 	loveframes.objectcount = 0
@@ -126,7 +88,7 @@ function loveframes.update(dt)
 		end
 	end
 	
-	if version(">0.8.0") then
+	if loveframes.config["ENABLE_SYSTEM_CURSORS"] then 
 		local hoverobject = loveframes.hoverobject
 		local arrow = love.mouse.getSystemCursor("arrow")
 		local curcursor = love.mouse.getCursor()
@@ -283,13 +245,13 @@ function loveframes.mousereleased(x, y, button)
 end
 
 --[[---------------------------------------------------------
-	- func: keypressed(key)
+	- func: keypressed(key, isrepeat)
 	- desc: called when the player presses a key
 --]]---------------------------------------------------------
 function loveframes.keypressed(key, isrepeat)
 
 	local base = loveframes.base
-	base:keypressed(key, unicode)
+	base:keypressed(key, isrepeat)
 	
 end
 
@@ -377,7 +339,7 @@ function loveframes.Create(data, parent)
 			for k, v in pairs(t) do
 				-- current default object
 				local object = validobjects[v.type]:new()
-				-- indert the object into the table of objects being created
+				-- insert the object into the table of objects being created
 				table.insert(objects, object)
 				-- parent the new object by default to the base gui object
 				object.parent = loveframes.base
@@ -462,5 +424,35 @@ function loveframes.GetState()
 	
 end
 
--- load the library
-loveframes.load()
+-- create a list of gui objects, skins and templates
+local objects = loveframes.util.GetDirectoryContents(dir .. "/objects")
+local skins = loveframes.util.GetDirectoryContents(dir .. "/skins")
+local templates = loveframes.util.GetDirectoryContents(dir .. "/templates")
+
+-- loop through a list of all gui objects and require them
+for k, v in ipairs(objects) do
+	if v.extension == "lua" then
+		require(v.requirepath)
+	end
+end
+
+-- loop through a list of all gui templates and require them
+for k, v in ipairs(templates) do
+	if v.extension == "lua" then
+		local template = require(v.requirepath)
+		loveframes.templates.Register(template)
+	end
+end
+
+-- loop through a list of all gui skins and require them
+for k, v in ipairs(skins) do
+	if v.extension == "lua" then
+		require(v.requirepath)
+	end
+end
+
+-- create the base gui object
+local base = loveframes.objects["base"]
+loveframes.base = base:new()
+
+return loveframes
