@@ -96,6 +96,9 @@ help_tips = {
 	"try to touch all booty",
 	"never go on reddit",
 	"corn",
+	"Carrots are racist",
+	"Benis. :DD",
+	"\"I just wanted to eat bacon and excrete beards, is that so hard?! You just HAD to go and give me superpowers instead!\"--Nelson",
 }
 help_tipi = 1
 
