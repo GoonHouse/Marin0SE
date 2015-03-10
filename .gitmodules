@@ -13,3 +13,6 @@
 [submodule "marin0se/libs/hooker"]
 	path = marin0se/libs/hooker
 	url = https://github.com/EntranceJew/hooker.git
+[submodule "marin0se/libs/imgurlua"]
+	path = marin0se/libs/imgurlua
+	url = https://github.com/EntranceJew/imgurlua.git
