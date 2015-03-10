@@ -7,3 +7,9 @@
 [submodule "marin0se/libs/monocle"]
 	path = marin0se/libs/monocle
 	url = https://github.com/GoonHouse/monocle.git
+[submodule "marin0se/libs/timer"]
+	path = marin0se/libs/timer
+	url = https://github.com/EntranceJew/timer.git
+[submodule "marin0se/libs/hooker"]
+	path = marin0se/libs/hooker
+	url = https://github.com/EntranceJew/hooker.git
