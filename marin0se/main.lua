@@ -23,10 +23,10 @@
 	0. You just DO WHAT THE FUCK YOU WANT TO.
 ]]
 require("utils") --we wanna do this as close to the opening scope as possible
-require("hook")
+require("libs.hooker.hooker")
 
 function love.load(args)
-	hook.Call("LovePreLoad", args)
+	hooker.Call("LovePreLoad", args)
 	args = args or {}
 	
 	-- I'm literally doing this just so the title load text gets shaken up.
@@ -61,7 +61,7 @@ function love.load(args)
 	--@todo: require significant components here
 	require("globals")
 	require("variables")
-	require("loveutils")
+	require("libs.fallbacks.fallbacks")
 	add("Variables + Love Overloads")
 	
 	--register some resources to draw the intro screen ASAP
@@ -87,15 +87,15 @@ function love.load(args)
 	lurker.quiet = false --set to true to stop reload errors
 	loveframes = require("libs.loveframes")
 	JSON = require("libs.JSON")
-	require("timer")
+	require("libs.timer.timer")
 	--require "notice"
 	require("libs.lube")
-	require("libs.neubind")
+	require("libs.bondage.bondage")
 	nb = neubind:new(neuControlTable)
 	TLbind = require("libs.TLbind")
 	binds, controls = TLbind.giveInstance(controlTable)
-	require("libs.grapher")
-	require("libs.stacked")
+	require("libs.stacked.grapher")
+	require("libs.stacked.stacked")
 	local i = 2
 	for k,v in pairs(game.graphs) do
 		local g = grapher.Create(k, v)
@@ -126,7 +126,7 @@ function love.load(args)
 	http.PORT = 55555
 	http.TIMEOUT = 1
 	http.TIMEOUT = 4
-	require("imgurupload")
+	--require("imgurupload")
 	require("libs.sha1")
 	add("Core Libraries")
 	
@@ -151,7 +151,7 @@ function love.load(args)
 	
 	-- these are here because we deported some stuff for the sake of having a clean main
 	require("reload")
-	require("loader")
+	require("libs.loaded.loaded")
 	require("mouse")
 	require("config")
 	require("controls")
@@ -259,7 +259,6 @@ function love.load(args)
 	require "physics"
 	require "player"
 	require "enemies"
-	require "camera"
 	require "characterloader"
 	require "animationguiline"
 	require "quad"
@@ -387,11 +386,11 @@ function love.load(args)
 	game.probes.items.draws:hookAll(_G, 'draw', {love, grapher, stacked, lurker})
 	game.probes.items.updates:hookAll(_G, 'update', {love, grapher, stacked, lurker})
 	
-	hook.Call("LovePostLoad", args)
+	hooker.Call("LovePostLoad", args)
 end
 
 function love.update(dt)
-	hook.Call("LovePreUpdate", dt)
+	hooker.Call("LovePreUpdate", dt)
 	-- this is commented out because lurker's scans interfere with performance graphs
 	--game.probes.items.updates:pushEvent("lurker")
 	lurker.update()
@@ -522,11 +521,11 @@ function love.update(dt)
 		grapher.updateGraph(grapher.graphsToManage[k], dt)
 	end
 	Monocle.update()
-	hook.Call("LovePostUpdate", dt)
+	hooker.Call("LovePostUpdate", dt)
 end
 
 function love.draw()
-	hook.Call("LovePreDraw")
+	hooker.Call("LovePreDraw")
 	game.probes.items.draws:startCycle()
 	--love.graphics.setColor(255, 255, 255, 255)
 	--love.graphics.draw(bg, 0, 0, 0, bgscalex, bgscaley)
@@ -623,7 +622,7 @@ function love.draw()
 		)
 	end
 	Monocle.draw()
-	hook.Call("LovePostDraw")
+	hooker.Call("LovePostDraw")
 end
 
 --INPUT HANDLERS

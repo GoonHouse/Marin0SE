@@ -56,7 +56,7 @@ function onlinemenu_load()
 	magictimer = 0
 	magicdelay = 0.15
 	magics = {}
-	hook.Call("GameOnlineMenuLoaded")
+	hooker.Call("GameOnlineMenuLoaded")
 end
 
 function onlinemenu_update(dt)

@@ -67,7 +67,7 @@ function timer.Create(identifier, delay, repetitions, func)
 		delayTimer = delay,
 		repetitions = repetitions or 0,
 		repetitionsDone = repetitions or 0,
-		func = func
+		func = func 
 	}
 end 
 function timer.Destroy(identifier) 
