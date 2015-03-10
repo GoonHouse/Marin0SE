@@ -1,3 +1,9 @@
 [submodule "marin0se/libs/sti"]
 	path = marin0se/libs/sti
 	url = H:/Users/ej/git/Marin0_SE/marin0se/libs/sti
+[submodule "marin0se/libs/lurker"]
+	path = marin0se/libs/lurker
+	url = https://github.com/GoonHouse/lurker.git
+[submodule "marin0se/libs/monocle"]
+	path = marin0se/libs/monocle
+	url = https://github.com/GoonHouse/monocle.git
