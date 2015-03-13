@@ -141,6 +141,12 @@ starttime = 0
 totaltime = 0
 uploadoncrash = true
 expectedconnections = 2
+blockbouncetimer = {}
+blockbouncex = {}
+blockbouncey = {}
+blockbouncecontent = {}
+blockbouncecontent2 = {}
+coinblockanimations = {}
 
 --font stuff
 symbolglyphs = "0123"
@@ -187,7 +193,7 @@ saneents = {
 	"pedestal", "textentity", "firework", "emancipationgrill", "redcoin",
 	"generatorwind", "generatorbullet", "generatorcheeps", "generatorflames",
 	"pswitch", "smokepuff", "emancipateanimation", "userect", "portal",
-	"portalparticle", "portalprojectile", "dialogbox", "coinblockanimation"
+	"portalparticle", "portalprojectile", "dialogbox", "coinblockanimation",
 }
 insaneents = {
 	"player", --discrepency in class names
@@ -419,18 +425,6 @@ debugflags = {
 	--portalwalldebug
 	--incognito
 	--physicsdebug
-}
-enum_itemblock_invisible = { --keyed by spriteset
-	113,
-	118,
-	112,
-	112
-}
-enum_itemblock_visible = {
-	113,
-	114,
-	117,
-	117
 }
 enum_errors = { --setting error_level to one of these
 	debug = {},

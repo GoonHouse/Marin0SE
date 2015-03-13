@@ -265,7 +265,7 @@ function dmap:start()
 		end
 	end
 	
-	--I guess this just spawns all the enemies everywhere because it runs too many times initially to just spawn what's visible
+	--ADD ENEMIES ON START SCREEN
 	if editormode == false then
 		local xtodo = width+1
 		if self.map.width < width+1 then
@@ -279,7 +279,6 @@ function dmap:start()
 			
 		for x = math.floor(xscroll), math.floor(xscroll)+xtodo do
 			for y = math.floor(yscroll), math.floor(yscroll)+ytodo do
-				--print("LOADING: spawning enemy at start")
 				self:spawnEnemy(x, y)
 			end
 		end
@@ -637,7 +636,7 @@ function dmap:inmap(x, y)
 end
 
 function dmap:spawnEnemy(x, y) --spawn an enemy at the position specified
-	--print("WARNING: Using spawnenemy instead of spawning at start.")
+	print("WARNING: Using spawnenemy instead of spawning at start.")
 	if not self:inmap(x, y) then
 		return
 	end

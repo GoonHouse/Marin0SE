@@ -315,6 +315,12 @@ function world:draw() --some things belong to the world, others the game
 		v:draw()
 	end
 	
+	--COINBLOCKanimation
+	love.graphics.setColor(255, 255, 255)
+	for i, v in pairs(coinblockanimations) do
+		love.graphics.draw(coinblockanimationimg, coinblockanimationquads[coinblockanimations[i].frame], math.floor((coinblockanimations[i].x - xscroll)*16*scale), math.floor(((coinblockanimations[i].y-yscroll)*16-8)*scale), 0, scale, scale, 4, 54)
+	end
+	
 	for i, v in pairs(dialogboxes) do
 		v:draw()
 	end
@@ -341,6 +347,36 @@ function world:update(dt)
 		self.redcoinanimation = self.redcoinanimation % 4
 	end
 	self.redcoinframe = math.floor(self.redcoinanimation)
+	
+	--blockbounce [WHY ARE THESE LIKE THIS? I DON'T KNOW]
+	local delete = {}
+	
+	for i, v in pairs(self.blockbouncetimer) do
+		if self.blockbouncetimer[i] < self.blockbouncetime then
+			self.blockbouncetimer[i] = self.blockbouncetimer[i] + dt
+			if self.blockbouncetimer[i] > self.blockbouncetime then
+				self.blockbouncetimer[i] = self.blockbouncetime
+				if self.blockbouncecontent then
+					item(self.blockbouncecontent[i], self.blockbouncex[i], self.blockbouncey[i], self.blockbouncecontent2[i])
+				end
+				table.insert(delete, i)
+			end
+		end
+	end
+	
+	table.sort(delete, function(a,b) return a>b end)
+	
+	for i, v in pairs(delete) do
+		table.remove(self.blockbouncetimer, v)
+		table.remove(self.blockbouncex, v)
+		table.remove(self.blockbouncey, v)
+		table.remove(self.blockbouncecontent, v)
+		table.remove(self.blockbouncecontent2, v)
+	end
+	
+	if #delete >= 1 then
+		generatespritebatch()
+	end
 	
 	--portal update
 	--[[@NOTE: this should be handled by saneents

@@ -3459,19 +3459,162 @@ function hitblock(x, y, t, koopa)
 		playsound("blockhit", x-0.5, y-1)
 	end
 	
-	if tilequads[r[1]]:getproperty("breakable") == true or tilequads[r[1]]:getproperty("coinblock") == true then --Block should bounce!
-		local pblock
-		local do_destroy = (koopa or (t and t.size > 1)) and 
-							tilequads[r[1]]:getproperty("coinblock") == false and 
-							(#r == 1 or (entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins"))
-		if not t.world.objects.pseudoblock[x.."-"..y] then
-			pblock = pseudoblock:new(x, y, r, t.world, do_destroy)
-			t.world.objects.pseudoblock[x.."-"..y] = pblock
+	if tilequads[r[1]]:getproperty("breakable", x, y) == true or tilequads[r[1]]:getproperty("coinblock", x, y) == true then --Block should bounce!
+		table.insert(blockbouncetimer, 0.000000001) --yeah it's a cheap solution to a problem but screw it.
+		table.insert(blockbouncex, x)
+		table.insert(blockbouncey, y)
+		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins" then --block contained something!
+			table.insert(blockbouncecontent, entitylist[r[2]].t)
+			table.insert(blockbouncecontent2, t.size)
+			if tilequads[r[1]]:getproperty("invisible", x, y) then
+				if spriteset == 1 then
+					map[x][y][1] = 113
+				elseif spriteset == 2 then
+					map[x][y][1] = 118
+				else
+					map[x][y][1] = 112
+				end
+			else
+				if spriteset == 1 then
+					map[x][y][1] = 113
+				elseif spriteset == 2 then
+					map[x][y][1] = 114
+				else
+					map[x][y][1] = 117
+				end
+			end
+			if entitylist[r[2]].t == "vine" then
+				--playsound("vine", x-0.5, y-1)
+			else
+				playsound("mushroomappear", x-0.5, y-1)
+			end
+		elseif #r > 1 and table.contains(enemies, r[2]) then
+			table.insert(blockbouncecontent, r[2])
+			table.insert(blockbouncecontent2, t.size)
+			playsound("mushroomappear", x-0.5, y-1)
+			
+			
+			if tilequads[r[1]]:getproperty("invisible", x, y) then
+				if spriteset == 1 then
+					map[x][y][1] = 113
+				elseif spriteset == 2 then
+					map[x][y][1] = 118
+				else
+					map[x][y][1] = 112
+				end
+			else
+				if spriteset == 1 then
+					map[x][y][1] = 113
+				elseif spriteset == 2 then
+					map[x][y][1] = 114
+				else
+					map[x][y][1] = 117
+				end
+			end
 		else
-			pblock = t.world.objects.pseudoblock[x.."-"..y]
+			table.insert(blockbouncecontent, false)
+			table.insert(blockbouncecontent2, t.size)
+			
+			if (koopa or (t and t.size > 1)) and tilequads[r[1]]:getproperty("coinblock", x, y) == false and (#r == 1 or (entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins")) then --destroy block!
+				destroyblock(x, y, t)
+			end
 		end
 		
-		pblock:hit(t, do_destroy)
+		if #r == 1 and tilequads[r[1]]:getproperty("coinblock", x, y) then --coinblock
+			playsound("coin", x-0.5, y-1) --not sure if these slight offsets are correct
+			if tilequads[r[1]]:getproperty("invisible", x, y) then
+				if spriteset == 1 then
+					map[x][y][1] = 113
+				elseif spriteset == 2 then
+					map[x][y][1] = 118
+				else
+					map[x][y][1] = 112
+				end
+			else
+				if spriteset == 1 then
+					map[x][y][1] = 113
+				elseif spriteset == 2 then
+					map[x][y][1] = 114
+				else
+					map[x][y][1] = 117
+				end
+			end
+			if #r == 1 then
+				table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
+				
+				traceinfluence(t):getcoin(1, nil, nil, x-0.5, y-1)
+				--@WARNING: These might not be right, but, who knows
+			end
+		end
+		
+		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t == "manycoins" then --block with many coins inside! yay $_$
+			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
+			traceinfluence(t):getcoin(1, nil, nil, x-0.5, y-1)
+			
+			local exists = false
+			for i = 1, #coinblocktimers do
+				if x == coinblocktimers[i][1] and y == coinblocktimers[i][2] then
+					exists = i
+				end
+			end
+			
+			if not exists then
+				table.insert(coinblocktimers, {x, y, coinblocktime})
+			elseif coinblocktimers[exists][3] <= 0 then
+				--@WARNING: Magic tileID transformations, this is bad.
+				if spriteset == 1 then
+					map[x][y][1] = 113
+				elseif spriteset == 2 then
+					map[x][y][1] = 114
+				else
+					map[x][y][1] = 117
+				end
+			end
+		end
+		
+		--kill enemies on top
+		for j, w in pairs(objects["enemy"]) do
+			if not w.notkilledfromblocksbelow then
+				local centerX = w.x + w.width/2
+				if inrange(centerX, x-1, x, true) and y-1 == w.y+w.height then
+					--get dir
+					local dir = "right"
+					if w.x+w.width/2 < x-0.5 then
+						dir = "left"
+					end
+					
+					--if w.shotted then
+					--@WARNING: FLAGRANTLY DISREGARDING SAFETY
+					w:do_damage("bump", traceinfluence(t), dir, true)
+						--addpoints(100, w.x+w.width/2, w.y)
+						--@WARNING: origin of points might not be right, but, who knows
+					--end
+				end
+			end
+		end
+		
+		--make items jump
+		for j, w in pairs(objects["enemy"]) do
+			if w.jumpsfromblocksbelow then
+				local centerX = w.x + w.width/2
+				if inrange(centerX, x-1, x, true) and y-1 == w.y+w.height then
+					w.falling = true
+					w.speedy = -(w.jumpforce or mushroomjumpforce)
+					if w.x+w.width/2 < x-0.5 then
+						w.speedx = -math.abs(w.speedx)
+					elseif w.x+w.width/2 > x-0.5 then
+						w.speedx = math.abs(w.speedx)
+					end
+				end
+			end
+		end
+		
+		--check for coin on top
+		if inmap(x, y-1) and coinmap[x][y-1] then
+			traceinfluence(t):getcoin(1, x, y-1)
+			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
+		end
+		generatespritebatch()
 	end
 end
 
