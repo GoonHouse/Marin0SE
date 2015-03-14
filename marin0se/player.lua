@@ -378,6 +378,7 @@ function player:controlPress(control, fromnetwork)
 	elseif control=="playerDebug" then
 		playsound("shrink", 1, 1)
 		killfeed.new({objects["enemy"][1],objects["enemy"][2]}, "physics", objects["enemy"][3])
+		savemap2(currentmap)
 		--debugbox()
 		print("oh boy I'm a test")
 	elseif control=="playerRun" then
@@ -3155,7 +3156,6 @@ function player:globalcollide(a, b, c, d, dir)
 	elseif b.givestime then
 		if b.timeamount then
 			givemestuff["time"] = b.timeamount
-			givemetemp["time"] = b.timeamount
 		end
 		givetime(self.playernumber, b)
 		return true
@@ -3841,7 +3841,7 @@ function player:emancipate(a)
 	
 	local delete = {}
 	
-	for i, v in pairs(portalprojectiles) do
+	for i, v in pairs(objects["portalprojectile"]) do
 		if v.payload[1] == self.playernumber then
 			table.insert(delete, i)
 		end
@@ -3850,7 +3850,7 @@ function player:emancipate(a)
 	table.sort(delete, function(a,b) return a>b end)
 	
 	for i, v in pairs(delete) do
-		table.remove(portalprojectiles, v) --remove
+		table.remove(objects["portalprojectile"], v) --remove
 	end
 	
 	if self.pickup then

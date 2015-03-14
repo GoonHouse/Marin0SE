@@ -9,6 +9,24 @@ function portalprojectile:init(x, y, tx, ty, color, hit, payload, mirror, mirror
 	self.endx = tx
 	self.endy = ty
 	
+	--PHYSICS STUFF
+	self.speedx = 0
+	self.speedy = 0
+	self.active = true
+	self.moves = false
+	self.width = 0
+	self.height = 0
+	self.category = 1
+	self.mask = {true, false}
+	self.gravity = 0
+	
+	--[[@NOTE:
+		the physics object isn't dead center of the projectile but since we don't use the physics
+		collision this doesn't matter, really -- we'd want to fix it for things like a bullet
+	]]
+	
+	self.destroy = false
+	
 	self.color = color
 	self.hit = hit
 	self.payload = payload
@@ -93,6 +111,10 @@ function portalprojectile:update(dt)
 		return true
 	end
 	
+	if self.destroy then
+		return true
+	end
+	
 	return false
 end
 
@@ -106,45 +128,6 @@ function portalprojectile:draw()
 		
 		love.graphics.draw(portalprojectileimg, math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-0.5)*16*scale), 0, scale, scale, 6, 6)
 	end
-end
-
-portalprojectileparticle = class("portalprojectileparticle")
-
-function portalprojectileparticle:init(x, y, color, r, g, b)
-	self.x = x
-	self.y = y
-	self.color = color
-	
-	
-	self.speedx = math.random(-10, 10)/70
-	self.speedy = math.random(-10, 10)/70
-	
-	self.alpha = 150
-	
-	self.timer = 0
-end
-
-function portalprojectileparticle:update(dt)
-	self.timer = self.timer + dt
-	
-	self.speedx = self.speedx + math.random(-10, 10)/70
-	self.speedy = self.speedy + math.random(-10, 10)/70
-	
-	self.x = self.x + self.speedx*dt
-	self.y = self.y + self.speedy*dt
-	
-	self.alpha = self.alpha - dt*300
-	if self.alpha < 0 then
-		self.alpha = 0
-		return true
-	end
-end
-
-function portalprojectileparticle:draw()
-	local r, g, b = unpack(self.color)
-	love.graphics.setColor(r, g, b, self.alpha)
-	
-	love.graphics.draw(portalprojectileparticleimg, math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-.5)*16*scale), 0, scale, scale, 2, 2)
 end
 
 function portalprojectile:createportal()
@@ -163,8 +146,5 @@ function portalprojectile:createportal()
 	else
 		portal.createportal(unpack(self.payload))
 	end
-end
-
-function portalprojectile:remove()
-	self=nil
+	self.destroy = true
 end

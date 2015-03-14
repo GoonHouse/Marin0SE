@@ -630,7 +630,7 @@ function game_update(dt)
 					y1 = v.y1 + math.random(1, 30)/16-1
 				end
 				
-				table.insert(portalparticles, portalparticle:new(x1, y1, v.portal1color, v.facing1))
+				table.insert(objects["portalparticle"], portalparticle:new(x1, y1, v.portal1color, v.facing1))
 			end
 			
 			if v.facing2 ~= nil and v.x2 and v.y2 then
@@ -655,34 +655,6 @@ function game_update(dt)
 		end
 	end
 	
-	delete = {}
-	
-	for i, v in pairs(portalparticles) do
-		if v:update(dt) == true then
-			table.insert(delete, i)
-		end
-	end
-	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(portalparticles, v) --remove
-	end
-	
-	--PORTAL PROJECTILES
-	delete = {}
-	
-	for i, v in pairs(portalprojectiles) do
-		if v:update(dt) == true then
-			table.insert(delete, i)
-		end
-	end
-	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(portalprojectiles, v) --remove
-	end
 	
 	--Editor
 	if editormode then
@@ -1600,12 +1572,6 @@ function game_draw()
 				end
 			end
 		end
-		
-		--Portal projectile
-		for i, v in pairs(portalprojectiles) do
-			v:draw()
-		end
-		
 		love.graphics.setColor(255, 255, 255)
 		
 		drawforeground()
@@ -2449,7 +2415,6 @@ function loadlevel(level, is_sublevel)
 	pswitchtimers = {blue = 0, grey = 0}
 		
 	givemestuff = {lives = 0, times = 0, coinage = 0}
-	givemetemp = {lives = 0, times = 0, coinage = 0}
 	
 	portaldelay = {}
 	for i = 1, players do
@@ -2459,7 +2424,6 @@ function loadlevel(level, is_sublevel)
 	--class tables
 	coinblockanimations = {}
 	portalparticles = {}
-	portalprojectiles = {}
 	dialogboxes = {}
 	inventory = {}
 	for i = 1, 9 do
@@ -2619,31 +2583,35 @@ function loadlevel(level, is_sublevel)
 			end
 		end
 		
-		local pipeoffx, pipeoffy
-		if thepipe[7] == "up" then
-			pipeoffx = 1
-			pipeoffy = 0
-		elseif thepipe[7] == "down" then
-			pipeoffx = 1
-			pipeoffy = -1
-		elseif thepipe[7] == "left" then
-			pipeoffx = -1
-			pipeoffy = 0
-		elseif thepipe[7] == "right" then
-			pipeoffx = 0
-			pipeoffy = 0
+		if foundit then
+			
+			local pipeoffx, pipeoffy
+			if thepipe[7] == "up" then
+				pipeoffx = 1
+				pipeoffy = 0
+			elseif thepipe[7] == "down" then
+				pipeoffx = 1
+				pipeoffy = -1
+			elseif thepipe[7] == "left" then
+				pipeoffx = -1
+				pipeoffy = 0
+			elseif thepipe[7] == "right" then
+				pipeoffx = 0
+				pipeoffy = 0
+			end
+			
+			globalanimation = "pipe_"..thepipe[7].."_out"
+			
+			startx = {pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx}
+			starty = {pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy}
+			
+			--check if startpos is a colliding block
+			--if tilequads[map[startx[1]][starty[1]][1]]:getproperty("collision", startx[1], starty[1]) then
+			--	animation = "pipeup2"
+			--end
+		else
+			print("WARNING: Tried to take a pipe to a level that did not have corresponding destination pipe (",warpdestid,")")
 		end
-		
-		globalanimation = "pipe_"..thepipe[7].."_out"
-		
-		startx = {pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx, pipestartx-pipeoffx}
-		starty = {pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy, pipestarty-pipeoffy}
-		
-		--check if startpos is a colliding block
-		--if tilequads[map[startx[1]][starty[1]][1]]:getproperty("collision", startx[1], starty[1]) then
-		--	animation = "pipeup2"
-		--end
-		
 		--clear warpdestid because it would never get cleared otherwise
 		warpdestid = nil
 	end
@@ -3525,7 +3493,7 @@ function shootportal(plnumber, i, sourcex, sourcey, direction, mirrored)
 	
 	objects["player"][plnumber].lastportal = i
 	
-	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {objects["player"][plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
+	table.insert(objects["portalprojectile"], portalprojectile:new(sourcex, sourcey, x, y, color, true, {objects["player"][plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored))
 	if not mirrored and portalknockback then
 		local xadd = math.sin(objects["player"][plnumber].pointingangle)*30
 		local yadd = math.cos(objects["player"][plnumber].pointingangle)*30
@@ -4142,6 +4110,212 @@ function getMouseTile(x, y)
 	local xout = math.floor((x+xscroll*16*scale)/(16*scale))+1
 	local yout = math.floor((y+yscroll*16*scale-yoffset*scale)/(16*scale))+1
 	return xout, yout
+end
+
+function savemap2(filename)
+	local tmap = {
+		version = 1,
+		tilewidth = 16,
+		tileheight = 16,
+		
+		width = mapwidth,
+		height = mapheight,
+		
+		orientation = "orthogonal",
+		renderorder = "right-down",
+		
+		properties = {},
+		
+		tilesets = { -- this is for tile images and properties
+			{
+				firstgid = 1,
+				image = "../../graphics/DEFAULT/smbtiles.png",
+				imageheight = 119,
+				imagewidth = 374,
+				margin = 0,
+				name = "smbtiles",
+				properties = {},
+				spacing = 1,
+				tileheight = 16,
+				tilewidth = 16,
+				tileproperties = {
+					-- all this junk
+					[1] = {
+						solid = false,
+					}
+				}
+			},
+		},
+		
+		layers = {
+			[1] = {
+				type = "tilelayer",
+				name = "tiles",
+				-- we don't handle offset for x/y yet because
+				-- I can't think of a way to make it make sense to the old engine
+				x = 0,
+				y = 0,
+				width = mapwidth,
+				height = mapheight,
+				visible = true,
+				opacity = 1,
+				properties = {},
+				
+				data = {}, --a single dimensional array of indexes that refer to tileset ids
+			},
+			[2] = {
+				type = "tilelayer",
+				name = "coins",
+				x = 0,
+				y = 0,
+				width = mapwidth,
+				height = mapheight,
+				visible = true,
+				opacity = 1,
+				properties = {},
+				
+				data = {},
+			},
+			[3] = {
+				type = "objectgroup",
+				name = "entities",
+				visible = true,
+				opacity = 1,
+				properties = {},
+				objects = {},
+			},
+			[4] = {
+				type = "objectgroup",
+				name = "enemies",
+				visible = true,
+				opacity = 1,
+				properties = {},
+				objects = {},
+			},
+		},
+	}
+	--JSON:encode_pretty(lua_table_or_value)
+	
+	-- instead of doing RLE on the blocks, have a pass to optimize large chunks of blocks into single objects
+	
+	for y = 0, mapheight-1 do
+		for x = 0, mapwidth-1 do
+			local dex = y*mapwidth+x+1 --plus one because the 0 index is true twice and would be invalid
+			--print("NEWDEX: ", dex, x, y)
+			local tile = map[x+1][y+1]
+			
+			-- tile ID
+			tmap.layers[1].data[dex] = tile[1]
+			
+			-- is there a coin here
+			if coinmap[x+1][y+1] then
+				tmap.layers[2].data[dex] = 1
+			else
+				tmap.layers[2].data[dex] = 0
+			end
+			
+			-- entities
+			local target_layer
+			if tile[2] then
+				-- this will also handle gels, since gels are technically entities
+				-- portaloverride will not get handled, though
+				if type(tile[2]) == "number" then --entity
+					target_layer = tmap.layers[3].objects
+				elseif type(tile[2]) == "string" then --enemy
+					target_layer = tmap.layers[4].objects
+				else
+					print("WARNING: tile property#2 wasn't a number or string at "..tostring(x+1)..","..tostring(y+1))
+				end
+				
+				local nent = {
+					name = "", --we don't have a way to determine globally unique names
+					shape = "rectangle",
+					
+					type = tile[2], --supposed to be a string, but we can't reverse entity names yet
+					x = x*tmap.tilewidth,
+					y = y*tmap.tileheight,
+					-- since we can't manage object size yet, we'll stub these
+					width = tmap.tilewidth,
+					height = tmap.tileheight,
+					
+					rotation = 0,
+					visible = true,
+					properties = {}
+				}
+				
+				local i = 3
+				while i <= #tile do
+					if tile[i] == "link" then
+						-- i+1 = link name; +2, +3 = link coords
+						-- serialized because alternate data types aren't processed by tiled
+						nent.properties["link_"..tostring(tile[i+1])] = tostring(tile[i+2])..","..tostring(tile[i+3])
+						i = i + 4
+					else
+						nent.properties["r_"..tostring(i)] = tostring(tile[i])
+						i = i + 1
+					end
+				end
+				
+				table.insert(target_layer, nent)
+			end
+			
+			
+			--[[@NOTE:
+				because not being able to manipulate the index complicates things,
+				we do a second loop for named values and just take their word for things
+				
+				if we wanted to fix this, we'd assign i+4 and lt compare 
+				while assigning/grabbing everything the first time and skipping everything else
+				
+				but since we don't have a layer specifically for dicking with gel types,
+				none of this note even matters
+			]]
+		end
+	end
+	
+	--print("FULL CABOOSE: ", #tmap.layers[1].data, 3360)
+	
+	--options
+	tmap.properties.backgroundcolor = background --r, g, b
+	tmap.properties.spriteset = spriteset
+	tmap.properties.music = musicname --conditional
+	tmap.properties.intermission = intermission --conditional, bool
+	tmap.properties.bonusstage = bonusstage --conditional, bool
+	tmap.properties.haswarpzone = haswarpzone --conditional, bool
+	tmap.properties.underwater = underwater --conditional, bool
+	tmap.properties.custombackground = custombackground --conditional, true or string
+	tmap.properties.customforeground = customforeground --conditional, true or string
+	tmap.properties.timelimit = mariotimelimit
+	tmap.properties.scrollfactor = scrollfactor
+	tmap.properties.fscrollfactor = fscrollfactor
+	
+	if not portalsavailable[1] or not portalsavailable[2] then
+		local ptype = "none"
+		if portalsavailable[1] then
+			ptype = "blue"
+		elseif portalsavailable[2] then
+			ptype = "orange"
+		end
+		
+		tmap.properties.portalgun = ptype --if missing, assume both
+	end
+	
+	tmap.properties.levelscreenback = levelscreenbackname --conditional, string
+	
+	love.filesystem.createDirectory( "mappacks" )
+	love.filesystem.createDirectory( "mappacks/" .. mappack )
+	
+	jsonencoded = JSON:encode_pretty(tmap)
+	
+	love.filesystem.write("mappacks/" .. mappack .. "/" .. filename .. ".json", jsonencoded)
+	
+	--preview
+	
+	previewimg = renderpreview()
+	previewimg:encode("mappacks/" .. mappack .. "/" .. filename .. ".png")
+	
+	print("Map saved as " .. "mappacks/" .. filename .. ".json")
+	notice.new("Map saved!", notice.white, 2)
 end
 
 function savemap(filename)

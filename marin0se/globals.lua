@@ -29,6 +29,23 @@ enemygraphicsearchdirs = {
 	"enemies/%(file)s",
 }
 
+neuControlTable = {
+	playerDebug = {
+		itype = "key",
+		const = "x",
+	},
+	comboDebug = {
+		{
+			itype = "key",
+			const = "x",
+		},
+		{
+			itype = "key",
+			const = "c",
+		},
+	},
+}
+
 controlTable = {
 	keys = {
 		x = "playerDebug",
