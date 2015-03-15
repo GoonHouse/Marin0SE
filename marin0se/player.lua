@@ -413,6 +413,8 @@ function player:controlPress(control, fromnetwork)
 		if self.activeweapon and (not editormode or testlevel) then 
 			self.activeweapon:secondaryFire()
 		end
+	elseif control=="doug" then
+		self:doug()
 	end
 end
 function player:controlRelease(control, fromnetwork)
@@ -3854,6 +3856,10 @@ function getAngleFrame(angle, rotation)
 	end
 	
 	return angleframe
+end
+
+function player:doug()
+	-- ???
 end
 
 function player:emancipate(a)

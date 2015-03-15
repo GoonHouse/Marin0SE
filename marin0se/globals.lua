@@ -67,6 +67,7 @@ controlTable = {
 		m = {"gameShortcutMappackFolder"},
 		down = {"menuDown", "editorScrollDown"},
 		right = {"menuRight", "editorScrollRight"},
+		u = {"doug"},
 		--k = {"replaySave"},
 		
 		--(key == "return" or key == "enter" or key == "kpenter" or key == " ")
