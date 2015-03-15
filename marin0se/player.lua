@@ -2552,6 +2552,21 @@ function player:floorcollide(a, b, c, d)
 		end
 	end
 	
+	if b.rideableup then -- Enemy Riding UPWARDS
+		self.y = b.y - self.height
+		if not self.binds.control.playerDown and self.speedy <= b.speedy and
+		self.animationstate ~= "sliding" and self.jumping == false and self.falling == false and
+		self.running == false and self.walking == false	then
+			self.speedy = b.speedy
+			self.animationstate = "idle"
+		elseif not self.binds.control.playerUp and self.speedy >= b.speedy and 
+		self.animationstate ~= "sliding" and self.jumping == false and self.falling == false and
+		self.running == false and self.walking == false	then
+			self.speedy = b.speedy
+			self.animationstate = "idle"
+		end
+	end
+	
 	if b.stompable then
 		self:stompenemy(a, b, c, d)
 		return false

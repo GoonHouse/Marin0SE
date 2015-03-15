@@ -3,14 +3,15 @@
 	
 	"movement": "truffleshuffle",
 	"stompable": false,
-  "killsontop": true,
+	"killsontop": true,
 	"killsonbottom": true,
 	"killsonsides": true,
-  "resistFire": true,
-  "killsenemiesafterportal": true,
-  
-  "Bounces": true,
-  "BounceForce": 0.1,
+	"resistFire": true,
+	"killsenemiesafterportal": true,
+	"doesdamagetype": "shell",
+	
+	"Bounces": true,
+	"BounceForce": 0.1,
 	
 	"animationtype": "mirror",
 	"animationspeed": 0.1,

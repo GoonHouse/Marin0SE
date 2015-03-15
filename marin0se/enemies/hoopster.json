@@ -6,11 +6,12 @@
 	"static": false,
 	"active": true,
 	"category": 5,
-  
-  "gravity": 0,
+	
+	"gravity": 0,
 	"portalable": false,
-  
-  "rideable": true,
+	
+	"rideable": true,
+	"rideableup": true,
 	"ridekiller": true,
 	
 	"mask": [	true, 
@@ -40,7 +41,7 @@
 	"resistsfire": true,
 	
 	"emancipatecheck": false,
-  "movement": "verticalwiggle",
+	"movement": "verticalwiggle",
 	"verticalwiggledistance": 5,
 	"verticalwigglespeed": 3,
 	
