@@ -1,0 +1,16 @@
+base=plant
+{
+   "height": 1.5,
+   "width": 1.5,
+   "pistonspeedy": 7,
+   "pistondisty": 15,
+   "dontpistonnearplayer": false,
+   "pistondisty": 4,
+   "spawnoffsetx": -0.5,
+   "spawnoffsety": 1,
+   "quadcount": 1,
+   "nospritesets": true,
+   "animationtype": "none",
+   "inactiveonrectracted": false,
+   "customscissor": [-1, 0, 10, 10]
+}
