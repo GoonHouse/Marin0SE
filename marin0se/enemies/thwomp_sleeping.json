@@ -1,0 +1,54 @@
+{
+"quadcount": 2,
+
+"animationtype": "frames",
+"animationframes": 2,
+"animationstart": 1,
+"animationspeed": 2.5,
+
+"movement": "verticalwiggle",
+"verticalwiggledistance": 7.5,
+"verticalwigglespeed": 2,
+
+"stompable": false,
+"killsonsides": false,
+"killsonbottom": true,
+"killsontop": false,
+"active": true,
+
+"height": 1.8,
+"width": 1.8,
+
+"spawnsenemy": "thwomp_quiet",
+"spawnenemydelays": [2.5],
+"lifetime": 2.6,
+"spawnenemyspeed": 0,
+
+"killsenemies": true,
+"resistsfire": true,
+"resistspikes": true,
+"gravity": 0,
+
+"nospritesets": true,
+"notkilledfromblocksbelow": true,
+
+"category": 5,
+
+"mask": [	true, 
+true, false, true, true, true,
+true, true, true, true, true,
+false, false, true, false, false,
+true, true, false, false, true,
+false, true, true, false, false,
+true, false, true, true, true],
+
+
+"emancipatecheck": true,
+"autodelete": true,
+
+
+"offsetX": 14,
+"offsetY": -6,
+"quadcenterX": 16,
+"quadcenterY": 16
+}
