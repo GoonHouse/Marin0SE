@@ -10,7 +10,7 @@
 	"gravity": 0,
 	"portalable": false,
 	
-	"rideable": true,
+	"rideable": false,
 	"rideableup": true,
 	
 	
