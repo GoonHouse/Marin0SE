@@ -1,7 +1,8 @@
 {
 	"quadcount": 1,
 	
-  "rideable": true,
+	"rideable": true,
+	"rideableup": true,
 	"killsonbottom": true,
 	"killsonsides": true,
 	

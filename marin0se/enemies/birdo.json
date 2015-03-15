@@ -55,5 +55,10 @@
 	"throwquadoffset": 2,
 	"throwpreparetime": 0.5,
 	
+	"jumpsalt": true,
+	"jumptime": 2,
+	"jumpforce": 3,
+	"jumpforcedown": 2,
+	
 	"ignorefaithplates": true
 }

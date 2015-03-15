@@ -63,6 +63,6 @@
 	
 	"jumpsalt": true,
 	"jumptime": 2,
-	"jumpforce": 10,
-	"jumpforcedown": 8
+	"jumpforce": 2,
+	"jumpforcedown": 2
 }
