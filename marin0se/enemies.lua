@@ -113,15 +113,10 @@ function loadenemy(filename)
 		--Load graphics if it exists
 		for i,j in pairs(enemygraphicsearchdirs) do
 			j = j % {mappack=mappack,file=s..".png",graphicspack=graphicspack}
-			if love.filesystem.exists(j) then
-				enemiesdata[s].graphic = love.graphics.newImage(j)
-				break
+			if not love.filesystem.exists(j) then
+				print("ENEMIES: "..s.." had no matching png and wasn't BASEd on anything!")
 			end
-		end
-		if enemiesdata[s].graphic == nil then
-			-- presumably, our graphics are derived from something else
-			print("ENEMIES: "..s.." had no matching png and wasn't BASEd on anything!")
-			enemiesdata[s].graphic = love.graphics.newImage("graphics/DEFAULT/nographic.png")
+			enemiesdata[s].graphic = love.graphics.newImage(j)
 		end
 		
 		--Set up quads if given
