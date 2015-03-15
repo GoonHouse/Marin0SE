@@ -14,8 +14,8 @@
 	"stompanimation": true,
 	"stompanimationtime": 0.5,
 	"stompedframe": 3,
-  
-   "spawnsound": "blockbreak",
+	
+	"spawnsound": "blockbreak",
 	
 	"truffleshufflespeed": 0.5,
 	"truffleshuffleacceleration": 8,

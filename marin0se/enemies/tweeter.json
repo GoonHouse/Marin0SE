@@ -7,7 +7,7 @@
 	"killsonsides": true,
 	
 	"animationtype": "frames",
-  "animationframes": 1,
+	"animationframes": 1,
 	"animationstart": 1,
 	"animationspeed": 0.6,
 	
@@ -17,6 +17,7 @@
 	
 	"truffleshufflespeed": 1,
 	"truffleshuffleacceleration": 8,
+	"speedx": -1.5,
 	
 	"quadno": 1,
 	
@@ -29,12 +30,8 @@
 	"category": 4,
 	
 	"mask": [	true, 
-				false, false, false, false, true,
-				false, true, false, true, false,
-				false, false, false, false, false,
-				true, true, false, false, false,
-				false, true, true, false, false,
-				true, false, true, true, true],
+				false, false, false, false, true, 
+				false, false, false, true],
 					
 	
 	"emancipatecheck": true,
@@ -44,8 +41,8 @@
 	"offsetY": 4,
 	"quadcenterX": 8,
 	"quadcenterY": 8,
-  
-  "jumps": true,
+	
+	"jumpsalt": true,
 	"jumptime": 0.5,
 	"jumpforce": 8,
 	"jumpforcedown": 8

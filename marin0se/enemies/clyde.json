@@ -1,8 +1,8 @@
 {
 	"quadcount": 4,
 
-  "nospritesets": true,
-  
+	"nospritesets": true,
+	
 "movement": "wiggle",
 	"wiggledistance": 1,
 	"wigglespeed": 0.5,
@@ -24,7 +24,7 @@
 	"width": 2.125,
 	"height": 1.80,
 	
-  "gravity": 10,
+	"gravity": 10,
 	
 	"static": false,
 	"active": true,
@@ -48,7 +48,7 @@
 	"quadcenterX": 18,
 	"quadcenterY": 24,
 	
-  "spawnsenemy": "firespark",
+	"spawnsenemy": "firespark",
 	"spawnenemydelays": [1, 2, 3, 2],
 	"spawnenemyspeedy": 0,
 	"spawnenemyspeedx": -10,
@@ -59,5 +59,10 @@
 	"throwquadoffset": 2,
 	"throwpreparetime": 0.25,
 	
-	"ignorefaithplates": true
+	"ignorefaithplates": true,
+	
+	"jumpsalt": true,
+	"jumptime": 2,
+	"jumpforce": 10,
+	"jumpforcedown": 8
 }

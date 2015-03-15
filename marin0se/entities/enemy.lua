@@ -155,7 +155,7 @@ function enemy:init(x, y, t, a)
 		self.lifetimer = self.lifetime
 	end
 	
-	if self.jumps then
+	if self.jumps or self.jumpsalt then
 		self.jumptimer = 0
 	end
 	
@@ -665,6 +665,51 @@ function enemy:update(dt)
 					dir = "up"
 				else
 					dir = "down"
+				end
+			end
+			
+			if dir == "up" then
+				self.speedy = -self.jumpforce
+				self.mask[2] = true
+				self.jumping = "up"
+			else
+				self.speedy = -self.jumpforcedown
+				self.mask[2] = true
+				self.jumping = "down"
+				self.jumpingy = self.y
+			end
+		end
+		
+		if self.jumping then
+			if self.jumping == "up" then
+				if self.speedy > 0 then
+					self.jumping = false
+					self.mask[2] = false
+				end
+			elseif self.jumping == "down" then
+				if self.y > self.jumpingy + self.height+1.1 then
+					self.jumping = false
+					self.mask[2] = false
+				end
+			end
+		end
+	end
+	--Jumpsalt for Not hammer brothers jumping type
+		if self.jumpsalt then
+		self.jumptimer = self.jumptimer + dt
+		if self.jumptimer > self.jumptime then
+			self.jumptimer = self.jumptimer - self.jumptime
+			--decide whether up or up
+			local dir
+			if self.y > 12 then
+				dir = "up"
+			elseif self.y < 6 then
+				dir = "up"
+			else
+				if math.random(2) == 1 then
+					dir = "up"
+				else
+					dir = "up"
 				end
 			end
 			
