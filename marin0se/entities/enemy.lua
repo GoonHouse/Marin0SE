@@ -83,6 +83,13 @@ function enemy:init(x, y, t, a)
 		self.wiggleleft = true
 	end
 	
+	if self.kirbyenemy then
+		self.upsidedown = false
+		self.resettimer = 0
+		self.wiggletimer = 0
+		self.wiggleleft = true
+	end
+	
 	if self.customscissor then
 		self.customscissor = {unpack(self.customscissor)}
 		self.customscissor[1] = self.customscissor[1] + x - 1
@@ -950,15 +957,18 @@ end
 
 -- these are all damage type evaluators
 function enemy:damage_stomp(attacker)
+	local soundtoplay
 	if self.stompable then
 		-- stuff to do regardless of hurt
-		if self.shellanimal then
-			local soundtoplay = "stomp"
+		if self.kirbyenemy then
+			soundtoplay = "kirbyenemy"
+		elseif self.shellanimal then
+			soundtoplay = "stomp"
 			if self.small then
 				soundtoplay = "shot"
 			end
-			playsound(soundtoplay, self.x, self.y, self.speedx, self.speedy)
 		end
+		playsound(soundtoplay, self.x, self.y, self.speedx, self.speedy)
 		
 		if self.transforms and self.transformtrigger == "stomp" then
 			--@WARNING: we're not determining if we're dying here, so the transform trigger is premature

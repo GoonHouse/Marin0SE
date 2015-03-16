@@ -2115,7 +2115,7 @@ function loadlevelscreens()
 end
 
 function loadcustommusics()
-	musiclist = {"none.ogg", "overworld.ogg", "underground.ogg", "castle.ogg", "underwater.ogg", "starmusic.ogg"}
+	musiclist = {"none.ogg", "overworld.ogg", "underground.ogg", "castle.ogg", "underwater.ogg", "starmusic.ogg", "athletic.ogg",}
 	local fl = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/music")
 	custommusics = {}
 	
@@ -2262,7 +2262,7 @@ function reloadGraphics()
 end
 
 function reloadSounds() -- mastersfx, master list of sounds current being looked at.
-	soundstoload = {"none", "jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball", "redcoin1", "redcoin2", "redcoin3", "redcoin4", "redcoin5", "boss_spit", "enemy_hit", "rainboom",
+	soundstoload = {"none", "jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball", "redcoin1", "redcoin2", "redcoin3", "redcoin4", "redcoin5", "boss_spit", "enemy_hit", "rainboom", "kirbyenemy",
 					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "konami", "pause", "bulletbill", "addtime", "throw", "trophy", "switch",
 					"lowtime", "tailwag", "planemode", "stab", "spring", "portal1open", "portal2open", "portalenter", "portalfizzle"}
 				

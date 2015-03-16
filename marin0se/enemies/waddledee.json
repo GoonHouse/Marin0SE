@@ -5,6 +5,7 @@
    "stompable": true,
    "killsonbottom": true,
    "killsonsides": true,
+   "kirbyenemy": true,
    
    "animationtype": "frames",
    "animationstart": 1,
@@ -12,7 +13,7 @@
    "animationspeed": 0.2,
    
    "stompanimation": true,
-   "stompanimationtime": 0.2,
+   "stompanimationtime": 0.05,
    "stompedframe": 3,
    
    "truffleshufflespeed": 2,
