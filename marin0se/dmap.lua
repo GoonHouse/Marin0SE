@@ -79,7 +79,7 @@ function dmap:init(mapName, world)
 	self.enemiesspawned = {}
 	
 	--LOAD THE MAP
-	if not self:loadMap(mapName, "json") then --make one up
+	if not self:stiLoadMap(mapName) then --make one up
 		self:dummyMap()
 	end
 	
@@ -285,7 +285,116 @@ function dmap:start()
 	end
 end
 
-function dmap:loadMap(mapName, format)
+function dmap:stiLoadMap(mapName)
+	self.mapName = mapName or "1-1"
+	self.mapFormat = "lua"
+	
+	local mapstr = "mappacks/" .. mappack .. "/" .. mapName
+	self.imap = sti.new(mapstr)
+	
+	for k,v in pairs(self.imap) do
+		if type(v) == "function" then
+			print(k, v)
+		end
+	end
+	
+	self.map = {}
+	self.coinmap = {}
+	
+	--@WARNING: feeding globals, should be undone eventually
+	mapwidth = self.imap.width
+	mapheight = self.imap.height
+	
+	-- the game doesn't understand the rawmap so for now we forward properties as necessary
+	self.map.width = self.imap.width
+	self.map.height = self.imap.height
+	
+	-- unknown globals
+	self.unstatics = {} --???
+	self.spritebatchX = {}
+	self.spritebatchY = {}
+	
+	-- load properties into ourself
+	for k,v in pairs(self.imap.properties) do
+		self[k] = v
+	end
+	
+	-- commented out to focus on junk, this is meant to queue the assets
+	--[[for k,v in pairs(self.rawMap.tilesets) do
+		-- iterate through all the potential tilesets and act accordingly
+		if _G[v.name.."img"] then
+			newBatch(v.name, _G[v.name.."img"])
+		else
+			print("WARNING: Tried to load spritebatch for nonexistant image: ", v.name)
+		end
+	end]]
+	
+	-- load the map data up from layers 1 and 2
+	for x=1, self.map.width do
+		self.map[x] = {}
+		self.coinmap[x] = {}
+		if not self.world.animatedtimers[x] then
+			self.world.animatedtimers[x] = {}
+		end
+		for y=1, self.map.height do
+			local dex = (y-1)*self.map.width+x --plus 1
+			self.map[x][y] = {
+				self.imap.layers["tiles"].data[dex],
+				gels = {},
+				portaloverride = {}
+			}
+			--@TODO: Make the get property thing easier. This was behind "createobjects" but that disappeared.
+			--if tilequads[self.imap.layers["tiles"].data[dex]]:getproperty("collision") then
+				--self.objects.tile[x .. "-" .. y] = tile:new(x-1, y-1) --@WARNING: PROBABLY BROKEN
+			--end
+			if self.imap.layers["coins"] and self.imap.layers["coins"].data[dex] > 0 then
+				self.coinmap[x][y] = true --@TODO: or the value above, when supported
+			end
+			--[[@NOTE: Due to the above we don't need the following:
+			if tilequads[r[1] ]:getproperty("coin", x, y) then
+				coinmap[x][y] = true
+			end
+			]]
+			
+			--[[@NOTE: ignore animated timers for now
+			if r[1] > 10000 then
+				if tilequads[ r[1] ].triggered then
+					animatedtimers[x][y] = animatedtimer:new(x, y, r[1])
+				end
+			end
+			]]
+		end
+	end
+	
+	if self.imap.layers["ents"] then --entities
+		self:spawnOnMapLayer(self.imap.layers["ents"].objects)
+	end
+	
+	if self.imap.layers["enemies"] then --enemies
+		self:spawnOnMapLayer(self.imap.layers["enemies"].objects)
+	end
+	
+	-- should this be sorted by period instead of position, I'm confused
+	--[[
+	animatedtimers = {}
+	for x = 1, mapwidth do
+		animatedtimers[x] = {}
+	end
+	]]
+	
+	-- LINK ALL OBJECTS [might be redundant]
+	if self.dostart then
+		for i, v in pairs(self.objects) do
+			for j, w in pairs(v) do
+				if w.link then
+					w:link()
+				end
+			end
+		end
+	end
+end
+
+function dmap:xloadMap(mapName, format)
 	self.mapName = mapName or "1-1"
 	self.mapFormat = format or "txt"
 	
@@ -841,6 +950,24 @@ function dmap:getTilePropertyAt(x, y, property)
 	return tilequads[self.map[x][y][1]]:getproperty(property)
 end
 
+function dmap:draw(scalex, scaley)
+	if pt then
+		-- Draw sprite in centre of screen
+		love.graphics.push()
+		tx = -(pt.p1.x/width)*16*scale --math.floor(-math.fmod(pt.p1.x, 1)*16*scale)
+		ty = pt.p1.y --math.floor(-math.fmod(pt.p1.y, 1)*16*scale)
+		--print(tx, ty)
+		love.graphics.translate(tx, ty)
+		self.imap:setDrawRange(tx, ty, width*scale*16, height*scale*16)
+		self.imap:draw(scale, scale)
+		love.graphics.pop()
+	end
+	--scalex = scalex or 3
+	--scaley = scaley or 3
+	--self.imap:setDrawRange(120, 1, love.graphics.getWidth()/4, love.graphics.getHeight()/4)
+	--self.imap:setDrawRange(math.floor(-math.fmod(xscroll, 1)*16*scale), math.floor(-math.fmod(yscroll, 1)*16*scale), love.graphics.getWidth(), love.graphics.getHeight())
+	--self.imap:draw()
+end
 
 
 -- PORTAL SPECIFIC OBJECT MANIPULATION CODE

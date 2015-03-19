@@ -93,6 +93,9 @@ function world:init(mapName)
 	self.pswitchtimers = {blue = 0, grey = 0}
 	self.givemestuff = {lives = 0, times = 0, coinage = 0}
 	
+	-- DEBUG MAP SETTINGS
+	self.backgroundcolor = {0, 255, 0}
+	self.earthquake = 0
 	--[[@NOTE: Commented out to force refactoring the relevant code into the player's weapon.
 	self.portaldelay = {}
 	for i = 1, players do
@@ -290,10 +293,14 @@ function world:draw_earthquake()
 end
 
 function world:draw() --some things belong to the world, others the game
-	love.graphics.setBackgroundColor(self.backgroundcolor)
+	love.graphics.setBackgroundColor(self.backgroundcolor or {0, 255, 0})
 	
 	if self.earthquake > 0 then
 		love.graphics.translate(-round(self.tremorx), -round(self.tremory))
+	end
+	
+	if self.currentMap.draw then
+		self.currentMap:draw()
 	end
 	
 	--[[@NOTE: these should be handled by sanenets

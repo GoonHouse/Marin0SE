@@ -112,8 +112,8 @@ function love.load(args)
 		g.y = love.graphics.getHeight()-g.height
 		g.font = imagefont
 	end
-	Monocle = require("libs.monocle.monocle")
-	Monocle.new({
+	--Monocle = require("libs.monocle.monocle")
+	--[[Monocle.new({
 		isActive=true,
 		useErrorHandler=false,
 		customPrinter=false,
@@ -121,7 +121,7 @@ function love.load(args)
 		debugToggle = 'f1',
 		filesToWatch = {}
 	})
-	Monocle.watch("FPS", function() return math.floor(1/love.timer.getDelta()) end)
+	Monocle.watch("FPS", function() return math.floor(1/love.timer.getDelta()) end)]]
 	http = require("socket.http")
 	http.PORT = 55555
 	http.TIMEOUT = 1
@@ -147,6 +147,7 @@ function love.load(args)
 	
 	require "dmap"
 	require "world"
+	sti = require("libs.sti")
 	add("World Classes")
 	
 	-- these are here because we deported some stuff for the sake of having a clean main
@@ -520,7 +521,7 @@ function love.update(dt)
 	for k,v in pairs(game.graphs) do
 		grapher.updateGraph(grapher.graphsToManage[k], dt)
 	end
-	Monocle.update()
+	--Monocle.update()
 	hooker.Call("LovePostUpdate", dt)
 end
 
@@ -621,7 +622,7 @@ function love.draw()
 			0
 		)
 	end
-	Monocle.draw()
+	--Monocle.draw()
 	hooker.Call("LovePostDraw")
 end
 

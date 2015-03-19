@@ -629,6 +629,13 @@ function game_update(dt)
 end
 
 function drawlevel()
+	if w then
+		w:draw()
+		--love.graphics.draw(smbspritebatch, math.floor(-math.fmod(xscroll, 1)*16*scale), math.floor(-math.fmod(yscroll, 1)*16*scale))
+	end
+end
+
+function xdrawlevel()
 	if incognito then
 		return
 	end
