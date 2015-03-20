@@ -27,6 +27,8 @@ function world:init(mapName)
 	for i = 1, players do
 		self.startingsizes[i] = 1
 	end
+	self.coinblocktimers = {}
+	self.blockbouncetimer = {}
 	self.autoscroll = true
 	self.jumpitems = { "mushroom", "oneup" } --no idea what this does
 	self.gworld = 1 --was marioworld
@@ -134,6 +136,12 @@ function world:start()
 	-- begin processing world state
 	self:playmusic()
 	self.currentMap:start()
+end
+
+function world:stop()
+	-- stop the world, I want off
+	self:stopmusic()
+	self.currentMap:stop()
 end
 
 function world:openMap(mapName)
@@ -293,11 +301,11 @@ function world:draw_earthquake()
 end
 
 function world:draw() --some things belong to the world, others the game
-	love.graphics.setBackgroundColor(self.backgroundcolor or {0, 255, 0})
+	love.graphics.setBackgroundColor(self.backgroundcolor)
 	
-	if self.earthquake > 0 then
+	--[[if self.earthquake > 0 then
 		love.graphics.translate(-round(self.tremorx), -round(self.tremory))
-	end
+	end]]
 	
 	if self.currentMap.draw then
 		self.currentMap:draw()
@@ -335,8 +343,12 @@ function world:draw() --some things belong to the world, others the game
 end
 
 function world:update(dt)
+	if self.currentMap.update then
+		self.currentMap:update(dt)
+	end
+	
 	--earthquake reset
-	if self.earthquake > 0 then
+	--[[if self.earthquake > 0 then
 		self.earthquake = math.max(0, self.earthquake-dt*self.earthquake*2-0.001)
 		self.sunrot = self.sunrot + dt
 	end
@@ -384,7 +396,7 @@ function world:update(dt)
 	if #delete >= 1 then
 		generatespritebatch()
 	end
-	
+	]]
 	--portal update
 	--[[@NOTE: this should be handled by saneents
 	for i, v in pairs(portals) do

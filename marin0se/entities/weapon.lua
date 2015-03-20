@@ -8,7 +8,8 @@ function weapon:init(parent)
 	self.secondaryAttackDelay = 0
 	self.secondaryAttackTimer = 0
 	self.secondaryAmmo = nil
-	table.insert(objects["weapon"], self)
+	--@TODO: Type check to see if we belong to the world or a world inhabitant.
+	table.insert(parent.world.objects["weapon"], self)
 end
 
 function weapon:update(dt)

@@ -1580,7 +1580,7 @@ function player:movement(dt)
 		local x = round(self.x+self.width/2+.5)
 		local y = round(self.y+self.height+1)
 		
-		for i, v in pairs(objects["lightbridgebody"]) do
+		for i, v in pairs(self.world.objects["lightbridgebody"]) do
 			if x == v.cox and y == v.coy and v.gels.top then
 				orangegel = true
 			end
@@ -3761,8 +3761,8 @@ function player:die(how)
 	
 	if not arcade then
 		everyonedead = true
-		for i = 1, players do
-			if not objects["player"][i].dead then
+		for k,v in ipairs(self.world.objects["player"]) do
+			if not v.dead then
 				everyonedead = false
 			end
 		end
@@ -3913,7 +3913,7 @@ function player:use(xcenter, ycenter)
 	end
 	
 	-- this used to be the check userect function but we murdered it
-	for i, v in pairs(objects["userect"]) do
+	for i, v in pairs(self.world.objects["userect"]) do
 		if aabb(
 			xcenter-usesquaresize/2,
 			ycenter-usesquaresize/2,

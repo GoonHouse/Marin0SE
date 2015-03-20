@@ -53,7 +53,7 @@ function prerotatecall(a, b)
 	return false
 end
 
-function physicsupdate(dt)
+function physicsupdate(objects, dt)
 	local lobjects = objects
 	
 	for j, w in pairs(lobjects) do
@@ -120,7 +120,7 @@ function physicsupdate(dt)
 								end
 								
 								--Check for emancipation grill
-								checkforemances(dt, v)
+								checkforemances(objects, dt, v)
 							end
 						end
 					end
@@ -170,7 +170,7 @@ function physicsupdate(dt)
 						end
 						
 						--Check for emancipation grill
-						checkforemances(dt, v)
+						checkforemances(objects, dt, v)
 					end
 					
 					--Move the object
@@ -210,7 +210,7 @@ function physicsupdate(dt)
 	end
 end
 
-function checkforemances(dt, v)
+function checkforemances(objects, dt, v)
 	if v.emancipatecheck then
 		for h, u in pairs(objects["emancipationgrill"]) do
 			if u.power then

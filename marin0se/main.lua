@@ -24,6 +24,7 @@
 ]]
 require("utils") --we wanna do this as close to the opening scope as possible
 require("libs.hooker.hooker")
+require("hookshim")
 
 function love.load(args)
 	hooker.Call("LovePreLoad", args)
@@ -378,7 +379,8 @@ function love.load(args)
 	dertotal = os.clock()-starttime
 	print("TOTAL: " .. tostring(os.clock()).."s")
 	if skipintro then
-		menu_load()
+		--menu_load()
+		game_load()
 	else
 		intro_load()
 	end
@@ -482,7 +484,12 @@ function love.update(dt)
 		elseif gamestate == "levelscreen" or gamestate == "gameover" or gamestate == "sublevelscreen" or gamestate == "mappackfinished" then
 			--levelscreen_update(dt)
 		elseif gamestate == "game" then
-			game_update(dt)	
+			if w then
+				w:update(dt)
+				--game_update(dt)	
+			else
+				print("CRITICAL: In game mode, but no available world to update. Call for help.")
+			end
 		elseif gamestate == "intro" then
 			intro_update(dt)	
 		end
@@ -541,7 +548,12 @@ function love.draw()
 	elseif gamestate == "levelscreen" or gamestate == "gameover" or gamestate == "mappackfinished" then
 		--levelscreen_draw() --@DEV: stubbed because we don't need it
 	elseif gamestate == "game" then
-		game_draw()
+		if w then
+				w:draw()
+				--game_draw()
+			else
+				print("CRITICAL: In game mode, but no available world to update. Call for help.")
+			end
 	elseif gamestate == "intro" then
 		--@DEV: don't actually draw the intro because it broked
 		--intro_draw()
