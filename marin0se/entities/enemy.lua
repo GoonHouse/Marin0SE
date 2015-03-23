@@ -392,23 +392,22 @@ function enemy:update(dt)
 		
 	elseif self.movement == "follow" then
 		local nearestplayer = 1
-		while objects["player"][nearestplayer] and objects["player"][nearestplayer].dead do
-			nearestplayer = nearestplayer + 1
-		end
-		
-		if objects["player"][nearestplayer] then
-			local nearestplayerx = objects["player"][nearestplayer].x
-			for i = 2, players do
-				local v = objects["player"][i]
-				if v.x > nearestplayerx and not v.dead then
-					nearestplayer = i
-				end
+			while objects["player"][nearestplayer] and objects["player"][nearestplayer].dead do
+				nearestplayer = nearestplayer + 1
 			end
+		
+			if objects["player"][nearestplayer] then
+				local nearestplayerx = objects["player"][nearestplayer].x
+				for i = 2, players do
+					local v = objects["player"][i]
+					if v.x > nearestplayerx and not v.dead then
+						nearestplayer = i
+					end
+				end
 			
 			nearestplayerx = nearestplayerx + objects["player"][nearestplayer].speedx*self.distancetime
 			
 			local distance = math.abs(self.x - nearestplayerx)
-			
 			--check if too far in wrong direction
 			if (not self.direction or self.direction == "left") and self.x < nearestplayerx-self.followspace then
 				self.direction = "right"
@@ -428,6 +427,77 @@ function enemy:update(dt)
 				self.speedx = -(self.followspeed or 2)
 			end
 		end
+		--BOOFOLLOW
+		--BOOFOLLOW
+	elseif self.movement == "boofollow" then
+		local nearestplayer = 1
+		local boohide = false
+		local b = objects["player"][nearestplayer] 
+		
+		while objects["player"][nearestplayer] and objects["player"][nearestplayer].dead do
+			nearestplayer = nearestplayer + 1
+		end
+		
+		if objects["player"][nearestplayer] then
+			local nearestplayerx = objects["player"][nearestplayer].x
+			local nearestplayery = objects["player"][nearestplayer].y
+			for i = 2, players do
+				local v = objects["player"][i]
+				if v.x > nearestplayerx and not v.dead then
+					nearestplayer = i
+				end
+			end
+		
+		nearestplayerx = nearestplayerx + objects["player"][nearestplayer].speedx*self.distancetime
+		nearestplayery = nearestplayery + objects["player"][nearestplayer].speedy*self.distancetime
+		
+		local distance = math.abs(self.x - nearestplayerx)
+		--check if too far in wrong direction
+		if (not self.direction or self.direction == "left") and self.x < nearestplayerx-self.followspace then
+			self.direction = "right"
+			self.animationdirection = "right"
+		elseif self.direction == "right" and self.x > nearestplayerx+self.followspace then
+			self.direction = "left"
+			self.animationdirection = "left"
+		end
+		
+		if self.direction == "right" and boohide == false then
+			if self.nofollowspeedup then
+				self.speedx = self.followspeed or 2
+			else
+				self.speedx = math.max((self.followspeed or 2), round((distance-3)*2))
+			end
+		else
+			self.speedx = -(self.followspeed or 2)
+		end
+		--Boo Hide Boode
+		if b.angleframe == 1 or 2 then
+			boohide = true
+			
+			
+		elseif b.angleframe == 3 or 4 then
+			boohide = false
+			
+		end
+		
+		-- Moving Up and Down left
+		if self.direction == "left" and (self.y > nearestplayery-self.followspace) and lookedat == false then
+			self.speedy = -(self.followspeed or 2)
+		elseif self.direction == "left" and (self.y < nearestplayery-self.followspace) and lookedat == false then
+			self.speedy = (self.followspeed or 2)
+		end
+		--Moving Up and Down right
+		if self.direction == "right" and (self.y > nearestplayery-self.followspace) and lookedat == false then
+				self.speedy = -(self.followspeed or 2)
+		elseif self.direction == "right" and (self.y < nearestplayery-self.followspace) and lookedat == false then
+			self.speedy = (self.followspeed or 2)
+		end
+		--Boo Hide True Things
+		if lookedat == true then
+			self.speedx = 0
+			self.speedy = 0
+		end
+	end
 	elseif self.movement == "piston" then
 		self.pistontimer = self.pistontimer + dt
 		
