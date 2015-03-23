@@ -131,12 +131,17 @@ end
 end]]
 
 function baseentity:update(dt)
+	local mix = self.class.__mixins
+	
+	if mix[CanBeControlled] then
+		self.binds:update()
+	end
+	
 	--[[this came from fireball, not sure if it's global:
 		rotate back to 0 (portals)
 	]]
-	local mix = self.class.__mixins
 	if mix[CanPortal] then
-		self.rotation = 0
+		--self.rotation = unrotate(self.rotation, self.gravitydirection, dt)
 	end
 	
 	--[[self.timer = self.timer + dt

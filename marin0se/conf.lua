@@ -7,5 +7,5 @@ function love.conf(t)
 	t.window.width = 1200
 	t.window.height = 672
 	
-	t.modules.physics = false
+	t.modules.physics = true
 end

@@ -72,6 +72,7 @@ function world:init(mapName)
 		30 = player's gravity while jumping
 		
 	]]
+	self.pworld = love.physics.newWorld(0, self.gravity)
 	
 	-- PROPERTIES THAT WERE RE-DELEGATED TO US FROM DMAP
 	self.everyonedead = false
@@ -135,6 +136,7 @@ end
 function world:start()
 	-- begin processing world state
 	self:playmusic()
+	self.cols = self.currentMap.imap:initWorldCollision(self.pworld)
 	self.currentMap:start()
 end
 
@@ -308,6 +310,8 @@ function world:draw() --some things belong to the world, others the game
 	end]]
 	
 	if self.currentMap.draw then
+		love.graphics.setColor(255, 0, 0, 255)
+		self.currentMap.imap:drawWorldCollision(self.cols)
 		self.currentMap:draw()
 	end
 	
@@ -343,6 +347,8 @@ function world:draw() --some things belong to the world, others the game
 end
 
 function world:update(dt)
+	self.pworld:update(dt)
+	
 	if self.currentMap.update then
 		self.currentMap:update(dt)
 	end

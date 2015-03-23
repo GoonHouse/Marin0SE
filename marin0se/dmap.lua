@@ -267,7 +267,7 @@ function dmap:start()
 			
 			table.insert(spawns, {x=astartx, y=astarty})
 			
-			self.objects.player[i] = player:new(self, astartx+add, astarty-1, i, lanimation, self.world.startingsizes[i], playertype)
+			self.objects.player[i] = player:new(self.world, astartx+add, astarty-1, i, lanimation, self.world.startingsizes[i], playertype)
 		else
 			--@NOTE: singleplayer game start uses this
 			self.objects.player[i] = player:new(self, 1.5 + (i-1)*mul-6/16+1.5, 13, i, lanimation, self.world.startingsizes[i], playertype)
@@ -304,6 +304,8 @@ function dmap:stiLoadMap(mapName)
 	self.imap = sti.new(mapstr)
 	
 	self.imap:addCustomLayer("objs", 3)
+	
+	self.imap.layers.tiles.properties.collidable = true
 	
 	self.cl = self.imap.layers["objs"]
 	
@@ -977,6 +979,21 @@ function dmap:getTilePropertyAt(x, y, property)
 end
 
 function dmap:update(dt)
+	-- Update sprite's coordinates
+	local sprite = self.imap.layers["objs"].objects.player[1]
+	local down = love.keyboard.isDown
+
+	local x, y = 0, 0
+	local forcemult = 300
+	if down("w") or down("up")		then y = y - forcemult end
+	if down("s") or down("down")	then y = y + forcemult end
+	if down("a") or down("left")	then x = x - forcemult end
+	if down("d") or down("right")	then x = x + forcemult end
+	sprite.body:applyForce(x, y)
+	sprite.x, sprite.y = sprite.body:getWorldCenter()
+
+	
+	
 	game.probes.items.updates:pushEvent("physics")
 	--physicsupdate(self.objects, dt)
 	game.probes.items.updates:popEvent("physics")
@@ -989,6 +1006,9 @@ end
 function dmap:draw(scalex, scaley)
 	--@DEBUG: set to anything smaller than the default scale in order to look for draws escaping the map draw
 	self.imap:draw(scale, scale)
+	
+	local sprite = self.imap.layers["objs"].objects.player[1]
+	love.graphics.polygon("line", sprite.body:getWorldPoints(sprite.shape:getPoints()))
 	-- Draw sprite in centre of screen
 	--love.graphics.push()
 	--tx = -pt.p1.x*16 --math.floor(-math.fmod(pt.p1.x, 1)*16*scale)
@@ -1132,12 +1152,12 @@ function illegaldraw(objs)
 							end
 							-- THIS PART DRAWS MARIO / ALL COLORIZABLE OBJECTS
 							--love.graphics.draw(v.graphic[k], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
-							love.graphics.draw(v.graphic[k], v.quad, v.x*16+v.offsetX, v.y*16+v.offsetY, v.rotation, 1, 1, v.quadcenterX, v.quadcenterY)
+							love.graphics.draw(v.graphic[k], v.quad, v.x+v.offsetX, v.y+v.offsetY, v.rotation, 1, 1, v.quadcenterX, v.quadcenterY)
 						end
 					else
 						if v.graphic and v.quad then
 							--love.graphics.draw(v.graphic, v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
-							love.graphics.draw(v.graphic, v.quad, v.x*16+v.offsetX, v.y*16+v.offsetY, v.rotation, 1, 1, v.quadcenterX, v.quadcenterY)
+							love.graphics.draw(v.graphic, v.quad, v.x+v.offsetX, v.y+v.offsetY, v.rotation, 1, 1, v.quadcenterX, v.quadcenterY)
 						end
 					end
 					

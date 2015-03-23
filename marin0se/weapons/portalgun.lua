@@ -1,11 +1,25 @@
 portalgun = class('portalgun', weapon)
 function portalgun:init(parent)
 	weapon.init(self,parent)
+	
+	self.portalsavailable = {true, true}
+	self.colors = {
+		{60, 188, 252},
+		{232, 130, 30}
+	}
+	self.lastportal = 2
+	if not self.world.objects.portal[self.playernumber] then
+		self.world.objects.portal[self.playernumber] = portal:new(self.playernumber, self.portal1color, self.portal2color, self)
+	end
+	self.portal = self.world.objects.portal[self.playernumber]
 end
 
 function portalgun:update(dt)
 	weapon.update(self,dt)
 	-- nothin'
+	if self.portaldelay > 0 then
+		self.portaldelay = math.max(0, self.portaldelay - dt/speed)
+	end
 end
 
 function portalgun:draw()
@@ -13,7 +27,7 @@ function portalgun:draw()
 	
 	-- @TODO: We could probably internalize a lot of these properties.
 	local ply = self.parent
-	if ply and ply.controlsenabled and ply.activeweapon == self and not ply.vine and table.contains(ply.portalsavailable, true) then
+	if ply and ply.controlsenabled and ply.activeweapon == self and not ply.vine and table.contains(self.portalsavailable, true) then
 		local sourcex, sourcey = ply.x+6/16, ply.y+6/16
 		--@DEV: commented out because stuff
 		local cox, coy, side, tend, x, y = self:traceline(sourcex, sourcey, ply.pointingangle)
@@ -91,7 +105,7 @@ function portalgun:shootPortal(i, mirrored)
 	end
 	
 	--check if available
-	if not self.parent.portalsavailable[i] then
+	if not self.portalsavailable[i] then
 		return
 	end
 	
@@ -115,7 +129,7 @@ function portalgun:shootPortal(i, mirrored)
 	end
 	
 	if not mirrored then
-		self.parent.lastportal = i
+		self.lastportal = i
 	end
 	
 	local tile = world.map[cox][coy]
@@ -132,7 +146,7 @@ function portalgun:shootPortal(i, mirrored)
 		end
 	end
 	
-	self.parent.lastportal = i
+	self.lastportal = i
 	
 	table.insert(self.parent.world.objects.portalprojectile, 
 		portalprojectile:new(sourcex, sourcey, x, y, color, true, 

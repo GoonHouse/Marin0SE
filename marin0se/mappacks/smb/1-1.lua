@@ -1,19 +1,16 @@
 return {
   version = "1.1",
   luaversion = "5.1",
-  tiledversion = "0.11.0",
   orientation = "orthogonal",
   width = 224,
   height = 15,
   tilewidth = 16,
   tileheight = 16,
-  nextobjectid = 38,
   properties = {},
   tilesets = {
     {
       name = "smbtiles",
       firstgid = 1,
-      filename = "../tiled_example/smbtiles.tsx",
       tilewidth = 16,
       tileheight = 16,
       spacing = 1,
@@ -26,17 +23,17 @@ return {
         y = 0
       },
       properties = {},
-      terrains = {},
       tiles = {
         {
           id = 0,
           properties = {
-            ["visible"] = "true"
+            ["visible"] = "false"
           }
         },
         {
           id = 1,
           properties = {
+            ["collidable"] = "true",
             ["solid"] = "true, true, true, true"
           }
         },
@@ -69,12 +66,14 @@ return {
           properties = {
             ["breakable"] = "false, false, true, false",
             ["breaklevel"] = "5",
+            ["collidable"] = "true",
             ["solid"] = "true, true, true, true"
           }
         },
         {
           id = 7,
           properties = {
+            ["collidable"] = "true",
             ["itemblock"] = "false, false, true, false",
             ["solid"] = "true, true, true, true"
           }
@@ -834,7 +833,6 @@ return {
     {
       name = "portaltiles",
       firstgid = 155,
-      filename = "../tiled_example/portaltiles.tsx",
       tilewidth = 16,
       tileheight = 16,
       spacing = 1,
@@ -847,7 +845,6 @@ return {
         y = 0
       },
       properties = {},
-      terrains = {},
       tiles = {
         {
           id = 0,
@@ -1348,7 +1345,6 @@ return {
       properties = {},
       objects = {
         {
-          id = 1,
           name = "",
           type = "mariospawn",
           shape = "rectangle",
@@ -1361,7 +1357,6 @@ return {
           properties = {}
         },
         {
-          id = 2,
           name = "",
           type = "goomba",
           shape = "rectangle",
@@ -1374,7 +1369,6 @@ return {
           properties = {}
         },
         {
-          id = 3,
           name = "",
           type = "item",
           shape = "rectangle",
@@ -1387,7 +1381,6 @@ return {
           properties = {}
         },
         {
-          id = 4,
           name = "",
           type = "goomba",
           shape = "rectangle",
@@ -1400,7 +1393,6 @@ return {
           properties = {}
         },
         {
-          id = 5,
           name = "",
           type = "goomba",
           shape = "rectangle",
@@ -1413,7 +1405,6 @@ return {
           properties = {}
         },
         {
-          id = 6,
           name = "",
           type = "goombahalf",
           shape = "rectangle",
@@ -1426,7 +1417,6 @@ return {
           properties = {}
         },
         {
-          id = 7,
           name = "",
           type = "1up",
           shape = "rectangle",
@@ -1439,7 +1429,6 @@ return {
           properties = {}
         },
         {
-          id = 8,
           name = "",
           type = "warparea",
           shape = "rectangle",
@@ -1454,7 +1443,6 @@ return {
           }
         },
         {
-          id = 9,
           name = "",
           type = "triggerkill",
           shape = "rectangle",
@@ -1467,7 +1455,6 @@ return {
           properties = {}
         },
         {
-          id = 10,
           name = "",
           type = "triggerkill",
           shape = "rectangle",
@@ -1480,7 +1467,6 @@ return {
           properties = {}
         },
         {
-          id = 11,
           name = "",
           type = "checkpoint",
           shape = "rectangle",
@@ -1493,7 +1479,6 @@ return {
           properties = {}
         },
         {
-          id = 12,
           name = "",
           type = "goomba",
           shape = "rectangle",
@@ -1506,7 +1491,6 @@ return {
           properties = {}
         },
         {
-          id = 13,
           name = "",
           type = "goomba",
           shape = "rectangle",
@@ -1519,7 +1503,6 @@ return {
           properties = {}
         },
         {
-          id = 14,
           name = "",
           type = "manycoin",
           shape = "rectangle",
@@ -1532,7 +1515,6 @@ return {
           properties = {}
         },
         {
-          id = 15,
           name = "",
           type = "item",
           shape = "rectangle",
@@ -1545,7 +1527,6 @@ return {
           properties = {}
         },
         {
-          id = 16,
           name = "",
           type = "goombahalf",
           shape = "rectangle",
@@ -1558,7 +1539,6 @@ return {
           properties = {}
         },
         {
-          id = 17,
           name = "",
           type = "goomba",
           shape = "rectangle",
@@ -1571,7 +1551,6 @@ return {
           properties = {}
         },
         {
-          id = 18,
           name = "",
           type = "starman",
           shape = "rectangle",
@@ -1584,7 +1563,6 @@ return {
           properties = {}
         },
         {
-          id = 19,
           name = "",
           type = "koopa",
           shape = "rectangle",
@@ -1597,7 +1575,6 @@ return {
           properties = {}
         },
         {
-          id = 20,
           name = "",
           type = "item",
           shape = "rectangle",
@@ -1610,7 +1587,6 @@ return {
           properties = {}
         },
         {
-          id = 21,
           name = "",
           type = "goomba",
           shape = "rectangle",
@@ -1623,7 +1599,6 @@ return {
           properties = {}
         },
         {
-          id = 22,
           name = "",
           type = "goombahalf",
           shape = "rectangle",
@@ -1636,7 +1611,6 @@ return {
           properties = {}
         },
         {
-          id = 23,
           name = "",
           type = "goombahalf",
           shape = "rectangle",
@@ -1649,7 +1623,6 @@ return {
           properties = {}
         },
         {
-          id = 24,
           name = "",
           type = "goomba",
           shape = "rectangle",
@@ -1662,7 +1635,6 @@ return {
           properties = {}
         },
         {
-          id = 25,
           name = "",
           type = "goombahalf",
           shape = "rectangle",
@@ -1675,7 +1647,6 @@ return {
           properties = {}
         },
         {
-          id = 26,
           name = "",
           type = "goomba",
           shape = "rectangle",
@@ -1688,7 +1659,6 @@ return {
           properties = {}
         },
         {
-          id = 27,
           name = "",
           type = "goombahalf",
           shape = "rectangle",
@@ -1701,7 +1671,6 @@ return {
           properties = {}
         },
         {
-          id = 28,
           name = "",
           type = "goomba",
           shape = "rectangle",
@@ -1714,7 +1683,6 @@ return {
           properties = {}
         },
         {
-          id = 29,
           name = "",
           type = "flag",
           shape = "rectangle",
@@ -1727,7 +1695,6 @@ return {
           properties = {}
         },
         {
-          id = 30,
           name = "",
           type = "warparea",
           shape = "rectangle",
@@ -1742,7 +1709,6 @@ return {
           }
         },
         {
-          id = 31,
           name = "",
           type = "triggerkill",
           shape = "rectangle",

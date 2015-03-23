@@ -25,47 +25,7 @@ function player:init(world, x, y, i, animation, size, t)
 		
 		eventually we wanna use enemiesdata["powerup"] and register each powerup right
 	]]
-	
-	if self.size == 1 then
-		self.powerupstate = "small"
-		self.powerdowntargetstate = "death"
-	elseif self.size == 2 then
-		self.powerupstate = "super"
-		self.powerdowntargetstate = "small"
-	elseif self.size == 3 then
-		self.powerupstate = "fire"
-		self.powerdowntargetstate = "super"
-	end
 	self.prefermouse = true
-	self.t = t or "portalgun"
-	self.activeweapon = nil
-	self.weapons = {}
-	--[[ { weaponname = reference } ]]
-	if _G[self.t] and _G[self.t].isWeapon then
-		self.weapons[self.t] = _G[self.t]:new(self)
-		self.activeweapon = self.weapons[self.t]
-	end
-	
-	self.portalsavailable = {unpack(portalsavailable)}
-	local bindtable 
-	if self.playernumber == 1 then
-		bindtable = controlTable
-		if false then
-			bindtable.keys = nil
-			bindtable.mouseBtns = nil
-		end
-	else
-		bindtable = {}
-	end
-	self.binds, self.controls = TLbind.giveInstance(bindtable)
-	self.binds.controlPressed = function(control)
-		--print("wrap control press")
-		self:controlPress(control, false)
-	end
-	self.binds.controlReleased = function(control)
-		--print("wrap control release")
-		self:controlRelease(control, false)
-	end
 	
 	--PHYSICS STUFF
 	self.speedx = 0
@@ -155,20 +115,6 @@ function player:init(world, x, y, i, animation, size, t)
 	
 	self.customscissor = false
 	
-	if players == 1 and not arcade then
-		self.portal1color = {60, 188, 252}
-		self.portal2color = {232, 130, 30}
-	else
-		self.portal1color = portalcolor[self.playernumber][1]
-		self.portal2color = portalcolor[self.playernumber][2]
-	end
-	
-	if self.portalsavailable[1] then
-		self.lastportal = 1
-	elseif self.portalsavailable[2] then
-		self.lastportal = 2
-	end
-	
 	--OTHER STUFF!
 	self.controlsenabled = true
 	
@@ -190,10 +136,6 @@ function player:init(world, x, y, i, animation, size, t)
 	}
 	
 	--@DEV: Not sure why these aren't made children but y'know whatever.
-	if not self.world.objects.portal[self.playernumber] then
-		self.world.objects.portal[self.playernumber] = portal:new(self.playernumber, self.portal1color, self.portal2color, self)
-	end
-	self.portal = self.world.objects.portal[self.playernumber]
 	
 	self.portaldelay = 0
 	
@@ -372,68 +314,6 @@ function player:init(world, x, y, i, animation, size, t)
 	table.insert(self.world.objects.tile, tile:new(self.x, self.y+self.height+.12))
 end
 
-
-function player:controlPress(control, fromnetwork)
-	if onlinemp and not fromnetwork then
-		client_send("controlupdate", {control=control,direction="press"})
-	end
-	if fromnetwork then
-		print("network-pressed: "..control)
-		self.controls[control]=true
-		self.controls.tap[control]=true
-		self.controls.release[control]=true
-	else
-		--print("pressed: "..control)
-	end
-	if control=="playerJump" then
-		self:jump()
-	elseif control=="playerDebug" then
-		--playsound("shrink", 1, 1)
-		--killfeed.new({objects["enemy"][1],objects["enemy"][2]}, "physics", objects["enemy"][3])
-		--savemap2(currentmap)
-		--debugbox()
-		playerDebug()
-	elseif control=="playerRun" then
-		self:fire()
-	elseif control=="playerReload" then
-		self:removeportals()
-	elseif control=="playerUse" then
-		self:use()
-	elseif control=="playerSuicide" then
-		self:murder(self, "suicide", "Suicide")
-	elseif control=="playerLeft" then
-		self:leftkey()
-	elseif control=="playerRight" then
-		self:rightkey()
-	elseif control=="playerPrimaryFire" then
-		if self.activeweapon and (not editormode or testlevel) then 
-			self.activeweapon:primaryFire()
-		end
-	elseif control=="playerSecondaryFire" then
-		if self.activeweapon and (not editormode or testlevel) then 
-			self.activeweapon:secondaryFire()
-		end
-	elseif control=="doug" then
-		self:doug()
-	end
-end
-function player:controlRelease(control, fromnetwork)
-	if onlinemp and not fromnetwork then
-		client_send("controlupdate", {control=control,direction="release"})
-	end
-	if fromnetwork then
-		print("network-released: "..control)
-		self.controls[control]=false
-		self.controls.tap[control]=false
-		self.controls.release[control]=false
-	else
-		--print("released: "..control)
-	end
-	if control=="playerJump" then
-		self:stopjump()
-	end
-end
-
 function player:adddata()
 	--i, x, y, cscale,     offsetX, offsetY, rotation, quadcenterX, quadcenterY, animationstate, underwater, ducking, hats, graphic, quad, pointingangle, shot, upsidedown, colors, lastportal, portal1color, portal2color)
 	
@@ -485,11 +365,8 @@ function player:adddata()
 	end
 end
 
+
 function player:update(dt)
-	if self.binds.update and self.controls and self.playernumber == 1 then
-		self.binds:update()
-	end
-	
 	if self.animationdirection == "right" and self.speedx > maxwalkspeed then --Checks for running movement
 		self.running = true
 		self.walking = true
@@ -521,12 +398,8 @@ function player:update(dt)
 	end
 	
 	self.passivemoved = false
-	self.rotation = unrotate(self.rotation, self.gravitydirection, dt)
 	
 	--@DEV: This is probably handled by our weapon code, but just in case, here this is.
-	if self.portaldelay > 0 then
-		self.portaldelay = math.max(0, self.portaldelay - dt/speed)
-	end
 	
 	--Tailwag!
 	if self.char.raccoon and (self.tailwag or self.tailwagtimer > 0) then
@@ -605,6 +478,7 @@ function player:update(dt)
 			self.startimer = mariostarduration
 		end
 	end
+	
 	
 	if self.jumping then
 		if self.underwater then
@@ -1452,7 +1326,8 @@ function player:update(dt)
 		
 		--DEATH BY PIT
 		if self.gravitydirection > math.pi/4*1 and self.gravitydirection <= math.pi/4*3 then --down
-			if self.y >= mapheight then
+			if self.y >= self.world.imap.height*scale*16 then 
+				--@CRITICAL: This is a hack to adjust box2d physics into the screen meter
 				self:murder(nil, "pit", "pit")
 			end
 		elseif self.gravitydirection > math.pi/4*5 and self.gravitydirection <= math.pi/4*7 then --up
@@ -2143,56 +2018,6 @@ function player:setquad(anim, s)
 	end
 end
 
-function gethatoffset(char, graphic, animationstate, runframe, jumpframe, climbframe, swimframe, underwater, infunnel, fireanimationtimer, ducking)
-	local hatoffset
-	if graphic == char.animations or graphic == char.nogunanimations then
-		if not char.hatoffsets then
-			return
-		end
-		
-		if infunnel then
-			hatoffset = char.hatoffsets["jumping"][jumpframe]
-		elseif underwater and (animationstate == "jumping" or animationstate == "falling") then
-			hatoffset = char.hatoffsets["swimming"][swimframe]
-		elseif animationstate == "jumping" then
-			hatoffset = char.hatoffsets["jumping"][jumpframe]
-		elseif animationstate == "running" or animationstate == "falling" then
-			hatoffset = char.hatoffsets["running"][runframe]
-		elseif animationstate == "climbing" then
-			hatoffset = char.hatoffsets["climbing"][climbframe]
-		end
-	else
-		if not char.bighatoffsets then
-			return
-		end
-		if infunnel or animationstate == "jumping" and not ducking then
-			hatoffset = char.bighatoffsets["jumping"][jumpframe]
-		elseif underwater and (animationstate == "jumping" or animationstate == "falling") then
-			hatoffset = char.bighatoffsets["swimming"][swimframe]
-		elseif ducking then
-			hatoffset = char.bighatoffsets["ducking"]
-		elseif fireanimationtimer < fireanimationtime then
-			hatoffset = char.bighatoffsets["fire"]
-		else
-			if animationstate == "running" or animationstate == "falling" then
-				hatoffset = char.bighatoffsets["running"][runframe]
-			elseif animationstate == "climbing" then
-				hatoffset = char.bighatoffsets["climbing"][climbframe]
-			end
-		end
-	end
-	
-	if not hatoffset then
-		if graphic == char.animations or graphic == char.nogunanimations then
-			hatoffset = char.hatoffsets[animationstate]
-		else
-			hatoffset = char.bighatoffsets[animationstate]
-		end
-	end
-	
-	return hatoffset
-end
-
 function player:jump(force)
 	if ((not noupdate or self.animation == "grow1" or self.animation == "grow2") and self.controlsenabled) or force then
 	
@@ -2421,7 +2246,8 @@ function player:getpowerup(poweruptype, powerdowntarget, reason)
 			self.y = self.y - 12/16
 			animationtodo = "grow1"
 		end
-		self.size = 3
+	
+	self.size = 3
 		self.quadcenterY = self.char.bigquadcenterY
 		self.quadcenterX = self.char.bigquadcenterX
 		self.offsetY = self.char.bigoffsetY
@@ -3194,50 +3020,6 @@ function player:globalcollide(a, b, c, d, dir)
 	end
 end
 
-function twistdirection(gravitydir, dir)
-	if not gravitydir or (gravitydir > math.pi/4*1 and gravitydir <= math.pi/4*3) then
-		if dir == "floor" then
-			return "floor"
-		elseif dir == "left" then
-			return "left"
-		elseif dir == "ceil" then
-			return "ceil"
-		elseif dir == "right" then
-			return "right"
-		end
-	elseif gravitydir > math.pi/4*3 and gravitydir <= math.pi/4*5 then
-		if dir == "floor" then
-			return "left"
-		elseif dir == "left" then
-			return "ceil"
-		elseif dir == "ceil" then
-			return "right"
-		elseif dir == "right" then
-			return "floor"
-		end
-	elseif gravitydir > math.pi/4*5 and gravitydir <= math.pi/4*7 then
-		if dir == "floor" then
-			return "ceil"
-		elseif dir == "left" then
-			return "right"
-		elseif dir == "ceil" then
-			return "floor"
-		elseif dir == "right" then
-			return "left"
-		end
-	else
-		if dir == "floor" then
-			return "right"
-		elseif dir == "left" then
-			return "floor"
-		elseif dir == "ceil" then
-			return "left"
-		elseif dir == "right" then
-			return "ceil"
-		end
-	end
-end
-
 function player:passivecollide(a, b, c, d)
 	if self:globalcollide(a, b, c, d, "passive") then
 		return false
@@ -3406,220 +3188,6 @@ function player:hitblock(x, y)
 	hitblock(x, y, self)
 end
 
-function hitblock(x, y, t, koopa)	
-	for i, v in pairs(t.world.objects.portal) do
-		if v.x1 and v.x2 and v.y1 and v.y2 then
-			local x1 = v.x1
-			local y1 = v.y1
-			
-			local x2 = v.x2
-			local y2 = v.y2
-			
-			local x3 = x1
-			local y3 = y1
-			
-			if v.facing1 == "up" then
-				x3 = x3+1
-			elseif v.facing1 == "right" then
-				y3 = y3+1
-			elseif v.facing1 == "down" then
-				x3 = x3-1
-			elseif v.facing1 == "left" then
-				y3 = y3-1
-			end
-			
-			local x4 = x2
-			local y4 = y2
-			
-			if v.facing2 == "up" then
-				x4 = x4+1
-			elseif v.facing2 == "right" then
-				y4 = y4+1
-			elseif v.facing2 == "down" then
-				x4 = x4-1
-			elseif v.facing2 == "left" then
-				y4 = y4-1
-			end
-			
-			if (x == x1 and y == y1) or (x == x2 and y == y2) or (x == x3 and y == y3) or (x == x4 and y == y4) then
-				return
-			end
-		end
-	end
-
-
-	if editormode then
-		return
-	end
-
-	if not t.world:inmap(x, y) then
-		return
-	end
-	
-	local r = t.world.map[x][y]
-	if not t or not t.infunnel then
-		playsound("blockhit", x-0.5, y-1)
-	end
-	
-	if tilequads[r[1]]:getproperty("breakable", x, y) == true or tilequads[r[1]]:getproperty("coinblock", x, y) == true then --Block should bounce!
-		table.insert(blockbouncetimer, 0.000000001) --yeah it's a cheap solution to a problem but screw it.
-		table.insert(blockbouncex, x)
-		table.insert(blockbouncey, y)
-		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins" then --block contained something!
-			table.insert(blockbouncecontent, entitylist[r[2]].t)
-			table.insert(blockbouncecontent2, t.size)
-			if tilequads[r[1]]:getproperty("invisible", x, y) then
-				if spriteset == 1 then
-					map[x][y][1] = 113
-				elseif spriteset == 2 then
-					map[x][y][1] = 118
-				else
-					map[x][y][1] = 112
-				end
-			else
-				if spriteset == 1 then
-					map[x][y][1] = 113
-				elseif spriteset == 2 then
-					map[x][y][1] = 114
-				else
-					map[x][y][1] = 117
-				end
-			end
-			if entitylist[r[2]].t == "vine" then
-				--playsound("vine", x-0.5, y-1)
-			else
-				playsound("mushroomappear", x-0.5, y-1)
-			end
-		elseif #r > 1 and table.contains(enemies, r[2]) then
-			table.insert(blockbouncecontent, r[2])
-			table.insert(blockbouncecontent2, t.size)
-			playsound("mushroomappear", x-0.5, y-1)
-			
-			
-			if tilequads[r[1]]:getproperty("invisible", x, y) then
-				if spriteset == 1 then
-					map[x][y][1] = 113
-				elseif spriteset == 2 then
-					map[x][y][1] = 118
-				else
-					map[x][y][1] = 112
-				end
-			else
-				if spriteset == 1 then
-					map[x][y][1] = 113
-				elseif spriteset == 2 then
-					map[x][y][1] = 114
-				else
-					map[x][y][1] = 117
-				end
-			end
-		else
-			table.insert(blockbouncecontent, false)
-			table.insert(blockbouncecontent2, t.size)
-			
-			if (koopa or (t and t.size > 1)) and tilequads[r[1]]:getproperty("coinblock", x, y) == false and (#r == 1 or (entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins")) then --destroy block!
-				destroyblock(x, y, t)
-			end
-		end
-		
-		if #r == 1 and tilequads[r[1]]:getproperty("coinblock", x, y) then --coinblock
-			playsound("coin", x-0.5, y-1) --not sure if these slight offsets are correct
-			if tilequads[r[1]]:getproperty("invisible", x, y) then
-				if spriteset == 1 then
-					map[x][y][1] = 113
-				elseif spriteset == 2 then
-					map[x][y][1] = 118
-				else
-					map[x][y][1] = 112
-				end
-			else
-				if spriteset == 1 then
-					map[x][y][1] = 113
-				elseif spriteset == 2 then
-					map[x][y][1] = 114
-				else
-					map[x][y][1] = 117
-				end
-			end
-			if #r == 1 then
-				table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-				
-				traceinfluence(t):getcoin(1, nil, nil, x-0.5, y-1)
-				--@WARNING: These might not be right, but, who knows
-			end
-		end
-		
-		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t == "manycoins" then --block with many coins inside! yay $_$
-			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-			traceinfluence(t):getcoin(1, nil, nil, x-0.5, y-1)
-			
-			local exists = false
-			for i = 1, #coinblocktimers do
-				if x == coinblocktimers[i][1] and y == coinblocktimers[i][2] then
-					exists = i
-				end
-			end
-			
-			if not exists then
-				table.insert(coinblocktimers, {x, y, coinblocktime})
-			elseif coinblocktimers[exists][3] <= 0 then
-				--@WARNING: Magic tileID transformations, this is bad.
-				if spriteset == 1 then
-					map[x][y][1] = 113
-				elseif spriteset == 2 then
-					map[x][y][1] = 114
-				else
-					map[x][y][1] = 117
-				end
-			end
-		end
-		
-		--kill enemies on top
-		for j, w in pairs(objects["enemy"]) do
-			if not w.notkilledfromblocksbelow then
-				local centerX = w.x + w.width/2
-				if inrange(centerX, x-1, x, true) and y-1 == w.y+w.height then
-					--get dir
-					local dir = "right"
-					if w.x+w.width/2 < x-0.5 then
-						dir = "left"
-					end
-					
-					--if w.shotted then
-					--@WARNING: FLAGRANTLY DISREGARDING SAFETY
-					w:do_damage("bump", traceinfluence(t), dir, true)
-						--addpoints(100, w.x+w.width/2, w.y)
-						--@WARNING: origin of points might not be right, but, who knows
-					--end
-				end
-			end
-		end
-		
-		--make items jump
-		for j, w in pairs(objects["enemy"]) do
-			if w.jumpsfromblocksbelow then
-				local centerX = w.x + w.width/2
-				if inrange(centerX, x-1, x, true) and y-1 == w.y+w.height then
-					w.falling = true
-					w.speedy = -(w.jumpforce or mushroomjumpforce)
-					if w.x+w.width/2 < x-0.5 then
-						w.speedx = -math.abs(w.speedx)
-					elseif w.x+w.width/2 > x-0.5 then
-						w.speedx = math.abs(w.speedx)
-					end
-				end
-			end
-		end
-		
-		--check for coin on top
-		if inmap(x, y-1) and coinmap[x][y-1] then
-			traceinfluence(t):getcoin(1, x, y-1)
-			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
-		end
-		generatespritebatch()
-	end
-end
-
 function player:goinvincible()
 	self.animationstate = self.animationmisc
 	self.animation = "invincible"
@@ -3643,61 +3211,6 @@ function player:destroyblock(x, y)
 	return destroyblock(x, y, self)
 end
 
-function destroyblock(x, y, t)
-	for i = 1, players do
-		local v = objects["player"][i].portal
-		local x1 = v.x1
-		local y1 = v.y1
-		
-		local x2 = v.x2
-		local y2 = v.y2
-		
-		local x3 = x1
-		local y3 = y1
-		
-		if v.facing1 == "up" then
-			x3 = x3+1
-		elseif v.facing1 == "right" then
-			y3 = y3+1
-		elseif v.facing1 == "down" then
-			x3 = x3-1
-		elseif v.facing1 == "left" then
-			y3 = y3-1
-		end
-		
-		local x4 = x2
-		local y4 = y2
-		
-		if v.facing2 == "up" then
-			y4 = y4-1
-		elseif v.facing2 == "right" then
-			x4 = x4+1
-		elseif v.facing2 == "down" then
-			y4 = y4+1
-		elseif v.facing2 == "left" then
-			x4 = x4-1
-		end
-		
-		if (x == x1 and y == y1) or (x == x2 and y == y2) or (x == x3 and y == y3) or (x == x4 and y == y4) then
-			return
-		end
-	end
-	
-	map[x][y][1] = 1
-	objects["tile"][x .. "-" .. y] = nil
-	map[x][y]["gels"] = {}
-	playsound("blockbreak", x, y) --blocks don't move, we want the position of the block
-	
-	traceinfluence(t):getscore(score_enum.block_break, x-0.5, y-1)
-	
-	blockdebris:new(x, y, "right", 1)
-	blockdebris:new(x, y, "right", 0)
-	blockdebris:new(x, y, "left", 1)
-	blockdebris:new(x, y, "left", 0)
-	
-	generatespritebatch()
-end
-
 function player:faithplate(dir)
 	self.animationstate = "jumping"
 	self.falling = true
@@ -3711,19 +3224,9 @@ function player:startfall()
 		self:setquad()
 	end
 end
-function traceinfluence(b)
-	if not b then return nil end
-	
-	if b.getcoin then
-		return b
-	elseif b.lastinfluence then
-		return b.lastinfluence
-	else
-		print("CRITICAL: Couldn't trace an influence from", b)
-		return b
-	end
-end
+
 function player:murder(attacker, dtype, how)
+	assert(false)
 	--print("moyided", traceinfluence(attacker), dtype, how)
 	killfeed.new(traceinfluence(attacker), dtype, self)
 	self:die(how)
@@ -3829,33 +3332,6 @@ function player:laser(dir)
 		end
 	end
 	self:murder(nil, "laser", "Laser")
-end
-
-function getAngleFrame(angle, rotation)
-	angle = angle + rotation
-
-	if angle > math.pi then
-		angle = angle - math.pi*2
-	elseif angle < -math.pi then
-		angle = angle + math.pi*2
-	end
-
-	local mouseabs = math.abs(angle)
-	local angleframe
-	
-	if mouseabs < math.pi/8 then
-		angleframe = 1
-	elseif mouseabs >= math.pi/8 and mouseabs < math.pi/8*3 then
-		angleframe = 2
-	elseif mouseabs >= math.pi/8*3 and mouseabs < math.pi/8*5 then
-		angleframe = 3
-	elseif mouseabs >= math.pi/8*5 and mouseabs < math.pi/8*7 then
-		angleframe = 4
-	elseif mouseabs >= math.pi/8*7 then
-		angleframe = 4
-	end
-	
-	return angleframe
 end
 
 function player:doug()

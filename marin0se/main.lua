@@ -35,6 +35,7 @@ function love.load(args)
 	for i=1,love.math.random(5) do
 		love.math.random()
 	end
+	love.physics.setMeter(16*3) --3x for scale
 	
 	lastline = debug.getinfo(1).currentline
 	lasttime = 0
@@ -259,7 +260,6 @@ function love.load(args)
 	require "menu"
 	require "game"
 	require "physics"
-	require "player"
 	require "enemies"
 	require "characterloader"
 	require "animationguiline"
