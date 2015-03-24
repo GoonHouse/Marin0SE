@@ -8,41 +8,26 @@
 	image_sigs
 ]]
 
-HasGraphics = {
+AdvancedGraphics = {
 	-- offsets for drawing
-	cox = 0, offsetX = 0, quadcenterX = 0,
-	coy = 0, offsetY = 0, quadcenterY = 0,
-	coz = 0, offsetZ = 0, quadcenterZ = 0,
-	
-	--this is technically a physical property but it's also a visual one, I'm sorry
-	rotation = 0,
-	
 	drawable = true, --by turning this off, you can disable drawing by the global handler
-	visible = true, --this is for e
 	
 	graphicid = nil, --should be classname by default
 	graphic = nil, --globalimages[self.graphicid].img or missinggraphicimg
 	
 	quad = nil, --this is a reference to the global quad list
 	quadi = 1, --index in the quadlist
+	
+	grids = {}, --anim8 grid, keyed by animation name, quad dealio
+	animations = {}, --anim8 animation, keyed by animation name, 
 }
 
-function HasGraphics.inithook(self, t)
+function AdvancedGraphics.inithook(self, t)
 	local k = t.class.static
 	self:setGraphic(t.class.name, true)
-	print(self)
-	self:setCo(t.x, t.y, t.z)
-	if k.UNI_SIZE then
-		local size = k.UNI_SIZE
-		self:setOffset(size[1]/2, (16-size[2])*.5, size[3]/2)
-		self:setQuadCenter(size[1]/2, size[2]/2, size[3]/2)
-	else
-		self:setOffset(k.GRAPHIC_OFFSET)
-		self:setQuadCenter(k.GRAPHIC_QUADCENTER)
-	end
 end
 
-function HasGraphics:setGraphic(id, quadwrap)
+function AdvancedGraphics:setGraphic(id, quadwrap)
 	-- if quadwrap is true, we'll modulo the current quadi to the new graphic, else, reset to 1
 	self.graphicid = id
 	self.graphic = globalimages[self.graphicid].img or missinggraphicimg
@@ -53,7 +38,7 @@ function HasGraphics:setGraphic(id, quadwrap)
 	-- worst case scenario, this call is redundant; best: we wrap number that's too big/small
 end
 
-function HasGraphics:setQuad(ind)
+function AdvancedGraphics:setQuad(ind)
 	ind = ind or self.quadi
 	-- set the quad based on the current graphics set
 	self.quadi = ind%(globalimages[self.graphicid].frames+1)
@@ -63,51 +48,9 @@ function HasGraphics:setQuad(ind)
 	end
 	self.quad = globalimages[self.graphicid].quads[self.quadi]
 end
---hoo boy
-function HasGraphics:setOffset(nx, ny, nz)
-	if type(nx) == "table" then
-		nz = nx[3]
-		ny = nx[2]
-		nx = nx[1]
-	end
-	if not ny then ny = nx end
-	if not nz then nz = ny end
-	
-	self.offsetX = nx or 0
-	self.offsetY = ny or 0
-	self.offsetZ = nz or 0
-end
-
-function HasGraphics:setQuadCenter(nx, ny, nz)
-	if type(nx) == "table" then
-		nz = nx[3]
-		ny = nx[2]
-		nx = nx[1]
-	end
-	if not ny then ny = nx end
-	if not nz then nz = ny end
-	
-	self.quadcenterX = nx or 0
-	self.quadcenterY = ny or 0
-	self.quadcenterZ = nz or 0
-end
-
-function HasGraphics:setCo(nx, ny, nz)
-	if type(nx) == "table" then
-		nz = nx[3]
-		ny = nx[2]
-		nx = nx[1]
-	end
-	if not ny then ny = nx end
-	if not nz then nz = ny end
-	
-	self.cox = nx or 0
-	self.coy = ny or 0
-	self.coz = nz or 0
-end
 
 --@TODO: Needs a static method to pre-queue assets.
-function HasGraphics:cacheImage(imgname, dimx, dimy)
+function AdvancedGraphics:cacheImage(imgname, dimx, dimy)
 	globalimages[imgname] = {quads = {}, dims={dimx,dimy}}
 	local gl = globalimages[imgname]
 	
@@ -124,18 +67,17 @@ function HasGraphics:cacheImage(imgname, dimx, dimy)
 	end
 end
 
-function HasGraphics:nextFrame()
+function AdvancedGraphics:nextFrame()
 	-- I don't know why I let this quirk exist but I haven't enough sample data to factor it out yet.
 	self:setQuad(self.quadi)
 	self.quadi = self.quadi + 1
 end
 
 -- doing it upon load is dubious but we don't have a way to get all resources used in a level yet
-function HasGraphics:included(klass)
-	-- Go through the input map
+function AdvancedGraphics:included(klass)
 	for k,v in pairs(klass.GRAPHIC_SIGS) do
 		self:cacheImage(k, v[1],v[2])
 	end
 	
-	registerInitHook(klass, {HasGraphics, "hg"})
-end
+	registerInitHook(klass, AdvancedGraphics.inithook)
+end

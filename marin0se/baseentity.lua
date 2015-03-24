@@ -1,6 +1,7 @@
 baseentity = class('baseentity')
-baseentity.mixedins = {}
 -- these variables are only available to "baseentity", not its children
+
+baseentity.static.inithooks = {} --i indexed, hooks to run when a table is initialized
 
 --[[@NOTE FOR WHEN I WAKEUP:
 	instead of dynamically hooking the update/draw we can use a class table of conditions
@@ -32,10 +33,28 @@ baseentity.mixedins = {}
 	CanEmancipate:	emancipateanimation->emancipationfizzle
 	CanCarry:		userect
 ]]
+function registerInitHook(klass, mixin)
+	table.insert(klass.inithooks, mixin)
+end
 
-function baseentity:init(x, y, z, r, parent)
+function baseentity:init(world, x, y, z, r, parent)
 	local mix = self.class.__mixins
 	self.parent = parent --(or nil)
+	
+	--assert(false, tostring(self) .. "\t" .. tostring(self.inithooks))
+	if self.class.inithooks then
+		for _,mixfunc in ipairs(self.class.inithooks) do
+			print("inithook: ", self, _, mixfunc)
+			mixfunc(self, {
+					world = world,
+					x = x,
+					y = y,
+					z = z,
+					parent = parent,
+					class = self.class,
+			})
+		end
+	end
 	
 	if r then
 		self.r = {}
@@ -45,19 +64,6 @@ function baseentity:init(x, y, z, r, parent)
 				--2 = entity lookup id
 				table.insert(self.r, v)
 			end
-		end
-	end
-	
-	if mix[HasGraphics] then
-		self:setGraphic(self.class.name, true)
-		self:setCo(x, y, z)
-		if self.class.UNI_SIZE then
-			local size = self.class.UNI_SIZE
-			self:setOffset(size[1]/2, (16-size[2])*.5, size[3]/2)
-			self:setQuadCenter(size[1]/2, size[2]/2, size[3]/2)
-		else
-			self:setOffset(self.class.GRAPHIC_OFFSET)
-			self:setQuadCenter(self.class.GRAPHIC_QUADCENTER)
 		end
 	end
 	
@@ -119,7 +125,7 @@ function baseentity:init(x, y, z, r, parent)
 		end
 	else
 		-- mapped entities are already inserted
-		table.insert(objects[self.class.name], self)
+		table.insert(world.currentMap.objects[self.class.name], self)
 	end
 end
 
@@ -150,10 +156,11 @@ function baseentity:update(dt)
 		self.timer = self.timer % self.timermax
 		self:timercallback()
 	end]]
-	
+	--[[
 	if self.x < xscroll-1 or self.x > xscroll+width+1 or self.y > mapheight and self.active then
 		self:offscreencallback()
 	end
+	]]
 	
 	--MIXIN CASES
 	if mix[HasPhysics] then

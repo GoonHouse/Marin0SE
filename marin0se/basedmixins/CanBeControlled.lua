@@ -5,6 +5,11 @@ CanBeControlled = {
 	controlLookups = {}, --table of actions to perform on signal, keyed by names, values are arrays of functions to run on self
 }
 
+function CanBeControlled.inithook(self, t) --t is the named parameters for baseentity's init method
+	local k = t.class.static
+	self:setControlLookupFromStatic(k.CONTROL_LOOKUP)
+end
+
 function CanBeControlled:setControlLookup(controlTable)
 	self.controlLookups = controlTable
 end
@@ -58,3 +63,7 @@ if fromnetwork then
 	self.controls.release[control]=true
 end
 ]]
+
+function CanBeControlled:included(klass)
+	registerInitHook(klass, CanBeControlled.inithook)
+end
