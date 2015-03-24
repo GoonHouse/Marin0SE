@@ -72,7 +72,7 @@ function world:init(mapName)
 		30 = player's gravity while jumping
 		
 	]]
-	self.pworld = love.physics.newWorld(0, self.gravity)
+	self.pworld = love.physics.newWorld(0, 0)
 	
 	-- PROPERTIES THAT WERE RE-DELEGATED TO US FROM DMAP
 	self.everyonedead = false
@@ -303,16 +303,17 @@ function world:draw_earthquake()
 end
 
 function world:draw() --some things belong to the world, others the game
-	love.graphics.setBackgroundColor(self.backgroundcolor)
+	--love.graphics.setBackgroundColor(self.backgroundcolor)
 	
 	--[[if self.earthquake > 0 then
 		love.graphics.translate(-round(self.tremorx), -round(self.tremory))
 	end]]
 	
 	if self.currentMap.draw then
+		self.currentMap:draw()
 		love.graphics.setColor(255, 0, 0, 255)
 		self.currentMap.imap:drawWorldCollision(self.cols)
-		self.currentMap:draw()
+		self.currentMap:debugDraw()
 	end
 	
 	--[[@NOTE: these should be handled by sanenets

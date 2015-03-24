@@ -322,7 +322,8 @@ function dmap:stiLoadMap(mapName)
 	end
 	
 	function self.cl:draw()
-		illegaldraw(self.objects)
+		legaldraw(self.objects)
+		--illegaldraw(self.objects)
 	end
 	
 	--@WARNING: feeding globals, should be undone eventually
@@ -984,14 +985,12 @@ function dmap:update(dt)
 	local down = love.keyboard.isDown
 
 	local x, y = 0, 0
-	local forcemult = 300
+	local forcemult = 3200
 	if down("w") or down("up")		then y = y - forcemult end
 	if down("s") or down("down")	then y = y + forcemult end
 	if down("a") or down("left")	then x = x - forcemult end
 	if down("d") or down("right")	then x = x + forcemult end
 	sprite.body:applyForce(x, y)
-	sprite.x, sprite.y = sprite.body:getWorldCenter()
-
 	
 	
 	game.probes.items.updates:pushEvent("physics")
@@ -1002,13 +1001,28 @@ function dmap:update(dt)
 	self.imap:update(dt)
 	game.probes.items.updates:popEvent("imap")
 end
-
-function dmap:draw(scalex, scaley)
-	--@DEBUG: set to anything smaller than the default scale in order to look for draws escaping the map draw
-	self.imap:draw(scale, scale)
+function dmap:debugDraw()
+	love.graphics.setLineWidth(1)
+	love.graphics.setPointSize(5)
+	love.graphics.setPointStyle("rough")
 	
 	local sprite = self.imap.layers["objs"].objects.player[1]
-	love.graphics.polygon("line", sprite.body:getWorldPoints(sprite.shape:getPoints()))
+	local points = {sprite.body:getWorldPoints(sprite.shape:getPoints())}
+	love.graphics.polygon("line", points)
+	
+	love.graphics.setColor(0,0,255)
+	for i=1,#points,2 do
+		love.graphics.point(points[i], points[i+1])
+	end
+	love.graphics.setColor(255,0,255)
+	love.graphics.point(sprite.body:getWorldCenter())
+	love.graphics.setColor(0,255,0)
+	love.graphics.point(sprite.body:getPosition())
+end
+function dmap:draw(scalex, scaley)
+	--@DEBUG: set to anything smaller than the default scale in order to look for draws escaping the map draw
+	self.imap:draw()
+	
 	-- Draw sprite in centre of screen
 	--love.graphics.push()
 	--tx = -pt.p1.x*16 --math.floor(-math.fmod(pt.p1.x, 1)*16*scale)
@@ -1023,6 +1037,24 @@ function dmap:draw(scalex, scaley)
 	--self.imap:setDrawRange(120, 1, love.graphics.getWidth()/4, love.graphics.getHeight()/4)
 	--self.imap:setDrawRange(math.floor(-math.fmod(xscroll, 1)*16*scale), math.floor(-math.fmod(yscroll, 1)*16*scale), love.graphics.getWidth(), love.graphics.getHeight())
 	--self.imap:draw()
+end
+
+function legaldraw(objs)
+	game.probes.items.draws:pushEvent("legal_draw")
+	for _, objgroup in pairs(objs) do
+		for _, obj in pairs(objgroup) do
+			if obj.body then
+				love.graphics.setColor(255, 255, 255)
+				local x, y = obj.body:getWorldCenter()
+				local angle = obj.body:getAngle()
+				local points = {obj.shape:getPoints()}
+				local offx, offy = points[5], points[6] -- the third point is its top left
+				--@WARNING: The above might not always work, consider that when moving forward
+				love.graphics.draw(obj.graphic, obj.quad, x, y, angle, 1, 1, offx, offy)
+			end
+		end
+	end
+	game.probes.items.draws:popEvent("legal_draw")
 end
 
 function illegalupdate(objs, dt)

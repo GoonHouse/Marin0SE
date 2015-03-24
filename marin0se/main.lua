@@ -35,13 +35,14 @@ function love.load(args)
 	for i=1,love.math.random(5) do
 		love.math.random()
 	end
-	love.physics.setMeter(16*3) --3x for scale
+	love.physics.setMeter(16) --3x for scale
 	
 	lastline = debug.getinfo(1).currentline
 	lasttime = 0
 	
 	love.audio.setDistanceModel("exponent clamped")
 	love.graphics.setLineJoin("miter") --@DEV: This fixes a bug in love 0.9.1 with calling lg.getLineJoin before init, remove this when you upgrade.
+	love.graphics.setPointStyle("rough") --Love Bug #581, same as above
 	love.graphics.setBackgroundColor(0, 0, 0)
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	
