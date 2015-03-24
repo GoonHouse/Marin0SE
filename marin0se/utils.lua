@@ -154,7 +154,7 @@ function print_r ( t )
 									elseif (type(val)=="string") then
 											print(indent.."["..pos..'] => "'..val..'"')
 									else
-											print(indent.."["..pos.."] => "..tostring(val))
+											print(indent.."["..tostring(pos).."] => "..tostring(val))
 									end
 							end
 					else
