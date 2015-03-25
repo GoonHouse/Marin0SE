@@ -7,7 +7,10 @@ CanBeControlled = {
 
 function CanBeControlled.inithook(self, t) --t is the named parameters for baseentity's init method
 	local k = t.class.static
-	self:setControlLookupFromStatic(k.CONTROL_LOOKUP)
+	self.binder = neubind:new(k.CONTROL_LOOKUP)
+	self.binder.controlPressed = function(n, control) self:controlPressed(n, control) end
+	self.binder.controlReleased = function(n, control) self:controlReleased(n, control) end
+	self:setControlLookupFromStatic(k.CONTROL_LOOKUP_MYSTERY)
 end
 
 function CanBeControlled:setControlLookup(controlTable)
@@ -15,29 +18,29 @@ function CanBeControlled:setControlLookup(controlTable)
 end
 
 function CanBeControlled:setControlLookupFromStatic(staticControlTable)
-	local controlTable = {}
+	self.controlLookups = {}
 	for controlName, controlFunction in pairs(staticControlTable) do
-		if not controlTable[controlName] then
-			controlTable[controlName] = {}
+		print(controlName, controlFunction)
+		if not self.controlLookups[controlName] then
+			self.controlLookups[controlName] = {}
 		end
-		table.insert(controlTable[controlName], self[controlFunction])
+		table.insert(self.controlLookups[controlName], self[controlFunction])
 	end
-	self:setControls(controlTable)
 end
 
 function CanBeControlled:registerControl(controlName, controlFunction, ...)
 	table.insert(self.controlLookups[controlName], controlFunction)
 end
 
-function CanBeControlled:controlPressed(control)
+function CanBeControlled:controlPressed(binder, control)
 	for _, controlFunction in pairs(self.controlLookups[control]) do
-		controlFunction(self)
+		controlFunction(self, true)
 	end
 end
 
-function CanBeControlled:controlReleased(control)
+function CanBeControlled:controlReleased(binder, control)
 	for _, controlFunction in pairs(self.controlLookups[control]) do
-		controlFunction(self)
+		controlFunction(self, false)
 	end
 end
 

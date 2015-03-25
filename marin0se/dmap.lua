@@ -980,19 +980,6 @@ function dmap:getTilePropertyAt(x, y, property)
 end
 
 function dmap:update(dt)
-	-- Update sprite's coordinates
-	local sprite = self.imap.layers["objs"].objects.player[1]
-	local down = love.keyboard.isDown
-
-	local x, y = 0, 0
-	local forcemult = 3200
-	if down("w") or down("up")		then y = y - forcemult end
-	if down("s") or down("down")	then y = y + forcemult end
-	if down("a") or down("left")	then x = x - forcemult end
-	if down("d") or down("right")	then x = x + forcemult end
-	sprite.body:applyForce(x, y)
-	
-	
 	game.probes.items.updates:pushEvent("physics")
 	--physicsupdate(self.objects, dt)
 	game.probes.items.updates:popEvent("physics")

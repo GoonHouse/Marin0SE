@@ -140,7 +140,7 @@ function baseentity:update(dt)
 	local mix = self.class.__mixins
 	
 	if mix[CanBeControlled] then
-		self.binds:update()
+		self.binder:update(dt)
 	end
 	
 	--[[this came from fireball, not sure if it's global:
