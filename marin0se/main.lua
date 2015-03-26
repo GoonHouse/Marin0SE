@@ -603,7 +603,7 @@ function love.load(args)
 	local imgwidth, imgheight = entitiesimg:getWidth(), entitiesimg:getHeight()
 	local width = math.floor(imgwidth/17)
 	local height = math.floor(imgheight/17)
-	local imgdata = love.image.newImageData("entities.png")
+	local imgdata = love.image.newImageData("/guihud/entities.png")
 	
 	for y = 1, height do
 		for x = 1, width do
@@ -2185,14 +2185,14 @@ end
 
 function reloadGraphics()
 	-- this doesn't rebuild quads so if any of these change resolution we're royally hosed
-	iconimg = love.image.newImageData("icon.gif")
+	iconimg = love.image.newImageData("/guihud/icon.gif")
 	love.window.setIcon(iconimg)
 
-	fontimage = love.graphics.newImage("font.png")
-	fontimageback = love.graphics.newImage("fontback.png")
+	fontimage = love.graphics.newImage("/guihud/font.png")
+	fontimageback = love.graphics.newImage("/guihud/fontback.png")
 	
-	logo = love.graphics.newImage("stabyourself.png")
-	logoblood = love.graphics.newImage("stabyourselfblood.png")
+	logo = love.graphics.newImage("/guihud/stabyourself.png")
+	logoblood = love.graphics.newImage("/guihud/stabyourselfblood.png")
 	
 	for _, v in pairs(imagelist) do
 		_G[v .. "img"] = love.graphics.newImage( v .. ".png")
@@ -2200,31 +2200,31 @@ function reloadGraphics()
 	
 	transparencyimg:setWrap("repeat", "repeat")
 	
-	menuselection = love.graphics.newImage("menuselect.png")
-	mappackback = love.graphics.newImage("mappackback.png")
-	mappacknoicon = love.graphics.newImage("mappacknoicon.png")
-	mappackoverlay = love.graphics.newImage("mappackoverlay.png")
-	mappackhighlight = love.graphics.newImage("mappackhighlight.png")
+	menuselection = love.graphics.newImage("/guihud/menuselect.png")
+	mappackback = love.graphics.newImage("/guihud/mappackback.png")
+	mappacknoicon = love.graphics.newImage("/guihud/mappacknoicon.png")
+	mappackoverlay = love.graphics.newImage("/guihud/mappackoverlay.png")
+	mappackhighlight = love.graphics.newImage("/guihud/mappackhighlight.png")
 	
-	mappackscrollbar = love.graphics.newImage("mappackscrollbar.png")
+	mappackscrollbar = love.graphics.newImage("/guihud/mappackscrollbar.png")
 	
-	fontimage2 = love.graphics.newImage("smallfont.png")
-	fontimage3 = love.graphics.newImage("smallsymbols.png")
+	fontimage2 = love.graphics.newImage("/guihud/smallfont.png")
+	fontimage3 = love.graphics.newImage("/guihud/smallsymbols.png")
 	
-	entitiesimg = love.graphics.newImage("entities.png")
+	entitiesimg = love.graphics.newImage("/guihud/entities.png")
 	
-	popupfontimage = love.graphics.newImage("popupfont.png")
+	popupfontimage = love.graphics.newImage("/guihud/popupfont.png")
 	
-	linktoolpointerimg = love.graphics.newImage("linktoolpointer.png")
+	linktoolpointerimg = love.graphics.newImage("/guihud/linktoolpointer.png")
 	
-	titleimage = love.graphics.newImage("title.png")
-	playerselectimg = love.graphics.newImage("playerselectarrow.png")
+	titleimage = love.graphics.newImage("/guihud/title.png")
+	playerselectimg = love.graphics.newImage("/guihud/playerselectarrow.png")
 	
-	magicimg = love.graphics.newImage("magic.png")
+	magicimg = love.graphics.newImage("/guihud/magic.png")
 	
-	checkboximg = love.graphics.newImage("checkbox.png")
+	checkboximg = love.graphics.newImage("/guihud/checkbox.png")
 	
-	dropdownarrowimg = love.graphics.newImage("dropdownarrow.png")
+	dropdownarrowimg = love.graphics.newImage("/guihud/dropdownarrow.png")
 	
 	portalparticleimg = love.graphics.newImage("portalparticle.png")
 	portalcrosshairimg = love.graphics.newImage("portalcrosshair.png")
@@ -2234,12 +2234,12 @@ function reloadGraphics()
 	portalbackgroundimg = love.graphics.newImage("portalbackground.png")
 	
 	--Menu shit
-	huebarimg = love.graphics.newImage("huebar.png")
-	huebarmarkerimg = love.graphics.newImage("huebarmarker.png")
-	volumesliderimg = love.graphics.newImage("volumeslider.png")
-	directionsimg = love.graphics.newImage("directions.png")
+	huebarimg = love.graphics.newImage("/guihud/huebar.png")
+	huebarmarkerimg = love.graphics.newImage("/guihud/huebarmarker.png")
+	volumesliderimg = love.graphics.newImage("/guihud/volumeslider.png")
+	directionsimg = love.graphics.newImage("/guihud/directions.png")
 	
-	gradientimg = love.graphics.newImage("gradient.png")
+	gradientimg = love.graphics.newImage("/guihud/gradient.png")
 	gradientimg:setFilter("linear", "linear")
 	
 	--@WARNING: This code is a bad influence because icons that don't already exist can't be introduced by a modpack. I'll fix it later.

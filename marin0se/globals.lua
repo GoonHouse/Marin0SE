@@ -17,7 +17,7 @@ graphicssearchdirs = {
 	"mappacks/%(mappack)s/graphics/%(file)s",
 	"graphics/%(graphicspack)s/%(file)s",
 	"graphics/DEFAULT/%(file)s",
-	"graphics/DEFAULT/missinggraphic.png"
+	"graphics/DEFAULT/guihud/missinggraphic.png"
 }
 
 enemygraphicsearchdirs = {
