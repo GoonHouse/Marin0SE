@@ -94,6 +94,7 @@ function love.load(args)
 	--require "notice"
 	require("libs.lube")
 	require("libs.bondage.bondage")
+	anim8 = require("libs.anim8.anim8")
 	nb = neubind:new(neuControlTable)
 	TLbind = require("libs.TLbind")
 	binds, controls = TLbind.giveInstance(controlTable)

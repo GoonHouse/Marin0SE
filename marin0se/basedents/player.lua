@@ -46,6 +46,10 @@ thisclass.static.CONTROL_LOOKUP = {
 		itype = "key",
 		const = "s",
 	},
+	doug = {
+		itype = "key",
+		const = " ",
+	},
 	comboDebug = {
 		{
 			itype = "key",
@@ -127,4 +131,12 @@ end
 
 function thisclass:duck(st)
 	self.movemap[4] = st
+end
+
+function thisclass:doug(st)
+	if st then
+		self:setQuad(2)
+	else
+		self:setQuad(1)
+	end
 end

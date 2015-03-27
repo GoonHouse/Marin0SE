@@ -143,6 +143,10 @@ function baseentity:update(dt)
 		self.binder:update(dt)
 	end
 	
+	if mix[HasAnimations] then
+		self.animation:update(dt)
+	end
+	
 	--[[this came from fireball, not sure if it's global:
 		rotate back to 0 (portals)
 	]]
