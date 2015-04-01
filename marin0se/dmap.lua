@@ -1026,8 +1026,16 @@ function dmap:draw(scalex, scaley)
 	--self.imap:draw()
 end
 
-function legaldraw(objs)
+function legaldraw(allobjs)
 	game.probes.items.draws:pushEvent("legal_draw")
+	for objgroup,objs in pairs(allobjs) do
+		for otype,obj in pairs(objs) do
+			if obj.draw then
+				obj:draw()
+			end
+		end
+	end
+	--[[
 	for _, objgroup in pairs(objs) do
 		for _, obj in pairs(objgroup) do
 			if obj.body then
@@ -1041,6 +1049,7 @@ function legaldraw(objs)
 			end
 		end
 	end
+	]]
 	game.probes.items.draws:popEvent("legal_draw")
 end
 

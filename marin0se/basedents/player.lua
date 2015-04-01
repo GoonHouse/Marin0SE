@@ -4,11 +4,39 @@ local thisclass = _G[classname]
 --thisclass.inithooks = {}
 
 thisclass.static.PHYS_BODY_MASS						= 1 --kg
-thisclass.static.PHYS_BODY_CENTER_OF_MASS	= {8, 8} --X px, Y px
+thisclass.static.PHYS_BODY_CENTER_OF_MASS	= {16, 16} --X px, Y px
 thisclass.static.PHYS_BODY_TYPE						= "dynamic"
 thisclass.static.PHYS_BODY_LINEAR_DAMPING	= 10 --???
 thisclass.static.PHYS_SHAPE								= "rectangle"
-thisclass.static.PHYS_SHAPE_SIZE						= {16, 16} --px
+thisclass.static.PHYS_SHAPE_SIZE						= {32, 32} --px
+
+thisclass.static.ANIM_SIGS = {
+	jumpman_super_2hgun_0_idle = {
+		frames = {1},
+		grids = {1,1},
+		size = {32, 32},
+	},
+	jumpman_super_2hgun_0_duck = {
+		frames = {1},
+		grids = {1,1},
+		size = {32, 32},
+	},
+	jumpman_super_2hgun_0_jump = {
+		frames = {1},
+		grids = {1,1},
+		size = {32, 32},
+	},
+	jumpman_super_2hgun_0_swim = {
+		frames = {0.3,0.3},
+		grids = {'1-2',1},
+		size = {32, 32},
+	},
+	jumpman_super_2hgun_0_walk = {
+		frames = {0.2, 0.2, 0.2, 0.2},
+		grids = {'1-4',1},
+		size = {32, 32},
+	},
+}
 
 thisclass.static.GRAPHIC_SIGS = {
 	[classname] = thisclass.static.PHYS_SHAPE_SIZE
@@ -72,6 +100,7 @@ thisclass:include(CanDamage) --before physics so that we maintain
 thisclass:include(AdvancedPhysics)
 thisclass:include(AdvancedGraphics)
 thisclass:include(CanBeControlled)
+thisclass:include(HasAnimations)
 --[[
 thisclass:include(CanCollect)
 thisclass:include(CanUsePowerUp)
@@ -90,14 +119,27 @@ function thisclass:init(world, x, y, z)
 	baseentity.init(self, world, x, y, z)
 	--self:setWorld(world)
 	--self:setPosition(x, y, z)
-	self.width = 16
-	self.height = 16
+	self.width = 32
+	self.height = 32
+	
+	self.character = "jumpman"
+	self.powerupstate = "super"
+	self.holdtype = "2hgun"
+	self.aimangle = 0
+	self.animname = "walk"
+	
+	
 	self.vx = 0
 	self.vy = 0
 	self.movemap = {false, false, false, false} --left right up down
 	--self:setControlLookupFromStatic(thisclass.static.CONTROL_LOOKUP)
 end
 local forcemult = 64000
+
+function thisclass:draw(...)
+	baseentity.draw(self)
+end
+
 function thisclass:update(dt)
 	baseentity.update(self, dt)
 	
@@ -135,8 +177,8 @@ end
 
 function thisclass:doug(st)
 	if st then
-		self:setQuad(2)
+		self:setAnimation("jumpman_super_2hgun_0_swim")
 	else
-		self:setQuad(1)
+		self:setAnimation("jumpman_super_2hgun_0_walk")
 	end
 end

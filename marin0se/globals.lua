@@ -20,6 +20,7 @@ soundsearchdirs = {
 }
 
 graphicssearchdirs = {
+	"%(file)s",
 	"mappacks/%(mappack)s/graphics/%(graphicspack)s/%(file)s",
 	"mappacks/%(mappack)s/graphics/DEFAULT/%(file)s",
 	"mappacks/%(mappack)s/graphics/%(file)s",

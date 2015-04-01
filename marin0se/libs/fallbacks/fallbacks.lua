@@ -96,7 +96,7 @@ love.graphics.newImage = function(img, ex)
 			end
 		end
 		if depth == #graphicssearchdirs then
-			print("ALERT: Engine couldn't find graphic '"..img.."' anywhere!")
+			print("ALERT2: Engine couldn't find graphic '"..img.."' anywhere!")
 		elseif depth == #graphicssearchdirs-1 then
 			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
 		elseif depth == 0 then
@@ -121,7 +121,7 @@ love.image.newImageData = function(img, ex)
 			end
 		end
 		if depth == #graphicssearchdirs then
-			print("ALERT: Engine couldn't find graphic '"..img.."' anywhere!")
+			print("ALERT3: Engine couldn't find graphic '"..img.."' anywhere!")
 		elseif depth == #graphicssearchdirs-1 then
 			print("WARNING: Engine couldn't find graphic '"..img.."', used fallback.")
 		elseif depth == 0 then

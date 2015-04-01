@@ -310,10 +310,16 @@ function world:draw() --some things belong to the world, others the game
 	end]]
 	
 	if self.currentMap.draw then
+		game.probes.items.draws:pushEvent("map_obg")
 		self.currentMap:draw()
+		game.probes.items.draws:popEvent("map_obg")
 		love.graphics.setColor(255, 0, 0, 255)
-		self.currentMap.imap:drawWorldCollision(self.cols)
+		game.probes.items.draws:pushEvent("rekts_urself")
+		--self.currentMap.imap:drawWorldCollision(self.cols)
+		game.probes.items.draws:popEvent("rekts_urself")
+		game.probes.items.draws:pushEvent("dee_boog")
 		self.currentMap:debugDraw()
+		game.probes.items.draws:popEvent("dee_boog")
 	end
 	
 	--[[@NOTE: these should be handled by sanenets

@@ -250,6 +250,21 @@ function baseentity:update(dt)
 	return self.destroy
 end
 
+function baseentity:draw()
+	local mix = self.class.__mixins
+	
+	--print("huh")
+	if mix[HasAnimations] then
+		--love.graphics.setColor(255, 255, 255)
+		local x, y = self.body:getWorldCenter()
+		local angle = self.body:getAngle()
+		local points = {self.shape:getPoints()}
+		local offx, offy = points[5], points[6] -- the third point is its top left
+		--@WARNING: The above might not always work, consider that when moving forward
+		self.animation:draw(self.graphics[self.animation_name], x, y, angle, 1, 1, offx, offy)
+	end
+end
+
 function baseentity:remove()
 	-- in the event that an entity utilizes special resources that must be released
 	if timer.Exists(self) then
