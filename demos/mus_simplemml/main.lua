@@ -1,50 +1,42 @@
--- Load the module.
-local mml = require("mml")
-
-local steeldrum = love.audio.newSource("I12.wav", "static")
-
--- Sample song!
-local twinkle = "t120 l4 o4  ccggaag2 ffeeddc2 ggffeed2 ggffeed2 ccggaag2 ffeeddc2"
-
 function love.load()
 	love._openConsole()
-
+	
+	mml = require("mml")
+	
+	iterator = 1 --our position in the song
+	nexttime = 0 --the time of the next note to play
+	ratemult = 300 --(one note should be this long)
+	
+	steeldrum = love.audio.newSource("I12.wav", "static")
+	steeldrum:setLooping(false)
+	
+	twinkle = "t120 l4 o4  ccggaag2 ffeeddc2 ggffeed2 ggffeed2 ccggaag2 ffeeddc2"
+	
+	samplemmlplayer = mml.newPlayer(twinkle, "multiplier")
 end
 
--- A simple busy-wait delay function.
-local clock = os.clock
-function delay(n)
-	local start = clock()
-	repeat until (clock() - start) >= n
-end
-
--- Create the player
-local samplemmlplayer = mml.newPlayer(twinkle, "multiplier")
-
-while true do
-	local ok, note, time, vol = samplemmlplayer
-
-	if not ok then
-		print(note)
-		break
+function love.update(dt)
+	-- use our sync
+	nexttime = nexttime - dt
+	-- only play if we aren't delayed
+	if nexttime <= 0 and iterator <= #samplemmlplayer then
+		local sample = samplemmlplayer[iterator]
+		local note = sample.output
+		local time = sample.notetime
+		local volume = sample.volume
+		print("NOTE DEBUG:", love.timer.getTime(), iterator, note, time, volume)
+		
+		if note then
+			-- stop the existing note because we have to start our next
+			love.audio.stop(steeldrum)
+			steeldrum:setPitch(note)
+			steeldrum:setVolume(volume)
+			love.audio.play(steeldrum)
+			nexttime = time
+		else
+			-- If "note" is nil, it's a rest.
+			nexttime = time
+		end
+		iterator = iterator + 1
 	end
-
-	if note then
-		--	Use SoX's synth effect to sound the note.
-		--	os.execute( string.format(
-		--	"play -qn -V0 synth %.2f pluck %.2f",
-		--	time, note
-		--	))
-		-- The Enigma, translating that Sox into playing a pitch adjusted sample for a given duration?
-		steeldrum:setLooping(true)
-		steeldrum:setPitch(note)
-		love.audio.play(steeldrum)
-	else
-		-- If "note" is nil, it's a rest.
-		steeldrum:setLooping(false)
-		love.audio.stop(steeldrum)
-		-- delay(time)
-	
-	end
-	
 end
