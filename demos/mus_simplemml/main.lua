@@ -6,8 +6,9 @@ function love.load()
 	iterator = 1 --our position in the song
 	nexttime = 0 --the time of the next note to play
 	ratemult = 300 --(one note should be this long)
+	scale = 1 -- lag tester
 	
-	steeldrum = love.audio.newSource("I12.wav", "static")
+	steeldrum = love.audio.newSource("I12.it", "stream")
 	steeldrum:setLooping(false)
 	
 	twinkle = "t120 l4 o4  ccggaag2 ffeeddc2 ggffeed2 ggffeed2 ccggaag2 ffeeddc2"
@@ -16,6 +17,7 @@ function love.load()
 end
 
 function love.update(dt)
+	dt = dt * (love.math.random()*scale)
 	-- use our sync
 	nexttime = nexttime - dt
 	-- only play if we aren't delayed
