@@ -4,6 +4,8 @@ Marin0SE
 
 A special edition for a special audience!
 
+Marin0SE is a fork of [Mari0](https://github.com/Stabyourself/mari0). The code was refactored to be more moddable than the original game.
+
 Check out the [Marin0SE Wiki](https://github.com/GoonHouse/Marin0SE/wiki) for help on extending existing behaviors.
 
 Credits
